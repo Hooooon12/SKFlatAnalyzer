@@ -154,6 +154,8 @@ public:
   void SetRelPFIso_Rho(double r);
   double EA();
 
+  bool isHEM() const;
+
   //==== ID
   bool PassID(TString ID) const;
   bool Pass_TESTID() const;

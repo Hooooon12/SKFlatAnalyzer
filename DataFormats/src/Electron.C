@@ -142,6 +142,11 @@ double Electron::EA(){
 
 }
 
+bool Electron::isHEM() const{
+  if(-3.0<scEta()&&scEta()<-1.3 && -1.57<scPhi()&&scPhi()<-0.87) return true;
+  else return false;
+}
+
 bool Electron::PassID(TString ID) const{
 
   //==== XXX veto Gap Always

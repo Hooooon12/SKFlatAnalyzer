@@ -1,9 +1,9 @@
-#ifndef Control_rep_2016H_h
-#define Control_rep_2016H_h
+#ifndef Control_rep_legacy_2016H_h
+#define Control_rep_legacy_2016H_h
 
 #include "AnalyzerCore.h"
 
-class Control_rep_2016H : public AnalyzerCore {
+class Control_rep_legacy_2016H : public AnalyzerCore {
 
 public:
 
@@ -53,8 +53,8 @@ public:
 
 //  double weight_Prefire;
 
-  Control_rep_2016H();
-  ~Control_rep_2016H();
+  Control_rep_legacy_2016H();
+  ~Control_rep_legacy_2016H();
 
 };
 

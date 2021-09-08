@@ -360,7 +360,7 @@
 #python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-100to200 -n 50 --userflags HalfSampleTest --nmax 200 &
 #python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-200to400 -n 50 --userflags HalfSampleTest --nmax 200 &
 #python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-400to600 -n 50 --userflags HalfSampleTest --nmax 200 &
-python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-600to800 -n 50 --userflags HalfSampleTest --nmax 200 &
+#python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-600to800 -n 50 --userflags HalfSampleTest --nmax 200 &
 #python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-800to1200 -n 50 --userflags HalfSampleTest --nmax 200 &
 #python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-1200to2500 -n 50 --userflags HalfSampleTest --nmax 200 &
 #python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-2500toInf -n 50 --userflags HalfSampleTest --nmax 200 &
@@ -378,6 +378,10 @@ python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-600to800 -n 50 --u
 #python python/SKFlat.py -a CFSF_test -y 2016 -i DoubleEG -n 50 --userflags ScaleFactor --nmax 300 &
 #python python/SKFlat.py -a CFSF_test -y 2017 -i DoubleEG -n 50 --userflags ScaleFactor --nmax 300 &
 #python python/SKFlat.py -a CFSF_test -y 2018 -i EGamma -n 50 --userflags ScaleFactor --nmax 300 &
+
+
+##remove HEM electrons##
+python python/SKFlat.py -a CFSF_test -y 2018 -i EGamma -n 50 --userflags ScaleFactor,HEM --nmax 300 &
 
 
 ##############2016 Scale factor using all(except mass binned) available DY set###################################
@@ -436,6 +440,27 @@ python python/SKFlat.py -a ChargeFlip -y 2018 -i DYJets_MG_HT-600to800 -n 50 --u
 #python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_Pt-400To650 -n 50 --userflags ScaleFactor --nmax 200 &
 #python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_Pt-650ToInf -n 50 --userflags ScaleFactor --nmax 200 &
 
+##remove HEM electrons##
+
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG_HT-70to100 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG_HT-100to200 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG_HT-200to400 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG_HT-400to600 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG_HT-600to800 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG_HT-800to1200 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG_HT-1200to2500 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_MG_HT-2500toInf -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_Pt-50To100 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_Pt-100To250 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_Pt-250To400 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_Pt-400To650 -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2018 -i DYJets_Pt-650ToInf -n 50 --userflags ScaleFactor,HEM --nmax 300 &
+
+
+
+##############Scale factor with ZG sample (to see if any contamination)###################################
 
 #python python/SKFlat.py -a CFSF_test -y 2016 -i ZGTo2LG -n 50 --userflags ScaleFactor --nmax 80 &
 #python python/SKFlat.py -a CFSF_test -y 2017 -i ZGToLLG_01J -n 50 --userflags ScaleFactor --nmax 80 &

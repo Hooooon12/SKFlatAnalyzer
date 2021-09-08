@@ -1,9 +1,9 @@
-#ifndef Control_rep_h
-#define Control_rep_h
+#ifndef Control_rep_legacy_h
+#define Control_rep_legacy_h
 
 #include "AnalyzerCore.h"
 
-class Control_rep : public AnalyzerCore {
+class Control_rep_legacy : public AnalyzerCore {
 
 public:
 
@@ -53,8 +53,8 @@ public:
 
 //  double weight_Prefire;
 
-  Control_rep();
-  ~Control_rep();
+  Control_rep_legacy();
+  ~Control_rep_legacy();
 
 };
 

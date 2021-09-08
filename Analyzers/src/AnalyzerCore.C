@@ -1816,10 +1816,12 @@ double AnalyzerCore::GetCFweight(vector<Electron> eles, TString id, bool applySF
       }
       if(DataYear==2018){
         if(fabs(eles.at(i).scEta()) < 1.479){
-          if(id == "HNTightV1") sf.push_back(1.2203 + syst*0.);
+          //if(id == "HNTightV1") sf.push_back(1.2203 + syst*0.);
+          if(id == "HNTightV1") sf.push_back(1.2518 + syst*0.); //HEM
         }
         else{
-          if(id == "HNTightV1") sf.push_back(1.3862 + syst*0.);
+          //if(id == "HNTightV1") sf.push_back(1.3862 + syst*0.);
+          if(id == "HNTightV1") sf.push_back(1.3890 + syst*0.); //HEM
         }
       }
       else sf.push_back(1.);
@@ -1896,8 +1898,8 @@ double AnalyzerCore::GetHalfSampleWeight(const Electron& electron, TString id){
 
   double eta = fabs(electron.scEta());
   double x = 1./electron.Pt();
-	double a, b, c;
-	double rate;
+  double a, b, c;
+  double rate;
 
   if(DataYear==2016){
     if(id == "HNTightV1"){
@@ -1960,8 +1962,8 @@ double AnalyzerCore::GetHalfSampleWeight(const Electron& electron, TString id){
     }
   }
 
-	if(rate < 0.) rate = 0.;
-	return rate;
+  if(rate < 0.) rate = 0.;
+  return rate;
 
 }
 

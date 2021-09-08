@@ -1,14 +1,14 @@
-#include "Control_rep.h"
+#include "Control_rep_legacy.h"
 
-Control_rep::Control_rep(){
+Control_rep_legacy::Control_rep_legacy(){
 
 }
 
-void Control_rep::initializeAnalyzer(){
+void Control_rep_legacy::initializeAnalyzer(){
 
   //==== if you use "--userflags RunSyst" with SKFlat.py, HasFlag("RunSyst") will return "true"
 //  RunSyst = HasFlag("RunSyst");
-//  cout << "[Control_rep::initializeAnalyzer] RunSyst = " << RunSyst << endl;
+//  cout << "[Control_rep_legacy::initializeAnalyzer] RunSyst = " << RunSyst << endl;
   RunFake = HasFlag("RunFake");
   RunCF = HasFlag("RunCF");
 
@@ -23,7 +23,7 @@ void Control_rep::initializeAnalyzer(){
   //==== At this point, sample informations (e.g., IsDATA, DataStream, MCSample, or DataYear) are all set
   //==== You can define sample-dependent or year-dependent variables here
   //==== (Example) Year-dependent variables
-  //==== I defined "TString IsoMuTriggerName;" and "double TriggerSafePtCut;" in Analyzers/include/Control_rep.h 
+  //==== I defined "TString IsoMuTriggerName;" and "double TriggerSafePtCut;" in Analyzers/include/Control_rep_legacy.h 
   //==== IsoMuTriggerName is a year-dependent variable, and you don't want to do "if(Dataer==~~)" for every event (let's save cpu time).
   //==== Then, do it here, which only ran once for each macro
 
@@ -79,8 +79,8 @@ void Control_rep::initializeAnalyzer(){
     ElectronTightIDs.pop_back(); ElectronTightIDs.push_back("HEEP2018_dZ"); //JH 
   }
 
-//  cout << "[Control_rep::initializeAnalyzer] IsoMuTriggerName = " << IsoMuTriggerName << endl;
-//  cout << "[Control_rep::initializeAnalyzer TriggerSafePtCut = " << TriggerSafePtCut << endl;
+//  cout << "[Control_rep_legacy::initializeAnalyzer] IsoMuTriggerName = " << IsoMuTriggerName << endl;
+//  cout << "[Control_rep_legacy::initializeAnalyzer TriggerSafePtCut = " << TriggerSafePtCut << endl;
 
   //==== B-Tagging
   //==== add taggers and WP that you want to use in analysis
@@ -92,13 +92,13 @@ void Control_rep::initializeAnalyzer(){
   mcCorr->SetJetTaggingParameters(jtps); //JH : NOTE This is used in mcCorr->SetupJetTagging() in m.initializeAnalyzerTools();
 }
 
-Control_rep::~Control_rep(){
+Control_rep_legacy::~Control_rep_legacy(){
 
   //==== Destructor of this Analyzer
 
 }
 
-void Control_rep::executeEvent(){
+void Control_rep_legacy::executeEvent(){
 
   //================================================================
   //====  Example 1
@@ -110,7 +110,7 @@ void Control_rep::executeEvent(){
   //==== and then check ID booleans.
   //==== GetAllMuons not only loops over all MINIAOD muons, but also actually CONSTRUCT muon objects for each muons.
   //==== We are now running systematics, and you don't want to do this for every systematic sources
-  //==== So, I defined "vector<Muon> AllMuons;" in Analyzers/include/Control_rep.h,
+  //==== So, I defined "vector<Muon> AllMuons;" in Analyzers/include/Control_rep_legacy.h,
   //==== and save muons objects at the very beginning of executeEvent().
   //==== Later, do "SelectMuons(AllMuons, ID, pt, eta)" to get muons with ID cuts
   AllMuons = GetAllMuons();
@@ -123,7 +123,7 @@ void Control_rep::executeEvent(){
   //==== If data, 1.;
   //==== If MC && DataYear > 2017, 1.;
   //==== If MC && DataYear <= 2017, we have to reweight the event with this value
-  //==== I defined "double weight_Prefire;" in Analyzers/include/Control_rep.h
+  //==== I defined "double weight_Prefire;" in Analyzers/include/Control_rep_legacy.h
 //  weight_Prefire = GetPrefireWeight(0);
 
   AnalyzerParameter param;
@@ -183,7 +183,7 @@ void Control_rep::executeEvent(){
   }
 }
 
-void Control_rep::executeEventFromParameter(AnalyzerParameter param){
+void Control_rep_legacy::executeEventFromParameter(AnalyzerParameter param){
 
   vector<TString> channels = {"dimu", "diel", "emu"};
   vector<TString> regionsSM = {"DYmm", "DYee", "DYemu", "TTmm", "TTee", "TTemu", "WZ", "ZG", "WG", "ZZ"}; 
@@ -299,7 +299,7 @@ void Control_rep::executeEventFromParameter(AnalyzerParameter param){
     //this_AllElectrons = ScaleElectrons( this_AllElectrons, -1 );
   }
   else{
-    cout << "[Control_rep::executeEventFromParameter] Wrong syst" << endl;
+    cout << "[Control_rep_legacy::executeEventFromParameter] Wrong syst" << endl;
     exit(EXIT_FAILURE);
   }*/
 

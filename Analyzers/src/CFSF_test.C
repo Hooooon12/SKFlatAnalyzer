@@ -465,6 +465,9 @@ void CFSF_test::executeEventFromParameter(AnalyzerParameter param, Long64_t Nent
     std::sort(eles.begin(), eles.end(), PtComparing);
   
     if(eles.size() != 2) return;
+    if(HasFlag("HEM")){
+      if( eles.at(0).isHEM()||eles.at(1).isHEM() ) return;
+    }
     //if(eles.at(0).Pt()<lep0ptcut||eles.at(1).Pt()<lep1ptcut) return; //No need already pt min = 25
 
     double MCweight = 1.; // JH : test how DY distribution change with MC weight
@@ -486,7 +489,7 @@ void CFSF_test::executeEventFromParameter(AnalyzerParameter param, Long64_t Nent
       }
       //if(eles.at(0).Charge()*eles.at(1).Charge()<0){
       //  FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_MET0", ZCand.M(), 1., NBin, MllLeft, MllRight);
-      //}
+      //} //JH : if you want to check OS distribution before applying the energy shift
     }
     // BE
     if((abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())>=1.556)||(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())<1.4442)){
