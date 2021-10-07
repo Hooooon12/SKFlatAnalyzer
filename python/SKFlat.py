@@ -547,13 +547,19 @@ root -l -b -q run.C 1>stdout.log 2>stderr.log
 
   if IsKISTI or IsTAMSA:
 
+    commandsfilename = args.Analyzer+'_'+args.Year+'_'+InputSample
+    if IsDATA:
+      commandsfilename += '_'+DataPeriod
+    for flag in Userflags:
+      commandsfilename += '__'+flag
+
     cwd = os.getcwd()
     os.chdir(base_rundir)
     if not args.no_exec:
       condorOptions = ''
       if args.BatchName=="auto":
-        condorOptions = ' -batch-name '+args.Analyzer+'_'+args.Year+'_'+InputSample
-			else if args.BatchName!="":
+        condorOptions = ' -batch-name '+commandsfilename
+      elif args.BatchName!="":
         condorOptions = ' -batch-name '+args.BatchName
       os.system('condor_submit submit.jds '+condorOptions)
     os.chdir(cwd)

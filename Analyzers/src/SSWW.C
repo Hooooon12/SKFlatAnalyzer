@@ -573,26 +573,20 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
     if(electrons_veto.size() > 0) continue;
   
     // Cutflow 4 : loose electron veto
-    for(unsigned int it_rg=0; it_rg<regionsSSWW.size(); it_rg++){
-      FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 3.5, weight, cutflow_bin, 0., cutflow_max);
-      FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 3.5, 1., cutflow_bin, 0., cutflow_max);
-    }
+    FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 3.5, weight, cutflow_bin, 0., cutflow_max);
+    FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 3.5, 1., cutflow_bin, 0., cutflow_max);
   
     if(! (muons.size()>=2) ) continue;
   
     // Cutflow 5 : at least 2 tight muons
-    for(unsigned int it_rg=0; it_rg<regionsSSWW.size(); it_rg++){
-      FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 4.5, weight, cutflow_bin, 0., cutflow_max);
-      FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 4.5, 1., cutflow_bin, 0., cutflow_max);
-    }
+    FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 4.5, weight, cutflow_bin, 0., cutflow_max);
+    FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 4.5, 1., cutflow_bin, 0., cutflow_max);
   
     if(! (jets.size()>=2) ) continue;
   
     // Cutflow 6 : at least 2 AK4 jets
-    for(unsigned int it_rg=0; it_rg<regionsSSWW.size(); it_rg++){
-      FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 5.5, weight, cutflow_bin, 0., cutflow_max);
-      FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 5.5, 1., cutflow_bin, 0., cutflow_max);
-    }
+    FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 5.5, weight, cutflow_bin, 0., cutflow_max);
+    FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 5.5, 1., cutflow_bin, 0., cutflow_max);
 
     DiJet = jets.at(0)+jets.at(1);
     double avgEta = 0.5*(jets.at(0).Eta()+jets.at(1).Eta());
