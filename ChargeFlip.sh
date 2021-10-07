@@ -376,7 +376,7 @@
 #python python/SKFlat.py -a ChargeFlip -y 2018 -i EGamma -n 50 --userflags ScaleFactor --nmax 20 &
 
 #python python/SKFlat.py -a CFSF_test -y 2016 -i DoubleEG -n 50 --userflags ScaleFactor --nmax 300 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DoubleEG -n 50 --userflags ScaleFactor --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DoubleEG -n 50 --userflags ScaleFactor --nmax 300 &
 #python python/SKFlat.py -a CFSF_test -y 2018 -i EGamma -n 50 --userflags ScaleFactor --nmax 300 &
 
 
@@ -405,21 +405,21 @@ python python/SKFlat.py -a CFSF_test -y 2018 -i EGamma -n 50 --userflags ScaleFa
 
 ##############2017 Scale factor using all(except mass binned) available DY set###################################
 
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-50To100 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-100To250 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-250To400 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-400To650 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-650ToInf -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG -n 50 --userflags ScaleFactor --nmax 300 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-70to100 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-100to200 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-200to400 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-400to600 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-600to800 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-800to1200 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-1200to2500 -n 50 --userflags ScaleFactor --nmax 200 &
-#python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-2500toInf -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-50To100 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-100To250 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-250To400 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-400To650 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_Pt-650ToInf -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG -n 50 --userflags ScaleFactor --nmax 300 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-70to100 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-100to200 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-200to400 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-400to600 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-600to800 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-800to1200 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-1200to2500 -n 50 --userflags ScaleFactor --nmax 200 &
+python python/SKFlat.py -a CFSF_test -y 2017 -i DYJets_MG_HT-2500toInf -n 50 --userflags ScaleFactor --nmax 200 &
 
 
 ##############2018 Scale factor using all(except mass binned) available DY set###################################

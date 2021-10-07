@@ -121,6 +121,8 @@ bool Muon::PassID(TString ID) const {
   if(ID=="HNTight") return Pass_HNTight();
   if(ID=="HNTightV1") return Pass_HNTight(0.07, 0.05, 0.1, 3.);
   if(ID=="HNTightV2") return Pass_HNTightV2();
+  if(ID=="SSWW_tight") return SSWW_tight();
+  if(ID=="SSWW_loose") return SSWW_loose();
 
   if(ID=="ISRVeto") return Pass_ISRVeto(0.6);
 
@@ -235,7 +237,33 @@ bool Muon::Pass_HNTight() const{
 bool Muon::Pass_HNTightV2() const{
   if(!( isPOGTight() )) return false;
   if(!( RelIso()<0.1 )) return false;
-  if(!( fabs(dXY())<0.01 && fabs(dZ())<0.04) ) return false;
+  if(!( fabs(dXY())<0.01 && fabs(dZ())<0.04 )) return false;
+  return true;
+}
+
+bool Muon::SSWW_tight() const{
+  if(!( isPOGTight() )) return false;
+  if(!( RelIso()<0.15 )) return false;
+  if(this->Pt()<20.){
+    if(!( fabs(dXY())<0.01 )) return false;
+  }
+  else if(this->Pt()>=20.){
+    if(!( fabs(dXY())<0.02 )) return false;
+  }
+  if(!( fabs(dZ())<0.1 )) return false;
+  return true;
+}
+
+bool Muon::SSWW_loose() const{
+  if(!( isPOGTight() )) return false;
+  if(!( RelIso()<0.4 )) return false;
+  if(this->Pt()<20.){
+    if(!( fabs(dXY())<0.01 )) return false;
+  }
+  else if(this->Pt()>=20.){
+    if(!( fabs(dXY())<0.02 )) return false;
+  }
+  if(!( fabs(dZ())<0.1 )) return false;
   return true;
 }
 

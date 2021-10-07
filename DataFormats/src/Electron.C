@@ -186,6 +186,10 @@ bool Electron::PassID(TString ID) const{
   if(ID=="HNTightV1_200") return Pass_HNTight(200, 0.05, 0.1, 4., true);
   if(ID=="HNTightV1") return Pass_HNTight(0.05, 0.1, 4., true);
   if(ID=="HNTightV2") return Pass_HNTightV2();
+  if(ID=="SSWW_tight") return SSWW_tight();
+  if(ID=="SSWW_tight2016") return SSWW_tight2016();
+  if(ID=="SSWW_loose") return SSWW_loose();
+  if(ID=="SSWW_loose2016") return SSWW_loose2016();
   if(ID=="HNMVALoose") return Pass_HNMVALoose();
   if(ID=="HNMVALooseV2") return Pass_HNMVALooseV2();
   if(ID=="HNMVATightV2") return Pass_HNMVATightV2();
@@ -636,6 +640,84 @@ bool Electron::Pass_HNTight(double dxyCut, double dzCut, double sipCut, bool isP
   if(! (fabs(IP3D()/IP3Derr())<sipCut) ) return false;
   if(! (IsGsfCtfScPixChargeConsistent()) ) return false;
   if(! (Pass_TriggerEmulation()) ) return false;
+  return true;
+}
+
+bool Electron::SSWW_loose2016() const{
+
+  if( fabs(scEta()) <= 1.479 ){
+    if(! (Full5x5_sigmaIetaIeta() < 0.011) ) return false;       // < 0.013, 0.011
+    if(! (fabs(dEtaSeed()) < 0.004) ) return false;              // < 0.01 , 0.006
+    if(! (fabs(dPhiIn()) < 0.02) ) return false;                 // < 0.07 , 0.15
+    if(! (HoverE() < 0.06) ) return false;                       // < 0.13 , 0.12 
+    if(! (fabs(InvEminusInvP()) < 0.013) ) return false;          // < 9999., 0.05
+    if(! (ecalPFClusterIso()/UncorrPt() < 0.16) ) return false;    // < 0.5
+    if(! (hcalPFClusterIso()/UncorrPt() < 0.12) ) return false;    // < 0.3
+    if(! (dr03TkSumPt()/UncorrPt() < 0.08) ) return false;          // < 0.2
+    if(! (fabs(dXY()) < 0.05) ) return false;
+    if(! (fabs(dZ()) < 0.1) ) return false;
+  }
+  else{
+    if(! (Full5x5_sigmaIetaIeta() < 0.031) ) return false;       // < 0.035, 0.031
+    if(! (HoverE() < 0.065) ) return false;                       // < 0.13 , 0.1
+    if(! (fabs(InvEminusInvP()) < 0.013) ) return false;          // < 9999., 0.05
+    if(! (ecalPFClusterIso()/UncorrPt() < 0.12) ) return false;    // < 0.5
+    if(! (hcalPFClusterIso()/UncorrPt() < 0.12) ) return false;    // < 0.3
+    if(! (dr03TkSumPt()/UncorrPt() < 0.08) ) return false;          // < 0.2
+    if(! (fabs(dXY()) < 0.1) ) return false;
+    if(! (fabs(dZ()) < 0.2) ) return false;
+  } // JH : we don't have gsf chi2() and ndof() in SKFlat
+
+  if(! (NMissingHits()<=1) ) return false;
+
+  return true;
+}
+
+bool Electron::SSWW_tight2016() const{
+  if(! (passTightID()) ) return false;
+  if(! (NMissingHits()<=1) ) return false;
+  if(! (IsGsfCtfScPixChargeConsistent()) ) return false;
+
+  if( fabs(scEta()) <= 1.479 ){
+    if(! (fabs(dXY()) < 0.05) ) return false;
+    if(! (fabs(dZ()) < 0.1) ) return false;
+  }
+  else{
+    if(! (fabs(dXY()) < 0.1) ) return false;
+    if(! (fabs(dZ()) < 0.2) ) return false;
+  }
+
+  return true;
+}
+
+bool Electron::SSWW_loose() const{
+  if(! (passMediumID()) ) return false;
+
+  if( fabs(scEta()) <= 1.479 ){
+    if(! (fabs(dXY()) < 0.05) ) return false;
+    if(! (fabs(dZ()) < 0.1) ) return false;
+  }
+  else{
+    if(! (Full5x5_sigmaIetaIeta() < 0.03) ) return false;
+    if(! (fabs(InvEminusInvP()) < 0.014) ) return false;
+    if(! (fabs(dXY()) < 0.1) ) return false;
+    if(! (fabs(dZ()) < 0.2) ) return false;
+  }
+
+  return true;
+}
+
+bool Electron::SSWW_tight() const{
+  if(! (passMVAID_noIso_WP90()) ) return false;
+  if(! (IsGsfCtfScPixChargeConsistent()) ) return false;
+
+  if( fabs(scEta()) <= 1.479 ){
+    if(! (RelIso() < 0.0571) ) return false;
+  }
+  else{
+    if(! (RelIso() < 0.05880) ) return false;
+  }
+
   return true;
 }
 

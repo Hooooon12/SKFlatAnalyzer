@@ -485,62 +485,60 @@ void CFSF_test::executeEventFromParameter(AnalyzerParameter param, Long64_t Nent
     // BB
     if(abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())<1.4442){
       if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-        FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_MET0", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
       }
-      //if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-      //  FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_MET0", ZCand.M(), 1., NBin, MllLeft, MllRight);
-      //} //JH : if you want to check OS distribution before applying the energy shift
+      if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+        FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+      } //JH : if you want to check OS distribution before applying the CF weight
     }
     // BE
     if((abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())>=1.556)||(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())<1.4442)){
       if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-        FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_MET0", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
       }
-      //if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-      //  FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_MET0", ZCand.M(), 1., NBin, MllLeft, MllRight);
-      //}
+      if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+        FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+      }
     }
     // EE
     if(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())>=1.556){
       if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-        FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_MET0", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
       }
-      //if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-      //  FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_MET0", ZCand.M(), 1., NBin, MllLeft, MllRight);
-      //}
+      if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+        FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+      }
     }
 
-/*  
-    if(METv.Pt() < 50){
+    if(METv.Pt() < 20){
       // BB
       if(abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())<1.4442){
         if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-          FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_MET50", ZCand.M(), 1., NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
         if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-          FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_MET50", ZCand.M(), 1., NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
       }
       // BE
       if((abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())>=1.556)||(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())<1.4442)){
         if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-          FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_MET50", ZCand.M(), 1., NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
         if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-          FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_MET50", ZCand.M(), 1., NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
       }
       // EE
       if(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())>=1.556){
         if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-          FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_MET50", ZCand.M(), 1., NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
         if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-          FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_MET50", ZCand.M(), 1., NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
       }
     }
-*/  
 
     /* Now let's shift the electrons' energy X% */
     

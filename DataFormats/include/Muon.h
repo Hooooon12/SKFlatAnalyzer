@@ -128,6 +128,9 @@ public:
   bool Pass_HNTight() const;
   bool Pass_HNTightV2() const;
 
+  bool SSWW_tight() const;
+  bool SSWW_loose() const;
+
   bool Pass_HNLoose(double relisoCut, double dxyCut, double dzCut, double sipCut) const;
   bool Pass_HNTight(double relisoCut, double dxyCut, double dzCut, double sipCut) const;
   bool Pass_ISRVeto(double relisoCut) const;

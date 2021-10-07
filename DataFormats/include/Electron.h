@@ -147,6 +147,11 @@ public:
   bool Pass_HNMVATightV2() const;
   bool Pass_TriggerEmulation() const;
 
+  bool SSWW_tight() const;
+  bool SSWW_tight2016() const;
+  bool SSWW_loose() const;
+  bool SSWW_loose2016() const;
+
   bool Pass_ISRVeto(double relisoCut) const;
   bool Pass_ISRLoose() const;
   bool Pass_ISRTight() const;
