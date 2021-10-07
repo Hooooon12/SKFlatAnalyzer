@@ -551,7 +551,9 @@ root -l -b -q run.C 1>stdout.log 2>stderr.log
     os.chdir(base_rundir)
     if not args.no_exec:
       condorOptions = ''
-      if args.BatchName!="":
+      if args.BatchName=="auto":
+        condorOptions = ' -batch-name '+args.Analyzer+'_'+args.Year+'_'+InputSample
+			else if args.BatchName!="":
         condorOptions = ' -batch-name '+args.BatchName
       os.system('condor_submit submit.jds '+condorOptions)
     os.chdir(cwd)
