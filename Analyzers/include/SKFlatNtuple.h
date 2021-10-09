@@ -73,7 +73,7 @@ public :
    // Declaration of leaf types
    Bool_t          IsData;
    Int_t           nTotal;
-   Int_t           run;
+   ULong64_t       run;
    ULong64_t       event;
    Int_t           lumi;
    Double_t        Rho;
