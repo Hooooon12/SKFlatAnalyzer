@@ -708,6 +708,7 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
               FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 15.5, weight, cutflow_bin, 0., cutflow_max);
               FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 15.5, 1., cutflow_bin, 0., cutflow_max);
             }
+
             FillHist(regionsSSWW.at(it_rg)+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
             FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
             FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);
@@ -745,6 +746,7 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
               FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 15.5, weight, cutflow_bin, 0., cutflow_max);
               FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 15.5, 1., cutflow_bin, 0., cutflow_max);
             }
+
             FillHist(regionsSSWW.at(it_rg)+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
             FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
             FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);
@@ -777,6 +779,7 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
         // b-tagged CR Cutflow 14 : b-veto inversion
         FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 13.5, weight, cutflow_bin, 0., cutflow_max);
         FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 13.5, 1., cutflow_bin, 0., cutflow_max);
+
         FillHist(regionsSSWW.at(it_rg)+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
         FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
         FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);
@@ -886,6 +889,7 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
         // WZ CR Cutflow 17 : b-veto
         FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 16.5, weight, cutflow_bin, 0., cutflow_max);
         FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 16.5, 1., cutflow_bin, 0., cutflow_max);
+
         FillHist(regionsSSWW.at(it_rg)+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
         FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
         FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);
@@ -919,6 +923,7 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
         // WZb CR Cutflow 17 : b-veto inversion
         FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 16.5, weight, cutflow_bin, 0., cutflow_max);
         FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 16.5, 1., cutflow_bin, 0., cutflow_max);
+
         FillHist(regionsSSWW.at(it_rg)+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
         FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
         FillHist(regionsSSWW.at(it_rg)+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);
@@ -1857,6 +1862,12 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
       // Cutflow 13 : MET2ST < 15 GeV
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_"+IDsuffix, 12.5, weight, cutflow_bin, 0., cutflow_max);
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 12.5, 1., cutflow_bin, 0., cutflow_max);
+
+      if(! (fabs(jets.at(0).Eta())<2.7 && fabs(jets.at(1).Eta())<2.7) ) continue;
+      // Cutflow 14 : jet eta < 2.7
+      FillHist(regionsTypeI.at(it_rg)+"/Number_Events_"+IDsuffix, 13.5, weight, cutflow_bin, 0., cutflow_max);
+      FillHist(regionsTypeI.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 13.5, 1., cutflow_bin, 0., cutflow_max);
+
       FillHist(regionsTypeI.at(it_rg)+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
       FillHist(regionsTypeI.at(it_rg)+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
       FillHist(regionsTypeI.at(it_rg)+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);
@@ -1878,10 +1889,16 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
       FillHist(regionsTypeI.at(it_rg)+"/HToverPt1_"+IDsuffix, HT/muons.at(0).Pt(), weight, 10, 0., 10.);
     }
     else if(it_rg==1){ // high SR1 w/ 1 jet
-      if(! (jets.size()==1 && fatjets.size()==0) ) continue; // only 1 jet, no fatjet
+      if(! (jets.size()==1 && fatjets.size()==0) ) continue;
       // Cutflow 9 : only 1 jet, no fatjet
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_"+IDsuffix, 8.5, weight, cutflow_bin, 0., cutflow_max);
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 8.5, 1., cutflow_bin, 0., cutflow_max);
+
+      if(! (fabs(jets.at(0).Eta())<2.7) ) continue;
+      // Cutflow 10 : jet eta < 2.7
+      FillHist(regionsTypeI.at(it_rg)+"/Number_Events_"+IDsuffix, 9.5, weight, cutflow_bin, 0., cutflow_max);
+      FillHist(regionsTypeI.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 9.5, 1., cutflow_bin, 0., cutflow_max);
+
       FillHist(regionsTypeI.at(it_rg)+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
       FillHist(regionsTypeI.at(it_rg)+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
       FillHist(regionsTypeI.at(it_rg)+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);
@@ -1926,6 +1943,7 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
       // Cutflow 11 : MET2ST < 15 GeV
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_"+IDsuffix, 10.5, weight, cutflow_bin, 0., cutflow_max);
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 10.5, 1., cutflow_bin, 0., cutflow_max);
+
       FillHist(regionsTypeI.at(it_rg)+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
       FillHist(regionsTypeI.at(it_rg)+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
       FillHist(regionsTypeI.at(it_rg)+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);

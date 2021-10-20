@@ -19,7 +19,7 @@ public:
   TString EleTriggerName;
   double lep0ptcut, lep1ptcut;
 
-  vector<TString> EleIDs, EleIDSFKeys;
+  vector<TString> EleIDs, EleIDSFKeys, EleVetoIDs;
   vector<Electron> AllEles;
   vector<Muon> AllMuons;
   vector<Jet> AllJets; // Only for Half Sample Test

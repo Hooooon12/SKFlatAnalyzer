@@ -7,6 +7,9 @@ CFSF_test::CFSF_test(){
 void CFSF_test::initializeAnalyzer(){
 
   if(DataYear==2016){
+    EleVetoIDs = { 
+      "ISRVeto",
+    };
     EleIDs = { 
       //"HEEP_dZ_CF",
       "HNTightV1",
@@ -20,6 +23,9 @@ void CFSF_test::initializeAnalyzer(){
     lep1ptcut = 15.;
   }
   else if(DataYear==2017){
+    EleVetoIDs = { 
+      "ISRVeto",
+    };
     EleIDs = {
       //"HEEP_dZ_CF",
       "HNTightV1",
@@ -33,6 +39,9 @@ void CFSF_test::initializeAnalyzer(){
     lep1ptcut = 15.;
   }
   else if(DataYear==2018){
+    EleVetoIDs = { 
+      "ISRVeto",
+    };
     EleIDs = {
       //"HEEP2018_dZ_CF",
       "HNTightV1",
@@ -46,6 +55,9 @@ void CFSF_test::initializeAnalyzer(){
     lep1ptcut = 15.;
   }
 
+  std::vector<JetTagging::Parameters> jtps;
+  jtps.push_back( JetTagging::Parameters(JetTagging::DeepCSV, JetTagging::Medium, JetTagging::incl, JetTagging::comb) );
+  mcCorr->SetJetTaggingParameters(jtps); //JH : NOTE This is used in mcCorr->SetupJetTagging() in m.initializeAnalyzerTools();
 }
 
 CFSF_test::~CFSF_test(){
@@ -64,7 +76,7 @@ void CFSF_test::executeEvent(Long64_t Nentry){
 
     TString EleID = EleIDs.at(i);
     //TString EleIDSFKey = EleIDSFKeys.at(i);
-  
+
     param.Clear();
   
     param.CFsyst_ = AnalyzerParameter::CF_Central;
@@ -72,6 +84,8 @@ void CFSF_test::executeEvent(Long64_t Nentry){
     param.Name = EleID;
 
     param.Electron_User_ID = EleID;
+
+    param.Electron_Veto_ID = EleVetoIDs.at(i);
  
     if(HasFlag("250")){
       param.Electron_User_ID = EleID+"_250";
@@ -138,6 +152,7 @@ void CFSF_test::executeEventFromParameter(AnalyzerParameter param, Long64_t Nent
   }
 
   vector<Electron> eles;
+  vector<Electron> eleVetos;
   vector<Muon> muons;
   vector<Jet> jets;
 
@@ -461,8 +476,19 @@ void CFSF_test::executeEventFromParameter(AnalyzerParameter param, Long64_t Nent
     /* CF SF ID selection */
   
     eles = SelectElectrons(AllEles, param.Electron_User_ID, MinPt, 2.5);
+    eleVetos = SelectElectrons(AllEles, param.Electron_Veto_ID, MinPt, 2.5);
+    vector<Jet> jets_nolepveto = SelectJets(AllJets, "HNTight", 20., 2.7); //JH : to reject bjets
 
     std::sort(eles.begin(), eles.end(), PtComparing);
+    std::sort(eleVetos.begin(), eleVetos.end(), PtComparing);
+    int ele_veto_size = eleVetos.size() - eles.size();
+
+    std::sort(jets_nolepveto.begin(), jets_nolepveto.end(), PtComparing);
+    int Nbjet_loose = 0, Nbjet_medium = 0;
+    JetTagging::Parameters jtp_DeepCSV_Medium = JetTagging::Parameters(JetTagging::DeepCSV, JetTagging::Medium, JetTagging::incl, JetTagging::comb);
+    for(unsigned int ij=0; ij<jets_nolepveto.size(); ij++){
+      if(mcCorr->IsBTagged_2a(jtp_DeepCSV_Medium, jets_nolepveto.at(ij))) Nbjet_medium++; //JH : count Nbjet. NOTE : AN says they used CVSv2 and medium WP.
+    }
   
     if(eles.size() != 2) return;
     if(HasFlag("HEM")){
@@ -510,32 +536,152 @@ void CFSF_test::executeEventFromParameter(AnalyzerParameter param, Long64_t Nent
       }
     }
 
-    if(METv.Pt() < 20){
+    if(METv.Pt() < 50){
       // BB
       if(abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())<1.4442){
         if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-          FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_MET50", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
         if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-          FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_MET50", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
       }
       // BE
       if((abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())>=1.556)||(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())<1.4442)){
         if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-          FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_MET50", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
         if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-          FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_MET50", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
       }
       // EE
       if(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())>=1.556){
         if(eles.at(0).Charge()*eles.at(1).Charge()>0){
-          FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_MET50", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
         if(eles.at(0).Charge()*eles.at(1).Charge()<0){
-          FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_MET20", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_MET50", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+    }
+
+    if(nPV < 40){
+      // BB
+      if(abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())<1.4442){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+      // BE
+      if((abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())>=1.556)||(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())<1.4442)){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+      // EE
+      if(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())>=1.556){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+    }
+
+    if(METv.Pt() < 50 && nPV < 40){
+      // BB
+      if(abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())<1.4442){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_MET50_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_MET50_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+      // BE
+      if((abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())>=1.556)||(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())<1.4442)){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_MET50_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_MET50_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+      // EE
+      if(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())>=1.556){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_MET50_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_MET50_nPV40", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+    }
+
+    if(ele_veto_size == 0){
+      // BB
+      if(abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())<1.4442){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_l3veto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_l3veto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+      // BE
+      if((abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())>=1.556)||(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())<1.4442)){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_l3veto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_l3veto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+      // EE
+      if(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())>=1.556){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_l3veto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_l3veto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+    }
+
+    if(Nbjet_medium == 0){
+      // BB
+      if(abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())<1.4442){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_SS_bveto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/BB_ZMass_OS_bveto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+      // BE
+      if((abs(eles.at(0).scEta())<1.4442&&abs(eles.at(1).scEta())>=1.556)||(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())<1.4442)){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_SS_bveto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/BE_ZMass_OS_bveto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+      }
+      // EE
+      if(abs(eles.at(0).scEta())>=1.556&&abs(eles.at(1).scEta())>=1.556){
+        if(eles.at(0).Charge()*eles.at(1).Charge()>0){
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_SS_bveto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
+        }
+        if(eles.at(0).Charge()*eles.at(1).Charge()<0){
+          FillHist(param.Name+"/ScaleFactor/EE_ZMass_OS_bveto", ZCand.M(), MCweight, NBin, MllLeft, MllRight);
         }
       }
     }
