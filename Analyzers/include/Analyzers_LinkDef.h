@@ -35,5 +35,6 @@
 #pragma link C++ class CFSF_test+;
 #pragma link C++ class ttHTobb+;
 #pragma link C++ class SSWW+;
+#pragma link C++ class Fake+;
 
 #endif

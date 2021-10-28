@@ -88,6 +88,13 @@ Event AnalyzerCore::GetEvent(){
 
 }
 
+void AnalyzerCore::PrintTrigger(){
+
+  cout << "print the list of triggers..." << endl;
+  for(int i=0; i<HLT_TriggerName->size(); i++) cout << HLT_TriggerName->at(i) << endl; //JH
+
+}
+
 std::vector<Muon> AnalyzerCore::GetAllMuons(){
 
   std::vector<Muon> out;

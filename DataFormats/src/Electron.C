@@ -426,22 +426,20 @@ bool Electron::Pass_HNLoose2016() const{
   if(! (IsGsfCtfScPixChargeConsistent()) ) return false;
 
   // Trigger emulation
-  if(! (ecalPFClusterIso()/UncorrPt() < 0.45) ) return false;    // < 0.5
-  if(! (hcalPFClusterIso()/UncorrPt() < 0.25) ) return false;    // < 0.3
-  if(! (dr03TkSumPt()/UncorrPt() < 0.2) ) return false;          // < 0.2
+  if(! (dr03TkSumPt()/UncorrPt() < 0.18) ) return false;      
   if( fabs(scEta()) <= 1.479 ){
-    if(! (Full5x5_sigmaIetaIeta() < 0.011) ) return false;       // < 0.013, 0.011
-    if(! (fabs(dEtaSeed()) < 0.005) ) return false;              // < 0.01 , 0.006
-    if(! (fabs(dPhiIn()) < 0.04) ) return false;                 // < 0.07 , 0.15
-    if(! (HoverE() < 0.08) ) return false;                       // < 0.13 , 0.12 
-    if(! (fabs(InvEminusInvP()) < 0.01) ) return false;          // < 9999., 0.05
+    if(! (Full5x5_sigmaIetaIeta() < 0.012) ) return false;   
+    if(! (fabs(dEtaSeed()) < 0.0095) ) return false;          
+    if(! (fabs(dPhiIn()) < 0.065) ) return false;             
+    if(! (HoverE() < 0.09) ) return false;                   
+    if(! (ecalPFClusterIso()/UncorrPt() < 0.37) ) return false;
+    if(! (hcalPFClusterIso()/UncorrPt() < 0.25) ) return false;
   }
   else{
-    if(! (Full5x5_sigmaIetaIeta() < 0.031) ) return false;       // < 0.035, 0.031
-    if(! (fabs(dEtaSeed()) < 0.007) ) return false;              // < 0.015, 0.0085
-    if(! (fabs(dPhiIn()) < 0.08) ) return false;                 // < 0.1  , 0.1
-    if(! (HoverE() < 0.08) ) return false;                       // < 0.13 , 0.1
-    if(! (fabs(InvEminusInvP()) < 0.01) ) return false;          // < 9999., 0.05
+    if(! (Full5x5_sigmaIetaIeta() < 0.033) ) return false;   
+    if(! (HoverE() < 0.09) ) return false;                   
+    if(! (ecalPFClusterIso()/UncorrPt() < 0.45) ) return false;
+    if(! (hcalPFClusterIso()/UncorrPt() < 0.28) ) return false;
   }
 
   return true;
@@ -463,22 +461,20 @@ bool Electron::Pass_HNTight2016() const{
   if(! (IsGsfCtfScPixChargeConsistent()) ) return false;
 
   // Trigger emulation
-  if(! (ecalPFClusterIso()/UncorrPt() < 0.45) ) return false;    // < 0.5
-  if(! (hcalPFClusterIso()/UncorrPt() < 0.25) ) return false;    // < 0.3
-  if(! (dr03TkSumPt()/UncorrPt() < 0.2) ) return false;          // < 0.2
+  if(! (dr03TkSumPt()/UncorrPt() < 0.18) ) return false;      
   if( fabs(scEta()) <= 1.479 ){
-    if(! (Full5x5_sigmaIetaIeta() < 0.011) ) return false;       // < 0.013, 0.011
-    if(! (fabs(dEtaSeed()) < 0.005) ) return false;              // < 0.01 , 0.006
-    if(! (fabs(dPhiIn()) < 0.04) ) return false;                 // < 0.07 , 0.15
-    if(! (HoverE() < 0.08) ) return false;                       // < 0.13 , 0.12 
-    if(! (fabs(InvEminusInvP()) < 0.01) ) return false;          // < 9999., 0.05
+    if(! (Full5x5_sigmaIetaIeta() < 0.012) ) return false;   
+    if(! (fabs(dEtaSeed()) < 0.0095) ) return false;          
+    if(! (fabs(dPhiIn()) < 0.065) ) return false;             
+    if(! (HoverE() < 0.09) ) return false;                   
+    if(! (ecalPFClusterIso()/UncorrPt() < 0.37) ) return false;
+    if(! (hcalPFClusterIso()/UncorrPt() < 0.25) ) return false;
   }
   else{
-    if(! (Full5x5_sigmaIetaIeta() < 0.031) ) return false;       // < 0.035, 0.031
-    if(! (fabs(dEtaSeed()) < 0.007) ) return false;              // < 0.015, 0.0085
-    if(! (fabs(dPhiIn()) < 0.08) ) return false;                 // < 0.1  , 0.1
-    if(! (HoverE() < 0.08) ) return false;                       // < 0.13 , 0.1
-    if(! (fabs(InvEminusInvP()) < 0.01) ) return false;          // < 9999., 0.05
+    if(! (Full5x5_sigmaIetaIeta() < 0.033) ) return false;   
+    if(! (HoverE() < 0.09) ) return false;                   
+    if(! (ecalPFClusterIso()/UncorrPt() < 0.45) ) return false;
+    if(! (hcalPFClusterIso()/UncorrPt() < 0.28) ) return false;
   }
 
   return true;

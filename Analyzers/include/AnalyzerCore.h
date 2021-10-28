@@ -62,7 +62,7 @@ public:
   inline static bool PtConeComparing(const Lepton& l1, const Lepton& l2){ return (l1.PtCone() > l2.PtCone()); } //JH : mimic HNtypeI_VV_CR
 
   Event GetEvent();
-
+  void PrintTrigger();
 
   std::vector<Electron> GetAllElectrons();
   std::vector<Electron> GetElectrons(TString id, double ptmin, double fetamax);
