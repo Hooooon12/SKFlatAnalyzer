@@ -9,6 +9,7 @@
 #pragma link C++ class Gen+;
 #pragma link C++ class LHE+;
 #pragma link C++ class Event+;
+#pragma link C++ class Event_PL+;
 #pragma link C++ class Lepton+;
 #pragma link C++ class Muon+;
 #pragma link C++ class Electron+;

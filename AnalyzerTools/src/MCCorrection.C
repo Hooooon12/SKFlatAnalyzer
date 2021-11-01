@@ -1433,12 +1433,12 @@ bool MCCorrection::IsBTagged_2a(JetTagging::Parameters jtp, const Jet& jet, stri
   int m_nomVar=1;
   std::uint64_t seed = jet0eta + m_nomVar + (lumiNum_uint<<10) + (runNum_ulong<<20) + evNum_uint;
   //////////////////////////JH : to see why the seed changes with analyzers///////////////////////
-	cout << "jet_eta/0.01 :" << jet0eta << endl;
-	cout << "run : " << run << endl;
-	cout << "lumi : " << lumi << endl;
-	cout << "event : " << event << endl;
-	cout << "seed : " << seed << endl;
-	cout << "==================================" << endl;
+	//cout << "jet_eta/0.01 :" << jet0eta << endl;
+	//cout << "run : " << run << endl;
+	//cout << "lumi : " << lumi << endl;
+	//cout << "event : " << event << endl;
+	//cout << "seed : " << seed << endl;
+	//cout << "==================================" << endl;
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
   TRandom3 rand_(seed);

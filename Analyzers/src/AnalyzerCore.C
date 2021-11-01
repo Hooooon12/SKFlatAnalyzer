@@ -2867,8 +2867,14 @@ void AnalyzerCore::FillLeptonPlots(std::vector<Lepton *> leps, TString this_regi
       exit(EXIT_FAILURE);
     }
 
-
   }
+  if(leps.size()==1){
+    Event ev = GetEvent();
+    Particle METv = ev.GetMETVector();
+    double Mt = MT(*leps.at(0),METv);
+    FillHist(this_region+"/MT_"+this_region, Mt, weight, 1000, 0., 1000.);
+  }
+  else if(leps.size()==2) FillHist(this_region+"/DiLep_Mass_"+this_region, (*leps.at(0)+*leps.at(1)).M(), weight, 1000, 0., 1000.);
 
 }
 

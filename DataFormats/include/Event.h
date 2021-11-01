@@ -21,10 +21,18 @@ public:
   bool PassTrigger(TString trig);
   bool PassTrigger(std::vector<TString> trigs);
   double GetTriggerLumi(TString trig);
+  double GetTriggerLumiByYear(TString trig);
   bool IsPDForTrigger(TString trig, TString PD);
 
   void SetMET(double pt, double phi);
   inline Particle GetMETVector() const {return j_METVector;}
+
+  void SetEra(TString era){
+    j_DataEra=era;
+    j_DataYear=TString(era(0,4)).Atoi();
+  }
+  TString GetEra() const { return j_DataEra; }
+  int GetYear() const { return j_DataYear; }
 
   void SetDataYear(int y);
   inline int DataYear() const {return j_DataYear;}
@@ -35,6 +43,7 @@ private:
   vector<string> j_HLT_TriggerName;
   Particle j_METVector;
   int j_DataYear;
+  TString j_DataEra;
 
   ClassDef(Event,1)
 };
