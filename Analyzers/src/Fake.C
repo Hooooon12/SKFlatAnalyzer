@@ -163,6 +163,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
   double cutflow_max = 10.;
   int cutflow_bin = 10;
   double weight = 1.;
+  double weight_common = 1.;
  
   Event ev = GetEvent();
 
@@ -174,10 +175,10 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
     if(DataStream.Contains("DoubleEG")||DataStream.Contains("EGamma")) isDoubleEG = true;
   }
   if(!IsDATA){
-    weight *= weight_norm_1invpb; //JH : weight_norm_1invpb = xsec/sumW; Lumi = 35.9, 41.5, 59.7(fb-1) total 137fb-1
-    weight *= ev.MCweight(); //JH : gen_weight in MiniAOD
-    weight *= GetPrefireWeight(0); //JH : No issue in 2018, otherwise returns L1PrefireReweight_Central in MiniAOD
-    weight *= GetPileUpWeight(nPileUp,0); //JH : mcCorr->GetPileUpWeight(N_pileup, syst); mcCorr->GetPileUpWeight2017(N_pileup, syst); NOTE 2018 not yet added.
+    weight_common *= weight_norm_1invpb; //JH : weight_norm_1invpb = xsec/sumW; Lumi = 35.9, 41.5, 59.7(fb-1) total 137fb-1
+    weight_common *= ev.MCweight(); //JH : gen_weight in MiniAOD
+    weight_common *= GetPrefireWeight(0); //JH : No issue in 2018, otherwise returns L1PrefireReweight_Central in MiniAOD
+    weight_common *= GetPileUpWeight(nPileUp,0); //JH : mcCorr->GetPileUpWeight(N_pileup, syst); mcCorr->GetPileUpWeight2017(N_pileup, syst); NOTE 2018 not yet added.
   } //JH : weight except the trigger lumi
 
   //========================
@@ -472,11 +473,11 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
 
             if(mu1.Pt() < 20.){
               if(!( ev.PassTrigger(MuonTrigger8) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(MuonTrigger8);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(MuonTrigger8);
             }
             else if(20 <= mu1.Pt() && mu1.Pt() < 50.){
               if(!( ev.PassTrigger(MuonTrigger17) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(MuonTrigger17);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(MuonTrigger17);
             }
             else continue;
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 1.5, weight, cutflow_bin, 0., cutflow_max);
@@ -533,11 +534,11 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
 
             if(ele1.Pt() < 25.){
               if(!( ev.PassTrigger(ElectronTrigger12) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(ElectronTrigger12);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(ElectronTrigger12);
             }
             else if(25 <= ele1.Pt() && ele1.Pt() < 50.){
               if(!( ev.PassTrigger(ElectronTrigger23) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(ElectronTrigger23);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(ElectronTrigger23);
             }
             else continue;
             FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 1.5, weight, cutflow_bin, 0., cutflow_max);
@@ -608,15 +609,15 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
 
             if(mu1.PtCone() < 20.){
               if(!( ev.PassTrigger(MuonTrigger3) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(MuonTrigger3);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(MuonTrigger3);
             }
             else if(20 <= mu1.PtCone() && mu1.PtCone() < 30.){
               if(!( ev.PassTrigger(MuonTrigger8) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(MuonTrigger8);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(MuonTrigger8);
             }
             else if(30 <= mu1.PtCone() && mu1.PtCone() < 9999.){
               if(!( ev.PassTrigger(MuonTrigger17) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(MuonTrigger17);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(MuonTrigger17);
             }
             else continue;
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 1.5, weight, cutflow_bin, 0., cutflow_max);
@@ -687,19 +688,19 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
 
             if(ele1.PtCone() < 23.){
               if(!( ev.PassTrigger(ElectronTrigger8) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(ElectronTrigger8);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(ElectronTrigger8);
             }
             else if(23. <= ele1.PtCone() && ele1.PtCone() < 35.){
               if(!( ev.PassTrigger(ElectronTrigger12) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(ElectronTrigger12);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(ElectronTrigger12);
             }
             else if(35. <= ele1.PtCone() && ele1.PtCone() < 45.){
               if(!( ev.PassTrigger(ElectronTrigger17) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(ElectronTrigger17);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(ElectronTrigger17);
             }
             else if(45. <= ele1.PtCone() && ele1.PtCone() < 9999.){
               if(!( ev.PassTrigger(ElectronTrigger23) )) continue;
-              if(!IsDATA) weight *= ev.GetTriggerLumiByYear(ElectronTrigger23);
+              if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(ElectronTrigger23);
             }
             else continue;
             FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 1.5, weight, cutflow_bin, 0., cutflow_max);
@@ -783,7 +784,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
           else{
             if(ev.PassTrigger(MuonTriggers.at(i))){
               //if(Nentry%1000==0) cout << "Trigger name : " << MuonTriggers.at(i) << ", Lumi : " << ev.GetTriggerLumiByYear(MuonTriggers.at(i)) << endl;
-              weight *= ev.GetTriggerLumiByYear(MuonTriggers.at(i));
+              weight = weight_common*ev.GetTriggerLumiByYear(MuonTriggers.at(i));
               FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+MuonTriggers.at(i)+"_"+IDsuffix, weight);
             }
           }
@@ -803,7 +804,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
           }
           else{
             if(ev.PassTrigger(ElectronTriggers.at(i))){
-              weight *= ev.GetTriggerLumiByYear(ElectronTriggers.at(i));
+              weight = weight_common*ev.GetTriggerLumiByYear(ElectronTriggers.at(i));
               FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+ElectronTriggers.at(i)+"_"+IDsuffix, weight);
             }
           }
@@ -824,7 +825,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
           }
           else{
             if(ev.PassTrigger(MuonTriggers.at(i))){
-              weight *= ev.GetTriggerLumiByYear(MuonTriggers.at(i));
+              weight = weight_common*ev.GetTriggerLumiByYear(MuonTriggers.at(i));
               FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+MuonTriggers.at(i)+"_"+IDsuffix, weight);
             }
           }
@@ -845,7 +846,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
           }
           else{
             if(ev.PassTrigger(ElectronTriggers.at(i))){
-              weight *= ev.GetTriggerLumiByYear(ElectronTriggers.at(i));
+              weight = weight_common*ev.GetTriggerLumiByYear(ElectronTriggers.at(i));
               FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+ElectronTriggers.at(i)+"_"+IDsuffix, weight);
             }
           }
