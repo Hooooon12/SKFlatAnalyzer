@@ -653,11 +653,11 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 7.5, 1., cutflow_bin, 0., cutflow_max);
 
             // fill histos
-            FillHist("Muon/"+regionsFake.at(it_rg)+"/Jet1_Pt_"+IDsuffix, j1.Pt(), weight, 18, 10., 100.);
-            FillHist("Muon/"+regionsFake.at(it_rg)+"/Jet1_Eta_"+IDsuffix, j1.Eta(), weight, 20, -5., 5.);
+            FillHist("Muon/"+regionsFake.at(it_rg)+"/Jet1_Pt_"+IDsuffix, j1.Pt(), weight, 1000, 0., 1000.);
+            FillHist("Muon/"+regionsFake.at(it_rg)+"/Jet1_Eta_"+IDsuffix, j1.Eta(), weight, 100, -5., 5.);
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_"+IDsuffix, mu1.PtCone(), fabs(mu1.Eta()), weight, 10, 10., 60., 5, 0., 2.5);
-            FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_PtCone_"+IDsuffix, mu1.PtCone(), weight, 10, 10., 60.);
-            FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_Eta_"+IDsuffix, fabs(mu1.Eta()), weight, 5, 0., 2.5);
+            FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_PtCone_"+IDsuffix, mu1.PtCone(), weight, 1000, 0., 1000.);
+            FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_Eta_"+IDsuffix, mu1.Eta(), weight, 60, -3., 3.);
             if(muons_tight.size() > 0){
               if( (muons_loose.at(0).Pt() != muons_tight.at(0).Pt()) || (muons_loose.at(0).Eta() != muons_tight.at(0).Eta()) ){
                 cout << "!!ERROR!!" << endl;
@@ -667,8 +667,8 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 8.5, weight, cutflow_bin, 0., cutflow_max);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 8.5, 1., cutflow_bin, 0., cutflow_max);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_"+IDsuffix, mu1.PtCone(), fabs(mu1.Eta()), weight, 10, 10., 60., 5, 0., 2.5);
-              FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_PtCone_"+IDsuffix, mu1.PtCone(), weight, 10, 10., 60.);
-              FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Eta_"+IDsuffix, fabs(mu1.Eta()), weight, 5, 0., 2.5);
+              FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_PtCone_"+IDsuffix, mu1.PtCone(), weight, 1000, 0., 1000.);
+              FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Eta_"+IDsuffix, mu1.Eta(), weight, 60, -3., 3.);
             }
           }
           if(electrons_loose.size()==1){ // electron FR
@@ -733,11 +733,11 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 7.5, 1., cutflow_bin, 0., cutflow_max);
 
             // fill histos
-            FillHist("Electron/"+regionsFake.at(it_rg)+"/Jet1_Pt_"+IDsuffix, j1.Pt(), weight, 18, 10., 100.);
-            FillHist("Electron/"+regionsFake.at(it_rg)+"/Jet1_Eta_"+IDsuffix, j1.Eta(), weight, 20, -5., 5.);
+            FillHist("Electron/"+regionsFake.at(it_rg)+"/Jet1_Pt_"+IDsuffix, j1.Pt(), weight, 1000, 0., 1000.);
+            FillHist("Electron/"+regionsFake.at(it_rg)+"/Jet1_Eta_"+IDsuffix, j1.Eta(), weight, 100, -5., 5.);
             FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Loose_"+IDsuffix, ele1.PtCone(), fabs(ele1.Eta()), weight, 10, 10., 60., 5, 0., 2.5);
-            FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Loose_PtCone_"+IDsuffix, ele1.PtCone(), weight, 10, 10., 60.);
-            FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Loose_Eta_"+IDsuffix, fabs(ele1.Eta()), weight, 5, 0., 2.5);
+            FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Loose_PtCone_"+IDsuffix, ele1.PtCone(), weight, 1000, 0., 1000.);
+            FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Loose_Eta_"+IDsuffix, ele1.Eta(), weight, 60, -3., 3.);
             if(electrons_tight.size() > 0){
               if( (electrons_loose.at(0).Pt() != electrons_tight.at(0).Pt()) || (electrons_loose.at(0).Eta() != electrons_tight.at(0).Eta()) ){
                 cout << "!!ERROR!!" << endl;
@@ -747,8 +747,8 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
               FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 8.5, weight, cutflow_bin, 0., cutflow_max);
               FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 8.5, 1., cutflow_bin, 0., cutflow_max);
               FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Tight_"+IDsuffix, ele1.PtCone(), fabs(ele1.Eta()), weight, 10, 10., 60., 5, 0., 2.5);
-              FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Tight_PtCone_"+IDsuffix, ele1.PtCone(), weight, 10, 10., 60.);
-              FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Tight_Eta_"+IDsuffix, fabs(ele1.Eta()), weight, 5, 0., 2.5);
+              FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Tight_PtCone_"+IDsuffix, ele1.PtCone(), weight, 1000, 0., 1000.);
+              FillHist("Electron/"+regionsFake.at(it_rg)+"/Electron_Tight_Eta_"+IDsuffix, ele1.Eta(), weight, 60, -3., 3.);
             }
           }
         }
@@ -777,7 +777,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
           if(IsDATA){
             //if(Nentry%1000==0) cout << "Trigger name : " << MuonTriggers.at(i) << ", DataStream : " << DataStream << ", IsPDForTrigger : " << ev.IsPDForTrigger(MuonTriggers.at(i),DataStream) << endl;
             if(ev.IsPDForTrigger(MuonTriggers.at(i),DataStream)){
-              if(ev.PassTrigger(MuonTriggers.at(i))) FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+MuonTriggers.at(i)+"_"+IDsuffix, weight);
+              if(ev.PassTrigger(MuonTriggers.at(i))) FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), MuonTriggers.at(i), IDsuffix, weight);
             }
             else continue;
           }
@@ -785,7 +785,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             if(ev.PassTrigger(MuonTriggers.at(i))){
               //if(Nentry%1000==0) cout << "Trigger name : " << MuonTriggers.at(i) << ", Lumi : " << ev.GetTriggerLumiByYear(MuonTriggers.at(i)) << endl;
               weight = weight_common*ev.GetTriggerLumiByYear(MuonTriggers.at(i));
-              FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+MuonTriggers.at(i)+"_"+IDsuffix, weight);
+              FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), MuonTriggers.at(i), IDsuffix, weight);
             }
           }
         }
@@ -798,14 +798,14 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
         for(unsigned int i=0; i<ElectronTriggers.size(); i++){
           if(IsDATA){
             if(ev.IsPDForTrigger(ElectronTriggers.at(i),DataStream)){
-              if(ev.PassTrigger(ElectronTriggers.at(i))) FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+ElectronTriggers.at(i)+"_"+IDsuffix, weight);
+              if(ev.PassTrigger(ElectronTriggers.at(i))) FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), ElectronTriggers.at(i), IDsuffix, weight);
             }
             else continue;
           }
           else{
             if(ev.PassTrigger(ElectronTriggers.at(i))){
               weight = weight_common*ev.GetTriggerLumiByYear(ElectronTriggers.at(i));
-              FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+ElectronTriggers.at(i)+"_"+IDsuffix, weight);
+              FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), ElectronTriggers.at(i), IDsuffix, weight);
             }
           }
         }
@@ -819,14 +819,14 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
         for(unsigned int i=0; i<MuonTriggers.size(); i++){
           if(IsDATA){
             if(ev.IsPDForTrigger(MuonTriggers.at(i),DataStream)){
-              if(ev.PassTrigger(MuonTriggers.at(i))) FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+MuonTriggers.at(i)+"_"+IDsuffix, weight);
+              if(ev.PassTrigger(MuonTriggers.at(i))) FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), MuonTriggers.at(i), IDsuffix, weight);
             }
             else continue;
           }
           else{
             if(ev.PassTrigger(MuonTriggers.at(i))){
               weight = weight_common*ev.GetTriggerLumiByYear(MuonTriggers.at(i));
-              FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+MuonTriggers.at(i)+"_"+IDsuffix, weight);
+              FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), MuonTriggers.at(i), IDsuffix, weight);
             }
           }
         }
@@ -840,14 +840,14 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
         for(unsigned int i=0; i<ElectronTriggers.size(); i++){
           if(IsDATA){
             if(ev.IsPDForTrigger(ElectronTriggers.at(i),DataStream)){
-              if(ev.PassTrigger(ElectronTriggers.at(i))) FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+ElectronTriggers.at(i)+"_"+IDsuffix, weight);
+              if(ev.PassTrigger(ElectronTriggers.at(i))) FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), ElectronTriggers.at(i), IDsuffix, weight);
             }
             else continue;
           }
           else{
             if(ev.PassTrigger(ElectronTriggers.at(i))){
               weight = weight_common*ev.GetTriggerLumiByYear(ElectronTriggers.at(i));
-              FillLeptonPlots(leptons_tight, regionsNorm.at(it_rg)+"_"+ElectronTriggers.at(i)+"_"+IDsuffix, weight);
+              FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), ElectronTriggers.at(i), IDsuffix, weight);
             }
           }
         }

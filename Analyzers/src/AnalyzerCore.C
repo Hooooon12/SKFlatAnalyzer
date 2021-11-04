@@ -2832,6 +2832,57 @@ void AnalyzerCore::WriteHist(){
 
 }
 
+void AnalyzerCore::FillLeptonPlotsFakeNorm(std::vector<Lepton *> leps, Particle METv, TString region, TString trigger, TString IDsuffix, double weight){
+
+  TString this_trigger = "";
+  if(trigger.Contains("Mu3")) this_trigger = "Mu3";
+  else if(trigger.Contains("Mu8")) this_trigger = "Mu8";
+  else if(trigger.Contains("Mu17")) this_trigger = "Mu17";
+  else if(trigger.Contains("Ele8")) this_trigger = "Ele8";
+  else if(trigger.Contains("Ele12")) this_trigger = "Ele12";
+  else if(trigger.Contains("Ele17")) this_trigger = "Ele17";
+  else if(trigger.Contains("Ele23")) this_trigger = "Ele23";
+
+  for(unsigned int i=0; i<leps.size(); i++){
+
+    TString this_itoa = TString::Itoa(i,10);
+
+    Lepton *lep = leps[i];
+
+    FillHist(region+"/Lepton"+this_itoa+"_Pt_"+this_trigger+"_"+IDsuffix, lep->Pt(), weight, 1000, 0., 1000.);
+    FillHist(region+"/Lepton"+this_itoa+"_Eta_"+this_trigger+"_"+IDsuffix, lep->Eta(), weight, 60, -3., 3.);
+    FillHist(region+"/Lepton"+this_itoa+"_RelIso_"+this_trigger+"_"+IDsuffix, lep->RelIso(), weight, 100, 0., 1.);
+    FillHist(region+"/Lepton"+this_itoa+"_MiniRelIso_"+this_trigger+"_"+IDsuffix, lep->MiniRelIso(), weight, 100, 0., 1.);
+
+    FillHist(region+"/Lepton"+this_itoa+"_dXY_"+this_trigger+"_"+IDsuffix, fabs(lep->dXY()), weight, 500, 0., 0.05);
+    FillHist(region+"/Lepton"+this_itoa+"_dXYSig_"+this_trigger+"_"+IDsuffix, fabs(lep->dXY()/lep->dXYerr()), weight, 100, 0., 10);
+    FillHist(region+"/Lepton"+this_itoa+"_dZ_"+this_trigger+"_"+IDsuffix, fabs(lep->dZ()), weight, 500, 0., 0.5);
+    FillHist(region+"/Lepton"+this_itoa+"_dZSig_"+this_trigger+"_"+IDsuffix, fabs(lep->dZ()/lep->dZerr()), weight, 100, 0., 10);
+    FillHist(region+"/Lepton"+this_itoa+"_IP3D_"+this_trigger+"_"+IDsuffix, fabs(lep->IP3D()), weight, 500, 0., 0.5);
+    FillHist(region+"/Lepton"+this_itoa+"_IP3DSig_"+this_trigger+"_"+IDsuffix, fabs(lep->IP3D()/lep->IP3Derr()), weight, 100, 0., 10);
+
+    if(lep->LeptonFlavour()==Lepton::ELECTRON){
+      Electron *el = (Electron *)lep;
+      FillHist(region+"/Lepton"+this_itoa+"_MVANoIso_"+this_trigger+"_"+IDsuffix, el->MVANoIso(), weight, 200, -1., 1.);
+    }
+    else if(lep->LeptonFlavour()==Lepton::MUON){
+      Muon *mu = (Muon *)lep;
+      FillHist(region+"/Lepton"+this_itoa+"_Chi2_"+this_trigger+"_"+IDsuffix, mu->Chi2(), weight, 500, 0., 50.);
+      FillHist(region+"/Lepton"+this_itoa+"_TrkRelIso_"+this_trigger+"_"+IDsuffix, mu->TrkIso()/mu->TuneP4().Pt(), weight, 100, 0., 1.);
+    }
+    else{
+      cout << "[AnalyzerCore::FillLeptonPlots] lepton flavour wrong.." << endl;
+      exit(EXIT_FAILURE);
+    }
+
+  }
+  if(leps.size()==1){
+    double Mt = MT(*leps.at(0),METv);
+    FillHist(region+"/MT_"+this_trigger+"_"+IDsuffix, Mt, weight, 1000, 0., 1000.);
+  }
+  else if(leps.size()==2) FillHist(region+"/DiLep_Mass_"+this_trigger+"_"+IDsuffix, (*leps.at(0)+*leps.at(1)).M(), weight, 1000, 0., 1000.);
+
+}
 
 void AnalyzerCore::FillLeptonPlots(std::vector<Lepton *> leps, TString this_region, double weight){
 
@@ -2868,13 +2919,6 @@ void AnalyzerCore::FillLeptonPlots(std::vector<Lepton *> leps, TString this_regi
     }
 
   }
-  if(leps.size()==1){
-    Event ev = GetEvent();
-    Particle METv = ev.GetMETVector();
-    double Mt = MT(*leps.at(0),METv);
-    FillHist(this_region+"/MT_"+this_region, Mt, weight, 1000, 0., 1000.);
-  }
-  else if(leps.size()==2) FillHist(this_region+"/DiLep_Mass_"+this_region, (*leps.at(0)+*leps.at(1)).M(), weight, 1000, 0., 1000.);
 
 }
 

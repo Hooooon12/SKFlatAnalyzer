@@ -47,7 +47,7 @@
 #python python/SKFlat.py -a Fake -y 2016 -i DoubleEG:B_ver2 -n 50 --userflags FR --batchname auto &
 #python python/SKFlat.py -a Fake -y 2016 -l submitList/2016_SingleMuon_BtoH.txt -n 50 --batchname auto &
 #python python/SKFlat.py -a Fake -y 2016 -l submitList/2016_SingleElectron_BtoH.txt -n 50 --batchname auto &
-#python python/SKFlat.py -a Fake -y 2016 -l submitList/2016_DoubleMuon_BtoH.txt --userflags FR,Norm -n 50 --batchname auto &
-#python python/SKFlat.py -a Fake -y 2016 -l submitList/2016_DoubleEG_BtoH.txt --userflags FR,Norm -n 50 --batchname auto &
+python python/SKFlat.py -a Fake -y 2016 -l submitList/2016_DoubleMuon_BtoH.txt --userflags FR,Norm -n 50 --batchname auto &
+python python/SKFlat.py -a Fake -y 2016 -l submitList/2016_DoubleEG_BtoH.txt --userflags FR,Norm -n 50 --batchname auto &
 python python/SKFlat.py -a Fake -y 2016 -l submitList/Fake_Norm_MC.txt --userflags FR,Norm -n 50 --batchname auto &
 

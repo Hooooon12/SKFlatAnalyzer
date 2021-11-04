@@ -274,6 +274,7 @@ public:
 
   //==== Quick Plotters
   void FillLeptonPlots(std::vector<Lepton *> leps, TString this_region, double weight);
+  void FillLeptonPlotsFakeNorm(std::vector<Lepton *> leps, Particle METv, TString region, TString trigger, TString IDsuffix, double weight);
   void FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight);
 
   //==== Output rootfile
