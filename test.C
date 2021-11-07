@@ -3,7 +3,8 @@ R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.1-gniml
 
 void test(int year, TString isdata, TString stream){
 
-  Fake m;
+  //Fake m;
+  SSWW m;
 
   m.SetTreeName("recoTree/SKFlat");
 
@@ -22,8 +23,9 @@ void test(int year, TString isdata, TString stream){
   else if(isdata == "mc") m.IsDATA = false;
   m.DataYear = year;
   m.Userflags = {
-    "FR",
-    "Norm",
+    //"FR",
+    //"Norm",
+    //"RunFake",
   };
   if(year==2016 && isdata=="data" && stream=="DM"){
     m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_195.root");
@@ -46,6 +48,9 @@ void test(int year, TString isdata, TString stream){
     //m.AddFile("/gv0/DATA/SKFlat/Run2Legacy_v4/2016/MC/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/191229_214240/0000/SKFlatNtuple_2016_MC_5.root");
     //m.AddFile("/gv0/DATA/SKFlat/Run2Legacy_v4/2016/MC/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/191229_214240/0000/SKFlatNtuple_2016_MC_6.root");
     //m.AddFile("/gv0/DATA/SKFlat/Run2Legacy_v4/2016/MC/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/191229_214240/0000/SKFlatNtuple_2016_MC_7.root");
+  }
+  else if(year==2016 && isdata=="mc" && stream=="ttZToQQ"){
+    m.AddFile("/gv0/DATA/SKFlat/Run2Legacy_v4/2016/MC/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/200131_162717/0000/SKFlatNtuple_2016_MC_1.root");
   }
   m.SetOutfilePath("hists_"+isdata+"_"+stream+".root");
   m.Init();

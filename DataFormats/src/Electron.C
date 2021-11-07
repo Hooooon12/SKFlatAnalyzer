@@ -642,24 +642,24 @@ bool Electron::Pass_HNTight(double dxyCut, double dzCut, double sipCut, bool isP
 bool Electron::SSWW_loose2016() const{
 
   if( fabs(scEta()) <= 1.479 ){
-    if(! (Full5x5_sigmaIetaIeta() < 0.011) ) return false;       // < 0.013, 0.011
-    if(! (fabs(dEtaSeed()) < 0.004) ) return false;              // < 0.01 , 0.006
-    if(! (fabs(dPhiIn()) < 0.02) ) return false;                 // < 0.07 , 0.15
-    if(! (HoverE() < 0.06) ) return false;                       // < 0.13 , 0.12 
-    if(! (fabs(InvEminusInvP()) < 0.013) ) return false;          // < 9999., 0.05
-    if(! (ecalPFClusterIso()/UncorrPt() < 0.16) ) return false;    // < 0.5
-    if(! (hcalPFClusterIso()/UncorrPt() < 0.12) ) return false;    // < 0.3
-    if(! (dr03TkSumPt()/UncorrPt() < 0.08) ) return false;          // < 0.2
+    if(! (Full5x5_sigmaIetaIeta() < 0.011) ) return false;      
+    if(! (fabs(dEtaSeed()) < 0.004) ) return false;             
+    if(! (fabs(dPhiIn()) < 0.02) ) return false;                
+    if(! (HoverE() < 0.06) ) return false;                      
+    if(! (fabs(InvEminusInvP()) < 0.013) ) return false;        
+    if(! (ecalPFClusterIso()/UncorrPt() < 0.16) ) return false; 
+    if(! (hcalPFClusterIso()/UncorrPt() < 0.12) ) return false; 
+    if(! (dr03TkSumPt()/UncorrPt() < 0.08) ) return false;      
     if(! (fabs(dXY()) < 0.05) ) return false;
     if(! (fabs(dZ()) < 0.1) ) return false;
   }
   else{
-    if(! (Full5x5_sigmaIetaIeta() < 0.031) ) return false;       // < 0.035, 0.031
-    if(! (HoverE() < 0.065) ) return false;                       // < 0.13 , 0.1
-    if(! (fabs(InvEminusInvP()) < 0.013) ) return false;          // < 9999., 0.05
-    if(! (ecalPFClusterIso()/UncorrPt() < 0.12) ) return false;    // < 0.5
-    if(! (hcalPFClusterIso()/UncorrPt() < 0.12) ) return false;    // < 0.3
-    if(! (dr03TkSumPt()/UncorrPt() < 0.08) ) return false;          // < 0.2
+    if(! (Full5x5_sigmaIetaIeta() < 0.031) ) return false;      
+    if(! (HoverE() < 0.065) ) return false;                     
+    if(! (fabs(InvEminusInvP()) < 0.013) ) return false;        
+    if(! (ecalPFClusterIso()/UncorrPt() < 0.12) ) return false; 
+    if(! (hcalPFClusterIso()/UncorrPt() < 0.12) ) return false; 
+    if(! (dr03TkSumPt()/UncorrPt() < 0.08) ) return false;      
     if(! (fabs(dXY()) < 0.1) ) return false;
     if(! (fabs(dZ()) < 0.2) ) return false;
   } // JH : we don't have gsf chi2() and ndof() in SKFlat
@@ -669,8 +669,9 @@ bool Electron::SSWW_loose2016() const{
   return true;
 }
 
-bool Electron::SSWW_tight2016() const{
+bool Electron::SSWW_tight2016() const{ //JH : this tight ID is not a subset of the SSWW 2016 loose ID. see https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#HLT_safe_selection_for_first_hal
   if(! (passTightID()) ) return false;
+  if(! (SSWW_loose2016()) ) return false;
   if(! (NMissingHits()<=1) ) return false;
   if(! (IsGsfCtfScPixChargeConsistent()) ) return false;
 

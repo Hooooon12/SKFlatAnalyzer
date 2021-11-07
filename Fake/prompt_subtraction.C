@@ -30,7 +30,7 @@ void prompt_subtraction(){
   TH1D *h_Data_LooseMuPtCone[3], *h_Data_TightMuPtCone[3], *h_Data_LooseMuPtCone_Subt[3], *h_Data_TightMuPtCone_Subt[3];
   TH1D *h_Data_LooseMuPtCone_Rebin[3], *h_Data_TightMuPtCone_Rebin[3], *h_Data_LooseMuPtCone_Subt_Rebin[3], *h_Data_TightMuPtCone_Subt_Rebin[3];
   TH2D *h_Data_LooseMu[3], *h_Data_TightMu[3], *h_MC_LooseMu[MCNumber][3], *h_MC_TightMu[MCNumber][3];
-  TObject *h_Data_LooseMu_Subt_tmp[3], *h_Data_TightMu_Subt_tmp[3], *h_MC_LooseMu_Norm_tmp[MCNumber][3], *h_MC_TightMu_Norm_tmp[MCNumber][3]; // TH2 has no Clone function; instead I have to call TObject::Clone() first, and then cast TH2D* statically.
+  TObject *h_Data_LooseMu_Subt_tmp[3], *h_Data_TightMu_Subt_tmp[3], *h_MC_LooseMu_Norm_tmp[MCNumber][3], *h_MC_TightMu_Norm_tmp[MCNumber][3]; // TH2 has no Clone function; instead I have to call TObject::Clone() first, and then type cast TH2D* .
   TH2D *h_Data_LooseMu_Subt[3], *h_Data_TightMu_Subt[3], *h_MC_LooseMu_Norm[MCNumber][3], *h_MC_TightMu_Norm[MCNumber][3];
 
   // Year loop
@@ -163,8 +163,6 @@ void prompt_subtraction(){
     h_Data_TightMuPtCone_Subt_Rebin[it_y] = (TH1D*)h_Data_TightMuPtCone_Subt[it_y]->Rebin(Nbin,"",xbins);
     h_Data_LooseMuPtCone_Subt_Rebin[it_y] = (TH1D*)h_Data_LooseMuPtCone_Subt[it_y]->Rebin(Nbin,"",xbins);
     h_Data_TightMuPtCone_Subt_Rebin[it_y]->Divide(h_Data_LooseMuPtCone_Subt_Rebin[it_y]);
-    h_Data_TightMuPtCone_Subt_Rebin[it_y]->GetXaxis()->SetRangeUser(10.,60.);
-    h_Data_TightMuPtCone_Subt_Rebin[it_y]->GetYaxis()->SetRangeUser(0.,0.4);
     h_Data_TightMuPtCone_Subt_Rebin[it_y]->SetLineColor(kBlack);
     h_Data_TightMuPtCone_Subt_Rebin[it_y]->SetLineWidth(2);
     h_Data_TightMuPtCone_Subt_Rebin[it_y]->SetStats(0);
@@ -222,37 +220,11 @@ void prompt_subtraction(){
     //  }
     //}
 
-/*
-    int Nbin = 6;
-    double xbins[7] = {10., 15., 20., 30., 40., 50., 60.};
-    h_Data_TightMu_Rebin[it_y] = (TH1D*)h_Data_TightMu[it_y]->Rebin(Nbin,"",xbins);
-    h_Data_LooseMu_Rebin[it_y] = (TH1D*)h_Data_LooseMu[it_y]->Rebin(Nbin,"",xbins);
-    h_Data_TightMu_Rebin[it_y]->Divide(h_Data_LooseMu_Rebin[it_y]);
-    h_Data_TightMu_Rebin[it_y]->GetXaxis()->SetRangeUser(10.,60.);
-    h_Data_TightMu_Rebin[it_y]->GetYaxis()->SetRangeUser(0.,0.4);
-    h_Data_TightMu_Rebin[it_y]->GetXaxis()->SetTitle("p_{T}^{cone} (GeV)");
-    h_Data_TightMu_Rebin[it_y]->GetYaxis()->SetTitle("Fake rate");
-    h_Data_TightMu_Rebin[it_y]->SetLineColor(kRed);
-    h_Data_TightMu_Rebin[it_y]->SetLineWidth(2);
-    h_Data_TightMu_Rebin[it_y]->SetStats(0);
-    h_Data_TightMu_Rebin[it_y]->Draw();
-    h_Data_TightMu_Subt_Rebin[it_y] = (TH1D*)h_Data_TightMu_Subt[it_y]->Rebin(Nbin,"",xbins);
-    h_Data_LooseMu_Subt_Rebin[it_y] = (TH1D*)h_Data_LooseMu_Subt[it_y]->Rebin(Nbin,"",xbins);
-    h_Data_TightMu_Subt_Rebin[it_y]->Divide(h_Data_LooseMu_Subt_Rebin[it_y]);
-    h_Data_TightMu_Subt_Rebin[it_y]->GetXaxis()->SetRangeUser(10.,60.);
-    h_Data_TightMu_Subt_Rebin[it_y]->GetYaxis()->SetRangeUser(0.,0.4);
-    h_Data_TightMu_Subt_Rebin[it_y]->SetLineColor(kBlack);
-    h_Data_TightMu_Subt_Rebin[it_y]->SetLineWidth(2);
-    h_Data_TightMu_Subt_Rebin[it_y]->SetStats(0);
-    h_Data_TightMu_Subt_Rebin[it_y]->Draw("same");
-*/
-
     h_Data_TightMu_Subt[it_y]->Divide(h_Data_LooseMu_Subt[it_y]);
 
     // Save 2D histo
-    TFile *f_out = new TFile("Muon_HN_FakeRates_HNTight2016_2016.root","RECREATE");
-		h_Data_TightMu_Subt[it_y]->Write("FR_2D");
-		//f_out->Write(h_Data_TightMu_Subt[it_y]);
+    TFile *f_out = new TFile("Muon_HN_FakeRates_HNTightV2_2016.root","RECREATE");
+    h_Data_TightMu_Subt[it_y]->Write("FR_2D");
 
   }  // year
 }

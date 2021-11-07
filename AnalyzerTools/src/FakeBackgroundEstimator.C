@@ -81,7 +81,13 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, dou
   //==== HOTFIX FIXME
   //if(eta>=1.479 && pt>=150) pt = 149.;
   //if(pt>=60) pt = 59;
-  if(pt>=100.) pt = 99.; // NOTE
+  //if(pt>=100.) pt = 99.; // NOTE
+  if(ID.Contains("SSWW")){
+    if(pt>=50.) pt = 49.;
+  }
+  else if(ID.Contains("HN")){
+    if(pt>=60.) pt = 59.;
+  }
 
   std::map< TString, TH2D* >::const_iterator mapit;
   mapit = map_hist_Electron.find(ID+"_"+key);
@@ -119,11 +125,17 @@ double FakeBackgroundEstimator::GetMuonFakeRate(TString ID, TString key, double 
   //==== HOTFIX FIXME
   //if(eta<0.8 && pt>=150) pt = 149.;
   //if(pt>=60) pt = 59;
-  if(DataYear==2018){
-    if(pt>=60.) pt = 59.;
+  //if(DataYear==2018){
+  //  if(pt>=60.) pt = 59.;
+  //}
+  //else{
+  //  if(pt>=80.) pt = 79.;
+  //}
+  if(ID.Contains("SSWW")){
+    if(pt>=50.) pt = 49.;
   }
-  else{
-    if(pt>=80.) pt = 79.;
+  else if(ID.Contains("HN")){
+    if(pt>=60.) pt = 59.;
   }
 
   std::map< TString, TH2D* >::const_iterator mapit;
@@ -180,6 +192,11 @@ double FakeBackgroundEstimator::GetWeight(vector<Lepton *> lepptrs, AnalyzerPara
       this_weight *= -1.*this_fr/(1.-this_fr);
 
       FRs.push_back(this_fr);
+
+      //debug//
+      //cout << i << "th muon;" << endl;
+      //cout << "pt, abs(eta) : " << this_pt << ", " << fabs(mu->Eta()) << endl;
+      //cout << "fake rate : " << this_fr << endl;
     }
 
 

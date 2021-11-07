@@ -6,18 +6,18 @@ Fake::Fake(){
 
 void Fake::initializeAnalyzer(){
 
-  MuonTightIDs = {"SSWW_tight","HNTight2016"};
-  MuonLooseIDs = {"SSWW_loose","HNLoose2016"};
-  MuonVetoIDs = {"SSWW_loose","HNVeto2016"};
+  MuonTightIDs = {"SSWW_tight","HNTight2016","HNTightV1"};
+  MuonLooseIDs = {"SSWW_loose","HNLoose2016","HNLooseV3"};
+  MuonVetoIDs = {"SSWW_loose","HNVeto2016","ISRVeto"};
   if(DataYear==2016){
-    ElectronTightIDs = {"SSWW_tight2016","HNTight2016"};
-    ElectronLooseIDs = {"SSWW_loose2016","HNLoose2016"};
-    ElectronVetoIDs = {"SSWW_loose2016","HNVeto2016"};
+    ElectronTightIDs = {"SSWW_tight2016","HNTight2016","HNTightV1"};
+    ElectronLooseIDs = {"SSWW_loose2016","HNLoose2016","HNLooseV1"};
+    ElectronVetoIDs = {"SSWW_loose2016","HNVeto2016","ISRVeto"};
   }
   else{
-    ElectronTightIDs = {"SSWW_tight","HNTight2016"};
-    ElectronLooseIDs = {"SSWW_loose","HNLoose2016"};
-    ElectronVetoIDs = {"SSWW_loose","HNVeto2016"};
+    ElectronTightIDs = {"SSWW_tight","HNTightV1"};
+    ElectronLooseIDs = {"SSWW_loose","HNLooseV1"};
+    ElectronVetoIDs = {"SSWW_loose","ISRVeto"};
   }
 
   MuonTriggers.clear();
@@ -159,6 +159,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
   vector<TString> regionsNorm = {"Z_Muon","Z_Electron","W_Muon","W_Electron"};
   TString IDsuffix;
   if(param.Muon_Tight_ID.Contains("SSWW")) IDsuffix = "SSWW";
+  else if(param.Muon_Tight_ID.Contains("HN")&&param.Muon_Tight_ID.Contains("2016")) IDsuffix = "HN2016";
   else if(param.Muon_Tight_ID.Contains("HN")) IDsuffix = "HN";
   double cutflow_max = 10.;
   int cutflow_bin = 10;
@@ -307,23 +308,45 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
     if(lepton_count1 > 0) continue;
     fatjets.push_back(this_AllFatJets.at(i));
   }
-  for(unsigned int i=0; i<this_AllJets.size(); i++){
-    lepton_count2 = 0, fatjet_count = 0;
-    if(!(this_AllJets.at(i).PassID(param.Jet_ID))) continue; //JH :"HNTight"
-    if(!(this_AllJets.at(i).Pt() > 20.)) continue;
-    if(!(fabs(this_AllJets.at(i).Eta()) < 2.7)) continue;
-    for(unsigned int j=0; j<muons_veto.size(); j++){
-      if(this_AllJets.at(i).DeltaR(muons_veto.at(j)) < 0.4) lepton_count2++; //JH : veto muon cleaning
+  if(IDsuffix.Contains("HN")){
+    for(unsigned int i=0; i<this_AllJets.size(); i++){
+      lepton_count2 = 0, fatjet_count = 0;
+      if(!(this_AllJets.at(i).PassID(param.Jet_ID))) continue; //JH :"HNTight"
+      if(!(this_AllJets.at(i).Pt() > 20.)) continue;
+      if(!(fabs(this_AllJets.at(i).Eta()) < 2.7)) continue;
+      for(unsigned int j=0; j<muons_veto.size(); j++){
+        if(this_AllJets.at(i).DeltaR(muons_veto.at(j)) < 0.4) lepton_count2++; //JH : veto muon cleaning
+      }
+      for(unsigned int j=0; j<electrons_veto.size(); j++){
+        if(this_AllJets.at(i).DeltaR(electrons_veto.at(j)) < 0.4) lepton_count2++; //JH : veto electron cleaning
+      }
+      //for(unsigned int j=0; j<fatjets.size(); j++){
+      //  if(this_AllJets.at(i).DeltaR(fatjets.at(j)) < 0.8) fatjet_count++; //JH : fatjet cleaning
+      //}
+      if(lepton_count2 > 0) continue;
+      //if(fatjet_count > 0) continue;
+      jets.push_back(this_AllJets.at(i));
     }
-    for(unsigned int j=0; j<electrons_veto.size(); j++){
-      if(this_AllJets.at(i).DeltaR(electrons_veto.at(j)) < 0.4) lepton_count2++; //JH : veto electron cleaning
+  }
+  else if(IDsuffix.Contains("SSWW")){
+    for(unsigned int i=0; i<this_AllJets.size(); i++){
+      lepton_count2 = 0, fatjet_count = 0;
+      if(!(this_AllJets.at(i).PassID(param.Jet_ID))) continue;
+      if(!(this_AllJets.at(i).Pt() > 15.)) continue;
+      if(!(fabs(this_AllJets.at(i).Eta()) < 4.7)) continue;
+      for(unsigned int j=0; j<muons_loose.size(); j++){
+        if(this_AllJets.at(i).DeltaR(muons_loose.at(j)) < 0.3) lepton_count2++; //JH : loose muon cleaning
+      }
+      for(unsigned int j=0; j<electrons_loose.size(); j++){
+        if(this_AllJets.at(i).DeltaR(electrons_loose.at(j)) < 0.3) lepton_count2++; //JH : loose electron cleaning
+      }
+      //for(unsigned int j=0; j<fatjets.size(); j++){
+      //  if(this_AllJets.at(i).DeltaR(fatjets.at(j)) < 0.8) fatjet_count++; //JH : fatjet cleaning
+      //}
+      if(lepton_count2 > 0) continue;
+      //if(fatjet_count > 0) continue;
+      jets.push_back(this_AllJets.at(i));
     }
-    //for(unsigned int j=0; j<fatjets.size(); j++){
-    //  if(this_AllJets.at(i).DeltaR(fatjets.at(j)) < 0.8) fatjet_count++; //JH : fatjet cleaning
-    //}
-    if(lepton_count2 > 0) continue;
-    //if(fatjet_count > 0) continue;
-    jets.push_back(this_AllJets.at(i));
   }
   //FillHist("Number_JetsSel_"+IDsuffix, jets.size(), weight, 10, 0, 10);
   //FillHist("Number_JetsSel_unweighted_"+IDsuffix, jets.size(), 1., 10, 0, 10);
@@ -397,7 +420,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
   
   // Set tight_iso cut & calculate pTcone
   double mu_tight_iso = 0.07;
-  double el_tight_iso = 0.;
+  double el_tight_iso = 0.08; // HNTight2016 electron tight iso
   double this_ptcone_muon = 0., this_ptcone_electron = 0.;
 
   // Set pTcone
@@ -407,8 +430,10 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
   }
    
   for(unsigned int i=0; i<electrons_loose.size(); i++){
-    el_tight_iso = 0.0287+0.506/electrons_loose.at(i).UncorrPt(); // https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Working_points_for_2016_data_for
-    if(fabs(electrons_loose.at(i).scEta()) > 1.479) el_tight_iso = 0.0445+0.963/electrons_loose.at(i).UncorrPt();
+    if(IDsuffix = "HN"){ // new ID, not HNTight2016
+      el_tight_iso = 0.0287+0.506/electrons_loose.at(i).UncorrPt(); // https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Working_points_for_2016_data_for
+      if(fabs(electrons_loose.at(i).scEta()) > 1.479) el_tight_iso = 0.0445+0.963/electrons_loose.at(i).UncorrPt();
+    }
 
     this_ptcone_electron = electrons_loose.at(i).CalcPtCone(electrons_loose.at(i).RelIso(), el_tight_iso);
     electrons_loose.at(i).SetPtCone(this_ptcone_electron);
@@ -454,8 +479,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
 
         if(regionsFake.at(it_rg)=="SSWW"){ // SSWW selection
 
-          continue; // I don't need SSWW selection for now
-          if(IDsuffix=="HN") continue;
+          if(IDsuffix.Contains("HN")) continue;
 
           if(muons_loose.size()==1){ // muon FR
             Muon mu1 = muons_loose.at(0);
@@ -507,8 +531,12 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             if(muons_tight.size() > 0){
               if( (muons_loose.at(0).Pt() != muons_tight.at(0).Pt()) || (muons_loose.at(0).Eta() != muons_tight.at(0).Eta()) ){
                 cout << "!!ERROR!!" << endl;
+                cout << "region : Muon " << regionsFake.at(it_rg) << endl;
+                cout << "IDsuffix : " << IDsuffix << endl;
                 cout << "loose lepton pt, eta : " << muons_loose.at(0).Pt() << ", " << muons_loose.at(0).Eta() << endl;
                 cout << "tight lepton pt, eta : " << muons_tight.at(0).Pt() << ", " << muons_tight.at(0).Eta() << endl;
+                cout << "tight muon size : " << muons_tight.size() << endl;
+                exit(EXIT_FAILURE);
               }
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 6.5, weight, cutflow_bin, 0., cutflow_max);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 6.5, 1., cutflow_bin, 0., cutflow_max);
@@ -568,8 +596,32 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             if(electrons_tight.size() > 0){
               if( (electrons_loose.at(0).Pt() != electrons_tight.at(0).Pt()) || (electrons_loose.at(0).Eta() != electrons_tight.at(0).Eta()) ){
                 cout << "!!ERROR!!" << endl;
+                cout << "region : Electron " << regionsFake.at(it_rg) << endl;
+                cout << "IDsuffix : " << IDsuffix << endl;
                 cout << "loose lepton pt, eta : " << electrons_loose.at(0).Pt() << ", " << electrons_loose.at(0).Eta() << endl;
                 cout << "tight lepton pt, eta : " << electrons_tight.at(0).Pt() << ", " << electrons_tight.at(0).Eta() << endl;
+                cout << "tight electron size : " << electrons_tight.size() << endl;
+                cout << "loose lepton full5x5_sigmaIetaIeta : " << electrons_loose.at(0).Full5x5_sigmaIetaIeta() << endl;
+                cout << "tight lepton full5x5_sigmaIetaIeta : " << electrons_tight.at(0).Full5x5_sigmaIetaIeta() << endl;
+                cout << "loose lepton abs(dEtaInSeed) : " << fabs(electrons_loose.at(0).dEtaSeed()) << endl;
+                cout << "tight lepton abs(dEtaInSeed) : " << fabs(electrons_tight.at(0).dEtaSeed()) << endl;
+                cout << "loose lepton abs(dPhiIn) : " << fabs(electrons_loose.at(0).dPhiIn()) << endl;
+                cout << "tight lepton abs(dPhiIn) : " << fabs(electrons_tight.at(0).dPhiIn()) << endl;
+                cout << "loose lepton H/E : " << electrons_loose.at(0).HoverE() << endl;
+                cout << "tight lepton H/E : " << electrons_tight.at(0).HoverE() << endl;
+                cout << "loose lepton abs(1/E-1/p) : " << fabs(electrons_loose.at(0).InvEminusInvP()) << endl;
+                cout << "tight lepton abs(1/E-1/p) : " << fabs(electrons_tight.at(0).InvEminusInvP()) << endl;
+                cout << "loose lepton ECAL PF Cluster Isolation : " << electrons_loose.at(0).ecalPFClusterIso()/electrons_loose.at(0).UncorrPt() << endl;
+                cout << "tight lepton ECAL PF Cluster Isolation : " << electrons_tight.at(0).ecalPFClusterIso()/electrons_tight.at(0).UncorrPt() << endl;
+                cout << "loose lepton HCAL PF Cluster Isolation : " << electrons_loose.at(0).hcalPFClusterIso()/electrons_loose.at(0).UncorrPt() << endl;
+                cout << "tight lepton HCAL PF Cluster Isolation : " << electrons_tight.at(0).hcalPFClusterIso()/electrons_tight.at(0).UncorrPt() << endl;
+                cout << "loose lepton Tracker Isolation : " << electrons_loose.at(0).dr03TkSumPt()/electrons_loose.at(0).UncorrPt() << endl;
+                cout << "tight lepton Tracker Isolation : " << electrons_tight.at(0).dr03TkSumPt()/electrons_tight.at(0).UncorrPt() << endl;
+                cout << "loose lepton d0 : " << fabs(electrons_loose.at(0).dXY()) << endl;
+                cout << "tight lepton d0 : " << fabs(electrons_tight.at(0).dXY()) << endl;
+                cout << "loose lepton dz : " << fabs(electrons_loose.at(0).dZ()) << endl;
+                cout << "tight lepton dz : " << fabs(electrons_tight.at(0).dZ()) << endl;
+                exit(EXIT_FAILURE);
               }
               FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 6.5, weight, cutflow_bin, 0., cutflow_max);
               FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 6.5, 1., cutflow_bin, 0., cutflow_max);
@@ -661,8 +713,12 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             if(muons_tight.size() > 0){
               if( (muons_loose.at(0).Pt() != muons_tight.at(0).Pt()) || (muons_loose.at(0).Eta() != muons_tight.at(0).Eta()) ){
                 cout << "!!ERROR!!" << endl;
+                cout << "region : Muon " << regionsFake.at(it_rg) << endl;
+                cout << "IDsuffix : " << IDsuffix << endl;
                 cout << "loose lepton pt, eta : " << muons_loose.at(0).Pt() << ", " << muons_loose.at(0).Eta() << endl;
                 cout << "tight lepton pt, eta : " << muons_tight.at(0).Pt() << ", " << muons_tight.at(0).Eta() << endl;
+                cout << "tight muon size : " << muons_tight.size() << endl;
+                exit(EXIT_FAILURE);
               }
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 8.5, weight, cutflow_bin, 0., cutflow_max);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 8.5, 1., cutflow_bin, 0., cutflow_max);
@@ -741,8 +797,12 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             if(electrons_tight.size() > 0){
               if( (electrons_loose.at(0).Pt() != electrons_tight.at(0).Pt()) || (electrons_loose.at(0).Eta() != electrons_tight.at(0).Eta()) ){
                 cout << "!!ERROR!!" << endl;
+                cout << "region : Electron " << regionsFake.at(it_rg) << endl;
+                cout << "IDsuffix : " << IDsuffix << endl;
                 cout << "loose lepton pt, eta : " << electrons_loose.at(0).Pt() << ", " << electrons_loose.at(0).Eta() << endl;
                 cout << "tight lepton pt, eta : " << electrons_tight.at(0).Pt() << ", " << electrons_tight.at(0).Eta() << endl;
+                cout << "tight electron size : " << electrons_tight.size() << endl;
+                exit(EXIT_FAILURE);
               }
               FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 8.5, weight, cutflow_bin, 0., cutflow_max);
               FillHist("Electron/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 8.5, 1., cutflow_bin, 0., cutflow_max);
@@ -765,8 +825,6 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
     //if(IDsuffix=="HN"&&Nentry%1000==0) cout << "N tight muons : " << muons_tight.size() << ", N tight electrons : " << electrons_tight.size() << endl;
 
     for(unsigned int it_rg=0; it_rg<regionsNorm.size(); it_rg++){
-
-      if(IDsuffix=="SSWW") continue; // I don't use SSWW for now
 
       if(it_rg==0){ // Z_Muon
         if(!( muons_tight.size()==2&&electrons_tight.size()==0 )) continue;

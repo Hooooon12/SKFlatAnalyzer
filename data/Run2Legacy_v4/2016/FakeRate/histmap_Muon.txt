@@ -1,3 +1,4 @@
 HNRun2	Muon_HNtypeI_FakeRates_HNTightV1_2016.root
 HNRun2QCD	Muon_HNtypeI_QCDFakeRates_HNTightV1_2016.root
 HN2016	Muon_HN_FakeRates_HNTight2016_2016.root
+SSWW	Muon_SSWW_FakeRates_2016.root
