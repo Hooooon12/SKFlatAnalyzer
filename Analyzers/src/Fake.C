@@ -6,7 +6,7 @@ Fake::Fake(){
 
 void Fake::initializeAnalyzer(){
 
-  MuonTightIDs = {"SSWW_tight","HNTight2016","HNTightV1"};
+  MuonTightIDs = {"SSWW_tight","HNTight2016","HNTightV1"}; //JH TODO this must be under the 2016 case
   MuonLooseIDs = {"SSWW_loose","HNLoose2016","HNLooseV3"};
   MuonVetoIDs = {"SSWW_loose","HNVeto2016","ISRVeto"};
   if(DataYear==2016){

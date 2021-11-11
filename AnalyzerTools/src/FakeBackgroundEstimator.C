@@ -195,7 +195,8 @@ double FakeBackgroundEstimator::GetWeight(vector<Lepton *> lepptrs, AnalyzerPara
 
       //debug//
       //cout << i << "th muon;" << endl;
-      //cout << "pt, abs(eta) : " << this_pt << ", " << fabs(mu->Eta()) << endl;
+      //cout << "pt, ptcone, abs(eta) : " << mu->Pt() << ", " << mu->PtCone() << ", " << fabs(mu->Eta()) << endl;
+      //cout << "what I'm using : " << this_pt << endl;
       //cout << "fake rate : " << this_fr << endl;
     }
 

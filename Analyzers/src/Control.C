@@ -18,7 +18,8 @@ void Control::initializeAnalyzer(){
   ElectronTightIDs = {"HNTightV1"};
   ElectronLooseIDs = {"HNLooseV1"};
   ElectronVetoIDs  = {"ISRVeto"};
-  FakeRateIDs = {"HNRun2"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
+  //FakeRateIDs = {"HNRun2"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
+  FakeRateIDs = {"HN"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
 
   //==== At this point, sample informations (e.g., IsDATA, DataStream, MCSample, or DataYear) are all set
   //==== You can define sample-dependent or year-dependent variables here
@@ -148,7 +149,8 @@ void Control::executeEvent(){
     param.Muon_Loose_ID = MuonLooseID;
     param.Muon_Veto_ID  = MuonVetoID;
     param.Muon_FR_ID = FakeRateID;     // ID name in histmap_Muon.txt
-    param.Muon_FR_Key = "AwayJetPt40"; // histname
+    //param.Muon_FR_Key = "AwayJetPt40"; // histname
+    param.Muon_FR_Key = "FR_2D"; // histname
     param.Muon_ID_SF_Key = "NUM_TightID_DEN_genTracks";
     param.Muon_ISO_SF_Key = "NUM_TightRelIso_DEN_TightIDandIPCut";
     param.Muon_Trigger_SF_Key = "";
