@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumw
+WGJJToLNu	WGJJToLNu_EWK_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8	5.662	999600	999600
