@@ -1,0 +1,12 @@
+DYJets
+WJets_MG
+SingleTop_tch_antitop_Incl
+SingleTop_tch_top_Incl
+WZTo3LNu_powheg
+WGToLNuG
+ZZTo4L_powheg
+ZGTo2LG
+WWTo2L2Nu_powheg
+WWToLNuQQ_powheg
+TTLL_powheg
+TTLJ_powheg

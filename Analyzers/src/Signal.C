@@ -12,15 +12,24 @@ void Signal::initializeAnalyzer(){
   RunFake = HasFlag("RunFake");
   RunCF = HasFlag("RunCF");
 
-  MuonTightIDs = {"HNTightV1","HNTight2016"};
-  MuonLooseIDs = {"HNLooseV3","HNLoose2016"};
-  MuonVetoIDs  = {"ISRVeto","HNVeto2016"};
-  ElectronTightIDs = {"HNTightV1","HNTight2016"};
-  ElectronLooseIDs = {"HNLooseV1","HNLoose2016"};
-  ElectronVetoIDs  = {"ISRVeto","HNVeto2016"};
-  if(HasFlag("FR_ex")) MuonFRNames = {"HNRun2","HN2016"};
-  else MuonFRNames = {"HN","HN2016"};
-  ElectronFRNames  = {"HNRun2","HN2016"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
+  //MuonTightIDs = {"HNTightV1","HNTight2016"};
+  //MuonLooseIDs = {"HNLooseV3","HNLoose2016"};
+  //MuonVetoIDs  = {"ISRVeto","HNVeto2016"};
+  //ElectronTightIDs = {"HNTightV1","HNTight2016"};
+  //ElectronLooseIDs = {"HNLooseV1","HNLoose2016"};
+  //ElectronVetoIDs  = {"ISRVeto","HNVeto2016"};
+  //if(HasFlag("FR_ex")) MuonFRNames = {"HNRun2","HN2016"};
+  //else MuonFRNames = {"HN","HN2016"};
+  //ElectronFRNames  = {"HNRun2","HN2016"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
+  MuonTightIDs = {"HNTightV1"};
+  MuonLooseIDs = {"HNLooseV1"};
+  MuonVetoIDs  = {"ISRVeto"};
+  ElectronTightIDs = {"HNTightV1"};
+  ElectronLooseIDs = {"HNLooseV1"};
+  ElectronVetoIDs  = {"ISRVeto"};
+  if(HasFlag("FR_ex")) MuonFRNames = {"HNRun2"};
+  else MuonFRNames = {"HN"};
+  ElectronFRNames  = {"HNRun2"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
 
   //==== At this point, sample informations (e.g., IsDATA, DataStream, MCSample, or DataYear) are all set
   //==== You can define sample-dependent or year-dependent variables here

@@ -6,13 +6,19 @@ Fake::Fake(){
 
 void Fake::initializeAnalyzer(){
 
-  MuonTightIDs = {"SSWW_tight","HNTight2016","HNTightV1"}; //JH TODO this must be under the 2016 case
-  MuonLooseIDs = {"SSWW_loose","HNLoose2016","HNLooseV3"};
-  MuonVetoIDs = {"SSWW_loose","HNVeto2016","ISRVeto"};
+  //MuonTightIDs = {"SSWW_tight","HNTight2016","HNTightV1"};
+  //MuonLooseIDs = {"SSWW_loose","HNLoose2016","HNLooseV3"};
+  //MuonVetoIDs = {"SSWW_loose","HNVeto2016","ISRVeto"};
+  MuonTightIDs = {"HNTightV1"};
+  MuonLooseIDs = {"HNLooseV1"};
+  MuonVetoIDs = {"ISRVeto"};
   if(DataYear==2016){
-    ElectronTightIDs = {"SSWW_tight2016","HNTight2016","HNTightV1"};
-    ElectronLooseIDs = {"SSWW_loose2016","HNLoose2016","HNLooseV1"};
-    ElectronVetoIDs = {"SSWW_loose2016","HNVeto2016","ISRVeto"};
+    //ElectronTightIDs = {"SSWW_tight2016","HNTight2016","HNTightV1"};
+    //ElectronLooseIDs = {"SSWW_loose2016","HNLoose2016","HNLooseV1"};
+    //ElectronVetoIDs = {"SSWW_loose2016","HNVeto2016","ISRVeto"};
+    ElectronTightIDs = {"HNTightV1"};
+    ElectronLooseIDs = {"HNLooseV1"};
+    ElectronVetoIDs = {"ISRVeto"};
   }
   else{
     ElectronTightIDs = {"SSWW_tight","HNTightV1"};
