@@ -12,19 +12,19 @@ void SSWW::initializeAnalyzer(){
   RunFake = HasFlag("RunFake");
   RunCF = HasFlag("RunCF");
 
-  MuonTightIDs = {"SSWW_tight"};
-  MuonLooseIDs = {"SSWW_loose"};
-  MuonVetoIDs  = {"ISRVeto"};
+  MuonTightIDs = {"SSWW_tight","HNTightV1"};
+  MuonLooseIDs = {"SSWW_loose","HNLooseV3"};
+  MuonVetoIDs  = {"ISRVeto","ISRVeto"};
   if(DataYear==2016){
-    ElectronTightIDs = {"SSWW_tight2016"};
-    ElectronLooseIDs = {"SSWW_loose2016"};
+    ElectronTightIDs = {"SSWW_tight2016","HNTightV1"};
+    ElectronLooseIDs = {"SSWW_loose2016","HNLooseV1"};
   }
   else{
-    ElectronTightIDs = {"SSWW_tight"};
-    ElectronLooseIDs = {"SSWW_loose"};
+    ElectronTightIDs = {"SSWW_tight","HNTightV1"};
+    ElectronLooseIDs = {"SSWW_loose","HNLooseV1"};
   }
-  ElectronVetoIDs  = {"ISRVeto"};
-  FakeRateIDs = {"SSWW"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
+  ElectronVetoIDs  = {"ISRVeto","ISRVeto"};
+  FakeRateIDs = {"SSWW","HN"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
 
   //==== At this point, sample informations (e.g., IsDATA, DataStream, MCSample, or DataYear) are all set
   //==== You can define sample-dependent or year-dependent variables here
@@ -158,7 +158,12 @@ void SSWW::executeEvent(){
     param.Muon_ID_SF_Key = "NUM_TightID_DEN_genTracks";
     param.Muon_ISO_SF_Key = "NUM_TightRelIso_DEN_TightIDandIPCut";
     param.Muon_Trigger_SF_Key = "";
-    param.Muon_UsePtCone = false;
+    if(param.Muon_Tight_ID.Contains("SSWW")){
+      param.Muon_UsePtCone = false;
+    }
+    else if(param.Muon_Tight_ID.Contains("HN")){
+      param.Muon_UsePtCone = true;
+    }
 
     // Electron ID
     param.Electron_Tight_ID = ElectronTightID;
@@ -168,7 +173,12 @@ void SSWW::executeEvent(){
     param.Electron_FR_Key = "FR_2D"; // histname
     param.Electron_ID_SF_Key = "passTightID";
     param.Electron_Trigger_SF_Key = "";
-    param.Electron_UsePtCone = false;
+    if(param.Electron_Tight_ID.Contains("SSWW")){
+      param.Electron_UsePtCone = false;
+    }
+    else if(param.Electron_Tight_ID.Contains("HN")){
+      param.Electron_UsePtCone = true;
+    }
 
     // Jet ID
     param.Jet_ID = "HNTight"; //JH : pass POG tight + pass loose PU ID
@@ -196,10 +206,9 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
   vector<TString> regionsSM = {"DYmm", "DYee", "DYemu", "TTmm", "TTee", "TTemu", "WZ", "ZG", "WG", "ZZ"}; 
   vector<TString> channels3L = {"mmm", "mme", "mee", "eee"}; //JH : iterate for the number of e
   vector<TString> channels4L = {"mmmm", "mmee", "eeee"}; //JH : iterate for the number of e / 2
-  TString IDsuffix = "SSWWrep";
-  //if(param.Electron_Tight_ID.Contains("V2")) IDsuffix = "HNV2";
-  //if(param.Muon_Tight_ID.Contains("HighPt")) IDsuffix = "HighPt";
-  //if(param.Muon_Tight_ID.Contains("POGTight")) IDsuffix = "POGTight";
+  TString IDsuffix = "";
+  if(param.Muon_Tight_ID.Contains("SSWW")) IDsuffix = "SSWWrep";
+  else if(param.Muon_Tight_ID.Contains("HN")) IDsuffix = "HN";
   TString LepCategory = "TT";
   double cutflow_max = 20.;
   int cutflow_bin = 20;
@@ -657,6 +666,10 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
       FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 6.5, weight, cutflow_bin, 0., cutflow_max);
       FillHist(regionsSSWW.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 6.5, 1., cutflow_bin, 0., cutflow_max);
 
+      if(muons.at(0).PassID(param.Muon_Tight_ID) && !(muons.at(1).PassID(param.Muon_Tight_ID))) LepCategory = "TL";
+      if(!(muons.at(0).PassID(param.Muon_Tight_ID)) && muons.at(1).PassID(param.Muon_Tight_ID)) LepCategory = "LT";
+      if(!(muons.at(1).PassID(param.Muon_Tight_ID)) && !(muons.at(0).PassID(param.Muon_Tight_ID))) LepCategory = "LL";
+
       if(! (muons.at(0).Pt()>30. && muons.at(1).Pt()>30.) ) continue;
       // SR Cutflow 8 : muon pt > 30/30 GeV
       FillHist(regionsSSWW.at(it_rg)+"/Number_Events_"+IDsuffix, 7.5, weight, cutflow_bin, 0., cutflow_max);
@@ -799,6 +812,47 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
         FillHist(regionsSSWW.at(it_rg)+"/Zep_"+IDsuffix, max_zep, weight, 150, 0., 1.5);
         FillHist(regionsSSWW.at(it_rg)+"/dEtajj_"+IDsuffix, dEta, weight, 100, 0., 10.);
         FillHist(regionsSSWW.at(it_rg)+"/HToverPt1_"+IDsuffix, HT/muons.at(0).Pt(), weight, 10, 0., 10.);
+
+        if(RunFake){
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Number_Jets_"+IDsuffix, jets.size(), weight, 10, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Number_BJets_Loose_"+IDsuffix, Nbjet_loose, weight, 10, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Number_BJets_Medium_"+IDsuffix, Nbjet_medium, weight, 10, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Number_FatJets_"+IDsuffix, fatjets.size(), weight, 10, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/DiLep_Mass_"+IDsuffix, DiLep.M(), weight, 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/DiJet_Mass_"+IDsuffix, DiJet.M(), weight, 3000, 0., 3000.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Mu1_Pt_"+IDsuffix, muons.at(0).Pt(), weight, 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Mu2_Pt_"+IDsuffix, muons.at(1).Pt(), weight, 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Mu1_Eta_"+IDsuffix, muons.at(0).Eta(), weight, 50, -2.5, 2.5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Mu2_Eta_"+IDsuffix, muons.at(1).Eta(), weight, 50, -2.5, 2.5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Jet1_Pt_"+IDsuffix, jets.at(0).Pt(), weight, 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Jet2_Pt_"+IDsuffix, jets.at(1).Pt(), weight, 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Jet1_Eta_"+IDsuffix, jets.at(0).Eta(), weight, 100, -5, 5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Jet2_Eta_"+IDsuffix, jets.at(1).Eta(), weight, 100, -5, 5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/MET_"+IDsuffix, MET, weight, 1000, 0., 1000.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Zep_"+IDsuffix, max_zep, weight, 150, 0., 1.5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/dEtajj_"+IDsuffix, dEta, weight, 100, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/HToverPt1_"+IDsuffix, HT/muons.at(0).Pt(), weight, 10, 0., 10.);
+
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Number_Jets_unweighted_"+IDsuffix, jets.size(), 1., 10, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Number_BJets_Loose_unweighted_"+IDsuffix, Nbjet_loose, 1., 10, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Number_BJets_Medium_unweighted_"+IDsuffix, Nbjet_medium, 1., 10, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Number_FatJets_unweighted_"+IDsuffix, fatjets.size(), 1., 10, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/DiLep_Mass_unweighted_"+IDsuffix, DiLep.M(), 1., 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/DiJet_Mass_unweighted_"+IDsuffix, DiJet.M(), 1., 3000, 0., 3000.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Mu1_Pt_unweighted_"+IDsuffix, muons.at(0).Pt(), 1., 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Mu2_Pt_unweighted_"+IDsuffix, muons.at(1).Pt(), 1., 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Mu1_Eta_unweighted_"+IDsuffix, muons.at(0).Eta(), 1., 50, -2.5, 2.5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Mu2_Eta_unweighted_"+IDsuffix, muons.at(1).Eta(), 1., 50, -2.5, 2.5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Jet1_Pt_unweighted_"+IDsuffix, jets.at(0).Pt(), 1., 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Jet2_Pt_unweighted_"+IDsuffix, jets.at(1).Pt(), 1., 1500, 0., 1500.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Jet1_Eta_unweighted_"+IDsuffix, jets.at(0).Eta(), 1., 100, -5, 5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Jet2_Eta_unweighted_"+IDsuffix, jets.at(1).Eta(), 1., 100, -5, 5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/MET_unweighted_"+IDsuffix, MET, 1., 1000, 0., 1000.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/Zep_unweighted_"+IDsuffix, max_zep, 1., 150, 0., 1.5);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/dEtajj_unweighted_"+IDsuffix, dEta, 1., 100, 0., 10.);
+          FillHist(regionsSSWW.at(it_rg)+"/"+LepCategory+"/HToverPt1_unweighted_"+IDsuffix, HT/muons.at(0).Pt(), 1., 10, 0., 10.);
+        }
+
       }
 
     }

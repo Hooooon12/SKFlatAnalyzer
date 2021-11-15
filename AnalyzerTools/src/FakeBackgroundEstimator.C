@@ -131,11 +131,16 @@ double FakeBackgroundEstimator::GetMuonFakeRate(TString ID, TString key, double 
   //else{
   //  if(pt>=80.) pt = 79.;
   //}
-  if(ID.Contains("SSWW")){
-    if(pt>=50.) pt = 49.;
+  if(key=="FR_2D"){
+    if(ID.Contains("SSWW")){
+      if(pt>=50.) pt = 49.;
+    }
+    else if(ID.Contains("HN")){
+      if(pt>=60.) pt = 59.;
+    }
   }
-  else if(ID.Contains("HN")){
-    if(pt>=60.) pt = 59.;
+  else if(key=="AwayJetPt40"){
+    if(pt>=80.) pt = 79.;
   }
 
   std::map< TString, TH2D* >::const_iterator mapit;
@@ -144,7 +149,7 @@ double FakeBackgroundEstimator::GetMuonFakeRate(TString ID, TString key, double 
   if(mapit==map_hist_Muon.end()){
     if(IgnoreNoHist) return 1.;
     else{
-      cout << "[FakeBackgroundEstimator::GetMuonFakeRate] No"<< ID+"_"+key <<endl;
+      cout << "[FakeBackgroundEstimator::GetMuonFakeRate] No "<< ID+"_"+key <<endl;
       exit(EXIT_FAILURE);
     }
   }

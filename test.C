@@ -4,8 +4,8 @@ R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.1-gniml
 void test(int year, TString isdata, TString stream){
 
   //Fake m;
-  //SSWW m;
-  Signal m;
+  SSWW m;
+  //Signal m;
 
   m.SetTreeName("recoTree/SKFlat");
 
@@ -41,6 +41,25 @@ void test(int year, TString isdata, TString stream){
     m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_111.root");
     m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_112.root");
     m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_113.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_114.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_115.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_116.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_117.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_118.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_119.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_120.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_121.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_122.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_123.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_124.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_125.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_126.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_127.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_128.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_129.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_130.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_131.root");
+    m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_132.root");
   }
   else if(year==2016 && isdata=="mc" && stream=="DY"){
     m.AddFile("/gv0/DATA/SKFlat/Run2Legacy_v4/2016/MC/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/191229_214240/0000/SKFlatNtuple_2016_MC_1.root");

@@ -146,7 +146,7 @@ void Signal::executeEvent(){
     param.Muon_Loose_ID = MuonLooseID;
     param.Muon_Veto_ID  = MuonVetoID;
     param.Muon_FR_ID = MuonFRName;     // ID name in histmap_Muon.txt
-    if(HasFlag("FR_ex")) param.Muon_FR_Key = "AwayJetPt40"; // histname
+    if(HasFlag("FR_ex")&&!(param.Muon_Tight_ID.Contains("2016"))) param.Muon_FR_Key = "AwayJetPt40"; // histname
     else param.Muon_FR_Key = "FR_2D"; // histname
     //param.Muon_ID_SF_Key = "NUM_TightID_DEN_genTracks";
     //param.Muon_ISO_SF_Key = "NUM_TightRelIso_DEN_TightIDandIPCut";
@@ -449,9 +449,7 @@ void Signal::executeEventFromParameter(AnalyzerParameter param){
   int ossf_mass10 = 0;
   
   // Set tight_iso cut & calculate pTcone
-  double mu_tight_iso = 0.05;
-  if(IDsuffix == "HN16") mu_tight_iso = 0.07;
-
+  double mu_tight_iso = 0.07;
   double el_tight_iso = 0.;
   double this_ptcone_muon = 0., this_ptcone_electron = 0.;
 
@@ -462,13 +460,9 @@ void Signal::executeEventFromParameter(AnalyzerParameter param){
   }
    
   for(unsigned int i=0; i<electrons.size(); i++){
-    //el_tight_iso = 0.0287+0.506/electrons.at(i).UncorrPt(); //JH : TODO electron uses UncorrPt() but I don't understand the meaning yet
-    //if(fabs(electrons.at(i).scEta()) > 1.479) el_tight_iso = 0.0445+0.963/electrons.at(i).UncorrPt();
-    //if(IDsuffix == "HNV2"){
-    //  el_tight_iso = std::min(0.08, 0.0287+0.506/electrons.at(i).UncorrPt());
-    //  if(fabs(electrons.at(i).scEta()) > 1.479) el_tight_iso = std::min(0.08, 0.0445+0.963/electrons.at(i).UncorrPt());
-    //} 
-    if(IDsuffix == "HN16") el_tight_iso = 0.08;
+    el_tight_iso = 0.0287+0.506/electrons.at(i).UncorrPt(); //JH : TODO electron uses UncorrPt() but I don't understand the meaning yet
+    if(fabs(electrons.at(i).scEta()) > 1.479) el_tight_iso = 0.0445+0.963/electrons.at(i).UncorrPt();
+    if(IDsuffix == "HN2016") el_tight_iso = 0.08;
     this_ptcone_electron = electrons.at(i).CalcPtCone(electrons.at(i).RelIso(), el_tight_iso);
     electrons.at(i).SetPtCone(this_ptcone_electron);
   }

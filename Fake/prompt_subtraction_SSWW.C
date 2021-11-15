@@ -127,14 +127,14 @@ void prompt_subtraction_SSWW(){
       h_MC_LooseMuPt_Norm[it_mc][it_y] = (TH1D*)h_MC_LooseMuPt[it_mc][it_y]->Clone();
       h_MC_TightMuPt_Norm[it_mc][it_y] = (TH1D*)h_MC_TightMuPt[it_mc][it_y]->Clone();
       for(int j=1; j<=2; j++){
-        this_content_loose = h_MC_LooseMuPt[it_mc][it_y]->GetBinContent(j)*1.261913344446241; // TODO this can be changed with each ID.
-        this_content_tight = h_MC_TightMuPt[it_mc][it_y]->GetBinContent(j)*1.261913344446241;
+        this_content_loose = h_MC_LooseMuPt[it_mc][it_y]->GetBinContent(j)*1.2555318;
+        this_content_tight = h_MC_TightMuPt[it_mc][it_y]->GetBinContent(j)*1.2555318;
         h_MC_LooseMuPt_Norm[it_mc][it_y]->SetBinContent(j, this_content_loose);
         h_MC_TightMuPt_Norm[it_mc][it_y]->SetBinContent(j, this_content_tight);
       }
       for(int j=3; j<=8; j++){
-        this_content_loose = h_MC_LooseMuPt[it_mc][it_y]->GetBinContent(j)*0.93364342777285;
-        this_content_tight = h_MC_TightMuPt[it_mc][it_y]->GetBinContent(j)*0.93364342777285;
+        this_content_loose = h_MC_LooseMuPt[it_mc][it_y]->GetBinContent(j)*0.92947641;
+        this_content_tight = h_MC_TightMuPt[it_mc][it_y]->GetBinContent(j)*0.92947641;
         h_MC_LooseMuPt_Norm[it_mc][it_y]->SetBinContent(j, this_content_loose);
         h_MC_TightMuPt_Norm[it_mc][it_y]->SetBinContent(j, this_content_tight);
       }
@@ -212,16 +212,16 @@ void prompt_subtraction_SSWW(){
       h_MC_TightMu_Norm[it_mc][it_y] = (TH2D*)h_MC_TightMu_Norm_tmp[it_mc][it_y];
       for(int i=1; i<=2; i++){
         for(int j=1; j<=5; j++){
-          this_content_loose = h_MC_LooseMu[it_mc][it_y]->GetBinContent(i,j)*1.261913344446241; // this normalization was from HNTight2016. might be fixed
-          this_content_tight = h_MC_TightMu[it_mc][it_y]->GetBinContent(i,j)*1.261913344446241;
+          this_content_loose = h_MC_LooseMu[it_mc][it_y]->GetBinContent(i,j)*1.2555318;
+          this_content_tight = h_MC_TightMu[it_mc][it_y]->GetBinContent(i,j)*1.2555318;
           h_MC_LooseMu_Norm[it_mc][it_y]->SetBinContent(i, j, this_content_loose);
           h_MC_TightMu_Norm[it_mc][it_y]->SetBinContent(i, j, this_content_tight);
         }
       }
       for(int i=3; i<=8; i++){
         for(int j=1; j<=5; j++){
-          this_content_loose = h_MC_LooseMu[it_mc][it_y]->GetBinContent(i,j)*0.93364342777285;
-          this_content_tight = h_MC_TightMu[it_mc][it_y]->GetBinContent(i,j)*0.93364342777285;
+          this_content_loose = h_MC_LooseMu[it_mc][it_y]->GetBinContent(i,j)*0.92947641;
+          this_content_tight = h_MC_TightMu[it_mc][it_y]->GetBinContent(i,j)*0.92947641;
           h_MC_LooseMu_Norm[it_mc][it_y]->SetBinContent(i, j, this_content_loose);
           h_MC_TightMu_Norm[it_mc][it_y]->SetBinContent(i, j, this_content_tight);
         }
