@@ -403,7 +403,8 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
   //==== Set up pTcone, lepton vector
   //===================================
 
-  Particle METv = ev.GetMETVector();
+  Particle METv;
+  Particle METv_intact = ev.GetMETVector();
 
   double Mt = 0.;
   double Mt3l = 0.;
@@ -477,8 +478,8 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
 
     if(! (jets.size()==0||leptons_loose.size()!=1) ){ // only 1 loose lepton and at least 1 jet
       Jet j1 = jets.at(0);
-      METv = UpdateMETMuon(METv, muons_loose);
-      METv = UpdateMETElectron(METv, electrons_loose);
+      METv = UpdateMETMuon(METv_intact, muons_loose);
+      METv = UpdateMETElectron(METv_intact, electrons_loose);
       double MET = METv.Pt(); // MET propagated
       
       for(int it_rg=0; it_rg<regionsFake.size(); it_rg++){
@@ -669,11 +670,11 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
               if(!( ev.PassTrigger(MuonTrigger3) )) continue;
               if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(MuonTrigger3);
             }
-            else if(20 <= mu1.PtCone() && mu1.PtCone() < 30.){
+            else if(20. <= mu1.PtCone() && mu1.PtCone() < 30.){
               if(!( ev.PassTrigger(MuonTrigger8) )) continue;
               if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(MuonTrigger8);
             }
-            else if(30 <= mu1.PtCone() && mu1.PtCone() < 9999.){
+            else if(30. <= mu1.PtCone() && mu1.PtCone() < 9999.){
               if(!( ev.PassTrigger(MuonTrigger17) )) continue;
               if(!IsDATA) weight = weight_common*ev.GetTriggerLumiByYear(MuonTrigger17);
             }
@@ -715,6 +716,10 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Jet1_Eta_"+IDsuffix, j1.Eta(), weight, 100, -5., 5.);
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_"+IDsuffix, mu1.PtCone(), fabs(mu1.Eta()), weight, 10, 10., 60., 5, 0., 2.5);
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_PtCone_"+IDsuffix, mu1.PtCone(), weight, 1000, 0., 1000.);
+            if(mu1.PtCone()<20.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_Pt_PtCone0To20_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
+            else if(20.<=mu1.PtCone()&&mu1.PtCone()<30.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_Pt_PtCone20To30_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
+            else if(30.<=mu1.PtCone()&&mu1.PtCone()<9999.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_Pt_PtCone30ToInf_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
+            if(mu1.PtCone() < 20.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_Pt_PtCone0To20_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Loose_Eta_"+IDsuffix, mu1.Eta(), weight, 60, -3., 3.);
             if(muons_tight.size() > 0){
               if( (muons_loose.at(0).Pt() != muons_tight.at(0).Pt()) || (muons_loose.at(0).Eta() != muons_tight.at(0).Eta()) ){
@@ -730,6 +735,9 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 8.5, 1., cutflow_bin, 0., cutflow_max);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_"+IDsuffix, mu1.PtCone(), fabs(mu1.Eta()), weight, 10, 10., 60., 5, 0., 2.5);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_PtCone_"+IDsuffix, mu1.PtCone(), weight, 1000, 0., 1000.);
+              if(mu1.PtCone()<20.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
+              else if(20.<=mu1.PtCone()&&mu1.PtCone()<30.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
+              else if(30.<=mu1.PtCone()&&mu1.PtCone()<9999.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Eta_"+IDsuffix, mu1.Eta(), weight, 60, -3., 3.);
             }
           }
@@ -824,8 +832,8 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
 
   if(HasFlag("Norm")){
 
-    METv = UpdateMETMuon(METv, muons_tight);
-    METv = UpdateMETElectron(METv, electrons_tight);
+    METv = UpdateMETMuon(METv_intact, muons_tight);
+    METv = UpdateMETElectron(METv_intact, electrons_tight);
     double MET = METv.Pt(); // MET propagated
 
     //if(IDsuffix=="HN"&&Nentry%1000==0) cout << "N tight muons : " << muons_tight.size() << ", N tight electrons : " << electrons_tight.size() << endl;
