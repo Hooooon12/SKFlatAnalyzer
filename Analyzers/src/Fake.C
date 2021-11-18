@@ -436,7 +436,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
   }
    
   for(unsigned int i=0; i<electrons_loose.size(); i++){
-    if(IDsuffix = "HN"){ // new ID, not HNTight2016
+    if(IDsuffix == "HN"){ // new ID, not HNTight2016
       el_tight_iso = 0.0287+0.506/electrons_loose.at(i).UncorrPt(); // https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Working_points_for_2016_data_for
       if(fabs(electrons_loose.at(i).scEta()) > 1.479) el_tight_iso = 0.0445+0.963/electrons_loose.at(i).UncorrPt();
     }
@@ -842,6 +842,20 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             //if(Nentry%1000==0) cout << "Trigger name : " << MuonTriggers.at(i) << ", DataStream : " << DataStream << ", IsPDForTrigger : " << ev.IsPDForTrigger(MuonTriggers.at(i),DataStream) << endl;
             if(ev.IsPDForTrigger(MuonTriggers.at(i),DataStream)){
               if(ev.PassTrigger(MuonTriggers.at(i))) FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), MuonTriggers.at(i), IDsuffix, weight);
+              //if(ev.PassTrigger(MuonTriggers.at(i))){ //XXX DEBUG
+              //  if(MuonTriggers.at(i).Contains("Mu17")){
+              //    if(IDsuffix=="HN"){
+              //      cout << "========================================" << endl;
+              //      cout << Nentry << "th event : " << regionsNorm.at(it_rg) << " passed;" << endl;
+              //      cout << "trigger name : " << MuonTriggers.at(i) << endl;
+              //      cout << "ID : " << param.Muon_Tight_ID << endl;
+              //      cout << "ID suffix : " << IDsuffix << endl;
+              //      cout << "Z Cand Mass : " << ZCand.M() << endl;
+              //      cout << "pt : " << muons_tight.at(0).Pt() << ", " << muons_tight.at(1).Pt() << endl;
+              //    }
+              //  }
+              //  FillLeptonPlotsFakeNorm(leptons_tight, METv, regionsNorm.at(it_rg), MuonTriggers.at(i), IDsuffix, weight);
+              //}
             }
             else continue;
           }

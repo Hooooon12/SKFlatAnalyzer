@@ -3,8 +3,8 @@ R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.1-gniml
 
 void test(int year, TString isdata, TString stream){
 
-  //Fake m;
-  SSWW m;
+  Fake m;
+  //SSWW m;
   //Signal m;
 
   m.SetTreeName("recoTree/SKFlat");
@@ -24,10 +24,10 @@ void test(int year, TString isdata, TString stream){
   else if(isdata == "mc") m.IsDATA = false;
   m.DataYear = year;
   m.Userflags = {
-    //"FR",
-    //"Norm",
-    "RunFake",
-    //"FR_ex",
+    "FR", //Fake
+    "Norm", //Fake
+    //"RunFake", //SSWW, Signal
+    //"FR_ex", //Signal
   };
   if(year==2016 && isdata=="data" && stream=="DM"){
     m.AddFile("/gv0//DATA/SKFlat/Run2Legacy_v4/2016/DATA/DoubleMuon/periodB_ver2/191231_024317/0000/SKFlatNtuple_2016_DATA_195.root");
