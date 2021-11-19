@@ -12,6 +12,9 @@ void Fake::initializeAnalyzer(){
   MuonTightIDs = {"HNTightV1"};
   MuonLooseIDs = {"HNLooseV1"};
   MuonVetoIDs = {"ISRVeto"};
+  //MuonTightIDs = {"HNTight2016","HNTightV1"};
+  //MuonLooseIDs = {"HNLoose2016","HNLooseV1"};
+  //MuonVetoIDs = {"HNVeto2016","ISRVeto"};
   if(DataYear==2016){
     //ElectronTightIDs = {"SSWW_tight2016","HNTight2016","HNTightV1"};
     //ElectronLooseIDs = {"SSWW_loose2016","HNLoose2016","HNLooseV1"};
@@ -19,6 +22,9 @@ void Fake::initializeAnalyzer(){
     ElectronTightIDs = {"HNTightV1"};
     ElectronLooseIDs = {"HNLooseV1"};
     ElectronVetoIDs = {"ISRVeto"};
+    //ElectronTightIDs = {"HNTight2016","HNTightV1"};
+    //ElectronLooseIDs = {"HNLoose2016","HNLooseV1"};
+    //ElectronVetoIDs = {"HNVeto2016","ISRVeto"};
   }
   else{
     ElectronTightIDs = {"SSWW_tight","HNTightV1"};
@@ -282,7 +288,7 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
   TString ElectronVetoID = param.Electron_Veto_ID;
 
   vector<Muon> muons_tight = SelectMuons(this_AllMuons, MuonTightID, 10., 2.4);
-  vector<Muon> muons_loose = SelectMuons(this_AllMuons, MuonLooseID, 10., 2.4);
+  vector<Muon> muons_loose = SelectMuons(this_AllMuons, MuonLooseID, 5., 2.4); //JH set loose muon pt cut 5GeV to include full events into the ptcone 10~20GeV bin
   vector<Muon> muons_veto = SelectMuons(this_AllMuons, MuonVetoID, 5., 2.4);
   vector<Electron> electrons_tight = SelectElectrons(this_AllElectrons, ElectronTightID, 10., 2.5);
   vector<Electron> electrons_loose = SelectElectrons(this_AllElectrons, ElectronLooseID, 10., 2.5);
@@ -735,9 +741,9 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 8.5, 1., cutflow_bin, 0., cutflow_max);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_"+IDsuffix, mu1.PtCone(), fabs(mu1.Eta()), weight, 10, 10., 60., 5, 0., 2.5);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_PtCone_"+IDsuffix, mu1.PtCone(), weight, 1000, 0., 1000.);
-              if(mu1.PtCone()<20.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
-              else if(20.<=mu1.PtCone()&&mu1.PtCone()<30.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
-              else if(30.<=mu1.PtCone()&&mu1.PtCone()<9999.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
+              if(mu1.PtCone()<20.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_PtCone0To20_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
+              else if(20.<=mu1.PtCone()&&mu1.PtCone()<30.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_PtCone20To30_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
+              else if(30.<=mu1.PtCone()&&mu1.PtCone()<9999.) FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Pt_PtCone30ToInf_"+IDsuffix, mu1.Pt(), weight, 1000, 0., 1000.);
               FillHist("Muon/"+regionsFake.at(it_rg)+"/Muon_Tight_Eta_"+IDsuffix, mu1.Eta(), weight, 60, -3., 3.);
             }
           }

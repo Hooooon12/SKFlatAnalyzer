@@ -17,8 +17,8 @@
 
 #python python/SKFlat.py -a SSWW -y 2016 -l submitList/2016_DoubleMuon_BtoH.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake --batchname auto &
 
-#python python/SKFlat.py -a Signal -y 2016 -l submitList/2016_DoubleMuon_BtoG.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake --batchname auto &
-#python python/SKFlat.py -a Signal -y 2016 -l submitList/2016_DoubleMuon_H.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake,PeriodH --batchname auto &
+python python/SKFlat.py -a Signal -y 2016 -l submitList/2016_DoubleMuon_BtoG.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake --batchname auto &
+python python/SKFlat.py -a Signal -y 2016 -l submitList/2016_DoubleMuon_H.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake,PeriodH --batchname auto &
 #python python/SKFlat.py -a Signal -y 2016 -l submitList/2016_DoubleMuon_BtoG.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake,FR_ex --batchname auto &
 #python python/SKFlat.py -a Signal -y 2016 -l submitList/2016_DoubleMuon_H.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake,PeriodH,FR_ex --batchname auto &
 
@@ -37,10 +37,6 @@
 #python python/SKFlat.py -a Control -y 2016 -i ZGTo2LG -n 50 --skim SkimTree_Dilepton --nmax 80 &
 
 #python python/SKFlat.py -a SSWW -y 2016 -l submitList/SSWW_MC_2016.txt -n 50 --batchname auto &
-#python python/SKFlat.py -a SSWW -y 2016 -i WGJJToLNu -n 50 --batchname auto &
-#python python/SKFlat.py -a SSWW -y 2016 -i WZJJ_WToLNu -n 50 --batchname auto &
-#python python/SKFlat.py -a SSWW -y 2016 -i WWG -n 50 --batchname auto &
-python python/SKFlat.py -a SSWW -y 2016 -i tZq -n 50 --batchname auto &
 
 #python python/SKFlat.py -a Signal -y 2016 -l submitList/Dilepton_SR_2016.txt -n 80 --skim SkimTree_Dilepton --batchname auto &
 #python python/SKFlat.py -a Signal -y 2016 -l submitList/NoSkim_SR.txt -n 80 --batchname auto &
