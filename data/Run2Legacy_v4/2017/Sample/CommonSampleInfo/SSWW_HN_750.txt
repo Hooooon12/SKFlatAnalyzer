@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumw
+SSWW_HN_750	HeavyN_SSWW_MuMu_onlyVmuN1_M750_TuneCUETP8M1_13TeV-amcatnlo-pythia8	183300	499999	186763

@@ -1,0 +1,10 @@
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_0.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_1.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_2.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_3.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_4.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_5.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_6.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_7.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_8.root
+/gv0/DATA/SKFlat/Run2Legacy_v4/2016/PrivateMC/HNtypeI/DYTypeI_OS_EMu_M2000/DYTypeI_NLO_DF_M2000_OS_EMu_2016_Ntuple_9.root

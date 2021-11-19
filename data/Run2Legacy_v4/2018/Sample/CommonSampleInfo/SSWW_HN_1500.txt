@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumw
+SSWW_HN_1500	HeavyN_SSWW_MuMu_onlyVmuN1_M1500_TuneCP5_13TeV-amcatnlo-pythia8	0.009085	500000	187886
