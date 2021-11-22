@@ -13,7 +13,7 @@ void Control::initializeAnalyzer(){
   RunCF = HasFlag("RunCF");
 
   MuonTightIDs = {"HNTightV1"};
-  MuonLooseIDs = {"HNLooseV3"};
+  MuonLooseIDs = {"HNLooseV1"};
   MuonVetoIDs  = {"ISRVeto"};
   ElectronTightIDs = {"HNTightV1"};
   ElectronLooseIDs = {"HNLooseV1"};
@@ -40,8 +40,8 @@ void Control::initializeAnalyzer(){
     MuonTriggersBtoG.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v");                 // 27267.591112919 //JH : NOTE these two are prescaled at 2016H -> https://its.cern.ch/jira/browse/CMSHLT-1002
     MuonTriggers.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v");                       // 35918.219492947
     MuonTriggers.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v");                     // 35918.219492947 
-    MuonTriggers.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v");                    // 35918.219492947
-    MuonTriggers.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v");                  // 35918.219492947 
+    //MuonTriggers.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v");                    // 35918.219492947
+    //MuonTriggers.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v");                  // 35918.219492947 
     MuonTriggersH.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v");                   // 8650.628380028
     MuonTriggersH.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v");                 // 8650.628380028
     MuonTriggersHighPt.push_back("HLT_Mu50_v");                    
@@ -51,8 +51,8 @@ void Control::initializeAnalyzer(){
     EMuTriggersBtoG.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v");     // 27267.591112919
     EMuTriggers.push_back("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v");          // 35918.219492947
     EMuTriggers.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v");         // 35918.219492947
-    EMuTriggers.push_back("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v");       // 35918.219492947
-    EMuTriggers.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");      // 35918.219492947
+    //EMuTriggers.push_back("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v");       // 35918.219492947
+    //EMuTriggers.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");      // 35918.219492947
     EMuTriggersH.push_back("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v");      // 8650.628380028
     EMuTriggersH.push_back("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");     // 8650.628380028
     MuonPtCut1 = 20., MuonPtCut2 = 10.;
@@ -191,7 +191,8 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
   vector<TString> regionsSM = {"DYmm", "DYee", "DYemu", "TTmm", "TTee", "TTemu", "WZ", "ZG", "WG", "ZZ"}; 
   vector<TString> channels3L = {"mmm", "mme", "mee", "eee"}; //JH : iterate for the number of e
   vector<TString> channels4L = {"mmmm", "mmee", "eeee"}; //JH : iterate for the number of e / 2
-  TString IDsuffix = "Run2";
+  TString IDsuffix = "HN";
+  if(param.Muon_Tight_ID.Contains("2016")) IDsuffix = "HN2016";
   //if(param.Electron_Tight_ID.Contains("V2")) IDsuffix = "HNV2";
   if(param.Muon_Tight_ID.Contains("HighPt")) IDsuffix = "HighPt";
   if(param.Muon_Tight_ID.Contains("POGTight")) IDsuffix = "POGTight";
@@ -215,7 +216,7 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
   //=============
 
   if(!IsDATA){
-    weight *= weight_norm_1invpb*ev.GetTriggerLumi("Full"); //JH : weight_norm_1invpb = xsec/sumW; Lumi = 35.9, 41.5, 59.7(fb-1) total 137fb-1
+    weight *= weight_norm_1invpb*ev.GetTriggerLumiByYear("Full"); //JH : weight_norm_1invpb = xsec/sumW; Lumi = 35.9, 41.5, 59.7(fb-1) total 137fb-1
     weight *= ev.MCweight(); //JH : gen_weight in MiniAOD
     weight *= GetPrefireWeight(0); //JH : No issue in 2018, otherwise returns L1PrefireReweight_Central in MiniAOD
     weight *= GetPileUpWeight(nPileUp,0); //JH : mcCorr->GetPileUpWeight(N_pileup, syst); mcCorr->GetPileUpWeight2017(N_pileup, syst); NOTE 2018 not yet added.
@@ -243,7 +244,13 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
   //==== Trigger
   //==============
 
-  if(!(ev.PassTrigger(MuonTriggers) || ev.PassTrigger(MuonTriggersHighPt) || ev.PassTrigger(ElectronTriggers) || ev.PassTrigger(EMuTriggers))) return; 
+  if(HasFlag("PeriodH")){
+    if(!(ev.PassTrigger(MuonTriggersH) || ev.PassTrigger(ElectronTriggers) || ev.PassTrigger(EMuTriggersH))) return;
+  }
+  else{
+    //if(!(ev.PassTrigger(MuonTriggers) || ev.PassTrigger(MuonTriggersHighPt) || ev.PassTrigger(ElectronTriggers) || ev.PassTrigger(EMuTriggers))) return;
+    if(!(ev.PassTrigger(MuonTriggers) || ev.PassTrigger(ElectronTriggers) || ev.PassTrigger(EMuTriggers))) return;
+  }
 
   //======================
   //==== Copy AllObjects
@@ -443,9 +450,6 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
   
   // Set tight_iso cut & calculate pTcone
   double mu_tight_iso = 0.07;
-  //if(IDsuffix == "HNV2") mu_tight_iso = 0.1;
-  if(IDsuffix == "HN16") mu_tight_iso = 0.07;
-
   double el_tight_iso = 0.;
   double this_ptcone_muon = 0., this_ptcone_electron = 0.;
 
@@ -456,19 +460,9 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
   }
    
   for(unsigned int i=0; i<electrons.size(); i++){
-    //el_tight_iso = 0.0287+0.506/electrons.at(i).UncorrPt(); //JH : TODO electron uses UncorrPt() but I don't understand the meaning yet
-    //if(fabs(electrons.at(i).scEta()) > 1.479) el_tight_iso = 0.0445+0.963/electrons.at(i).UncorrPt();
-    //if(IDsuffix == "HNV2"){
-    //  el_tight_iso = std::min(0.08, 0.0287+0.506/electrons.at(i).UncorrPt());
-    //  if(fabs(electrons.at(i).scEta()) > 1.479) el_tight_iso = std::min(0.08, 0.0445+0.963/electrons.at(i).UncorrPt());
-    //} 
-    if(IDsuffix == "HN16") el_tight_iso = 0.08;
-
-    if(param.Electron_Tight_ID.Contains("HNTight")){ // POG cut-based tight WP
-      el_tight_iso = 0.0287+0.506/electrons.at(i).UncorrPt();
-      if(fabs(electrons.at(i).scEta()) > 1.479) el_tight_iso = 0.0445+0.963/electrons.at(i).UncorrPt();
-    }
-
+    el_tight_iso = 0.0287+0.506/electrons.at(i).UncorrPt(); //JH : TODO electron uses UncorrPt() but I don't understand the meaning yet
+    if(fabs(electrons.at(i).scEta()) > 1.479) el_tight_iso = 0.0445+0.963/electrons.at(i).UncorrPt();
+    if(IDsuffix == "HN2016") el_tight_iso = 0.08;
     this_ptcone_electron = electrons.at(i).CalcPtCone(electrons.at(i).RelIso(), el_tight_iso);
     electrons.at(i).SetPtCone(this_ptcone_electron);
   }
@@ -540,33 +534,7 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
 
   // Period-dependent trigger weight (only for 2016 MC)
   trigger_lumi = 1., dimu_trig_weight = 0., emu_trig_weight = 0.;
-  if(!IsDATA){
-    if(DataYear==2016){
-      if(param.Muon_Tight_ID.Contains("HighPt")){
-        if(ev.PassTrigger(MuonTriggersHighPt)){
-          trigger_lumi = ev.GetTriggerLumi("Full");
-        }
-      }
-      else{
-        if(ev.PassTrigger(MuonTriggers)){
-          if(ev.PassTrigger(MuonTriggers)) dimu_trig_weight += 27267.591;
-          if(ev.PassTrigger(MuonTriggersH)) dimu_trig_weight += 8650.628;
-          trigger_lumi = dimu_trig_weight;
-        }
-      }
-      if(ev.PassTrigger(ElectronTriggers)){
-        trigger_lumi = ev.GetTriggerLumi("Full");
-      }
-      if(ev.PassTrigger(EMuTriggers) || ev.PassTrigger(EMuTriggersH)){
-        if(ev.PassTrigger(EMuTriggers)) emu_trig_weight += 27267.591;
-        if(ev.PassTrigger(EMuTriggersH)) emu_trig_weight += 8650.628;
-        trigger_lumi = emu_trig_weight;
-      }
-    }
-    else{
-      trigger_lumi = ev.GetTriggerLumi("Full");
-    }
-  }
+  if(!IsDATA) trigger_lumi = ev.GetTriggerLumiByYear("Full");
 
   //=========================
   //==== Event selections..
@@ -587,39 +555,55 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
     FillHist(regionsSM.at(it_rg2)+"/Number_Events_"+IDsuffix, 2.5, weight, cutflow_bin, 0., cutflow_max);
     FillHist(regionsSM.at(it_rg2)+"/Number_Events_unweighted_"+IDsuffix, 2.5, 1., cutflow_bin, 0., cutflow_max);
 
-    if(param.Muon_Tight_ID.Contains("HighPt")){
-      MuonPtCut1 = 50., MuonPtCut2 = 50.;
-      ElectronPtCut1 = 35., ElectronPtCut2 = 35.;
-    }
-    else{
-      MuonPtCut1 = 20., MuonPtCut2 = 10.;
-      ElectronPtCut1 = 25., ElectronPtCut2 = 15.;
-    }
+    //if(param.Muon_Tight_ID.Contains("HighPt")){
+    //  MuonPtCut1 = 50., MuonPtCut2 = 50.;
+    //  ElectronPtCut1 = 35., ElectronPtCut2 = 35.;
+    //}
 
     //=====================================
     //==== DY, TT control region
     //=====================================
     if(HasFlag("SM") && it_rg2<6 && leptons.size()==2){ //JH : DYmm, DYee, DYemu, TTmm, TTee, TTemu
 
+      trigger_lumi = 1., dimu_trig_weight = 0., emu_trig_weight = 0.;
       // Passing triggers & ptcut
       if(it_rg2==0||it_rg2==3){
         if(muons.size()!=2) continue;
-        if(param.Muon_Tight_ID.Contains("HighPt")){
-          if(!ev.PassTrigger(MuonTriggersHighPt)) continue;
+        //if(param.Muon_Tight_ID.Contains("HighPt")){
+        //  if(!ev.PassTrigger(MuonTriggersHighPt)) continue;
+        //}
+        if(HasFlag("PeriodH")){
+          if(!ev.PassTrigger(MuonTriggersH)) continue;
         }
         else{
           if(!ev.PassTrigger(MuonTriggers)) continue;
+        }
+        if(!IsDATA){
+          if(ev.PassTrigger(MuonTriggers)) dimu_trig_weight += 27267.591;
+          if(ev.PassTrigger(MuonTriggersH)) dimu_trig_weight += 8650.628;
+          trigger_lumi = dimu_trig_weight;
         }
         if(!(muons.at(0).Pt()>MuonPtCut1 && muons.at(1).Pt()>MuonPtCut2)) continue;
       }
       if(it_rg2==1||it_rg2==4){
         if(electrons.size()!=2) continue;
         if(!ev.PassTrigger(ElectronTriggers)) continue;
+        if(!IsDATA) trigger_lumi = ev.GetTriggerLumiByYear("Full");
         if(!(electrons.at(0).Pt()>ElectronPtCut1 && electrons.at(1).Pt()>ElectronPtCut2)) continue;
       }
       if(it_rg2==2||it_rg2==5){
         if(!(muons.size()==1&&electrons.size()==1)) continue;
-        if(!ev.PassTrigger(EMuTriggers)) continue;
+        if(HasFlag("PeriodH")){
+          if(!ev.PassTrigger(EMuTriggersH)) continue;
+        }
+        else{
+          if(!ev.PassTrigger(EMuTriggers)) continue;
+        }
+        if(!IsDATA){
+          if(ev.PassTrigger(EMuTriggers)) emu_trig_weight += 27267.591;
+          if(ev.PassTrigger(EMuTriggersH)) emu_trig_weight += 8650.628;
+          trigger_lumi = emu_trig_weight;
+        }
         if(!(leptons.at(0)->Pt()>EMuPtCut1 && leptons.at(1)->Pt()>EMuPtCut2)) continue;
       }
 
@@ -633,19 +617,16 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
         weight *= GetPileUpWeight(nPileUp,0);
 
         for(unsigned int i=0; i<muons.size(); i++){
-          if(param.Muon_Tight_ID.Contains("HighPt")){
-            muon_miniaodP = sqrt( muons.at(i).MiniAODPt()*muons.at(i).MiniAODPt() + muons.at(i).Pz()*muons.at(i).Pz() );
-            muon_recosf   = mcCorr->MuonReco_SF("HighPtMuonRecoSF", muons.at(i).Eta(), muon_miniaodP, 0);
-            muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
-            muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
-          }
-          else if(param.Muon_Tight_ID.Contains("HNTight")){
+          //if(param.Muon_Tight_ID.Contains("HighPt")){
+          //  muon_miniaodP = sqrt( muons.at(i).MiniAODPt()*muons.at(i).MiniAODPt() + muons.at(i).Pz()*muons.at(i).Pz() );
+          //  muon_recosf   = mcCorr->MuonReco_SF("HighPtMuonRecoSF", muons.at(i).Eta(), muon_miniaodP, 0);
+          //  muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
+          //  muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
+          //}
+          if(param.Muon_Tight_ID.Contains("HNTight")){
             muon_recosf = 1.;
             muon_idsf   = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);;
             muon_isosf  = 1.;
-            if(RunFake){  // When subtracting prompt contribution from fake contribution, we apply ID SF only for muons passing the tight ID
-              if(!muons.at(i).PassID(param.Muon_Tight_ID)) muon_idsf = 1.;
-            }
           }
           weight *= muon_recosf*muon_idsf*muon_isosf;
         }
@@ -660,9 +641,6 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
           }
           else if(param.Electron_Tight_ID.Contains("HNTight")){
             ele_idsf = mcCorr->ElectronID_SF(param.Electron_Tight_ID, electrons.at(j).scEta(), electrons.at(j).UncorrPt(), 0);
-            if(RunFake){  // When subtracting prompt contribution from fake contribution, we apply ID SF only for electrons passing the tight ID
-              if(!electrons.at(j).PassID(param.Electron_Tight_ID)) ele_idsf = 1.;
-            }
           }
           else ele_idsf = 1.;
           weight *= ele_recosf*ele_idsf;
@@ -817,7 +795,12 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
       // Passing triggers & ptcut
       if(muons.size() >= 2){
         if(IsDATA){ if(!isDoubleMuon) continue; }
-        if(!ev.PassTrigger(MuonTriggers)) continue;
+        if(HasFlag("PeriodH")){
+          if(!ev.PassTrigger(MuonTriggersH)) continue;
+        }
+        else{
+          if(!ev.PassTrigger(MuonTriggers)) continue;
+        }
       }
       if(electrons.size() >= 2){
         if(IsDATA){ if(!isDoubleEG) continue; }
@@ -841,19 +824,17 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
       if(!IsDATA){
         if(DataYear==2016){
           if(muons.size() >= 2){
-            if(param.Muon_Tight_ID.Contains("HighPt")){
-              trigger_lumi = ev.GetTriggerLumi("Full");
-            }
-            else{
-              if(ev.PassTrigger(MuonTriggers)) dimu_trig_weight += 27267.591;
-              if(ev.PassTrigger(MuonTriggersH)) dimu_trig_weight += 8650.628;
-              trigger_lumi = dimu_trig_weight;
-            }
+            //if(param.Muon_Tight_ID.Contains("HighPt")){
+            //  trigger_lumi = ev.GetTriggerLumiByYear("Full");
+            //}
+            if(ev.PassTrigger(MuonTriggers)) dimu_trig_weight += 27267.591;
+            if(ev.PassTrigger(MuonTriggersH)) dimu_trig_weight += 8650.628;
+            trigger_lumi = dimu_trig_weight;
           }
-          if(electrons.size() >= 2) trigger_lumi = ev.GetTriggerLumi("Full");
+          if(electrons.size() >= 2) trigger_lumi = ev.GetTriggerLumiByYear("Full");
         }
         else{
-          trigger_lumi = ev.GetTriggerLumi("Full");
+          trigger_lumi = ev.GetTriggerLumiByYear("Full");
         }
 
         weight *= weight_norm_1invpb*trigger_lumi;
@@ -862,19 +843,16 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
         weight *= GetPileUpWeight(nPileUp,0);
 
         for(unsigned int i=0; i<muons.size(); i++){
-          if(param.Muon_Tight_ID.Contains("HighPt")){
-            muon_miniaodP = sqrt( muons.at(i).MiniAODPt()*muons.at(i).MiniAODPt() + muons.at(i).Pz()*muons.at(i).Pz() );
-            muon_recosf   = mcCorr->MuonReco_SF("HighPtMuonRecoSF", muons.at(i).Eta(), muon_miniaodP, 0);
-            muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks",  muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
-            muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
-          }
-          else if(param.Muon_Tight_ID.Contains("HNTight")){
+          //if(param.Muon_Tight_ID.Contains("HighPt")){
+          //  muon_miniaodP = sqrt( muons.at(i).MiniAODPt()*muons.at(i).MiniAODPt() + muons.at(i).Pz()*muons.at(i).Pz() );
+          //  muon_recosf   = mcCorr->MuonReco_SF("HighPtMuonRecoSF", muons.at(i).Eta(), muon_miniaodP, 0);
+          //  muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks",  muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
+          //  muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
+          //}
+          if(param.Muon_Tight_ID.Contains("HNTight")){
             muon_recosf = 1.;
             muon_idsf     = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
             muon_isosf    = 1.;
-            if(RunFake){  // When subtracting prompt contribution from fake contribution, we apply ID SF only for muons passing the tight ID
-              if(!muons.at(i).PassID(param.Muon_Tight_ID)) muon_idsf = 1.;
-            }
           }
           weight *= muon_recosf*muon_idsf*muon_isosf;
         }
@@ -889,9 +867,6 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
           }
           else if(param.Electron_Tight_ID.Contains("HNTight")){
             ele_idsf = mcCorr->ElectronID_SF(param.Electron_Tight_ID, electrons.at(j).scEta(), electrons.at(j).UncorrPt(), 0);
-            if(RunFake){  // When subtracting prompt contribution from fake contribution, we apply ID SF only for electrons passing the tight ID
-              if(!electrons.at(j).PassID(param.Electron_Tight_ID)) ele_idsf = 1.;
-            }
           }
           else ele_idsf = 1.;
           weight *= ele_recosf*ele_idsf;
@@ -1153,8 +1128,11 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
         else if(muons.size() == 2 && electrons.size() == 2){
           if(!(muons.at(0).Pt()>MuonPtCut1 && muons.at(1).Pt()>MuonPtCut2 && electrons.at(0).Pt()>ElectronPtCut2 && electrons.at(1).Pt()>ElectronPtCut2)) continue;
         }
-        if(param.Muon_Tight_ID.Contains("HighPt")){
-          if(!ev.PassTrigger(MuonTriggersHighPt)) continue; 
+        //if(param.Muon_Tight_ID.Contains("HighPt")){
+        //  if(!ev.PassTrigger(MuonTriggersHighPt)) continue; 
+        //}
+        if(HasFlag("PeriodH")){
+          if(!ev.PassTrigger(MuonTriggersH)) continue; 
         }
         else{
           if(!ev.PassTrigger(MuonTriggers)) continue; 
@@ -1166,9 +1144,23 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
         if(!(electrons.at(0).Pt()>ElectronPtCut1 && electrons.at(1).Pt()>ElectronPtCut2 && electrons.at(2).Pt()>ElectronPtCut2 && electrons.at(3).Pt()>ElectronPtCut2)) continue;
       }
 
-      weight = 1.;
+      weight = 1., trigger_lumi = 1., dimu_trig_weight = 0.;
       // weights for MC
       if(!IsDATA){
+        if(DataYear==2016){
+          if(muons.size() >= 2){
+            //if(param.Muon_Tight_ID.Contains("HighPt")){
+            //  trigger_lumi = ev.GetTriggerLumiByYear("Full");
+            //}
+            if(ev.PassTrigger(MuonTriggers)) dimu_trig_weight += 27267.591;
+            if(ev.PassTrigger(MuonTriggersH)) dimu_trig_weight += 8650.628;
+            trigger_lumi = dimu_trig_weight;
+          }
+          if(electrons.size() >= 2) trigger_lumi = ev.GetTriggerLumiByYear("Full");
+        }
+        else{
+          trigger_lumi = ev.GetTriggerLumiByYear("Full");
+        }
 
         weight *= weight_norm_1invpb*trigger_lumi;
         weight *= ev.MCweight();
@@ -1176,19 +1168,16 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
         weight *= GetPileUpWeight(nPileUp,0);
 
         for(unsigned int i=0; i<muons.size(); i++){
-          if(param.Muon_Tight_ID.Contains("HighPt")){
-            muon_miniaodP = sqrt( muons.at(i).MiniAODPt()*muons.at(i).MiniAODPt() + muons.at(i).Pz()*muons.at(i).Pz() );
-            muon_recosf   = mcCorr->MuonReco_SF("HighPtMuonRecoSF", muons.at(i).Eta(), muon_miniaodP, 0);
-            muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks",  muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
-            muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
-          }
-          else if(param.Muon_Tight_ID.Contains("HNTight")){
+          //if(param.Muon_Tight_ID.Contains("HighPt")){
+          //  muon_miniaodP = sqrt( muons.at(i).MiniAODPt()*muons.at(i).MiniAODPt() + muons.at(i).Pz()*muons.at(i).Pz() );
+          //  muon_recosf   = mcCorr->MuonReco_SF("HighPtMuonRecoSF", muons.at(i).Eta(), muon_miniaodP, 0);
+          //  muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks",  muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
+          //  muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
+          //}
+          if(param.Muon_Tight_ID.Contains("HNTight")){
             muon_recosf = 1.;
             muon_idsf     = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
             muon_isosf    = 1.;
-            if(RunFake){  // When subtracting prompt contribution from fake contribution, we apply ID SF only for muons passing the tight ID
-              if(!muons.at(i).PassID(param.Muon_Tight_ID)) muon_idsf = 1.;
-            }
           }
           weight *= muon_recosf*muon_idsf*muon_isosf;
         }
@@ -1203,9 +1192,6 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
           }
           else if(param.Electron_Tight_ID.Contains("HNTight")){
             ele_idsf = mcCorr->ElectronID_SF(param.Electron_Tight_ID, electrons.at(j).scEta(), electrons.at(j).UncorrPt(), 0);
-            if(RunFake){  // When subtracting prompt contribution from fake contribution, we apply ID SF only for electrons passing the tight ID
-              if(!electrons.at(j).PassID(param.Electron_Tight_ID)) ele_idsf = 1.;
-            }
           }
           weight *= ele_recosf*ele_idsf;
         }
