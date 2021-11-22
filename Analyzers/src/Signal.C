@@ -476,6 +476,13 @@ void Signal::executeEventFromParameter(AnalyzerParameter param){
     electrons.at(i).SetPtCone(this_ptcone_electron);
   }
 
+  // Use pT cone instead of mere pT, when running RunFake
+  METv = UpdateMETFake(METv, electrons, muons);
+  muons = MuonUsePtCone(muons);
+  electrons = ElectronUsePtCone(electrons);
+  std::sort(muons.begin(), muons.end(), PtComparing);
+  std::sort(electrons.begin(), electrons.end(), PtComparing);
+
   //if(muons.size()==2 && electrons.size()==0){
   //  FillHist("Pt_muon1", muons.at(0).Pt(), weight, 1000, 0., 1000.);
   //  FillHist("Pt_muon2", muons.at(1).Pt(), weight, 1000, 0., 1000.);

@@ -713,9 +713,9 @@ void Fake::executeEventFromParameter(AnalyzerParameter param, Long64_t Nentry){
             if(!( j1.Pt()/mu1.Pt() > 1. )) continue;
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 6.5, weight, cutflow_bin, 0., cutflow_max);
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 6.5, 1., cutflow_bin, 0., cutflow_max);
-            if(!( j1.ChargedEmEnergyFraction() < 0.65 )) continue;
-            FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 7.5, weight, cutflow_bin, 0., cutflow_max);
-            FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 7.5, 1., cutflow_bin, 0., cutflow_max);
+            //if(!( j1.ChargedEmEnergyFraction() < 0.65 )) continue;
+            //FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_"+IDsuffix, 7.5, weight, cutflow_bin, 0., cutflow_max);
+            //FillHist("Muon/"+regionsFake.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 7.5, 1., cutflow_bin, 0., cutflow_max);
 
             // fill histos
             FillHist("Muon/"+regionsFake.at(it_rg)+"/Jet1_Pt_"+IDsuffix, j1.Pt(), weight, 1000, 0., 1000.);

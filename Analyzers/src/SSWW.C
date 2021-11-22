@@ -13,7 +13,7 @@ void SSWW::initializeAnalyzer(){
   RunCF = HasFlag("RunCF");
 
   MuonTightIDs = {"SSWW_tight","HNTightV1"};
-  MuonLooseIDs = {"SSWW_loose","HNLooseV3"};
+  MuonLooseIDs = {"SSWW_loose","HNLooseV1"};
   MuonVetoIDs  = {"ISRVeto","ISRVeto"};
   if(DataYear==2016){
     ElectronTightIDs = {"SSWW_tight2016","HNTightV1"};
