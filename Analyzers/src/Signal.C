@@ -217,6 +217,13 @@ void Signal::executeEventFromParameter(AnalyzerParameter param){
  
   Event ev = GetEvent();
 
+  bool isDoubleMuon = false, isDoubleEG = false, isMuonEG = false;
+  if(IsDATA){
+    if(DataStream.Contains("DoubleMuon")) isDoubleMuon = true;
+    if(DataStream.Contains("DoubleEG") || DataStream.Contains("EGamma")) isDoubleEG = true;
+    if(DataStream.Contains("MuonEG")) isMuonEG = true;
+  }
+
   //=============
   //==== No Cut
   //=============
@@ -610,9 +617,18 @@ void Signal::executeEventFromParameter(AnalyzerParameter param){
     FillHist(channels.at(it_ch)+"/fakeCR2/Number_Events_unweighted_"+IDsuffix, 2.5, 1., cutflow_bin, 0., cutflow_max); 
 
     if(leptons.size() == 2){ 
-      if(channels.at(it_ch)=="dimu"){ if(!(muons.size()==2 && electrons.size()==0)) continue; }
-      if(channels.at(it_ch)=="diel"){ if(!(muons.size()==0 && electrons.size()==2)) continue; }
-      if(channels.at(it_ch)=="emu"){ if(!(muons.size()==1 && electrons.size()==1)) continue; }
+      if(channels.at(it_ch)=="dimu"){
+        if(!(muons.size()==2 && electrons.size()==0)) continue;
+        if(IsDATA){ if(!isDoubleMuon) continue; }
+      }
+      if(channels.at(it_ch)=="diel"){
+        if(!(muons.size()==0 && electrons.size()==2)) continue;
+        if(IsDATA){ if(!isDoubleEG) continue; }
+      }
+      if(channels.at(it_ch)=="emu"){
+        if(!(muons.size()==1 && electrons.size()==1)) continue;
+        if(IsDATA){ if(!isMuonEG) continue; }
+      }
 
       ZCand = *leptons.at(0) + *leptons.at(1);
 

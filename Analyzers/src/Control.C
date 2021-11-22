@@ -161,7 +161,8 @@ void Control::executeEvent(){
     param.Electron_Loose_ID = ElectronLooseID;
     param.Electron_Veto_ID  = ElectronVetoID;
     param.Electron_FR_ID = FakeRateID;     // ID name in histmap_Electron.txt
-    param.Electron_FR_Key = "AwayJetPt40"; // histname
+    //param.Electron_FR_Key = "AwayJetPt40"; // histname
+    param.Electron_FR_Key = "FR_2D"; // histname
     param.Electron_ID_SF_Key = "passTightID";
     param.Electron_Trigger_SF_Key = "";
     param.Electron_UsePtCone = true;
@@ -205,10 +206,11 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
  
   Event ev = GetEvent();
 
-  bool isDoubleMuon = false, isDoubleEG = false;
+  bool isDoubleMuon = false, isDoubleEG = false, isMuonEG = false;
   if(IsDATA){
     if(DataStream.Contains("DoubleMuon")) isDoubleMuon = true;
     if(DataStream.Contains("DoubleEG") || DataStream.Contains("EGamma")) isDoubleEG = true;
+    if(DataStream.Contains("MuonEG")) isMuonEG = true;
   }
 
   //=============
@@ -563,12 +565,13 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
     //=====================================
     //==== DY, TT control region
     //=====================================
-    if(HasFlag("SM") && it_rg2<6 && leptons.size()==2){ //JH : DYmm, DYee, DYemu, TTmm, TTee, TTemu
+    if(it_rg2<6 && leptons.size()==2){ //JH : DYmm, DYee, DYemu, TTmm, TTee, TTemu
 
       trigger_lumi = 1., dimu_trig_weight = 0., emu_trig_weight = 0.;
       // Passing triggers & ptcut
       if(it_rg2==0||it_rg2==3){
         if(muons.size()!=2) continue;
+        if(IsDATA){ if(!isDoubleMuon) continue; }
         //if(param.Muon_Tight_ID.Contains("HighPt")){
         //  if(!ev.PassTrigger(MuonTriggersHighPt)) continue;
         //}
@@ -587,12 +590,14 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
       }
       if(it_rg2==1||it_rg2==4){
         if(electrons.size()!=2) continue;
+        if(IsDATA){ if(!isDoubleEG) continue; }
         if(!ev.PassTrigger(ElectronTriggers)) continue;
         if(!IsDATA) trigger_lumi = ev.GetTriggerLumiByYear("Full");
         if(!(electrons.at(0).Pt()>ElectronPtCut1 && electrons.at(1).Pt()>ElectronPtCut2)) continue;
       }
       if(it_rg2==2||it_rg2==5){
         if(!(muons.size()==1&&electrons.size()==1)) continue;
+        if(IsDATA){ if(!isMuonEG) continue; }
         if(HasFlag("PeriodH")){
           if(!ev.PassTrigger(EMuTriggersH)) continue;
         }

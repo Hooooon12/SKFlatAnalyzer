@@ -218,10 +218,11 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
  
   Event ev = GetEvent();
 
-  bool isDoubleMuon = false, isDoubleEG = false;
+  bool isDoubleMuon = false, isDoubleEG = false, isMuonEG = false;
   if(IsDATA){
     if(DataStream.Contains("DoubleMuon")) isDoubleMuon = true;
     if(DataStream.Contains("DoubleEG") || DataStream.Contains("EGamma")) isDoubleEG = true;
+    if(DataStream.Contains("MuonEG")) isMuonEG = true;
   }
 
   //=============
