@@ -275,7 +275,32 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
   //==============
 
   //if(!(ev.PassTrigger(MuonTriggers) || ev.PassTrigger(MuonTriggersHighPt) || ev.PassTrigger(ElectronTriggers) || ev.PassTrigger(EMuTriggers))) return; //JH : I don't think this is necessary
-  if(!(ev.PassTrigger(MuonTriggers))) return;
+  if(param.Muon_Tight_ID.Contains("HNTight")&&HasFlag("PeriodH")){
+    if(!(ev.PassTrigger(MuonTriggersH))) return;
+  }
+  else{
+    if(!(ev.PassTrigger(MuonTriggers))) return;
+  }
+
+  // Period-dependent trigger weight (only for 2016 MC, HN ID)
+  if(!IsDATA){
+    if(DataYear==2016&&param.Muon_Tight_ID.Contains("HNTight")){
+      if(ev.PassTrigger(MuonTriggers)) dimu_trig_weight += 27267.591;
+      if(ev.PassTrigger(MuonTriggersH)) dimu_trig_weight += 8650.628;
+      trigger_lumi = dimu_trig_weight;
+    }
+    else{
+      trigger_lumi = ev.GetTriggerLumiByYear("Full");
+    }
+  }
+
+  weight = 1.;
+  if(!IsDATA){
+    weight *= weight_norm_1invpb*trigger_lumi;
+    weight *= ev.MCweight();
+    weight *= GetPrefireWeight(0);
+    weight *= GetPileUpWeight(nPileUp,0);
+  } //JH : recalculate total weight for 2016 period dependency.
 
   // Cutflow 3 : Double muon trigger
   for(unsigned int it_rg=0; it_rg<regionsSSWW.size(); it_rg++){
@@ -456,10 +481,10 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
       fatjets.push_back(this_AllFatJets.at(i));
     }
   }
-  FillHist("Number_JetsSel_"+IDsuffix, jets.size(), weight, 10, 0, 10);
-  FillHist("Number_JetsSel_unweighted_"+IDsuffix, jets.size(), 1., 10, 0, 10);
-  FillHist("Number_FatJetsSel_"+IDsuffix, fatjets.size(), weight, 10, 0, 10);
-  FillHist("Number_FatJetsSel_unweighted_"+IDsuffix, fatjets.size(), 1., 10, 0, 10);
+  //FillHist("Number_JetsSel_"+IDsuffix, jets.size(), weight, 10, 0, 10);
+  //FillHist("Number_JetsSel_unweighted_"+IDsuffix, jets.size(), 1., 10, 0, 10);
+  //FillHist("Number_FatJetsSel_"+IDsuffix, fatjets.size(), weight, 10, 0, 10);
+  //FillHist("Number_FatJetsSel_unweighted_"+IDsuffix, fatjets.size(), 1., 10, 0, 10);
 //JH : jet, fatjet selection done.
 
 //  FillHist("Nfatjet_hn_"+IDsuffix, fatjets.size(), weight, 5, 0., 5.);
@@ -535,9 +560,6 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
   
   // Set tight_iso cut & calculate pTcone
   double mu_tight_iso = 0.07;
-  //if(IDsuffix == "HNV2") mu_tight_iso = 0.1;
-  if(IDsuffix == "HN16") mu_tight_iso = 0.07;
-
   double el_tight_iso = 0.;
   double this_ptcone_muon = 0., this_ptcone_electron = 0.;
 
@@ -554,7 +576,7 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
     //  el_tight_iso = std::min(0.08, 0.0287+0.506/electrons.at(i).UncorrPt());
     //  if(fabs(electrons.at(i).scEta()) > 1.479) el_tight_iso = std::min(0.08, 0.0445+0.963/electrons.at(i).UncorrPt());
     //} 
-    if(IDsuffix == "HN16") el_tight_iso = 0.08;
+    if(IDsuffix == "HN2016") el_tight_iso = 0.08;
 
     if(param.Electron_Tight_ID.Contains("HNTight")){ // POG cut-based tight WP
       el_tight_iso = 0.0287+0.506/electrons.at(i).UncorrPt();

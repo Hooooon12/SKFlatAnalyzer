@@ -12,14 +12,15 @@ void Control::initializeAnalyzer(){
   RunFake = HasFlag("RunFake");
   RunCF = HasFlag("RunCF");
 
-  MuonTightIDs = {"HNTightV1"};
-  MuonLooseIDs = {"HNLooseV1"};
-  MuonVetoIDs  = {"ISRVeto"};
-  ElectronTightIDs = {"HNTightV1"};
-  ElectronLooseIDs = {"HNLooseV1"};
-  ElectronVetoIDs  = {"ISRVeto"};
-  //FakeRateIDs = {"HNRun2"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
-  FakeRateIDs = {"HN"}; //JH : NOTE This is used in fakeEst->ReadHistograms() in m.initializeAnalyzerTools() 
+  MuonTightIDs = {"HNTightV1","HNTight2016"};
+  MuonLooseIDs = {"HNLooseV1","HNLoose2016"};
+  MuonVetoIDs  = {"ISRVeto","HNVeto2016"};
+  ElectronTightIDs = {"HNTightV1","HNTight2016"};
+  ElectronLooseIDs = {"HNLooseV1","HNLoose2016"};
+  ElectronVetoIDs  = {"ISRVeto","HNVeto2016"};
+  if(HasFlag("FR_ex")) MuonFRNames = {"HNRun2","HN2016"};
+  else MuonFRNames = {"HN","HN2016"};
+  ElectronFRNames  = {"HNRun2","HN2016"};
 
   //==== At this point, sample informations (e.g., IsDATA, DataStream, MCSample, or DataYear) are all set
   //==== You can define sample-dependent or year-dependent variables here
@@ -136,7 +137,8 @@ void Control::executeEvent(){
     TString ElectronTightID = ElectronTightIDs.at(it_id);
     TString ElectronLooseID = ElectronLooseIDs.at(it_id);
     TString ElectronVetoID  = ElectronVetoIDs.at(it_id);
-    TString FakeRateID = FakeRateIDs.at(it_id);
+    TString MuonFRName      = MuonFRNames.at(it_id);
+    TString ElectronFRName  = ElectronFRNames.at(it_id);
 
     param.Clear();
 
@@ -148,11 +150,13 @@ void Control::executeEvent(){
     param.Muon_Tight_ID = MuonTightID;
     param.Muon_Loose_ID = MuonLooseID;
     param.Muon_Veto_ID  = MuonVetoID;
-    param.Muon_FR_ID = FakeRateID;     // ID name in histmap_Muon.txt
-    //param.Muon_FR_Key = "AwayJetPt40"; // histname
-    param.Muon_FR_Key = "FR_2D"; // histname
-    param.Muon_ID_SF_Key = "NUM_TightID_DEN_genTracks";
-    param.Muon_ISO_SF_Key = "NUM_TightRelIso_DEN_TightIDandIPCut";
+    param.Muon_FR_ID = MuonFRName;     // ID name in histmap_Muon.txt
+    if(HasFlag("FR_ex")&&!(param.Muon_Tight_ID.Contains("2016"))) param.Muon_FR_Key = "AwayJetPt40"; // histname
+    else param.Muon_FR_Key = "FR_2D"; // histname
+    //param.Muon_ID_SF_Key = "NUM_TightID_DEN_genTracks";
+    //param.Muon_ISO_SF_Key = "NUM_TightRelIso_DEN_TightIDandIPCut";
+    param.Muon_ID_SF_Key = "";
+    param.Muon_ISO_SF_Key = "";
     param.Muon_Trigger_SF_Key = "";
     param.Muon_UsePtCone = true;
 
@@ -160,10 +164,10 @@ void Control::executeEvent(){
     param.Electron_Tight_ID = ElectronTightID;
     param.Electron_Loose_ID = ElectronLooseID;
     param.Electron_Veto_ID  = ElectronVetoID;
-    param.Electron_FR_ID = FakeRateID;     // ID name in histmap_Electron.txt
-    //param.Electron_FR_Key = "AwayJetPt40"; // histname
-    param.Electron_FR_Key = "FR_2D"; // histname
-    param.Electron_ID_SF_Key = "passTightID";
+    param.Electron_FR_ID = ElectronFRName;     // ID name in histmap_Electron.txt
+    param.Electron_FR_Key = "AwayJetPt40"; // histname
+    //param.Electron_ID_SF_Key = "passTightID";
+    param.Electron_ID_SF_Key = "";
     param.Electron_Trigger_SF_Key = "";
     param.Electron_UsePtCone = true;
 
@@ -566,6 +570,7 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
     //==== DY, TT control region
     //=====================================
     if(it_rg2<6 && leptons.size()==2){ //JH : DYmm, DYee, DYemu, TTmm, TTee, TTemu
+      if(muons.size()!=2) continue; //JH : only for now!!!!!!!!!! only muons.
 
       trigger_lumi = 1., dimu_trig_weight = 0., emu_trig_weight = 0.;
       // Passing triggers & ptcut
@@ -628,11 +633,11 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
           //  muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
           //  muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
           //}
-          if(param.Muon_Tight_ID.Contains("HNTight")){
-            muon_recosf = 1.;
-            muon_idsf   = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);;
-            muon_isosf  = 1.;
-          }
+          //if(param.Muon_Tight_ID.Contains("HNTight")){
+          //  muon_recosf = 1.;
+          //  muon_idsf   = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);;
+          //  muon_isosf  = 1.;
+          //}
           weight *= muon_recosf*muon_idsf*muon_isosf;
         }
         //if(param.Muon_Tight_ID.Contains("HighPt")) muon_trigsf = mcCorr->MuonTrigger_SF("POGHighPtLooseTrkIso", "Mu50", muons, 0);
@@ -796,6 +801,7 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
     //==== WZ, ZG, WG control region
     //=====================================
     if(it_rg2>5 && it_rg2<9 && leptons.size()==3){ //JH : WZ, ZG, WG, 3 tight leptons
+      if(muons.size()!=3) continue; //JH : only for now!!!! only mu channel
   
       // Passing triggers & ptcut
       if(muons.size() >= 2){
@@ -854,11 +860,11 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
           //  muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks",  muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
           //  muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
           //}
-          if(param.Muon_Tight_ID.Contains("HNTight")){
-            muon_recosf = 1.;
-            muon_idsf     = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
-            muon_isosf    = 1.;
-          }
+          //if(param.Muon_Tight_ID.Contains("HNTight")){
+          //  muon_recosf = 1.;
+          //  muon_idsf     = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
+          //  muon_isosf    = 1.;
+          //}
           weight *= muon_recosf*muon_idsf*muon_isosf;
         }
         //if(param.Muon_Tight_ID.Contains("HighPt")) muon_trigsf = mcCorr->MuonTrigger_SF("POGHighPtLooseTrkIso", "Mu50", muons, 0);
@@ -1122,6 +1128,7 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
     //==== ZZ control region
     //=====================================
     if(it_rg2==9 && leptons.size()==4){
+      if(muons.size()!=4) continue; //JH : only for now!!!! only mu channel
       if((muons.size()==1 && electrons.size()==3) || (muons.size()==3 && electrons.size()==1)) continue;
 
       // Passing triggers & ptcut
@@ -1179,11 +1186,11 @@ void Control::executeEventFromParameter(AnalyzerParameter param){
           //  muon_idsf     = mcCorr->MuonID_SF("NUM_HighPtID_DEN_genTracks",  muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
           //  muon_isosf    = mcCorr->MuonISO_SF("NUM_LooseRelTkIso_DEN_HighPtIDandIPCut", muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
           //}
-          if(param.Muon_Tight_ID.Contains("HNTight")){
-            muon_recosf = 1.;
-            muon_idsf     = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
-            muon_isosf    = 1.;
-          }
+          //if(param.Muon_Tight_ID.Contains("HNTight")){
+          //  muon_recosf = 1.;
+          //  muon_idsf     = mcCorr->MuonID_SF_HNtypeI(param.Muon_Tight_ID, muons.at(i).Eta(), muons.at(i).MiniAODPt(), 0);
+          //  muon_isosf    = 1.;
+          //}
           weight *= muon_recosf*muon_idsf*muon_isosf;
         }
         //if(param.Muon_Tight_ID.Contains("HighPt")) muon_trigsf = mcCorr->MuonTrigger_SF("POGHighPtLooseTrkIso", "Mu50", muons, 0);
