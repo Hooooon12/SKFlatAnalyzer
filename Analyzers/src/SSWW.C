@@ -1175,10 +1175,12 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
       FillHist(regionsTypeI.at(it_rg)+"/l1jj_Mass_"+IDsuffix, l1jj.M(), weight, 2000, 0., 2000.);
       FillHist(regionsTypeI.at(it_rg)+"/l2jj_Mass_"+IDsuffix, l2jj.M(), weight, 2000, 0., 2000.);
 
+      int Njet_out = 0;
       for(int i=0; i<jets.size(); i++){
-        if(! (jets.at(i).Pt()>20.) ) continue;
-        if(! (fabs(jets.at(i).Eta())<2.7) ) continue;
+        if(! (jets.at(i).Pt()>20.) ) Njet_out++;
+        if(! (fabs(jets.at(i).Eta())<2.7) ) Njet_out++;
       }
+      if(! (Njet_out==0) ) continue;
       // Cutflow 14 : jet pt > 20, jet eta < 2.7
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_"+IDsuffix, 13.5, weight, cutflow_bin, 0., cutflow_max);
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 13.5, 1., cutflow_bin, 0., cutflow_max);
@@ -1310,10 +1312,12 @@ void SSWW::executeEventFromParameter(AnalyzerParameter param){
       FillHist(regionsTypeI.at(it_rg)+"/dPhill_"+IDsuffix, dPhi, weight, 32, 0., 3.2);
       FillHist(regionsTypeI.at(it_rg)+"/HToverPt1_"+IDsuffix, HT/muons.at(0).Pt(), weight, 10, 0., 10.);
 
+      int Njet_out = 0;
       for(int i=0; i<jets.size(); i++){
-        if(! (jets.at(i).Pt()>20.) ) continue;
-        if(! (fabs(jets.at(i).Eta())<2.7) ) continue;
+        if(! (jets.at(i).Pt()>20.) ) Njet_out++;
+        if(! (fabs(jets.at(i).Eta())<2.7) ) Njet_out++;
       }
+      if(! (Njet_out==0) ) continue;
       // Cutflow 12 : jet pt > 20, jet eta < 2.7
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_"+IDsuffix, 11.5, weight, cutflow_bin, 0., cutflow_max);
       FillHist(regionsTypeI.at(it_rg)+"/Number_Events_unweighted_"+IDsuffix, 11.5, 1., cutflow_bin, 0., cutflow_max);

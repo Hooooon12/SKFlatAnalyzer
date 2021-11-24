@@ -17,8 +17,8 @@
 
 #python python/SKFlat.py -a SSWW -y 2016 -l submitList/2016_DoubleMuon_BtoH.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake --batchname auto &
 
-python python/SKFlat.py -a SSWW -y 2016 -l submitList/2016_DoubleMuon_BtoG.txt -n 50 --skim SkimTree_Dilepton --userflags jcln_inv,fatjet_veto,RunFake --batchname auto &
-python python/SKFlat.py -a SSWW -y 2016 -l submitList/2016_DoubleMuon_H.txt -n 50 --skim SkimTree_Dilepton --userflags jcln_inv,fatjet_veto,RunFake,PeriodH --batchname auto &
+#python python/SKFlat.py -a SSWW -y 2016 -l submitList/2016_DoubleMuon_BtoG.txt -n 50 --skim SkimTree_Dilepton --userflags jcln_inv,fatjet_veto,RunFake --batchname auto &
+#python python/SKFlat.py -a SSWW -y 2016 -l submitList/2016_DoubleMuon_H.txt -n 50 --skim SkimTree_Dilepton --userflags jcln_inv,fatjet_veto,RunFake,PeriodH --batchname auto &
 
 #python python/SKFlat.py -a Signal -y 2016 -l submitList/2016_DoubleMuon_BtoG.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake --batchname auto &
 #python python/SKFlat.py -a Signal -y 2016 -l submitList/2016_DoubleMuon_H.txt -n 50 --skim SkimTree_Dilepton --userflags RunFake,PeriodH --batchname auto &
@@ -46,8 +46,9 @@ python python/SKFlat.py -a SSWW -y 2016 -l submitList/2016_DoubleMuon_H.txt -n 5
 #python python/SKFlat.py -a Control -y 2016 -l submitList/2016_DoubleMuon_H.txt -n 50 --skim SkimTree_Dilepton --userflags PeriodH --batchname auto &
 
 ### MC ###
-python python/SKFlat.py -a SSWW -y 2016 -l submitList/Dilepton_SR_2016.txt -n 80 --skim SkimTree_Dilepton --userflags jcln_inv,fatjet_veto --batchname auto &
-python python/SKFlat.py -a SSWW -y 2016 -l submitList/NoSkim_SR_SSWW.txt -n 80 --userflags jcln_inv,fatjet_veto --batchname auto &
+#python python/SKFlat.py -a SSWW -y 2016 -l submitList/Dilepton_SR_2016.txt -n 80 --skim SkimTree_Dilepton --userflags jcln_inv,fatjet_veto --batchname auto &
+#python python/SKFlat.py -a SSWW -y 2016 -l submitList/NoSkim_SR_SSWW.txt -n 80 --userflags jcln_inv,fatjet_veto --batchname auto &
+python python/SKFlat.py -a SSWW -y 2016 -i WLLJJ_WToLNu_EWK -n 80 --userflags jcln_inv,fatjet_veto --batchname auto &
 
 #python python/SKFlat.py -a Signal -y 2016 -l submitList/Dilepton_SR_2016.txt -n 80 --skim SkimTree_Dilepton --batchname auto &
 #python python/SKFlat.py -a Signal -y 2016 -l submitList/NoSkim_SR.txt -n 80 --batchname auto &
@@ -56,8 +57,8 @@ python python/SKFlat.py -a SSWW -y 2016 -l submitList/NoSkim_SR_SSWW.txt -n 80 -
 #python python/SKFlat.py -a Control -y 2016 -l submitList/NoSkim_SM_CR.txt -n 80 --batchname auto &
 
 ### signal ###
-python python/SKFlat.py -a SSWW -y 2016 -l submitList/SSWWTypeI.txt -n 50 --userflags jcln_inv,fatjet_veto --batchname auto &
-python python/SKFlat.py -a SSWW -y 2016 -i DYTypeI_SS_MuMu_M1500 -n 50 --userflags jcln_inv,fatjet_veto --batchname auto &
+#python python/SKFlat.py -a SSWW -y 2016 -l submitList/SSWWTypeI.txt -n 50 --userflags jcln_inv,fatjet_veto --batchname auto &
+#python python/SKFlat.py -a SSWW -y 2016 -i DYTypeI_SS_MuMu_M1500 -n 50 --userflags jcln_inv,fatjet_veto --batchname auto &
 #python python/SKFlat.py -a SSWW -y 2016 -i VBFTypeI_SS_MuMu_M1500 -n 50 --userflags jcln_inv,fatjet_veto --batchname auto &
 
 #python python/SKFlat.py -a SSWW -y 2018 -l submitList/SSWWTypeI.txt -n 50 --batchname auto &
