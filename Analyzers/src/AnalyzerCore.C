@@ -1511,6 +1511,26 @@ std::vector<Jet> AnalyzerCore::JetsAwayFromFatJet(const std::vector<Jet>& jets, 
 
 }
 
+std::vector<FatJet> AnalyzerCore::FatJetsAwayFromJet(const std::vector<FatJet>& fatjets, const std::vector<Jet>& jets, double mindr){
+
+  std::vector<FatJet> out;
+  for(unsigned int i=0; i<fatjets.size(); i++){
+
+    bool Overlap = false;
+    for(unsigned int j=0; j<jets.size(); j++){
+      if( ( fatjets.at(i) ).DeltaR( jets.at(j) ) < mindr ){
+        Overlap = true;
+        break;
+      }
+    }
+    if(!Overlap) out.push_back( fatjets.at(i) );
+
+  }
+
+  return out;
+
+}
+
 std::vector<Jet> AnalyzerCore::JetsVetoLeptonInside(const std::vector<Jet>& jets, const std::vector<Electron>& els, const std::vector<Muon>& mus, double dR){
 
   std::vector<Jet> out;
