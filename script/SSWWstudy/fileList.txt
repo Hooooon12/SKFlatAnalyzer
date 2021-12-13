@@ -1,0 +1,46 @@
+MC	ttZToQQ
+MC	ttZToLLNuNu	skimmed
+MC	ttWToQQ
+MC	ttWToLNu	skimmed
+MC	ttHToNonbb	skimmed
+MC	TTG	skimmed
+MC	TG
+MC	VHToNonbb
+MC	VBF_HToZZTo4L
+MC	ggHToZZTo4L
+MC	ggZZTo4mu
+MC	ggZZTo2mu2tau
+MC	ggZZTo2e2mu
+MC	ggZZTo4tau
+MC	ggZZTo4e
+MC	ggZZTo2e2tau
+MC	WpWp_QCD
+MC	WpWp_EWK
+MC	WWTo2L2Nu_DS
+MC	WWW
+MC	WWZ
+MC	WZZ
+MC	ZZZ
+MC	WZTo3LNu_powheg	skimmed
+MC	WGToLNuG	skimmed
+MC	ZZTo4L_powheg	skimmed
+MC	ZGTo2LG	skimmed
+MC	WGJJToLNu_EWK_QCD
+MC	WLLJJ_WToLNu_EWK
+MC	WWG
+MC	tZq
+signal	SSWW_HN_750
+signal	SSWW_HN_1500
+signal	SSWW_HN_5000
+signal	SSWW_HN_10000
+signal	DYTypeI_SS_MuMu_M100
+signal	DYTypeI_SS_MuMu_M500
+signal	DYTypeI_SS_MuMu_M1000
+signal	DYTypeI_SS_MuMu_M1500
+signal	DYTypeI_SS_MuMu_M2000
+signal	DYTypeI_SS_MuMu_M2500
+signal	VBFTypeI_SS_MuMu_M500
+signal	VBFTypeI_SS_MuMu_M1000
+signal	VBFTypeI_SS_MuMu_M1500
+signal	VBFTypeI_SS_MuMu_M2000
+signal	VBFTypeI_SS_MuMu_M2500
