@@ -290,8 +290,8 @@ bool Muon::PassID(TString ID) const {
     if(!PassID("HNL_ULID_FO")) return false;
     if(MVA() < MVACut) {
       if(this->HasCloseJet()){
-	if(CloseJet_Ptratio() < 0.45) return false;
-	if(CloseJet_BScore() > 0.025) return false;
+  if(CloseJet_Ptratio() < 0.45) return false;
+  if(CloseJet_BScore() > 0.025) return false;
       }
     }
     return true;
@@ -332,8 +332,18 @@ bool Muon::PassID(TString ID) const {
  }
   
   if(ID == "HNL_ULID_2016")   return (PassID("MVALooseTrgSafe") && (MVA() >  MVACut) && (fabs(IP3D()/IP3Derr()) < 7) );
-  if(ID == "HNL_ULID_2017")   return (PassID("MVALooseTrgSafe") && (MVA() >  MVACut) && (fabs(IP3D()/IP3Derr()) < 7) );
+  //if(ID == "HNL_ULID_2017")   return (PassID("MVALooseTrgSafe") && (MVA() >  MVACut) && (fabs(IP3D()/IP3Derr()) < 7) );
   if(ID == "HNL_ULID_2018")   return (PassID("MVALooseTrgSafe") && (MVA() >  MVACut) && (fabs(IP3D()/IP3Derr()) < 7) );
+  if(ID == "HNL_ULID_2017"){
+    if(!PassID("MVALooseTrgSafe")) return false;
+    if( fabs(this->Eta()) <= 1.479 ){
+      if(MVA() < 0.77)  return false;
+    }
+    else{
+      if(MVA() < 0.6)  return false;
+    }
+    if(fabs(IP3D()/IP3Derr()) > 7) return false;
+  } //JH test old MVA cut
 
 
   //// Following are functions to test UL IDs
