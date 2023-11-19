@@ -343,6 +343,7 @@ bool Muon::PassID(TString ID) const {
       if(MVA() < 0.6)  return false;
     }
     if(fabs(IP3D()/IP3Derr()) > 7) return false;
+    return true;
   } //JH test old MVA cut
 
 

@@ -16,7 +16,8 @@ void HNL_SignalRegionPlotter::executeEvent(){
   FillTimer("START_EV");
   
   vector<TString> LepIDs = {"HNL_ULID","HNTightV2"};//,"TopHN", "DefaultPOGTight"};
-  vector<HNL_LeptonCore::Channel> ChannelsToRun = {EE,MuMu,EMu,MuE};
+  //vector<HNL_LeptonCore::Channel> ChannelsToRun = {EE,MuMu,EMu,MuE};
+  vector<HNL_LeptonCore::Channel> ChannelsToRun = {MuMu};
 
   for (auto id: LepIDs){
     for(auto channel : ChannelsToRun){
