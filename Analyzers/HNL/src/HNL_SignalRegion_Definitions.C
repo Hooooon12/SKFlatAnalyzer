@@ -43,8 +43,12 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
       this_electron.SetPtEtaPhiM( electronsInitial.at(i).Pt()*ElEnergyShift, electronsInitial.at(i).Eta(), electronsInitial.at(i).Phi(), electronsInitial.at(i).M() );
       electrons.push_back( this_electron);
     }
+    //// Update MET For CF
+    METv = UpdateMETCF(METv,electronsInitial,electrons);
   }
   else  electrons = electronsInitial;
+
+
 
   vector<HNL_LeptonCore::Channel> channels = {GetChannelENum(param.Channel)};
 

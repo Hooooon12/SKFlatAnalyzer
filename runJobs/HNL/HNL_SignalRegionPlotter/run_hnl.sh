@@ -53,10 +53,7 @@ fi
 
 if [[ $1 == "CF" ]]; then
 
-    for i in "${era_list[@]}"
-    do
-	SKFlat.py -a $analyzer  -l $datapath/${i}_DiLepton_EE.txt      -n 400    --nmax ${nmax}   -e ${i} --skim SkimTree_DileptonBDT  --userflags RunCF,RunEE &
-    done
+    SKFlat.py -a $analyzer  -l $datapath/2017_DiLepton_EE.txt      -n 400    --nmax ${nmax}   -e 2017 --skim SkimTree_DileptonBDT  --userflags RunCF,RunEE &
     
 fi
 

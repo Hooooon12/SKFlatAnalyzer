@@ -14,6 +14,7 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
       this_electron.SetPtEtaPhiM( electronsInitial.at(i).Pt()*ElEnergyShift, electronsInitial.at(i).Eta(), electronsInitial.at(i).Phi(), electronsInitial.at(i).M() );
       electrons.push_back( this_electron);
     }
+    METv = UpdateMETCF(METv,electronsInitial,electrons);
   }
   else  electrons = electronsInitial;
   

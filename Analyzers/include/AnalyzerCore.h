@@ -309,7 +309,7 @@ public:
   Particle UpdateMETSmearedJet(const Particle& METv, const std::vector<Jet>& jets);
   Particle UpdateMETSyst(AnalyzerParameter param, const Particle& METv, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Muon> muons, std::vector<Electron> electrons);
   Particle UpdateMETSyst(double met_pt, double met_phi, double met_shift_pt, double met_shift_phi, const Particle& METv);
-
+  Particle UpdateMETCF(const Particle METv, const std::vector<Electron> electrons, const std::vector<Electron> electrons_shifted);
 
   // =================== HISTOGRAM  AnalyzerCore_HIST.C  ===================  
   std::map< TString, TH1D* > maphist_TH1D;
