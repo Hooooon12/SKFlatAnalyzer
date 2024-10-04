@@ -1367,7 +1367,6 @@ bool HNL_RegionDefinitions::FillSSZPeakCRPlots(HNL_LeptonCore::Channel channel, 
     Fill_RegionPlots(param,"HNL_HighMassSSZPeak_AK4_TwoLepton_CR"  ,  JetColl,  AK8_JetColl,  leps,  METv, nPV, w);
     FillHist(  "LimitExtraction/"+ param.Name+"/LimitShape_CF/SR3",  1  ,  w, 1,0,1 ,"SR3");
   }
-  
   return true;
 
   
