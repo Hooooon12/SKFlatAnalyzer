@@ -165,7 +165,7 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
   if(sr==ZGCR)   EVHistName= "ZGCR";
   if(sr==WZBCR)   EVHistName= "WZBCR";
   if(sr==WZVBFCR)   EVHistName= "WZVBFCR";
-  if(sr==WZVBFCR2)   EVHistName= "WZVBCR2";
+  if(sr==WZVBFCR2)   EVHistName= "WZVBFCR2";
   if(sr==HMCR1)   EVHistName= "HMCR1";
   if(sr==HMCR2)   EVHistName= "HMCR2";
   if(sr==HMCR3)   EVHistName= "HMCR3";

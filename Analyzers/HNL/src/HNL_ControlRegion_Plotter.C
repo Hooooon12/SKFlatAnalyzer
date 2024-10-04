@@ -52,6 +52,10 @@ void HNL_ControlRegion_Plotter::executeEvent(){
 
   vector<TString> CRToRun;
   if(HasFlag("Dilepton"))        CRToRun = {"OS_VR","SS_CR","VBF_CR","LLL_VR"};
+  else if(HasFlag("OS_VR"))      CRToRun = {"OS_VR"}; //JH
+  else if(HasFlag("SS_CR"))      CRToRun = {"SS_CR"}; //JH
+  else if(HasFlag("VBF_CR"))     CRToRun = {"VBF_CR"}; //JH
+  else if(HasFlag("LLL_VR"))     CRToRun = {"LLL_VR"}; //JH
   else if(HasFlag("SSMultiLep")) CRToRun = {"SS_CR","VBF_CR","LLL_VR"};
 
   for (auto id: LepIDs){

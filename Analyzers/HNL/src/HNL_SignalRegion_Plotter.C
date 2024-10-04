@@ -57,11 +57,12 @@ void HNL_SignalRegion_Plotter::executeEvent(){
     for(auto channel : ChannelsToRun){
 
       AnalyzerParameter param = HNL_LeptonCore::InitialiseHNLParameter(id,channel);
-      param.PlottingVerbose = 2;
+      param.PlottingVerbose = 0;
       if(id == "HNL_ULID")         param.PlottingVerbose = 1;
       if(id.Contains("HEEP"))      param.PlottingVerbose = 1;
       RunULAnalysis(param);
 
+      RunSyst = true; //JH
       if(RunSyst||RunFullSyst){
         TString param_name = param.Name;
         //vector<AnalyzerParameter::Syst> SystList = GetSystList("All");

@@ -554,6 +554,11 @@ AnalyzerParameter HNL_LeptonCore::SetupFakeParameter(AnalyzerParameter::Syst Sys
 
 
 bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramEv , AnalyzerParameter::Syst systname, TString OrigParamName){
+
+  //// Update Name of param based on systematic settings
+  paramEv.syst_   = systname;
+  paramEv.Name    = "Syst_"+paramEv.GetSystType()+OrigParamName;
+  paramEv.DefName = "Syst_"+paramEv.GetSystType()+OrigParamName;
  
   if(!RunFake) return true;
 
@@ -562,11 +567,6 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
   /// If not HNL_ULID setting return 
   
   if(JobID != "HNL_ULID") return false;
-
-  //// Update Name of param based on systematic settings
-  paramEv.syst_   = systname;
-  paramEv.Name    = "Syst_"+paramEv.GetSystType()+OrigParamName;
-  paramEv.DefName = "Syst_"+paramEv.GetSystType()+OrigParamName;
 
   //// Setup FR ID
   if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
