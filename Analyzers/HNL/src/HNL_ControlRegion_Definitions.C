@@ -2112,7 +2112,7 @@ bool HNL_RegionDefinitions::FillZGCRPlots(HNL_LeptonCore::Channel channel, std::
     if(llJ.M() < 200) Binvalue= 0.5;
     else     if(llJ.M() < 750) Binvalue= 1.5;
     else Binvalue= 2.5;
-    FillHist(  "LimitExtraction/"+ param.Name+"/LimitShape_ZG_SR1/Binned",  Binvalue  ,  w, 6,0,6 ,"CR Binned");
+    FillHist(  "LimitExtraction/"+ param.Name+"/LimitShape_ZG_SR1/Binned",  Binvalue  ,  w, 3,0,3 ,"CR Binned");
     FillHist(  "LimitExtraction/"+ param.Name+"/LimitShape_ZG/Binned",  Binvalue  ,  w, 9,0,9 ,"CR Binned");
   }
   else {
