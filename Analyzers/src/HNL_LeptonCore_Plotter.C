@@ -82,9 +82,9 @@ bool HNL_LeptonCore::DrawSyst(AnalyzerParameter::Syst SystType){
     if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown, AnalyzerParameter::Syst::CFSFUp,AnalyzerParameter::Syst::CFSFDown};
     
   }
-  else {
-    SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown};
-  }
+  //else {
+  //  SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown};
+  //}
   
   SystToPlot.push_back(AnalyzerParameter::Syst::Central);
   if(std::find(SystToPlot.begin(), SystToPlot.end(), SystType) != SystToPlot.end()) return true;
