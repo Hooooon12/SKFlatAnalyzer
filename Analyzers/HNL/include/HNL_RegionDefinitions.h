@@ -109,10 +109,6 @@ class HNL_RegionDefinitions : public HNL_LeptonCore {
   void RunSR3BDT(HNL_LeptonCore::ChargeType qq, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto,  std::vector<Tau> TauColl,  std::vector<Jet> JetColl, std::vector<Jet> VBF_JetColl,std::vector<FatJet>  AK8_JetColl, std::vector<Jet> B_JetColl, Event ev,   Particle METv, AnalyzerParameter param,   float weight_ll);
 
 
-  bool RunEE;
-  bool RunEMu;
-  bool RunMuMu;
-  bool RunFullSyst;
   bool RunTopID;
   bool RunPOGID;
   bool RunHighPtID;

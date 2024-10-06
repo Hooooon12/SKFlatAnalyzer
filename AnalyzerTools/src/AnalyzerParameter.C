@@ -587,10 +587,6 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::PUDown)   return "PUDown";
   else if(syst_==Syst::JetPUIDUp)return "JetPUIDUp";
   else if(syst_==Syst::JetPUIDDown) return "JetPUIDDown";
-  else if(syst_==Syst::JetMassUp)  return "JetMassUp";
-  else if(syst_==Syst::JetMassDown)return "JetMassDown";
-  else if(syst_==Syst::JetMassSmearUp)  return "JetMassSmearUp";
-  else if(syst_==Syst::JetMassSmearDown)return "JetMassSmearDown";
   else if(syst_==Syst::MuonRecoSFUp)  return "MuonRecoSFUp";
   else if(syst_==Syst::MuonRecoSFDown) return "MuonRecoSFDown";
   else if(syst_==Syst::MuonEnUp)   return "MuonEnUp";

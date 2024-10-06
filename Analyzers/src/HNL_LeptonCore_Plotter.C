@@ -12,7 +12,7 @@
 
 void HNL_LeptonCore::FillFakeHistograms(AnalyzerParameter param, TString plot_dir,std::vector<Lepton *> Leptons, std::vector<Jet> jets,   std::vector<FatJet> fatjets, vector<Jet> BJetColl, Particle met,  double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
   
   for(auto ilep : Leptons){
 
@@ -73,8 +73,10 @@ void HNL_LeptonCore::FillFakeHistograms(AnalyzerParameter param, TString plot_di
   return;
 }
 
-bool HNL_LeptonCore::DrawSyst(AnalyzerParameter::Syst SystType){
+bool HNL_LeptonCore::DrawSyst(AnalyzerParameter param_sys){
   
+  if(param_sys.PlottingVerbose < 0) return false;
+
   vector<AnalyzerParameter::Syst> SystToPlot;
 
   if(IsData){
@@ -87,7 +89,7 @@ bool HNL_LeptonCore::DrawSyst(AnalyzerParameter::Syst SystType){
   //}
   
   SystToPlot.push_back(AnalyzerParameter::Syst::Central);
-  if(std::find(SystToPlot.begin(), SystToPlot.end(), SystType) != SystToPlot.end()) return true;
+  if(std::find(SystToPlot.begin(), SystToPlot.end(), param_sys.syst_) != SystToPlot.end()) return true;
   else return false;
 }
 
@@ -96,7 +98,7 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter param, TString region, TStr
            Particle  met, double nvtx,  double w){
 
   //// Only Draw JEC/Fake Syst
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
 
   if(fatjets.size() == 0) return;
@@ -241,7 +243,7 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter param, TString region, TStr
 
 void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter param, TString plot_dir,   std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   vector<Tau> NullTaus;
   Fill_RegionPlots(param, plot_dir, NullTaus,jets,fatjets, leps, met, nvtx, w);
@@ -250,7 +252,7 @@ void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter param, TString plot_dir,
 
 void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter param, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   TString region ="/"+param.Name + param.hprefix;
   
@@ -266,7 +268,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
         vector<Tau> TauColl,  std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Lepton *> leps , 
         Particle  met, double nvtx,  double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   TString regionAK8 = region+"/AK8";
   TString lepregion= region + "/LeptonMVA";
@@ -703,7 +705,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
 /// FillMuonPlots Fills all kinamatics                                                                                                                                                                                                                                          
 void HNL_LeptonCore::FillMuonCollPlots(bool passSel, TString SelSt, AnalyzerParameter param, TString cut,  std::vector<Muon> muons, double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   for(auto imu: muons)   FillMuonPlots(passSel, SelSt, param, cut, imu, w);
 
@@ -711,7 +713,7 @@ void HNL_LeptonCore::FillMuonCollPlots(bool passSel, TString SelSt, AnalyzerPara
 }
 void HNL_LeptonCore::FillMuonCollPlots(AnalyzerParameter param, TString cut,  std::vector<Muon> muons, double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   for(auto imu: muons)   FillMuonPlots(true, "", param, cut, imu, w);
   return;
@@ -719,14 +721,14 @@ void HNL_LeptonCore::FillMuonCollPlots(AnalyzerParameter param, TString cut,  st
 
 /// FillAllMuonPlots Fills all kinamatics in pt/eta bins                                                                              
 void HNL_LeptonCore::FillMuonPlots(AnalyzerParameter param, TString cut,  Muon muon, double w){
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
   FillMuonPlots(true, "", param, cut, muon, w);
 }                                                                                                                                      
     
 
 void HNL_LeptonCore::FillMuonPlots(bool passSel, TString SelSt, AnalyzerParameter param, TString cut,  Muon muon, double w){
   
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   if(!passSel) return;
 
@@ -749,7 +751,7 @@ void HNL_LeptonCore::FillMuonPlots(bool passSel, TString SelSt, AnalyzerParamete
 
 void HNL_LeptonCore::FillLeptonKinematicPlots(AnalyzerParameter param, TString cut,  Lepton lep, double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   vector<Jet> JetAllColl = All_Jets;
 
@@ -831,7 +833,7 @@ void HNL_LeptonCore::FillLeptonKinematicPlots(AnalyzerParameter param, TString c
 
 void HNL_LeptonCore::FillMuonKinematicPlots(AnalyzerParameter param, TString cut,  Muon lep, double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   FillLeptonKinematicPlots(param, cut, Lepton(lep),w);
 
@@ -861,7 +863,7 @@ void HNL_LeptonCore::FillMuonKinematicPlots(AnalyzerParameter param, TString cut
 
 void HNL_LeptonCore::FillElectronPlots(AnalyzerParameter param , TString cut,  std::vector<Electron> ElectronColl, double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   for(auto iel : ElectronColl)   FillElectronKinematicPlots(param, cut, iel, w);
 
@@ -870,7 +872,7 @@ void HNL_LeptonCore::FillElectronPlots(AnalyzerParameter param , TString cut,  s
 
 void HNL_LeptonCore::FillAllElectronPlots(AnalyzerParameter param , TString cut,  std::vector<Electron> ElectronColl, double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   TString label  = param.hpostfix;
 
@@ -904,7 +906,7 @@ void HNL_LeptonCore::FillAllElectronPlots(AnalyzerParameter param , TString cut,
 
 void HNL_LeptonCore::FillElectronKinematicPlots(AnalyzerParameter param , TString cut,  Electron lep, double w){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
   
   FillLeptonKinematicPlots(param, cut, Lepton(lep),w);
 
@@ -1013,7 +1015,7 @@ void HNL_LeptonCore::Fill_SigRegionPlots4(HNL_LeptonCore::Channel channel, TStri
 
 void HNL_LeptonCore::FillLeptonPlots(AnalyzerParameter param,std::vector<Lepton *> leps, TString this_region, double weight){
   
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   for(unsigned int i=0; i<leps.size(); i++){
 
@@ -1054,7 +1056,7 @@ void HNL_LeptonCore::FillLeptonPlots(AnalyzerParameter param,std::vector<Lepton 
 
 void HNL_LeptonCore::FillJetPlots(AnalyzerParameter param,std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight){
 
-  if(!DrawSyst(param.syst_)) return;
+  if(!DrawSyst(param)) return;
 
   for(unsigned int i=0; i<jets.size(); i++){
 

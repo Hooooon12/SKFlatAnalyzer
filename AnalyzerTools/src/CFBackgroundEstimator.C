@@ -298,41 +298,31 @@ vector<double> CFBackgroundEstimator::FindBin(TString key){
 
 double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBinTag, TString key, double eta, double pt, int sys){
 
-  vector<double> HistBins ;
+  vector<double> HistBins = FindBin(EtaBinTag);
   if(EtaBinTag == "InvPtBB1") HistBins  = FindBin("InputBins_Version1");
   if(EtaBinTag == "InvPtBB2") HistBins  = FindBin("InputBins_Version2");
   if(EtaBinTag == "InvPtEC1") HistBins  = FindBin("InputBins_EC1");
   if(EtaBinTag == "InvPtEC2") HistBins  = FindBin("InputBins_EC2");
-  if(EtaBinTag == "InvPt") HistBins = FindBin("InputBins_BB1");
+  if(EtaBinTag == "InvPt") HistBins = FindBin("InputBins_Version1");
   if(EtaBinTag == "Pt") HistBins = FindBin("InputBins_Pt");
 
   eta = fabs(eta);
   if(eta>=2.5) eta = 2.49;
   
+  if(eta > 1.5){
+    if(pt > 500) pt = 499;
+  }
+  else{
+    if(pt > 750) pt = 749;
+
+  }
+
   if(eta > 1.5 && GetEra()=="2018") {
     if(pt > 500) key=key.ReplaceAll("InvPtEta3","InvPtEta1");
   }
 
   //// Lowest pt value is 20;                                                                                                                                                                
   if(pt < 15) pt = 15;
-  if(EtaBinTag == "InvPtBB1" || EtaBinTag == "InvPtBB2"){
-    if(pt > 650) pt = 650;
-    
-    //if(eta > 2.2) pt = 399;
-  }
-  else   if(EtaBinTag == "InvPt2BB2"){
-    if(pt > 499.9) pt = 499;
-  }
-  else if(EtaBinTag == "InvPtEC1") {
-    if(pt > 650) pt = 650;
-  }
-  else if(EtaBinTag == "InvPtEC2") {
-    if(pt > 440) pt = 440;
-  }
-  else {
-    if(pt > 900) pt = 899;
-  }
-
 
   std::map< TString, TH2D* >::const_iterator mapit;
   mapit = map_hist_Electron.find(key );
@@ -348,7 +338,7 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
   }
 
   int this_bin = (key.Contains("Inv")) ?  (mapit->second)->FindBin(1/pt,eta) :  (mapit->second)->FindBin(pt,eta);
-  
+
   if(GetEra() == "2016preVFP"){
     if(ID.Contains("HNL_ULID")){
       if( key.Contains("InvPtEta3")  && this_bin == (mapit->second)->FindBin(0.0026,2.3)) this_bin = (mapit->second)->FindBin(0.0029,2.3)  ;
@@ -372,7 +362,7 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
       if( key.Contains("InvPtEta3")  && this_bin == (mapit->second)->FindBin(0.0024,2.1)) this_bin = (mapit->second)->FindBin(0.0026,2.1)  ;
     }
   }
-
+  
 
   int this_bin_m1 = this_bin-1;
   int this_bin_p1 = this_bin+1;
@@ -380,15 +370,16 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
   double value_MainBin = (mapit->second)->GetBinContent(this_bin);
   double error_MainBin = (mapit->second)->GetBinError(this_bin);
 
-  //cout << "pt = " << pt << " value_MainBin " << value_MainBin << endl;
   
-  double value_mBin = (mapit->second)->GetBinContent(this_bin_m1);
-  double value_pBin = (mapit->second)->GetBinContent(this_bin_p1);
   double IPt = (key.Contains("Inv")) ?   (1/pt) : pt;  
 
   if(IPt >= (HistBins.at(HistBins.size()-2) + HistBins.at(HistBins.size()-1))/2)   return value_MainBin + double(sys)*error_MainBin; 
   if(IPt <= 0.5*HistBins.at(1)) return value_MainBin + double(sys)*error_MainBin;
   
+
+  double value_mBin = (mapit->second)->GetBinContent(this_bin_m1);
+  double value_pBin = (mapit->second)->GetBinContent(this_bin_p1);
+
   vector <double> InputBins = HistBins;
   
   vector <double> BinCentres;
@@ -404,10 +395,20 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
 
     }
   }
+
+  double MC_Closure_Corr = 1;
+  if(GetEra() == "2016"){
+    if(pt > 300) MC_Closure_Corr = 1.3;
+  }
+
+  if(GetEra() == "2017"){
+    if(pt > 200) MC_Closure_Corr = 1.2;
+    else if(pt > 100) MC_Closure_Corr = 1.1;
+  }
   //  PrintBins((mapit->second));
 
 
-  //  cout << "  "<< endl;
+  //cout << "  "<< endl;
   //cout << "Pt = " <<  pt << " IPt = " << IPt << " this_bin = " << this_bin << " this_bin_m1 = " << this_bin_m1 << "  = " << this_bin_p1 << endl;
   //cout << "value_MainBin = " << value_MainBin << " value_mBin " << value_mBin << " value_pBin = " << value_pBin << endl;
   //cout << "Center_MainBin = " << Center_MainBin << " Center_mBin = " << Center_mBin << " Center_pBin = " << Center_pBin << endl;
@@ -416,7 +417,7 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
   ////    0         0.002     0.003                      0.04     0.07
   ////    |         |         |       |    |      |     |    |
 
-
+  //cout << "GetElectronCFRateFitted EXTRAP " << endl;
 
   if(IPt < Center_MainBin) {
 
@@ -433,7 +434,7 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
       
       exit(ENODATA);
     }
-    return CFRate+ double(sys)*error_MainBin;
+    return CFRate*MC_Closure_Corr+ double(sys)*error_MainBin;
   }
 
   else{
@@ -451,7 +452,7 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
       exit(ENODATA);
     }
     
-    return CFRate+ double(sys)*error_MainBin;
+    return CFRate*MC_Closure_Corr+ double(sys)*error_MainBin;
   }
 
   

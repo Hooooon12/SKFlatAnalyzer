@@ -287,7 +287,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   // HNL PLOTS  HNL_LeptonCore_Plotter                                                                                                                                     
 
   /// Function to check which hists to plot whening running systematics
-  bool DrawSyst(AnalyzerParameter::Syst SystType);
+  bool DrawSyst(AnalyzerParameter param_sys);
 
   void FillMuonCollPlots     (bool passSel, TString sel, AnalyzerParameter param, TString cut,  std::vector<Muon> muons, double w);
   void FillMuonCollPlots     (AnalyzerParameter param, TString cut,  std::vector<Muon> muons, double w);
@@ -471,7 +471,10 @@ nvtx,  double w);
   bool SameCharge(std::vector<Lepton *> leps, int ch=0);
 
   /// global var for user flags
-  bool RunPrompt,RunFake,RunOSFake,RunFakeTF, RunCF,  RunConv, RunSyst,RunPromptTLRemoval,run_ORTrigger;
+  bool RunPrompt,RunFake,RunOSFake,RunFakeTF, RunCF,  RunConv, RunSyst,RunPromptTLRemoval,run_ORTrigger,RunFullSyst;
+  bool RunEE;
+  bool RunEMu;
+  bool RunMuMu;
   bool IsSkimmed, Signal, HEM1516 ,BeforeRun319077;
   bool DEBUG,IsCentral, RunFullAnalysis;
   TRandom3* rand_;

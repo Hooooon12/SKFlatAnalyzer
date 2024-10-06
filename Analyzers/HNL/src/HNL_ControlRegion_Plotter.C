@@ -16,11 +16,6 @@ void HNL_ControlRegion_Plotter::initializeAnalyzer(){
   }
   else SetupEventMVAReader("V2");
 
-  RunEE   = HasFlag("EE");
-  RunMuMu = HasFlag("MuMu");
-  RunEMu  = HasFlag("EMu");
-  RunSyst = HasFlag("RunSyst");
-  RunFullSyst = HasFlag("RunFullSyst");
   RunTopID = HasFlag("RunHNTop");
   RunPOGID = HasFlag("RunPOG");
   RunHighPtID = HasFlag("RunHighPt");
@@ -66,19 +61,20 @@ void HNL_ControlRegion_Plotter::executeEvent(){
       AnalyzerParameter param_signal = HNL_LeptonCore::InitialiseHNLParameter(id,channel);
       if(channel == EMu) param_signal.CFMethod   = "MC";
 
+      param_signal.PlottingVerbose = 0;
+      if(id == "HNL_ULID")        param_signal.PlottingVerbose = 1;
+      if(id.Contains("HEEP"))     param_signal.PlottingVerbose = 1;
+      if(RunSyst)  param_signal.PlottingVerbose = -1;
+
+
+
       for(auto iCR : CRToRun) {
         RunControlRegions(param_signal , {iCR} );
 
-        if(RunSyst || RunFullSyst){
-          TString param_name = param_signal.Name;
-          vector<AnalyzerParameter::Syst> SystList = GetSystList("All");
-          if(RunSyst){
-            SystList = {}; /// Set Individual systs
-          }
-          for(auto isyst : SystList){
-            bool runJob = UpdateParamBySyst(id,param_signal,AnalyzerParameter::Syst(isyst),param_name);
-            if(runJob)         RunControlRegions(param_signal , {iCR} );
-          }
+        TString param_name = param_signal.Name;
+        for(auto isyst : GetSystList()){
+          bool runJob = UpdateParamBySyst(id,param_signal,AnalyzerParameter::Syst(isyst),param_name);
+          if(runJob)         RunControlRegions(param_signal , {iCR} );
         }
       }
     }

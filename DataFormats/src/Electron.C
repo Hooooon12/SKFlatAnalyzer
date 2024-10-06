@@ -355,7 +355,7 @@ int  Electron::PassIDTight(TString ID) const{
   if(ID=="passHEEPID_v3") return BtoI(PassID("passHEEPID_v1") && PassID("passTriggerLoose") && PassID("passMediumCharge"));
 
   if(ID=="passMediumCharge") return IsGsfCtfChargeConsistent();
-  if(ID=="passTightCharge") return IsGsfCtfChargeConsistent();
+  if(ID=="passTightCharge")  return IsGsfCtfScPixChargeConsistent();
   if(ID=="passTriggerLoose") return Pass_TriggerEmulationLoose();
   
   

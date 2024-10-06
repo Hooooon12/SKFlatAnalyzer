@@ -20,11 +20,6 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
 
   nLog = 100000;
 
-  RunEE   = HasFlag("EE");
-  RunMuMu = HasFlag("MuMu");
-  RunEMu  = HasFlag("EMu");
-  RunSyst = HasFlag("RunSyst");
-  RunFullSyst = HasFlag("RunFullSyst");
   RunTopID = HasFlag("RunHNTop");
   RunPOGID = HasFlag("RunPOG");
   RunHighPtID = HasFlag("RunHighPt");
@@ -57,31 +52,19 @@ void HNL_SignalRegion_Plotter::executeEvent(){
     for(auto channel : ChannelsToRun){
 
       AnalyzerParameter param = HNL_LeptonCore::InitialiseHNLParameter(id,channel);
-      param.PlottingVerbose = 0;
-      if(id == "HNL_ULID")         param.PlottingVerbose = 1;
+      param.PlottingVerbose = 0; //// Draw basic plots
+      if(id == "HNL_ULID")         param.PlottingVerbose = 1; /// Draw more plots
       if(id.Contains("HEEP"))      param.PlottingVerbose = 1;
+      if(RunSyst)   param.PlottingVerbose = -1; /// Turn off plotter
+
       RunULAnalysis(param);
 
-      RunSyst = true; //JH
-      if(RunSyst||RunFullSyst){
-        TString param_name = param.Name;
-        vector<AnalyzerParameter::Syst> SystList = GetSystList("All");
-        //vector<AnalyzerParameter::Syst> SystList = GetSystList("Quick");
+      TString param_name = param.Name;
 
-        //if(RunSyst) {
-        //  /// Set Individual systs    
-        //  SystList = { 
-        //    AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,
-        //    AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,
-        //  };
-        //}
-
-        for(auto isyst : SystList){
-          bool runJob = UpdateParamBySyst(id,param,AnalyzerParameter::Syst(isyst),param_name);
-          if(runJob) RunULAnalysis(param);
-        }
+      for(auto isyst : GetSystList()){
+        bool runJob = UpdateParamBySyst(id,param,AnalyzerParameter::Syst(isyst),param_name);
+        if(runJob) RunULAnalysis(param);
       }
-      
     }
   }
   FillTimer("END_EV");
