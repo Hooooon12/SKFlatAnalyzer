@@ -298,14 +298,14 @@ vector<double> CFBackgroundEstimator::FindBin(TString key){
 
 double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBinTag, TString key, double eta, double pt, int sys){
 
-  //vector<double> HistBins = FindBin(EtaBinTag); //JH
-  vector<double> HistBins; //JH
-  if(EtaBinTag == "InvPtBB1") HistBins  = FindBin("InputBins_Version1");
-  if(EtaBinTag == "InvPtBB2") HistBins  = FindBin("InputBins_Version2");
-  if(EtaBinTag == "InvPtEC1") HistBins  = FindBin("InputBins_EC1");
-  if(EtaBinTag == "InvPtEC2") HistBins  = FindBin("InputBins_EC2");
-  if(EtaBinTag == "InvPt") HistBins = FindBin("InputBins_Version1");
-  if(EtaBinTag == "Pt") HistBins = FindBin("InputBins_Pt");
+  vector<double> HistBins;
+  if(EtaBinTag == "InvPtBB1")      HistBins = FindBin("InputBins_Version1");
+  else if(EtaBinTag == "InvPtBB2") HistBins = FindBin("InputBins_Version2");
+  else if(EtaBinTag == "InvPtEC1") HistBins = FindBin("InputBins_EC1");
+  else if(EtaBinTag == "InvPtEC2") HistBins = FindBin("InputBins_EC2");
+  else if(EtaBinTag == "InvPt")    HistBins = FindBin("InputBins_Version1");
+  else if(EtaBinTag == "Pt")       HistBins = FindBin("InputBins_Pt");
+  else HistBins = FindBin(EtaBinTag);
 
   eta = fabs(eta);
   if(eta>=2.5) eta = 2.49;
