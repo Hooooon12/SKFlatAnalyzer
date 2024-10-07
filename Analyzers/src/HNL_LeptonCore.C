@@ -138,7 +138,7 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
     
     
     vector<TString> FakeHMaps = {datapath + "/"+GetEra()+"/FakeRate/MCFR/TT_PartonSF.txt",
-				 datapath + "/"+GetEra()+"/FakeRate/MCFR/QCD_PartonSF.txt"};
+         datapath + "/"+GetEra()+"/FakeRate/MCFR/QCD_PartonSF.txt"};
     
     if(IsDATA) FakeHMaps = {datapath + "/"+GetEra()+"/FakeRate/DataFR/Data_PartonSF.txt"};
     cout << "HNL_LeptonCore::IsData = " << IsData << endl;
@@ -156,7 +156,7 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
           is >> c; // ID 
           is >> d; // SampleType
           is >> e; // SF                                                                                                                                                                                                                                     
-          MakeSFmap[a+"_"+b+"_"+c+"_"+d] = e;	
+          MakeSFmap[a+"_"+b+"_"+c+"_"+d] = e;  
         }
         else{
           TString a,b,c,d,e;
@@ -353,11 +353,11 @@ double HNL_LeptonCore::MergeMultiMC(vector<TString> vec, TString Method){
 
 
 
-vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
+vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HNL_LeptonCore::Channel channel){
 
   vector<AnalyzerParameter::Syst> SystList = {};
   
-  if(!RunSyst) return SystList;
+  //if(!RunSyst) return SystList;
   
   if(RunCF){
     SystList = {
@@ -387,7 +387,8 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
     SystList.push_back(AnalyzerParameter::JetEnUp);
     SystList.push_back(AnalyzerParameter::JetEnDown);
     
-    if(RunFullSyst){
+    //if(RunFullSyst){ //JH
+    if(SystType=="All"){
       
       SystList = {AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
                   AnalyzerParameter::JetEnUp, AnalyzerParameter::JetEnDown,
@@ -397,17 +398,19 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
                   AnalyzerParameter::PrefireUp,AnalyzerParameter::PrefireDown,
                   AnalyzerParameter::PUUp,AnalyzerParameter::PUDown};
       
-      if(RunMuMu || RunEMu){
+      //if(RunMuMu || RunEMu){
+      if(channel==MuMu || channel==EMu){
         SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
         SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
         SystList.push_back(AnalyzerParameter::MuonEnUp);
         SystList.push_back(AnalyzerParameter::MuonEnDown);
         SystList.push_back(AnalyzerParameter::MuonIDSFUp);
         SystList.push_back(AnalyzerParameter::MuonIDSFDown);
-        SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
-        SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
+        //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
+        //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
       }
-      if(RunEE || RunEMu){
+      //if(RunEE || RunEMu){
+      if(channel==EE || channel==EMu){
         SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
         SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
         SystList.push_back(AnalyzerParameter::ElectronResUp);
@@ -416,8 +419,8 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
         SystList.push_back(AnalyzerParameter::ElectronEnDown);
         SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
         SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
-        SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
-        SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
+        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
+        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
       }
     }
   }

@@ -7,8 +7,8 @@ void test(TString era, bool isdata, TString sample, TString skim, TString flag){
   //HNL_LeptonFakeRate m;
   //HNL_ControlRegionPlotter m;
   //HNL_SignalRegionPlotter m;
-  //HNL_SignalRegion_Plotter m;
-  HNL_ControlRegion_Plotter m;
+  HNL_SignalRegion_Plotter m;
+  //HNL_ControlRegion_Plotter m;
 
   m.SetTreeName("recoTree/SKFlat");
 

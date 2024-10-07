@@ -30,7 +30,7 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
 
 void HNL_SignalRegion_Plotter::executeEvent(){
 
-  FillTimer("START_EV");
+  //FillTimer("START_EV");
   
   if(_jentry == 0){
     cout << "HNL_SignalRegion_Plotter::IsData = " << IsData << endl;
@@ -61,13 +61,13 @@ void HNL_SignalRegion_Plotter::executeEvent(){
 
       TString param_name = param.Name;
 
-      for(auto isyst : GetSystList()){
+      for(auto isyst : GetSystList("All",channel)){ //JH
         bool runJob = UpdateParamBySyst(id,param,AnalyzerParameter::Syst(isyst),param_name);
         if(runJob) RunULAnalysis(param);
       }
     }
   }
-  FillTimer("END_EV");
+  //FillTimer("END_EV");
 
   return ;
 }
@@ -112,7 +112,7 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
   
   EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
 
-  FillTimer("START_SR");
+  //FillTimer("START_SR");
 
   vector<int> RunEl ;
   if(RunCF) RunEl =  {0,1} ;
@@ -126,7 +126,7 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
       ev,METv, param, ir, weight);
   }
 
-  FillTimer("END_SR");
+  //FillTimer("END_SR"); //JH
 
 
 }

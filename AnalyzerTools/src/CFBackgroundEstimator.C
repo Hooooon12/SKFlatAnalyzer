@@ -298,7 +298,8 @@ vector<double> CFBackgroundEstimator::FindBin(TString key){
 
 double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBinTag, TString key, double eta, double pt, int sys){
 
-  vector<double> HistBins = FindBin(EtaBinTag);
+  //vector<double> HistBins = FindBin(EtaBinTag); //JH
+  vector<double> HistBins; //JH
   if(EtaBinTag == "InvPtBB1") HistBins  = FindBin("InputBins_Version1");
   if(EtaBinTag == "InvPtBB2") HistBins  = FindBin("InputBins_Version2");
   if(EtaBinTag == "InvPtEC1") HistBins  = FindBin("InputBins_EC1");

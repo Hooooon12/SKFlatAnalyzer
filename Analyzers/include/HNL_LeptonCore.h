@@ -395,7 +395,7 @@ nvtx,  double w);
 
 
   /// ------ SYSTEMATICS
-  vector<AnalyzerParameter::Syst> GetSystList(TString SystType="");
+  vector<AnalyzerParameter::Syst> GetSystList(TString SystType="", HNL_LeptonCore::Channel channel=NONE);
 
   /// ---- TRIGGER HNL_LeptonCore_Trigger
   void    SetupTriggerLists();  
