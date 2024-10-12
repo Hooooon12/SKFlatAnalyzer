@@ -8,7 +8,7 @@ datapath=${SKFlat_WD}/runJobs/SampleLists/Data/
 njobs=30
 njobs_sig=20
 njobs_data=200
-nmax=600
+nmax=300
 skim=' '
 
 if [[ $1 == "CF" ]]; then

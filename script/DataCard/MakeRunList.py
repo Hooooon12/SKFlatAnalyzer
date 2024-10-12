@@ -10,6 +10,8 @@ parser.add_argument('dirNames', nargs='+') # nargs='+' force a user to feed this
 parser.add_argument('-e', dest='eras', default=[], nargs='+')
 parser.add_argument('-c', dest='channels', default=[], nargs='+') # store [] if nothing is fed
 parser.add_argument('-m', dest='masses', default=[], nargs='+')
+parser.add_argument('--Work', action='store_true', help='for workspace production purposes')
+parser.add_argument('--Limit', action='store_true', help='for limit extraction purposes')
 args = parser.parse_args()
 
 #mylist = cmd.getoutput("ls /data6/Users/jihkim/CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter/*.root | grep HNL_UL.root")
@@ -25,19 +27,27 @@ args = parser.parse_args()
 
 input_path = os.getcwd()
 
-grepRegion = '' if "Run2" in args.eras else ' | grep sr3_inv' # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc. Pick just one (sr3_inv)
+grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep sr3_inv' # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one (grepping 'card' for Run2 or 'sr3_inv' for the others)
 
 #tags = ["_sronly"]
-#tags = ["_syst"]
+tags = ["_syst"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined","_syst"]
 #tags = ["_sr1_syst","_sr2_syst","_sr3_syst","_sr_syst"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined","_sr_syst_Combined","_syst","_sr1_syst","_sr2_syst","_sr3_syst","_sr_syst"]
 #tags = ["_sr_syst_NoCFCR_Combined","_sr_syst_NoInv_Combined","_sr_syst_NoCFCR_NoInv_Combined"]
-tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined","_sr_syst_Combined","_syst","_sr1_syst","_sr2_syst","_sr3_syst","_sr_syst","_sr_syst_NoCFCR_Combined","_sr_syst_NoInv_Combined","_sr_syst_NoCFCR_NoInv_Combined"]
+
+## Inclusive
+#tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined","_sr_syst_Combined","_syst","_sr1_syst","_sr2_syst","_sr3_syst","_sr_syst","_sr_syst_NoCFCR_Combined","_sr_syst_NoInv_Combined","_sr_syst_NoCFCR_NoInv_Combined"]
+
 ## No syst
 #tags = ["_sr1_Combined","_sr2_Combined","_sr3_Combined","_sr_Combined","","_sr_NoCFCR_Combined","_sr_NoInv_Combined","_sr_NoCFCR_NoInv_Combined"]
 ## SR only
 #tags = ["_sronly_sr1","_sronly_sr2","_sronly_sr3","_sronly_sr123","_sronly_sr","_sronly_sr1_syst","_sronly_sr2_syst","_sronly_sr3_syst","_sronly_sr123_syst","_sronly_sr_syst"]
+
+isRun2 = ""
+if "Run2" in args.eras:
+  tags = ["_syst"]
+  isRun2 = "Run2_"
 
 for dirName in args.dirNames:
 
@@ -45,10 +55,15 @@ for dirName in args.dirNames:
   #print greps
 
   cards = cmd.getoutput(greps).replace('_sr3_inv.txt','').replace('_syst.txt','').split('\n')
+  #print cards
   dirName = dirName.replace('/','')
-  with open("RunList_"+dirName+".txt",'w') as f:
+  with open("RunList_"+isRun2+dirName+".txt",'w') as f: # FIXME maybe you can add "Work" or "Limit" to the file name and keep separate...
     for card in cards:
       for tag in tags:
         this = input_path+"/"+dirName+"/"+card+tag+".root\n"
-        f.write(this)
-  #print cards
+        if args.Work:
+          f.write(this)
+        elif args.Limit:
+          shortcard = this.split('/')[-1].replace(".root","").replace(".txt","").replace("card_","").strip('\n')
+          this = input_path+"/"+dirName+"/"+shortcard+"/"+shortcard+".root\n"
+          f.write(this)

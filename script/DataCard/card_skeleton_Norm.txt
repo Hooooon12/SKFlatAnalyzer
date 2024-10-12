@@ -22,8 +22,8 @@ BkgNorm             lnN    -      -      -      1.2           -      -      -   
 CF                  lnN    -      1.2    -      -             -      -      -      -              -            -
 JetRes              shape  -      -      1      1             1      1      1      1              1            1
 JetEn               shape  -      -      1      1             1      1      1      1              1            1
-JetMass             shape  -      -      1      1             1      1      1      1              1            1
-JetMassSmear        shape  -      -      1      1             1      1      1      1              1            1
+#JetMass             shape  -      -      1      1             1      1      1      1              1            1
+#JetMassSmear        shape  -      -      1      1             1      1      1      1              1            1
 #MuonRecoSF          shape  -      -      1      1             1      1      1      1              1            1
 #MuonIDSF            shape  -      -      1      1             1      1      1      1              1            1
 #MuonISOSF           shape  -      -      1      1             1      1      1      1              1            1

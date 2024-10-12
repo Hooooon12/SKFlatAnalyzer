@@ -8,7 +8,9 @@ import argparse
 import datetime
 
 parser = argparse.ArgumentParser(description='option')
-parser.add_argument('-l', dest='RunLists', nargs='+') # take args as a list, return error when there is no arg
+parser.add_argument('--pdf', action='store_true', help='do pdfseparate')
+parser.add_argument('-i', dest='Input', help='take a single argument. [NOTE] feed realpath of a card (or workspace) !!')
+parser.add_argument('-l', dest='RunLists', nargs='+', help='take args as a list, return error when there is no arg')
 parser.add_argument('--Full', action='store_true')
 parser.add_argument('--Q1', action='store_true')
 parser.add_argument('--Q2', action='store_true')
@@ -32,12 +34,18 @@ if failure:
   print "Exiting ..."
   sys.exit(1)
 
+if args.Input is not None:
+  args.RunLists = []
+  args.RunLists.append(args.Input)
+
 for RunList in args.RunLists:
-  cards = open(RunList).readlines()
+  cards = open(RunList).readlines() if args.Input is None else [args.Input]
   NCARD = len(cards)
-  WP = RunList.split('.')[-2].replace('RunList_','')
- 
-  if args.Work or args.Nuis:
+  WP = RunList.split('.')[-2].replace('RunList_','').replace('Run2_','') if args.Input is None else args.Input.split('/')[-2] # Currently, RunList is splitted into Run2 and normal setting (code structure issue -- it doesn't change WP)
+
+  if args.pdf:
+    os.system('mkdir -p Impacts/'+WP)
+  elif args.Work or args.Nuis:
     with open(WP+'/submit_skeleton.sh','w') as skel: # for Nuisance check
       skel.write("universe = vanilla\n")
       skel.write("+SingularityImage = \"/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el9:latest\"\n")
@@ -59,7 +67,16 @@ for RunList in args.RunLists:
     if '#' in card: continue
     shortcard = card.split('/')[-1].replace(".root","").replace(".txt","").replace("card_","")
  
-    if args.Work:
+    if args.pdf:
+      os.chdir(pwd+"/"+WP+"/"+shortcard)
+      os.system("pdfseparate "+shortcard+".pdf -f 1 -l 1 "+shortcard+"_1.pdf") # this doesn't work in singularity environment.................
+      os.system("cp "+shortcard+"_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
+      if float(shortcard.split('_')[2].replace("M","")) > 3000.: # mass is above 3000 GeV so that it only contains SSWW --> get impact with default physics model
+        os.system("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf")
+        os.system("cp "+shortcard+"_DefMod_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
+      os.chdir(pwd)
+      continue
+    elif args.Work:
       os.system('mkdir -p '+WP+'/'+shortcard)
       os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/submit_Workspace.sh')
     elif args.Nuis:
@@ -210,7 +227,7 @@ for RunList in args.RunLists:
         runfile.write("combineTool.py -M Impacts -d "+shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --output "+shortcard+"_impacts.json --name "+shortcard+"\n")
         runfile.write("echo Making impact plots...\n")
         runfile.write("plotImpacts.py -i "+shortcard+"_impacts.json -o "+shortcard+"\n")
-        runfile.write("pdfseparate "+shortcard+".pdf -f 1 -l 1 "+shortcard+"_1.pdf\n")
+        #runfile.write("pdfseparate "+shortcard+".pdf -f 1 -l 1 "+shortcard+"_1.pdf\n") # this doesn't work in singularity environment.................
         runfile.write("echo Running fast scan...\n")
         runfile.write("combineTool.py -M FastScan -w "+shortcard+".root:w -o "+shortcard+"_Asimov_nll -t -1\n")
         runfile.write("combineTool.py -M FastScan -w "+shortcard+".root:w -o "+shortcard+"_nll\n")
@@ -225,7 +242,7 @@ for RunList in args.RunLists:
           runfile.write("combineTool.py -M Impacts -d "+shortcard+"_DefMod.root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doFits --name "+shortcard+"_DefMod -t -1\n")
           runfile.write("combineTool.py -M Impacts -d "+shortcard+"_DefMod.root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --output "+shortcard+"_DefMod_impacts.json --name "+shortcard+"_DefMod\n")
           runfile.write("plotImpacts.py -i "+shortcard+"_DefMod_impacts.json -o "+shortcard+"_DefMod\n")
-          runfile.write("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf\n")
+          #runfile.write("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf\n")
           runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_Asimov_nll -t -1\n")
           runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_nll\n")
           runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=200 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod\n")

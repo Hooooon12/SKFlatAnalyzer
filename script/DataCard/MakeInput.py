@@ -20,23 +20,23 @@ parser.add_argument('--Merge', action='store_true', help='hadd the needed histog
 args = parser.parse_args()
 
 
-#eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
+eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
 #eras = ["2016preVFP"]
 #eras = ["2016postVFP"]
-eras = ["2017"]
+#eras = ["2017"]
 #eras = ["2018"]
 #eras = ["Run2"] # Let's merge Run2 after running all eras first
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M1000","M10000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250"]
 #masses = ["M1000"]
-#masses = ["M85"]
+#masses = ["M100"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M1000"]
-masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
-channels = ["MuMu","EE","EMu"]
-#channels = ["MuMu","EE"]
-#channels = ["EE"]
+#masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
+#channels = ["MuMu","EE","EMu"]
+channels = ["MuMu","EE"]
+#channels = ["EMu"]
 HistChannelMap = {'MuMu':'Muon', 'EE':'Electron', 'EMu':'ElectronMuon'}
 ## Ugly region maps ##
 RegionToCRFlagMap = {}
@@ -633,7 +633,7 @@ for tag in tags:
                 print "##### Making 2D hist for","signalDYVBF","#####"
                 FillScan(h_scan,h_signalDYVBF,"signalDYVBF") # out, in, name
               try:
-                #if "EMu" in channel: h_syst.Scale(2) #XXX FIXME MY SKFlatOutput EMu signal have a half of events, should be fixed later
+                if "PR52" in InputPath and "EMu" in channel: h_signalDYVBF.Scale(2) #XXX FIXME MY SKFlatOutput EMu signal had a half of events
                 h_signalDYVBF.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
               except AttributeError:
                 print("[!!WARNING!!] There is no hist named "+input_hist+" in "+f_path_signalDYVBF+" .")
@@ -794,7 +794,7 @@ for tag in tags:
 
                     try:
                       if "DYVBF" in input_list[i][2]: # Scale the syst variated signals
-                        #if "EMu" in channel: h_syst.Scale(2) #XXX FIXME MY SKFlatOutput EMu signal have a half of events, should be fixed later
+                        if "PR52" in InputPath and "EMu" in channel: h_syst.Scale(2) #XXX FIXME MY SKFlatOutput EMu signal had a half of events
                         h_syst.Scale(DYVBFscaler)
                       elif "SSWW" in input_list[i][2]:
                         h_syst.Scale(SSWWscaler)

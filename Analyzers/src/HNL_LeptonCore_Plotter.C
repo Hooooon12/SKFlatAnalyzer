@@ -79,14 +79,14 @@ bool HNL_LeptonCore::DrawSyst(AnalyzerParameter param_sys){
 
   vector<AnalyzerParameter::Syst> SystToPlot;
 
-  if(IsData){
-    if(RunFake) SystToPlot= {AnalyzerParameter::Syst::FRUp,AnalyzerParameter::Syst::FRDown, AnalyzerParameter::Syst::FRAJ30,AnalyzerParameter::Syst::FRAJ60,AnalyzerParameter::Syst::FRLooseIDDJUp,AnalyzerParameter::Syst::FRLooseIDDJDown,AnalyzerParameter::Syst::FRPartonSFUp, AnalyzerParameter::Syst::FRPartonSFDown};
-    if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown, AnalyzerParameter::Syst::CFSFUp,AnalyzerParameter::Syst::CFSFDown};
-    
-  }
+  //if(IsData){
+  //  if(RunFake) SystToPlot= {AnalyzerParameter::Syst::FRUp,AnalyzerParameter::Syst::FRDown, AnalyzerParameter::Syst::FRAJ30,AnalyzerParameter::Syst::FRAJ60,AnalyzerParameter::Syst::FRLooseIDDJUp,AnalyzerParameter::Syst::FRLooseIDDJDown,AnalyzerParameter::Syst::FRPartonSFUp, AnalyzerParameter::Syst::FRPartonSFDown};
+  //  if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown, AnalyzerParameter::Syst::CFSFUp,AnalyzerParameter::Syst::CFSFDown};
+  //  
+  //}
   //else {
   //  SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown};
-  //}
+  //} //JH
   
   SystToPlot.push_back(AnalyzerParameter::Syst::Central);
   if(std::find(SystToPlot.begin(), SystToPlot.end(), param_sys.syst_) != SystToPlot.end()) return true;

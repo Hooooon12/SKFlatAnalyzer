@@ -379,48 +379,50 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
     SystList.push_back(AnalyzerParameter::FRPartonSFDown);
   }
   else{
-    
-    SystList.push_back(AnalyzerParameter::JetResUp);
-    SystList.push_back(AnalyzerParameter::JetResDown);
-    SystList.push_back(AnalyzerParameter::PUUp);
-    SystList.push_back(AnalyzerParameter::PUDown);
-    SystList.push_back(AnalyzerParameter::JetEnUp);
-    SystList.push_back(AnalyzerParameter::JetEnDown);
-    
-    //if(RunFullSyst){ //JH
-    if(SystType=="All"){
+  
+    if(!IsDATA){ //JH
+      SystList.push_back(AnalyzerParameter::JetResUp);
+      SystList.push_back(AnalyzerParameter::JetResDown);
+      SystList.push_back(AnalyzerParameter::PUUp);
+      SystList.push_back(AnalyzerParameter::PUDown);
+      SystList.push_back(AnalyzerParameter::JetEnUp);
+      SystList.push_back(AnalyzerParameter::JetEnDown);
       
-      SystList = {AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
-                  AnalyzerParameter::JetEnUp, AnalyzerParameter::JetEnDown,
-                  AnalyzerParameter::BTagSFHTagUp,AnalyzerParameter::BTagSFHTagDown,
-                  AnalyzerParameter::BTagSFLTagUp,AnalyzerParameter::BTagSFLTagDown,
-                  AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown,
-                  AnalyzerParameter::PrefireUp,AnalyzerParameter::PrefireDown,
-                  AnalyzerParameter::PUUp,AnalyzerParameter::PUDown};
-      
-      //if(RunMuMu || RunEMu){
-      if(channel==MuMu || channel==EMu){
-        SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
-        SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
-        SystList.push_back(AnalyzerParameter::MuonEnUp);
-        SystList.push_back(AnalyzerParameter::MuonEnDown);
-        SystList.push_back(AnalyzerParameter::MuonIDSFUp);
-        SystList.push_back(AnalyzerParameter::MuonIDSFDown);
-        //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
-        //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
-      }
-      //if(RunEE || RunEMu){
-      if(channel==EE || channel==EMu){
-        SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
-        SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
-        SystList.push_back(AnalyzerParameter::ElectronResUp);
-        SystList.push_back(AnalyzerParameter::ElectronResDown);
-        SystList.push_back(AnalyzerParameter::ElectronEnUp);
-        SystList.push_back(AnalyzerParameter::ElectronEnDown);
-        SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
-        SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
-        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
-        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
+      //if(RunFullSyst){ //JH
+      if(SystType=="All"){
+        
+        SystList = {AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
+                    AnalyzerParameter::JetEnUp, AnalyzerParameter::JetEnDown,
+                    AnalyzerParameter::BTagSFHTagUp,AnalyzerParameter::BTagSFHTagDown,
+                    AnalyzerParameter::BTagSFLTagUp,AnalyzerParameter::BTagSFLTagDown,
+                    AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown,
+                    AnalyzerParameter::PrefireUp,AnalyzerParameter::PrefireDown,
+                    AnalyzerParameter::PUUp,AnalyzerParameter::PUDown};
+        
+        //if(RunMuMu || RunEMu){
+        if(channel==MuMu || channel==EMu){
+          SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
+          SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
+          SystList.push_back(AnalyzerParameter::MuonEnUp);
+          SystList.push_back(AnalyzerParameter::MuonEnDown);
+          SystList.push_back(AnalyzerParameter::MuonIDSFUp);
+          SystList.push_back(AnalyzerParameter::MuonIDSFDown);
+          //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
+          //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
+        }
+        //if(RunEE || RunEMu){
+        if(channel==EE || channel==EMu){
+          SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
+          SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
+          SystList.push_back(AnalyzerParameter::ElectronResUp);
+          SystList.push_back(AnalyzerParameter::ElectronResDown);
+          SystList.push_back(AnalyzerParameter::ElectronEnUp);
+          SystList.push_back(AnalyzerParameter::ElectronEnDown);
+          SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
+          SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
+          //SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
+          //SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
+        }
       }
     }
   }

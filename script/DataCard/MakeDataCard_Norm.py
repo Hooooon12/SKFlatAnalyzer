@@ -9,6 +9,7 @@
 import os, sys, argparse
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('--Decorr', action='store_true', help='Decorrelate fake, CF, norm')
 parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
 parser.add_argument('--Syst', action='store_true', help='Add systematics into the datacards')
 parser.add_argument('--Combine', choices=['CR','SR','Era'], help='CR --> Merge CR and SR datacards in one era,\nEra --> Merge pre-processed (CR+SR) over the Run2,\nSR --> Merge SR only datacards over the Run2')
@@ -25,10 +26,10 @@ pwd = os.getcwd()
 #####################################################
 
 #eras = ["2016","2017","2018"]
-eras = ["2017"]
+#eras = ["2017"]
 #eras = ["2018"]
-#eras = ["2016preVFP","2016postVFP","2017","2018"]
-#eras = ["2016preVFP","2016postVFP","2017"]
+eras = ["2016preVFP","2016postVFP","2017","2018"]
+#eras = ["2016preVFP","2016postVFP","2018"]
 channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
 #channels = ["MuMu"]
@@ -39,9 +40,9 @@ channels = ["MuMu","EE","EMu"]
 #masses = ["M500","M1000","M5000"]
 #masses = ["M3000"]
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M1000","M10000"]
-masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100"]
 #masses = ["M20000"]
 
@@ -84,10 +85,11 @@ InputWPs = ["PR52_SSWWrescale_HNL_ULID"]
 #OutputTag = "_defMod_SSWWonly"
 #OutputTag = "_Fake0p3CF0p2_PR991"
 #OutputTag = "_Fake0p3CF0p2_PR991_TestModel"
-#OutputTag = "_AN"
+OutputTag = "_AN"
 #OutputTag = "_SUScomment"
 #OutputTag = "_Singluarity"
-OutputTag = ""
+#OutputTag = ""
+if args.Decorr: OutputTag+="_Decorr"
 
 ################################################################################################################################################
 
@@ -122,6 +124,16 @@ def CardSetting(isCR, WP, era, channel, mass):
         this_lines_cr[i] = this_lines_cr[i].replace('Norm','Norm'+era) # era dependent norm constraint
       #if (not region in this_lines_cr[i]):
       #  this_lines_cr[i] = "" # remove not corresponding rateParams
+
+    # finally do the decorrelation
+    if args.Decorr:
+      if "sr_" in region: pass
+      elif "sr" in region:
+        this_lines_cr[19] = this_lines_cr[19].replace('Fake','Fake'+region.split('_')[0])
+        this_lines_cr[21] = this_lines_cr[21].replace('CF','CF'+region.split('_')[0])
+      else:
+        this_lines_cr[19] = this_lines_cr[19].replace('Fake','Fakesr1')+this_lines_cr[19].replace('Fake','Fakesr2')+this_lines_cr[19].replace('Fake','Fakesr3')
+        this_lines_cr[21] = this_lines_cr[21].replace('CF','CFsr1')+this_lines_cr[21].replace('CF','CFsr2')+this_lines_cr[21].replace('CF','CFsr3')
 
     lines_cr[region] = this_lines_cr
 
@@ -160,11 +172,24 @@ def CardSetting(isCR, WP, era, channel, mass):
       #if (not region in this_lines_sr[i]):
       #  this_lines_sr[i] = "" # remove not corresponding rateParams
 
+    # finally do the decorrelation
+    if args.Decorr:
+      if region=="sr": pass
+      else:
+        this_lines_sr[19] = this_lines_sr[19].replace('Fake','Fake'+region.split('_')[0])
+        this_lines_sr[21] = this_lines_sr[21].replace('CF','CF'+region.split('_')[0])
+
     lines_sr[region] = this_lines_sr
 
     this_lines_sronly = this_lines_sr[:]
     for i in range(41,61):
       this_lines_sronly[i] = "" # remove all rateParams
+    # finally do the decorrelation
+    if args.Decorr:
+      if region=="sr": pass
+      else:
+        this_lines_sronly[19] = this_lines_sronly[19].replace('Fake','Fake'+region.split('_')[0])
+        this_lines_sronly[21] = this_lines_sronly[21].replace('CF','CF'+region.split('_')[0])
     lines_sronly[region] = this_lines_sronly
 
   if isCR:
