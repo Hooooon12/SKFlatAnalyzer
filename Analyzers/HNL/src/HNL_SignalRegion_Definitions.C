@@ -859,7 +859,7 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TStr
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin5" , 0.05));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin6" , 0.1));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin7" , 0.15));
-      BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin8" , 0.15));
+      BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin8" , 0.16));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin9" , 0.175));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin10" , 0.2));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin11" , 0.22));
@@ -884,7 +884,7 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TStr
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin9" , 0.1));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin10" , 0.12));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin11" , 0.14));
-      BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin12" , 0.22));
+      BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin12" , 0.15));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin13" , 0.16));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin14" , 0.18));
       BDTLimitBinsEMu.push_back( make_pair(RegionTag+"_BDTbin15" , 0.2));
