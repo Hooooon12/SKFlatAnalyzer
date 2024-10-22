@@ -20,10 +20,10 @@ parser.add_argument('--Merge', action='store_true', help='hadd the needed histog
 args = parser.parse_args()
 
 
-eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
+#eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
 #eras = ["2016preVFP"]
 #eras = ["2016postVFP"]
-#eras = ["2017"]
+eras = ["2017"]
 #eras = ["2018"]
 #eras = ["Run2"] # Let's merge Run2 after running all eras first
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
@@ -34,8 +34,8 @@ masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M5
 #masses = ["M100"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M1000"]
 #masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
-#channels = ["MuMu","EE","EMu"]
-channels = ["MuMu","EE"]
+channels = ["MuMu","EE","EMu"]
+#channels = ["MuMu","EE"]
 #channels = ["EMu"]
 HistChannelMap = {'MuMu':'Muon', 'EE':'Electron', 'EMu':'ElectronMuon'}
 ## Ugly region maps ##
@@ -58,7 +58,8 @@ tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
 #outputTag = "PR55_" # tag the output directory name as you wish
 #outputTag = "PR55_NoMinPt_" # tag the output directory name as you wish
 #outputTag = "PR52_TestScan_" # tag the output directory name as you wish
-outputTag = "PR52_SSWWrescale_" # tag the output directory name as you wish
+#outputTag = "PR52_SSWWrescale_" # tag the output directory name as you wish
+outputTag = "PR75_" # tag the output directory name as you wish
 
 if args.CnC:
   outputTag += 'CnC_'
@@ -173,8 +174,8 @@ if ChargeSplit:
 else:
   ChargeSplit = ""
 
-InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR52/"
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
+#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR52/"
+InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
 
 ##### Start merging #####
 MergeList = {}

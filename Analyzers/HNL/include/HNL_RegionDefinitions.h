@@ -49,7 +49,7 @@ class HNL_RegionDefinitions : public HNL_LeptonCore {
   TString RunSignalRegionAK4StringBDT(bool ApplyForSR, TString mN, TString NCut, TString NTree, HNL_LeptonCore::Channel channel, HNL_LeptonCore::ChargeType qq ,std::vector<Lepton *> LepTCol,  std::vector<Jet> jets,std::vector<Jet> bjets,  Event ev, Particle METv, AnalyzerParameter param,   float w);
 
 
-  bool PassVBF(vector<Jet>  jets,std::vector<Lepton *> leps1, double mjj_cut,bool use_leadjet=false);
+  bool PassVBF(vector<Jet>  jets,std::vector<Lepton *> leps1, double mjj_cut,bool use_leadjet=true);
   bool PassVBFInitial(vector<Jet>  jets);
   
 
