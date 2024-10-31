@@ -8,7 +8,7 @@ datapath=${SKFlat_WD}/runJobs/SampleLists/Data/
 njobs=30
 njobs_sig=20
 njobs_data=200
-nmax=300
+nmax=400
 skim=' '
 
 if [[ $1 == "CF" ]]; then
@@ -20,14 +20,13 @@ if [[ $1 == "CF" ]]; then
     done
 fi
 
-if [[ $1 == "WG" ]]; then
+if [[ $1 == "WZ" ]]; then
 
     declare  -a era_list=("2018")
     for i in "${era_list[@]}"
     do
 
-	 SKFlat.py -a $analyzer  -i WGToLNuG_01J_5f_Pt10_resub  -n 100        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags SSMultiLep,RunConv&
-	 SKFlat.py -a $analyzer  -i WGToLNuG  -n 100        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags SSMultiLep,RunConv&
+	SKFlat.py -a $analyzer  -i   WZTo3LNu_mllmin4p0_powheg -n 100        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags SSMultiLep,RunPrompt,RunSyst&
     done
 fi
 
@@ -127,3 +126,4 @@ SKFlat.py -a $analyzer  -l $datapath/${i}_DiLepton_EE.txt      -n 100    --nmax 
     done
     
 fi
+

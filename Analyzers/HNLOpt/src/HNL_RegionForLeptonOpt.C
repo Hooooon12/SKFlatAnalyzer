@@ -310,7 +310,7 @@ TString HNL_RegionForLeptonOpt::RunSignalRegionAK8String(TString mass, HNL_Lepto
   int m=-999;
   for(UInt_t emme=0; emme<AK8_JetColl.size(); emme++){
     dijetmass_tmp = AK8_JetColl[emme].SDMass();
-    if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+    if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
       dijetmass = dijetmass_tmp;
       m = emme;
     }
@@ -600,7 +600,7 @@ TString HNL_RegionForLeptonOpt::RunSignalRegionAK4String(HNL_LeptonCore::Channel
       dijetmass_tmp = (JetColl[emme]+JetColl[enne]).M();
 
       
-      if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+      if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
         dijetmass = dijetmass_tmp;
         m = emme;
         n = enne;

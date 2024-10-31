@@ -72,6 +72,7 @@ void HNL_Lepton_ChargeFlip::executeEvent(){
     if(id =="TopHN")         param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_TopHNSST";
     if(id =="HNTightV2")     param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_HNTightV2";
     if(id =="POGTight")      param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_POGTight";
+    if(id =="passHEEPID_v1")   param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_passHEEPID_v1";
     if(id =="passHEEPID_v3")   param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_passHEEPID_v3";
 
 
@@ -452,58 +453,76 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
 	  
 
 	  TString CFKeyClv3 = "";
-          TString CFKeyClv3Up = "";
-          TString CFKeyClv3Down = "";
-          TString CFKeyClv3PS = "";
-          TString CFKeyClv3MS = "";
-          TString CFKeyCl2v3MS = "";
+
+	  //// Stat
+          TString CFKeyClv3_StatUp = "";
+          TString CFKeyClv3_StatDown = "";
+
+	  //// Syst stat + Closure
+          TString CFKeyClv3_SystUp = "";
+          TString CFKeyClv3_SystDown = "";
+
+	  /// Smear syst
+          TString CFKeyClv3_PS = "";
+          TString CFKeyClv3_MS = "";
 
 
 	  TString DirName = "Closure";
 	  if(im.first == "_w_pbs") {
 	    DirName = "Closure_PBS";
 
-            CFKeyClv3     = "CFRate_InvPtEta3_PBSExtrap_Central_";
-            CFKeyClv3Up      = "CFRate_InvPtEta3_PBSExtrap_SystUp_";
-            CFKeyClv3Down      = "CFRate_InvPtEta3_PBSExtrap_SystDown_";
-            CFKeyClv3PS      = "CFRate_InvPtEta3_PBSExtrap_PSigma_";
-            CFKeyClv3MS      = "CFRate_InvPtEta3_PBSExtrap_MSigma_";
+            CFKeyClv3        = "CFRate_InvPtEta3_PBSExtrap_Central_";
+	    CFKeyClv3_StatUp  = "CFRate_InvPtEta3_PBSExtrap_Central_";
+	    CFKeyClv3_StatDown  = "CFRate_InvPtEta3_PBSExtrap_Central_";
+            CFKeyClv3_SystUp      = "CFRate_InvPtEta3_PBSExtrap_SystUp_";
+            CFKeyClv3_SystDown    = "CFRate_InvPtEta3_PBSExtrap_SystDown_";
+            CFKeyClv3_PS      = "CFRate_InvPtEta3_PBSExtrap_PSigma_";
+            CFKeyClv3_MS      = "CFRate_InvPtEta3_PBSExtrap_MSigma_";
 
 
 	  }
 	  if(im.first == "_w_cs"){
 	    DirName = "Closure_CS";
 
-            CFKeyClv3     = "CFRate_InvPtEta3_CS_Central_";
-            CFKeyClv3Up      = "CFRate_InvPtEta3_CS_SystUp_";
-	    CFKeyClv3Down      = "CFRate_InvPtEta3_CS_SystDown_";
-            CFKeyClv3PS      = "CFRate_InvPtEta3_CS_PSigma_";
-            CFKeyClv3MS      = "CFRate_InvPtEta3_CS_MSigma_";
+            CFKeyClv3       = "CFRate_InvPtEta3_CS_Central_";
+            CFKeyClv3_StatUp  = "CFRate_InvPtEta3_CS_Central_";
+            CFKeyClv3_StatDown  = "CFRate_InvPtEta3_CS_Central_";
+            CFKeyClv3_SystUp      = "CFRate_InvPtEta3_CS_SystUp_";
+            CFKeyClv3_SystDown    = "CFRate_InvPtEta3_CS_SystDown_";
+            CFKeyClv3_PS      = "CFRate_InvPtEta3_CS_PSigma_";
+            CFKeyClv3_MS      = "CFRate_InvPtEta3_CS_MSigma_";
 
 	  }
 	  if(im.first == "_w_nos"){
 	    DirName = "Closure_NoShift";
-
-            CFKeyClv3     = "CFRate_InvPtEta3_NoS_Central_";
-            CFKeyClv3Up      = "CFRate_InvPtEta3_NoS_Central_";
-            CFKeyClv3Down      = "CFRate_InvPtEta3_NoS_Central_";
-            CFKeyClv3PS      = "CFRate_InvPtEta3_NoS_Central_";
-            CFKeyClv3MS      = "CFRate_InvPtEta3_NoS_Central_";
+	    
+            CFKeyClv3        = "CFRate_InvPtEta3_NoS_Central_";
+            CFKeyClv3_StatUp  = "CFRate_InvPtEta3_NoS_Central_";
+            CFKeyClv3_StatDown  = "CFRate_InvPtEta3_NoS_Central_";
+            CFKeyClv3_SystUp      = "CFRate_InvPtEta3_NoS_Central_";
+            CFKeyClv3_SystDown    = "CFRate_InvPtEta3_NoS_Central_";
+            CFKeyClv3_PS      = "CFRate_InvPtEta3_NoS_Central_";
+            CFKeyClv3_MS      = "CFRate_InvPtEta3_NoS_Central_";
 
 	  }
   
-	  double CFClosureWFittedv3      = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3  + CFKey,   ShiftedEl.defEta(), ShiftedEl.Pt(), 0);
-          double CFClosureWFittedv3Up      = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3Up  + CFKey,  ShiftedEl.defEta(),ShiftedEl.Pt(), 0);
-          double CFClosureWFittedv3Down      = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3Down  + CFKey,   ShiftedEl.defEta(), ShiftedEl.Pt(), 0);
-          double CFClosureWFittedv3SUp      = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3PS  + CFKey,   ShiftedElSigUp.defEta(), ShiftedElSigUp.Pt(), 0);
-	  double CFClosureWFittedv3SDown      = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3MS  + CFKey,   ShiftedElSigDown.defEta(), ShiftedElSigDown.Pt(), 0);
+	  double CFClosureWFittedv3             = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3  + CFKey,   ShiftedEl.defEta(), ShiftedEl.Pt(), 0);
+          double CFClosureWFittedv3_StatUp      = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3_StatUp  + CFKey,  ShiftedEl.defEta(),ShiftedEl.Pt(), 1);
+          double CFClosureWFittedv3_StatDown    = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3_StatDown  + CFKey,   ShiftedEl.defEta(), ShiftedEl.Pt(), -1);
+          double CFClosureWFittedv3_SystUp      = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3_SystUp  + CFKey,  ShiftedEl.defEta(),ShiftedEl.Pt(), 0);
+          double CFClosureWFittedv3_SystDown    = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3_SystDown  + CFKey,   ShiftedEl.defEta(), ShiftedEl.Pt(), 0);
+          double CFClosureWFittedv3_SUp     = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3_PS  + CFKey,   ShiftedElSigUp.defEta(), ShiftedElSigUp.Pt(), 0);
+	  double CFClosureWFittedv3_SDown   = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1",             CFKeyClv3_MS  + CFKey,   ShiftedElSigDown.defEta(), ShiftedElSigDown.Pt(), 0);
 
 	  //// Use All MC
-	  FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3_LeptonPt_"     +im.first,                  ShiftedEl.PtMaxed(500) ,          CFClosureWFittedv3*EvWeight        , 250, 0, 500);
-          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3Up_LeptonPt_"     +im.first,                  ShiftedEl.PtMaxed(500) ,          CFClosureWFittedv3Up*EvWeight        , 250, 0, 500);
-          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3Down_LeptonPt_"     +im.first,                  ShiftedEl.PtMaxed(500) ,          CFClosureWFittedv3Down*EvWeight        , 250, 0, 500);
-          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3ShiftUp_LeptonPt_"     +im.first,                  ShiftedElSigUp.PtMaxed(500) ,          CFClosureWFittedv3SUp*EvWeight        , 250, 0, 500);
-          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3ShiftDown_LeptonPt_"     +im.first,                  ShiftedElSigDown.PtMaxed(500) ,          CFClosureWFittedv3SDown*EvWeight        , 250, 0,500);
+	  FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3_LeptonPt_"     +im.first,                         ShiftedEl.PtMaxed(500) ,          CFClosureWFittedv3*EvWeight        , 250, 0, 500);
+          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3_StatUp_LeptonPt_"     +im.first,                  ShiftedEl.PtMaxed(500) ,          CFClosureWFittedv3_StatUp*EvWeight        , 250, 0, 500);
+          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3_StatDown_LeptonPt_"     +im.first,                ShiftedEl.PtMaxed(500) ,          CFClosureWFittedv3_StatDown*EvWeight        , 250, 0, 500);
+          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3_SystUp_LeptonPt_"     +im.first,                  ShiftedEl.PtMaxed(500) ,          CFClosureWFittedv3_SystUp*EvWeight        , 250, 0, 500);
+          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3_SystDown_LeptonPt_"     +im.first,                ShiftedEl.PtMaxed(500) ,          CFClosureWFittedv3_SystDown*EvWeight        , 250, 0, 500);
+
+          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3_ShiftUp_LeptonPt_"     +im.first,                  ShiftedElSigUp.PtMaxed(500) ,          CFClosureWFittedv3_SUp*EvWeight        , 250, 0, 500);
+          FillHist(param.Name+"/"+DirName+"/NonCF_Fitted_Binningv3_ShiftDown_LeptonPt_"     +im.first,                  ShiftedElSigDown.PtMaxed(500) ,          CFClosureWFittedv3_SDown*EvWeight        , 250, 0,500);
 	  
 
 
@@ -620,8 +639,8 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
 	    //                  CFRate_InvPtEta1_PBSExtrap_Central_
 	    TString CFString = "CFRate_"+ib.second+"_NoS_Central_" +CFKey;                                                                                                                                                                                          
 	    if(imethod==4 ||  imethod==9)  CFString = "CFRate_"+ib.second+"_PBSExtrap_Central_" +CFKey;
-	    if(imethod==7 ||imethod==12) CFString = "CFRate_"+ib.second+"_PBSExtrap_SystUp_" +CFKey;
-	    if(imethod==8 ||imethod==13) CFString = "CFRate_"+ib.second+"_PBSExtrap_SystDown_" +CFKey;
+	    if(imethod==7 ||imethod==12) CFString = "CFRate_"+ib.second+"_PBSExtrap_Central_" +CFKey;
+	    if(imethod==8 ||imethod==13) CFString = "CFRate_"+ib.second+"_PBSExtrap_Central_" +CFKey;
 	    
 	    if(imethod==5 || imethod==10)  CFString = "CFRate_"+ib.second+"_PBSExtrap_PSigma_" +CFKey;
 	    if(imethod==6 || imethod==11)  CFString = "CFRate_"+ib.second+"_PBSExtrap_MSigma_" +CFKey;
@@ -684,8 +703,8 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
 	    
 	    int SystRate = 0;
 	    /// Now Stat error added to Syst hist
-	    //if(imethod == 7 ||imethod ==12) SystRate = 1;
-	    //if(imethod == 8 ||imethod ==13) SystRate = -1;
+	    if(imethod == 7 ||imethod ==12) SystRate = 1;
+	    if(imethod == 8 ||imethod ==13) SystRate = -1;
 	    
 	    double weight_shifted = 1;
 	    if(imethod< 4) {
@@ -895,7 +914,7 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
       vector<double> Shifts_CL = {1,1,1, 1,
 				  0.998,0.996,0.995,0.9925,0.99,0.9875,0.985,0.9825, 0.98,0.9775,0.975,0.9725,0.97,0.965, 0.96,0.955,0.95, 0.94,0.93,0.92,0.91,0.9};
       vector<TString> Shifts_CL_Tag = {"Func_0","Func_m1","Func_p1","_m0","_m1","_m2","_m3","_m4","_m5","_m6","_m7","_m8","_m9","_m10","_m11","_m12","_m13","_m14","_m15","_m16","_m17","_m18", "_m19","_m20","_m21","_m22"};
-      for(int is = 0 ; is < Shifts_CL.size(); is++){
+      for(long unsigned int is = 0 ; is < Shifts_CL.size(); is++){
 	Electron El1_shift = El1; 
 	Electron El2_shift = El2;
 
@@ -958,7 +977,7 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
 
       }	  
       
-      for(int is = 0 ; is < Shifts_CL.size(); is++){
+      for(long unsigned int is = 0 ; is < Shifts_CL.size(); is++){
         Electron El1_shift = El1;
         Electron El2_shift = El2;
 	
@@ -1289,8 +1308,8 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
       Electron this_El1 = ElectronColl.at(0);
       Electron this_El2 = ElectronColl.at(1);
 
-      double shiftEl1 = GetShiftCFEl(this_El1,param.Electron_Tight_ID,false,0); /// Dont apply corr when measuring SF
-      double shiftEl2 = GetShiftCFEl(this_El2,param.Electron_Tight_ID,false,0);
+      double shiftEl1 = GetShiftCFEl(this_El1,param.Electron_Tight_ID,true,0); /// apply corr when measuring SF
+      double shiftEl2 = GetShiftCFEl(this_El2,param.Electron_Tight_ID,true,0);
 
       vector<double> Shifts_CL = {0.995,0.99,0.985,0.98,0.975,0.97,0.965};
       vector<TString> Shifts_CL_Tag = {"_m1","_m2","_m3","_m4","_m5","_m6","_m7"};
@@ -1339,30 +1358,18 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
       TString CFKey = param.Electron_Tight_ID;
       if(CFKey =="passPOGTight") CFKey="POGTight";
 
-      TString EtaLabelEl1 = "BB2";
-      if(fabs(this_El1.scEta()) < 1.4442) EtaLabelEl1 = "BB2";
-      else  if(fabs(this_El1.scEta()) < 2.2) EtaLabelEl1 = "EC1";
-      else EtaLabelEl1 = "EC2";
-
-      TString EtaLabelEl2 = "BB2";
-      if(fabs(this_El2.scEta()) < 1.4442) EtaLabelEl2 = "BB2";
-      else  if(fabs(this_El2.scEta()) < 2.2) EtaLabelEl2 = "EC1";
-      else EtaLabelEl2 = "EC2";
-
-
+      //GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1", "CFRate_InvPtEta3_PBSExtrap_Central_"   + CFKey
       double weight_Closure=1;         double weight_Closure_SF=1;
       double weight_ClosureNoS=1;      double weight_ClosureNoS_SF=1;
 
-      //CFRate_InvPt"+EtaLabelEl1+"PBSExtrap_Central_
-      double rate_cf1       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InvPt"+EtaLabelEl1,"CFRate_InvPtEta"+EtaLabelEl1+"_PBSExtrap_Central_" +CFKey,this_El1.defEta(), this_El1.Pt(), 0);
-      double rate_cf2       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InvPt"+EtaLabelEl2,"CFRate_InvPtEta"+EtaLabelEl2+"_PBSExtrap_Central_" +CFKey,this_El2.defEta(), this_El2.Pt(),0);
+      double rate_cf1       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID,  "InputBins_Version1", "CFRate_InvPtEta3_PBSExtrap_Central_" +CFKey,this_El1.defEta(), this_El1.Pt(), 0);
+      double rate_cf2       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InputBins_Version1", "CFRate_InvPtEta3_PBSExtrap_Central_" +CFKey, this_El2.defEta(), this_El2.Pt(),0);
 
-      double rateNoS_cf1       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InvPt"+EtaLabelEl1,"CFRate_InvPtEta"+EtaLabelEl1+"_NoS_Central_" +CFKey,unshifted_el1.defEta(), unshifted_el1.Pt(), 0);
-      double rateNoS_cf2       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InvPt"+EtaLabelEl2,"CFRate_InvPtEta"+EtaLabelEl2+"_NoS_Central_" +CFKey,unshifted_el2.defEta(), unshifted_el2.Pt(),0);
+      double rateNoS_cf1       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID,  "InputBins_Version1", "CFRate_InvPtEta3_NoS_Central_" +CFKey, unshifted_el1.defEta(), unshifted_el1.Pt(), 0);
+      double rateNoS_cf2       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID,  "InputBins_Version1", "CFRate_InvPtEta3_NoS_Central_" +CFKey,unshifted_el2.defEta(), unshifted_el2.Pt(),0);
 
-      double rateCS_cf1       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InvPt"+EtaLabelEl1,"CFRate_InvPtEta"+EtaLabelEl1+"_CS_Central_" +CFKey,this_El1.defEta(), this_El1.Pt(), 0);
-      double rateCS_cf2       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID, "InvPt"+EtaLabelEl2,"CFRate_InvPtEta"+EtaLabelEl2+"_CS_Central_" +CFKey,this_El2.defEta(), this_El2.Pt(),0);
-
+      double rateCS_cf1       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID,  "InputBins_Version1", "CFRate_InvPtEta3_CS_Central_" +CFKey,this_El1.defEta(), this_El1.Pt(), 0);
+      double rateCS_cf2       = cfEst->GetElectronCFRateFitted(param.Electron_Tight_ID,   "InputBins_Version1", "CFRate_InvPtEta3_CS_Central_" +CFKey,this_El2.defEta(), this_El2.Pt(),0);
 
       if(_jentry>=5500 && _jentry<=6000) cout << ishift << " rate_cf1 = " << rate_cf1 << " rate_cf2=" << rate_cf2 << endl;
       if(_jentry>=5500 && _jentry<=6000) cout << ishift << " rateNoS_cf1 = " << rateNoS_cf1 << " rateNoS_cf2 = " << rateNoS_cf2 << endl;
@@ -1384,7 +1391,6 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
 	
 	weight_ClosureNoS      = ReturnCFWeight({rateNoS_cf1,rateNoS_cf2});
         weight_ClosureNoS_SF   = ReturnCFWeight({rateNoS_cf1 * GetCFSF(param, Lepton(this_El1)),rateNoS_cf2 * GetCFSF(param, Lepton(this_El2))});
-	
 
       }
       weight_Closure    *= EvWeight;

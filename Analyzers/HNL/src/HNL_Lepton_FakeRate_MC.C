@@ -323,8 +323,6 @@ void HNL_Lepton_FakeRate_MC::RunM(std::vector<Electron> loose_el,  std::vector<M
 	  int mindex = All_Gens.at(i).MotherIndex();
 	  int MotherPID = fabs(All_Gens.at(mindex).PID());
 	  bool PromptLepMu = (MotherPID == 13)  || (MotherPID == 15);
-	  bool PromptLepEl = (MotherPID == 11) || (MotherPID == 15);
-	  
 	  while (MotherPID > 10 && MotherPID < 16){
 	    mindex = All_Gens.at(mindex).MotherIndex();
 	    MotherPID= fabs(All_Gens.at(mindex).PID());
@@ -351,10 +349,9 @@ void HNL_Lepton_FakeRate_MC::RunM(std::vector<Electron> loose_el,  std::vector<M
       
       if(!PromptPassID) return;
       
-      double PTPartonSF    = GetPtPartonSF(loose_mu[nFakeLep],param.Muon_Loose_ID,param);
-      double MVACut        = loose_mu[nFakeLep].MVAFakeCut(param.Muon_Tight_ID,GetYearString());
-      double PtCorr        = (loose_mu[nFakeLep].CalcMVACone(MVACut)  < 80 )       ? loose_mu[nFakeLep].CalcMVACone( MVACut)  : 79;
-      double lep_ptparton  = (loose_mu[nFakeLep].PtParton(PTPartonSF,MVACut) < 80) ? loose_mu[nFakeLep].PtParton(PTPartonSF,MVACut) : 79;
+      //double PTPartonSF    = GetPtPartonSF(loose_mu[nFakeLep],param.Muon_Loose_ID,param);
+      //double MVACut        = loose_mu[nFakeLep].MVAFakeCut(param.Muon_Tight_ID,GetYearString());
+      //      double lep_ptparton  = (loose_mu[nFakeLep].PtParton(PTPartonSF,MVACut) < 80) ? loose_mu[nFakeLep].PtParton(PTPartonSF,MVACut) : 79;
       
 	  
       double FR_30 = fakeEst->GetMuonFakeRate(param.Muon_Tight_ID, "MC_"+param.Muon_Loose_ID+"_MC_AJ30" ,"MC_"+param.FakeRateMethod,param.FakeRateParam,loose_mu[nFakeLep].fEta(), loose_mu[nFakeLep].PtMaxed(80), loose_mu[nFakeLep].LeptonFakeTagger() );
@@ -768,10 +765,10 @@ void HNL_Lepton_FakeRate_MC::RunE( std::vector<Electron> loose_el, std::vector<M
 
       if(!PromptPassID) return;
 
-      double PTPartonSF    = GetPtPartonSF(loose_el[nFakeLep],param.Electron_Loose_ID,param);
-      double MVACut        = loose_el[nFakeLep].MVAFakeCut(param.Electron_Tight_ID,GetYearString());
-      double PtCorr        = (loose_el[nFakeLep].CalcMVACone(MVACut)  < 80 )       ? loose_el[nFakeLep].CalcMVACone( MVACut)  : 79;
-      double lep_ptparton  = (loose_el[nFakeLep].PtParton(PTPartonSF,MVACut) < 80) ? loose_el[nFakeLep].PtParton(PTPartonSF,MVACut) : 79;
+      //double PTPartonSF    = GetPtPartonSF(loose_el[nFakeLep],param.Electron_Loose_ID,param);
+      //double MVACut        = loose_el[nFakeLep].MVAFakeCut(param.Electron_Tight_ID,GetYearString());
+      //double PtCorr        = (loose_el[nFakeLep].CalcMVACone(MVACut)  < 80 )       ? loose_el[nFakeLep].CalcMVACone( MVACut)  : 79;
+      //      double lep_ptparton  = (loose_el[nFakeLep].PtParton(PTPartonSF,MVACut) < 80) ? loose_el[nFakeLep].PtParton(PTPartonSF,MVACut) : 79;
 
 
       double FR_30 = fakeEst->GetElectronFakeRate(param.Electron_Tight_ID, "MC_"+param.Electron_Loose_ID+"_MC_AJ30" ,"MC_"+param.FakeRateMethod,param.FakeRateParam,loose_el[nFakeLep].fEta(), loose_el[nFakeLep].PtMaxed(80), loose_el[nFakeLep].LeptonFakeTagger() );

@@ -12,8 +12,8 @@ double HNL_LeptonCore::GetPtPartonSF(Lepton  Lep, TString LooseID,AnalyzerParame
 
 
   // If CheckProfile flag then new IDs are being ran so function would crash 
-  if (HasFlag("CheckProfile"))   return 1;
-  if (HasFlag("CheckProfileEE")) return 1;
+  // if (HasFlag("CheckProfile"))   return 1;
+  // if (HasFlag("CheckProfileEE")) return 1;
   if (LooseID.Contains("Veto"))  return 1;
 
   bool UseDataSF=true;

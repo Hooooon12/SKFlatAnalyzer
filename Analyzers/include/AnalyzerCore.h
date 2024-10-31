@@ -41,7 +41,7 @@
 
 #define M_Z 91.1876
 #define M_W 80.379
-#define M_CUT_LL 10.
+#define M_CUT_LL 20.
 #define M_CUT_NonSR3_LL 20.
 #define M_ZWINDOW 20.
 #define M_ZWINDOW_CR 15.

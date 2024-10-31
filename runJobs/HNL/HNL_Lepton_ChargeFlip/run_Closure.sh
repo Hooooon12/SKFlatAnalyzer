@@ -13,7 +13,7 @@ for i in "${era_list[@]}"
 do
     for j in "${flag_list[@]}"
     do
-	SKFlat.py -a $analyzer -i DYJetsToEE_MiNNLO   -n 200  --nmax 450   -e ${i}  --skim SkimTree_DileptonBDT --userflags $j&
-	SKFlat.py -a $analyzer -i TTLL_powheg   -n 200  --nmax 450   -e ${i}  --skim SkimTree_DileptonBDT --userflags $j&
+	SKFlat.py -a $analyzer -i DYJetsToEE_MiNNLO   -n 200  --nmax 200   -e ${i}  --skim SkimTree_DileptonBDT --userflags $j&
+	SKFlat.py -a $analyzer -i TTLL_powheg         -n 200  --nmax 200   -e ${i}  --skim SkimTree_DileptonBDT --userflags $j&
     done
 done

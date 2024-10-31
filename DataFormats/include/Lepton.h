@@ -614,6 +614,8 @@ public:
   inline double IP3Derr() const {return j_IP3Derr;}
 
 
+  inline double HTOverPt() const{ return  (j_HTOverPt > 10) ? 10 : j_HTOverPt; }
+
   //==== AbsIso will be set in Muon/Electron,
   //==== and use SetRelIso to save calculated RelIso
   void SetRelIso(double r);
@@ -757,6 +759,8 @@ public:
     return std::max(mindr, std::min(maxdr, float(kt_scale/this->Pt())));
   }
 
+  void SetHTOverPt(double f);
+    
   void SetPtCone(double f){ j_ptcone = f; }
   inline bool IsPtConeAvailable() const {
     if(j_ptcone<0) return false;
@@ -864,6 +868,8 @@ private:
   double j_ptcone;
   double j_lep_jetptrel,j_lep_jetptratio,j_lep_jetbscore,j_lep_jetcvsbscore,j_lep_jetcvslscore;
   int j_lep_jetflavour;
+
+  double j_HTOverPt;
 
   Flavour j_LeptonFlavour;
 

@@ -3,6 +3,8 @@
 ClassImp(Event)
 
 Event::Event(){
+
+  j_MET2ST=-999;
   j_nPV = -999;
   j_DataYear = -999;
   j_DataEra = "";
@@ -70,6 +72,7 @@ void Event::SetMVA(TString channel, double mass, double value){
   return;
 
 }
+
 
 void Event::SetnPV(double n){
   j_nPV = n;
@@ -2018,6 +2021,10 @@ bool Event::IsPDForTrigger(TString trig, TString PD){
     return false;
   }
 
+}
+
+void Event::SetMET2ST(double metst){
+  j_MET2ST = metst;
 }
 
 void Event::SetMET(double pt, double phi){

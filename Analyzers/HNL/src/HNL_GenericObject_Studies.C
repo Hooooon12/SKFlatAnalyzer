@@ -1010,7 +1010,7 @@ void HNL_GenericObject_Studies::RunLeptonChannel(HNL_LeptonCore::Channel channel
 	}
 	else{
 	  
-	  if(PassVBFInitial(VBFJetColl)&&RunSignalRegionWW(true,channel_ID, Inclusive, LepsT, LepsV, TauColl, JetCollLoose,VBFJetColl, FatjetColl, BJetColl, Ev,  METv, param,  _weight )){
+	  if(PassVBFInitial(VBFJetColl)&&RunSignalRegionWW(true,channel_ID, Inclusive, LepsT, LepsV, TauColl, VBFJetColl, FatjetColl, BJetColl, Ev,  METv, param,  _weight )){
 	    FillCutflow(Region1,_weight, "SS"+GetChannelString(channel_ID)+"_SR2",param);
 	    
 	    

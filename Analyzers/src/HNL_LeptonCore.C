@@ -20,6 +20,7 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
   RunFake   = HasFlag("RunFake");
   RunOSFake = HasFlag("RunOSFake");
 
+  UseMET2ST = HasFlag("UseMET2ST"); 
   if(RunOSFake) RunFake = true;/// In case RunFake not flagged
   RunFakeTF = HasFlag("RunFakeTF");
   RunCF     = HasFlag("RunCF");
@@ -28,13 +29,12 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
   run_ORTrigger = HasFlag("MultiTrig");
 
   /// Other flags                                                                                                                                      
-  RunSyst = HasFlag("RunSyst");
-  RunFullSyst = HasFlag("RunFullSyst");
+  RunNoSyst = HasFlag("RunNoSyst");/// Turn off default Syst
+  RunFullSyst = HasFlag("RunFullSyst"); /// Turn on Full MC syst
   RunEE   = HasFlag("EE");
   RunMuMu = HasFlag("MuMu");
   RunEMu  = HasFlag("EMu");
 
-  if(RunFullSyst) RunSyst = RunFullSyst;
   HEM1516 = HasFlag("HEM1516");
 
   /// clear map
@@ -357,7 +357,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
 
   vector<AnalyzerParameter::Syst> SystList = {};
   
-  //if(!RunSyst) return SystList;
+  if(RunNoSyst) return SystList;
   
   if(RunCF){
     SystList = {
@@ -379,50 +379,47 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
     SystList.push_back(AnalyzerParameter::FRPartonSFDown);
   }
   else{
-  
-    if(!IsDATA){ //JH
-      SystList.push_back(AnalyzerParameter::JetResUp);
-      SystList.push_back(AnalyzerParameter::JetResDown);
-      SystList.push_back(AnalyzerParameter::PUUp);
-      SystList.push_back(AnalyzerParameter::PUDown);
-      SystList.push_back(AnalyzerParameter::JetEnUp);
-      SystList.push_back(AnalyzerParameter::JetEnDown);
+ 
+    if(IsData) return {};
+
+    SystList.push_back(AnalyzerParameter::JetResUp);
+    SystList.push_back(AnalyzerParameter::JetResDown);
+    SystList.push_back(AnalyzerParameter::PUUp);
+    SystList.push_back(AnalyzerParameter::PUDown);
+    SystList.push_back(AnalyzerParameter::JetEnUp);
+    SystList.push_back(AnalyzerParameter::JetEnDown);
       
-      //if(RunFullSyst){ //JH
-      if(SystType=="All"){
-        
-        SystList = {AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
-                    AnalyzerParameter::JetEnUp, AnalyzerParameter::JetEnDown,
-                    AnalyzerParameter::BTagSFHTagUp,AnalyzerParameter::BTagSFHTagDown,
-                    AnalyzerParameter::BTagSFLTagUp,AnalyzerParameter::BTagSFLTagDown,
-                    AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown,
-                    AnalyzerParameter::PrefireUp,AnalyzerParameter::PrefireDown,
-                    AnalyzerParameter::PUUp,AnalyzerParameter::PUDown};
-        
-        //if(RunMuMu || RunEMu){
-        if(channel==MuMu || channel==EMu){
-          SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
-          SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
-          SystList.push_back(AnalyzerParameter::MuonEnUp);
-          SystList.push_back(AnalyzerParameter::MuonEnDown);
-          SystList.push_back(AnalyzerParameter::MuonIDSFUp);
-          SystList.push_back(AnalyzerParameter::MuonIDSFDown);
-          //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
-          //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
-        }
-        //if(RunEE || RunEMu){
-        if(channel==EE || channel==EMu){
-          SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
-          SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
-          SystList.push_back(AnalyzerParameter::ElectronResUp);
-          SystList.push_back(AnalyzerParameter::ElectronResDown);
-          SystList.push_back(AnalyzerParameter::ElectronEnUp);
-          SystList.push_back(AnalyzerParameter::ElectronEnDown);
-          SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
-          SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
-          //SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
-          //SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
-        }
+    if(SystType=="All"){
+      
+      SystList = {AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
+                  AnalyzerParameter::JetEnUp, AnalyzerParameter::JetEnDown,
+                  AnalyzerParameter::BTagSFHTagUp,AnalyzerParameter::BTagSFHTagDown,
+                  AnalyzerParameter::BTagSFLTagUp,AnalyzerParameter::BTagSFLTagDown,
+                  AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown,
+                  AnalyzerParameter::PrefireUp,AnalyzerParameter::PrefireDown,
+                  AnalyzerParameter::PUUp,AnalyzerParameter::PUDown};
+      
+      if(channel==MuMu || channel==EMu){
+        SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
+        SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
+        SystList.push_back(AnalyzerParameter::MuonEnUp);
+        SystList.push_back(AnalyzerParameter::MuonEnDown);
+        SystList.push_back(AnalyzerParameter::MuonIDSFUp);
+        SystList.push_back(AnalyzerParameter::MuonIDSFDown);
+        //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
+        //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
+      }
+      if(channel==EE || channel==EMu){
+        SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
+        SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
+        SystList.push_back(AnalyzerParameter::ElectronResUp);
+        SystList.push_back(AnalyzerParameter::ElectronResDown);
+        SystList.push_back(AnalyzerParameter::ElectronEnUp);
+        SystList.push_back(AnalyzerParameter::ElectronEnDown);
+        SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
+        SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
+        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
+        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
       }
     }
   }
@@ -1306,7 +1303,7 @@ double  HNL_LeptonCore::GetRecoObjMass(TString METHOD , std::vector<Jet> jets, s
   dijetmass_tmp = (jets[emme]+jets[enne]).M();
         if(emme == enne) continue;
 
-        if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+        if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
           dijetmass = dijetmass_tmp;
           m = emme;
           n = enne;
@@ -1333,7 +1330,7 @@ double  HNL_LeptonCore::GetRecoObjMass(TString METHOD , std::vector<Jet> jets, s
         dijetmass_tmp = (jets[emme]+jets[enne]).M();
         if(emme == enne) continue;
 
-        if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+        if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
           dijetmass = dijetmass_tmp;
           m = emme;
           n = enne;
@@ -1354,7 +1351,7 @@ double  HNL_LeptonCore::GetRecoObjMass(TString METHOD , std::vector<Jet> jets, s
     int m=-999;
     for(UInt_t emme=0; emme<fatjets.size(); emme++){
       dijetmass_tmp= fatjets[emme].SDMass();
-      if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+      if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
         dijetmass = dijetmass_tmp;
         m = emme;
       }
@@ -1371,7 +1368,7 @@ double  HNL_LeptonCore::GetRecoObjMass(TString METHOD , std::vector<Jet> jets, s
     int m=-999;
     for(UInt_t emme=0; emme<fatjets.size(); emme++){
       dijetmass_tmp= fatjets[emme].SDMass();
-      if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+      if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
         dijetmass = dijetmass_tmp;
         m = emme;
       }

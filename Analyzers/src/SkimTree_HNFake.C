@@ -217,7 +217,7 @@ void SkimTree_HNFake::executeEvent(){
   bool PassPt(false);
 
   for(unsigned int imu=0; imu < allmuons.size(); imu++){
-    if(allmuons[imu].Pt() > 10) PassPt = true;
+    if(allmuons[imu].Pt() > 30) PassPt = true;
     if((METv.Pt() > 25) && MT(allmuons[imu], METv) > 60) HighMET = true;
     else{
       for(unsigned int ij=0; ij <alljet.size(); ij++){
@@ -230,7 +230,7 @@ void SkimTree_HNFake::executeEvent(){
   }
   
   for(unsigned int iel=0; iel <allel.size(); iel++){
-    if(allel[iel].Pt() > 15) PassPt = true;
+    if(allel[iel].Pt() > 30) PassPt = true;
     if((METv.Pt() > 25) && MT(allel[iel], METv) > 60) HighMET = true;
     else{ 
       for(unsigned int ij=0; ij <alljet.size(); ij++){

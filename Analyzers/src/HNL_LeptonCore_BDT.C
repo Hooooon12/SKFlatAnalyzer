@@ -705,7 +705,7 @@ double HNL_LeptonCore::EvaluateEventMVA(TString mN, TString bkgType, TString NCu
                          All_JetColl, JetColl,VBF_JetColl,B_JetColl,
                          ev,METv,param);
 
-  if(isVarPlots && bkgType=="Incl"){
+  if(isVarPlots && mN=="100" && bkgType=="Incl"){
 
     FillHist("HNL_HighMassSR3_TwoLepton_CR/"+param.Name+"/BDT/Nvbfj", ev_bdt_Nvbfj, weight, 10, 0., 10.);
     FillHist("HNL_HighMassSR3_TwoLepton_CR/"+param.Name+"/BDT/Nb", ev_bdt_Nb, weight, 10, 0., 10.);

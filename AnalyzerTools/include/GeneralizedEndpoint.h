@@ -11,6 +11,7 @@ struct ScaledPts {
 #ifndef GeneralizedEndpoint_h
 #define GeneralizedEndpoint_h
 
+#include "TString.h"
 #include <iostream>
 #include <map>
 
@@ -25,11 +26,11 @@ public:
   GeneralizedEndpoint();
   virtual ~GeneralizedEndpoint();
 
-  ScaledPts GeneralizedEndpointPt(float MuonPt, int MuonCharge, float MuonEta, float MuonPhi, int seed);
+  ScaledPts GeneralizedEndpointPt(TString Era, float MuonPt, int MuonCharge, float MuonEta, float MuonPhi, int seed);
 
 private:
-  std::map<int,std::map<int,float> > _Correction;
-  std::map<int,std::map<int,float> > _CorrectionError;   
+  std::map<TString,std::map<int,std::map<int,float> > > _Correction;
+  std::map<TString,std::map<int,std::map<int,float> > > _CorrectionError;   
 
 };
 

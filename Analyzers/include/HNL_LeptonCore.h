@@ -64,7 +64,7 @@ class HNL_LeptonCore : public AnalyzerCore {
     SR1,    SR2,    SR3,    SR3Fail,    SR3BDT,    SR4,    CR1,    CR2,    CR3,CR3BDT, 
     Presel,    PreselSS,    PreselOS,
     sigmm,    sigee,    sigem,   sigmm_17028,    sigee_17028,    sigem_17028,
-    ControlRegion,    SignalRegion,  SR,  CR,
+    ControlRegion,    SignalRegion,  SRLowMass,SRHighMass,  CR,
     WGCR,    ZGCR, WZCR, ZZCR, ZZVBFCR, WZBCR,WZVBFCR,WZVBFCR2,ZZCR2,HMCR1,HMCR2,HMCR3,HMBDTCR3,HMNPCR,HMBCR,HM1JCR,PreselVBF,
     WWNP1CR, WWNP2CR, WWNP3CR, WWCR1,WWCR2,ZAK8CR,ZCR,ZNPElCR,ZNPMuCR,TopCR,TopNPCR,TopAK8NPCR,TopNPCR2,
 
@@ -91,6 +91,8 @@ class HNL_LeptonCore : public AnalyzerCore {
   AnalyzerParameter SetupHNLParameter(TString s_setup_version, TString channel_str_name);
 
   AnalyzerParameter DefaultParam(TString s_setup_version,TString channel_st);
+
+  double GetLimitBin(TString region, vector<Lepton*> leps, vector<Jet> AK4Jets, vector<FatJet> AK8_JetColl , Event ev, double & nbins_reg);
 
   /// List of Setups
   void GetSetup_POGTight(AnalyzerParameter& paramEv);
@@ -309,11 +311,16 @@ class HNL_LeptonCore : public AnalyzerCore {
   
 
   //// ===============================  SR PLOTS =============================== ////                                                                                                                                                                                                                                                                                                       
-  void Fill_RegionPlots(AnalyzerParameter param, TString plot_dir,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w); 
-  void Fill_RegionPlots(AnalyzerParameter param, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w); 
+  void Fill_RegionPlots(AnalyzerParameter param, TString plot_dir,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w, int DrawConfig=0); 
+  void Fill_RegionPlots(AnalyzerParameter param, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w, int DrawConfig=0); 
 
-  void Fill_Plots(AnalyzerParameter param, TString region, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double 
-nvtx,  double w); 
+
+  void Fill_Main_Plots(AnalyzerParameter param, TString region, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w);
+  
+  void Fill_Standard_Plots(AnalyzerParameter param, TString region, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w);
+
+  void Fill_Plots(AnalyzerParameter param, TString region, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w); 
+
   void Fill_PlotsAK8(AnalyzerParameter param, TString region,TString plot_dir,  std::vector<Tau> Taus, std::vector<Jet> jets,  std::vector<FatJet> fatjets,  std::vector<Lepton *> leps, Particle  met, double nvtx, double w);
 
   void Fill_SigRegionPlots1(HNL_LeptonCore::Channel channel,TString label_1, TString label_2, TString label_3,  std::vector<Jet> jets, std::vector<FatJet> fatjets,  std::vector<Lepton *> leps, Particle  met, double nvtx, double w, double var1,  double var2, double var3, double var4, double var5, double var6, double var7);
@@ -471,10 +478,11 @@ nvtx,  double w);
   bool SameCharge(std::vector<Lepton *> leps, int ch=0);
 
   /// global var for user flags
-  bool RunPrompt,RunFake,RunOSFake,RunFakeTF, RunCF,  RunConv, RunSyst,RunPromptTLRemoval,run_ORTrigger,RunFullSyst;
+  bool RunPrompt,RunFake,RunOSFake,RunFakeTF, RunCF,  RunConv,RunNoSyst,RunPromptTLRemoval,run_ORTrigger,RunFullSyst;
   bool RunEE;
   bool RunEMu;
   bool RunMuMu;
+  bool UseMET2ST;
   bool IsSkimmed, Signal, HEM1516 ,BeforeRun319077;
   bool DEBUG,IsCentral, RunFullAnalysis;
   TRandom3* rand_;

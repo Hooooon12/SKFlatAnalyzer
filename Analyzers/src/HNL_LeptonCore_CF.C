@@ -37,19 +37,18 @@ double HNL_LeptonCore::GetCFSF(AnalyzerParameter param, TString EraReg, bool App
     Depends on ID/Eta
    */
 
-  
+ 
 
   double _SF=1.;
 
   map<TString,vector<double> > CFSFValues;
 
-  CFSFValues["HNL_ULID_BB"]      =  {0.944,1.02,1.48,1.437};
-  CFSFValues["HNL_ULID_EC"]      =  {0.907,0.903,1.343,1.217};
+  //// A second correction is applied based on Integral in Data Z peak fit, where an axtra shift is applied to miniise Data chi2
 
-  //CFSFValues["HNL_ULID_BB"]      =  {0.987,1.064,1.398,1.413};
-  //  CFSFValues["HNL_ULID_EC"]      =  {0.93,0.934,1.332,1.241};
+  CFSFValues["HNL_ULID_BB"]      =  {0.9704, 1.1178,1.5525,1.4446};
+  CFSFValues["HNL_ULID_EC"]      =  {0.925,0.999,1.361,1.308};
 
-  CFSFValues["passPOGTight_BB"]      =  {1.097, 1.04, 1.49, 1.54};
+  CFSFValues["passPOGTight_BB"]  =  {1.097, 1.04, 1.49, 1.54};
   CFSFValues["passPOGTight_EC"]  =  {1.01,1, 1.30, 1.35};
   
   CFSFValues["HNTightV2_BB"]     =  {0.842,0.967, 1.34, 1.44};
@@ -60,8 +59,11 @@ double HNL_LeptonCore::GetCFSF(AnalyzerParameter param, TString EraReg, bool App
   
 
   /// HEEP Values are copied for HNTight
-  CFSFValues["passHEEPID_v3_BB"]     =  {0.842,0.967, 1.34, 1.44};
-  CFSFValues["passHEEPID_v3_EC"]     =  {0.84,0.90, 1.37, 1.40};
+  CFSFValues["passHEEPID_v1_BB"]     =  {0.842,0.967, 1.34, 1.44};
+  CFSFValues["passHEEPID_v1_EC"]     =  {0.84,0.90, 1.37, 1.40};
+
+  CFSFValues["passHEEPID_v3_BB"]     =  {1.136,0.991,1.314,1.323};
+  CFSFValues["passHEEPID_v3_EC"]     =  {0.904,0.902,1.199,1.235};
 
 
   map<TString,vector<double> >::iterator CFMapIter ;
@@ -203,15 +205,15 @@ double HNL_LeptonCore::GetShiftCFEl(Electron el,TString ID, bool ApplyDataCorr, 
   
   double DataCorr = 1.;
   if(ApplyDataCorr){
-    if(DataEra=="2016preVFP"  && el.IsBB()) DataCorr=0.975;
+    if(DataEra=="2016preVFP"  && el.IsBB()) DataCorr=0.985;
     if(DataEra=="2016postVFP" && el.IsBB()) DataCorr=0.99;
-    if(DataEra=="2017"        && el.IsBB()) DataCorr=0.975;
-    if(DataEra=="2018"        && el.IsBB()) DataCorr=0.975;
+    if(DataEra=="2017"        && el.IsBB()) DataCorr=0.985;
+    if(DataEra=="2018"        && el.IsBB()) DataCorr=0.985;
     
-    if(DataEra=="2016preVFP"  && !el.IsBB()) DataCorr=0.995;
+    if(DataEra=="2016preVFP"  && !el.IsBB()) DataCorr=1;
     if(DataEra=="2016postVFP" && !el.IsBB()) DataCorr=1.;
-    if(DataEra=="2017"        && !el.IsBB()) DataCorr=1.;
-    if(DataEra=="2018"        && !el.IsBB()) DataCorr=0.98;
+    if(DataEra=="2017"        && !el.IsBB()) DataCorr=0.995;
+    if(DataEra=="2018"        && !el.IsBB()) DataCorr=0.985;
   }
   
   return  DataCorr*GetShiftCFEl(el.Pt(),el.IsBB(), ID, ApplyDataCorr, Sys );

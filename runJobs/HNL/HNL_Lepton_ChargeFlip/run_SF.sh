@@ -6,7 +6,7 @@ njobs=250
 nmax=400
 skim=' '
 declare  -a era_list=("2016postVFP" "2016preVFP" "2017" "2018")
-declare  -a era_list=("2016postVFP")
+
 for i in "${era_list[@]}"
 do
     SKFlat.py -a $analyzer  -l $datapath/${i}_DiLepton_EE.txt  -n 100    --nmax 350       -e ${i}  --skim SkimTree_DileptonBDT --userflag ScaleFactor   &  

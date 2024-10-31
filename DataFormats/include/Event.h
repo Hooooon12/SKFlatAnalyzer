@@ -15,6 +15,7 @@ public:
 
   void SetnPV(double n);
   inline int nPV() const { return j_nPV; }
+  inline double MET2ST() const {return j_MET2ST;}
 
   void SetTrigger(vector<string> HLT_TriggerName);
   bool PassTrigger(TString trig);
@@ -23,6 +24,7 @@ public:
   double GetTriggerLumiByYear(TString trig);
   bool IsPDForTrigger(TString trig, TString PD);
 
+  void SetMET2ST(double metst);
   void SetMET(double pt, double phi);
   inline Particle GetMETVector() const {return j_METVector;}
 
@@ -65,6 +67,7 @@ public:
 private:
   int j_nPV;
   vector<string> j_HLT_TriggerName;
+  double j_MET2ST;
   Particle j_METVector;
   int j_DataYear;
   TString j_DataEra;

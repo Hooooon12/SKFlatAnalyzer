@@ -3,3 +3,8 @@ DoubleEG:C
 DoubleEG:D
 DoubleEG:E
 DoubleEG:F
+SingleElectron:B_ver2
+SingleElectron:C
+SingleElectron:D
+SingleElectron:E
+SingleElectron:F

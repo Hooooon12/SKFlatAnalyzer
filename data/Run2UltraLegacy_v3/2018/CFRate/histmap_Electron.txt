@@ -1,8 +1,7 @@
-CFRate          InvPtEta1       PBSExtrap   Central         HNL_ULID		     MainFiles/HNL_CF_Version6_Electron_2018_Rates.root
-CFRate          InvPtEta3       PBSExtrap   Central         HNL_ULID		     MainFiles/HNL_CF_Version6_Electron_2018_Rates.root
-CFRate          InvPtEta3       PBSExtrap   Central         HNTightV2                MainFiles/HNL_CF_Version6_Electron_2018_Rates.root
-CFRate          InvPtEta3       PBSExtrap   Central         TopHNSST                 MainFiles/HNL_CF_Version6_Electron_2018_Rates.root
-CFRate          InvPtEta3       PBSExtrap   Central         POGTight                 MainFiles/HNL_CF_Version6_Electron_2018_Rates.root
-CFRate          InvPtEta3       PBSExtrap   Central         passHEEPID_v1            MainFiles/HNL_CF_Version6_Electron_2018_Rates.root
-CFRate          InvPtEta3       PBSExtrap   Central         passHEEPID_v2            MainFiles/HNL_CF_Version6_Electron_2018_Rates.root
-CFRate          InvPtEta3       PBSExtrap   Central         passHEEPID_v3            MainFiles/HNL_CF_Version6_Electron_2018_Rates.root
+CFRate          InvPtEta3       PBSExtrap   Central         HNL_ULID		     MainFiles/HNL_CF_Version7_Electron_2018_Rates.root
+CFRate          InvPtEta3       PBSExtrap   Central         HNTightV2                MainFiles/HNL_CF_Version7_Electron_2018_Rates.root
+CFRate          InvPtEta3       PBSExtrap   Central         TopHNSST                 MainFiles/HNL_CF_Version7_Electron_2018_Rates.root
+CFRate          InvPtEta3       PBSExtrap   Central         POGTight                 MainFiles/HNL_CF_Version7_Electron_2018_Rates.root
+CFRate          InvPtEta3       PBSExtrap   Central         passHEEPID_v1            MainFiles/HNL_CF_Version7_Electron_2018_Rates.root
+CFRate          InvPtEta3       PBSExtrap   Central         passHEEPID_v2            MainFiles/HNL_CF_Version7_Electron_2018_Rates.root
+CFRate          InvPtEta3       PBSExtrap   Central         passHEEPID_v3            MainFiles/HNL_CF_Version7_Electron_2018_Rates.root

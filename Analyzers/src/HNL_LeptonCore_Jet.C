@@ -93,8 +93,6 @@ std::vector<Jet> HNL_LeptonCore::GetHNLJets(TString JetType, AnalyzerParameter p
   std::vector<FatJet> DUMMY_AK8_JetColl;
   if(JetType=="Tight_NoAk8Cleaning")    return SelectAK4Jets(AK4_Loose,     20., 2.7, true,  0.4,0.8, "",   ElectronCollV,MuonCollV, DUMMY_AK8_JetColl);
 
-
-
   /// BJET                                                                                                                                                                 
   JetTagging::Parameters param_jets = GetParamJetTagger(param);
   if(JetType=="BJet"){
@@ -465,9 +463,9 @@ double  HNL_LeptonCore::GetBJetSF(AnalyzerParameter param,vector<Jet> jets, JetT
 
   if(IsData) return 1.;
   string syst = "";
-  if(param.syst_ == AnalyzerParameter::BTagSFHTagUp) syst="SystHTagUp";
+  if(param.syst_ == AnalyzerParameter::BTagSFHTagUp)         syst="SystHTagUp";
   else if (param.syst_ == AnalyzerParameter::BTagSFHTagDown) syst="SystHTagDown";
-  else if (param.syst_ == AnalyzerParameter::BTagSFLTagUp) syst="SystLTagUp";
+  else if (param.syst_ == AnalyzerParameter::BTagSFLTagUp)   syst="SystLTagUp";
   else if (param.syst_ == AnalyzerParameter::BTagSFLTagDown) syst="SystLTagDown";
 
   return mcCorr->GetBTaggingReweight_1a(jets, jtp, syst);

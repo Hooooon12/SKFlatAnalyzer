@@ -804,6 +804,54 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
     factory->BookMethod(data_loader, TMVA::Types::kBDT, "BDTG", "!H:!V:NTrees="+NTrees_txt+":MinNodeSize=1.0%:BoostType=Grad:Shrinkage=0.10:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts="+NCuts_txt+":MaxDepth="+MaxDepth_txt+":NegWeightTreatment=IgnoreNegWeightsInTraining" );
   }
 
+  if(BDTMethod == "DNN"){
+
+    bool useDLGPU = false;
+    useDLGPU = true;
+
+    // Define DNN layout
+    TString inputLayoutString = "InputLayout=1|1|35";
+    TString batchLayoutString= "BatchLayout=1|128|35";
+    //TString layoutString ("Layout=DENSE|64|TANH,DENSE|64|TANH,DENSE|64|TANH,DENSE|64|TANH,DENSE|1|LINEAR");
+    TString layoutString ("Layout=DENSE|64|RELU,DENSE|64|RELU,DENSE|64|RELU,DENSE|64|RELU,DENSE|1|LINEAR");
+
+    // Define Training strategies
+    // one can catenate several training strategies
+    TString training1("LearningRate=1e-3,Momentum=0.9,"
+                      "ConvergenceSteps=10,BatchSize=128,TestRepetitions=1,"
+                      "MaxEpochs=30,WeightDecay=1e-4,Regularization=None,"
+                      "Optimizer=ADAM,ADAM_beta1=0.9,ADAM_beta2=0.999,ADAM_eps=1.E-7," // ADAM default parameters
+                      "DropConfig=0.0+0.0+0.0+0.");
+    //TString training2("LearningRate=1e-3,Momentum=0.9"
+    //                  "ConvergenceSteps=10,BatchSize=128,TestRepetitions=1,"
+    //                  "MaxEpochs=20,WeightDecay=1e-4,Regularization=None,"
+    //                  "Optimizer=SGD,DropConfig=0.0+0.0+0.0+0.");
+
+    TString trainingStrategyString ("TrainingStrategy=");
+    trainingStrategyString += training1; // + "|" + training2;
+
+    // General Options.
+
+    TString dnnOptions("!H:V:ErrorStrategy=CROSSENTROPY:VarTransform=G:"
+                       "WeightInitialization=XAVIER");
+    dnnOptions.Append (":"); dnnOptions.Append (inputLayoutString);
+    dnnOptions.Append (":"); dnnOptions.Append (batchLayoutString);
+    dnnOptions.Append (":"); dnnOptions.Append (layoutString);
+    dnnOptions.Append (":"); dnnOptions.Append (trainingStrategyString);
+
+    TString dnnMethodName = "DNN_CPU";
+    if(useDLGPU){
+      dnnOptions += ":Architecture=GPU";
+      dnnMethodName = "DNN_GPU";
+    }
+    else{
+      dnnOptions += ":Architecture=CPU";
+    }
+
+    factory->BookMethod(data_loader, TMVA::Types::kDL, dnnMethodName, dnnOptions);
+
+  }
+
   factory->TrainAllMethods();
   factory->TestAllMethods();
   factory->EvaluateAllMethods();

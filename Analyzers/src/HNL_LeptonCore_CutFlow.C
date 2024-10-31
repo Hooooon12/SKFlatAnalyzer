@@ -88,6 +88,15 @@ void HNL_LeptonCore::FillCutflow(HNL_LeptonCore::SearchRegion sr, double event_w
   TString histname = GetCutFlowNameFromRegion(sr);
   
   FillCutflowDef(hist_path,   histname, event_weight,lables, label);
+
+  if(sr==HNL_LeptonCore::SRLowMass && label.Contains("SR")) {
+    /// If filling summary SR then fill incl.
+    FillCutflowDef(hist_path,   histname, event_weight,lables, "Inclusive_SR");
+  }
+  if(sr==HNL_LeptonCore::SRHighMass && label.Contains("SR")) {
+    /// If filling summary SR then fill incl.                                                                                                                                                                       
+    FillCutflowDef(hist_path,   histname, event_weight,lables, "Inclusive_SR");
+  }
   //FillCutflowDef(hist_path,   histname+"_unweighted", 1,lables, label);
 
 }
@@ -254,7 +263,8 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
   if(sr==ChannelDepSR3HM)   EVHistName ="ChannelDependant_SR3_HighMass";
 
   if(sr==ChannelDepFAILSR3) EVHistName ="ChannelDependantSR3Fail";
-  if(sr==SR) EVHistName ="SR_Summary";
+  if(sr==SRLowMass) EVHistName  ="SR_SummaryBDT";
+  if(sr==SRHighMass) EVHistName ="SR_Summary";
 
   if(sr==ChannelDepCR1)   EVHistName ="ChannelDependant_CR1";
   if(sr==ChannelDepCR2)   EVHistName ="ChannelDependant_CR2";
@@ -368,13 +378,14 @@ vector<TString>  HNL_LeptonCore::GetLabelsFromRegion(HNL_LeptonCore::SearchRegio
   if(sr==ChannelDepCR3HM)    labels = {"MuMu_CR3_HM","EE_CR3_HM","EMu_CR3_HM"};
 
   //// SR Labels
-  if(sr==SR)   labels = {"SR1","SR2","SR3_LowMass","SR3_HighMass"};
-  if(sr == SignalRegion)     labels = {"NoCut","GENMatched","HEMVeto","METFilter","ConvFilter","LeptonFlavour","Trigger","BJet"};
+  if(sr==SRLowMass)    labels = {"Preselection","Inclusive_SR","SR1","SR2","SR3_LowMass"};
+  if(sr==SRHighMass)   labels = {"Preselection","Inclusive_SR","SR1","SR2","SR3_HighMass"};
+  if(sr == SignalRegion)     labels = {"NoCut","GENMatched","HEMVeto","METFilter","ConvFilter","LeptonFlavour","Trigger","LepVeto","BJet"};
   /// CR lanels 
   if(sr == ControlRegion)    labels = {"NoCut","HEMVeto","METFilter","GENMatched","LeptonFlavour","Trigger","OS_VR","VV_VR","VG_VR","SS_CR","VBF_CR"};
 
   vector<TString> SR1labels = {"SR1_MNbin1","SR1_MNbin2","SR1_MNbin3","SR1_MNbin4","SR1_MNbin5", "SR1_MNbin6"};   
-  vector<TString> SR2labels = {"SR2_HTLTbin1", "SR2_HTLTbin2", "SR2_HTLTbin3"};
+  vector<TString> SR2labels = {"SR2_HTLTbin1", "SR2_HTLTbin2", "SR2_HTLTbin3", "SR2_HTLTbin4", "SR2_HTLTbin5", "SR2_HTLTbin6", "SR2_HTLTbin7", "SR2_HTLTbin8", "SR2_HTLTbin9", "SR2_HTLTbin10"};
   vector<TString> SR3labels = {"SR3_bin1","SR3_bin2","SR3_bin3","SR3_bin4","SR3_bin5","SR3_bin6","SR3_bin7","SR3_bin8", "SR3_bin9","SR3_bin10","SR3_bin11","SR3_bin12","SR3_bin13","SR3_bin14"};
   vector<TString> SR3BDTlabels = {"SR3_BDTbin1","SR3_BDTbin2","SR3_BDTbin3","SR3_BDTbin4","SR3_BDTbin5","SR3_BDTbin6","SR3_BDTbin7","SR3_BDTbin8","SR3_BDTbin9","SR3_BDTbin10","SR3_BDTbin11","SR3_BDTbin12","SR3_BDTbin13","SR3_BDTbin14","SR3_BDTbin15","SR3_BDTbin16","SR3_BDTbin17"};
 
@@ -399,12 +410,13 @@ vector<TString>  HNL_LeptonCore::GetLabelsFromRegion(HNL_LeptonCore::SearchRegio
   vector<TString> CRBDTlabels = ConvertCutFlowLabels(SRBDTlabels);
   
   
-  vector<TString> SRlabelsOpt = {"SR1_MNbin1","SR1_MNbin2","SR1_MNbin3","SR1_MNbin4",
-				 "SR2_HTLTbin1", "SR2_HTLTbin2",
-				 "SR3_bin1","SR3_bin2","SR3_bin3","SR3_bin4","SR3_bin5","SR3_bin6","SR3_bin7","SR3_bin8", "SR3_bin9","SR3_bin10","SR3_bin11"};
-  vector<TString> SRBDTlabelsOpt=  {"SR1_MNbin1","SR1_MNbin2","SR1_MNbin3","SR1_MNbin4",
-				    "SR2_HTLTbin1", "SR2_HTLTbin2",
-				    "SR3_BDTbin1","SR3_BDTbin2","SR3_BDTbin3","SR3_BDTbin4","SR3_BDTbin5","SR3_BDTbin6","SR3_BDTbin7"};
+  vector<TString> SRlabelsOpt = {"SR1_MNbin1","SR1_MNbin2","SR1_MNbin3","SR1_MNbin4","SR1_MNbin5","SR1_MNbin6",
+				 "SR2_HTLTbin1", "SR2_HTLTbin2",  "SR2_HTLTbin3", "SR2_HTLTbin4", "SR2_HTLTbin5", "SR2_HTLTbin6", "SR2_HTLTbin7", "SR2_HTLTbin8", "SR2_HTLTbin9", "SR2_HTLTbin10",
+				 "SR3_bin1","SR3_bin2","SR3_bin3","SR3_bin4","SR3_bin5","SR3_bin6","SR3_bin7","SR3_bin8", "SR3_bin9","SR3_bin10","SR3_bin11","SR3_bin12","SR3_bin13","SR3_bin14"};
+  vector<TString> SRBDTlabelsOpt=  {"SR1_MNbin1","SR1_MNbin2","SR1_MNbin3","SR1_MNbin4", "SR1_MNbin5","SR1_MNbin6",
+				    "SR2_HTLTbin1", "SR2_HTLTbin2", "SR2_HTLTbin4", "SR2_HTLTbin5", "SR2_HTLTbin6", "SR2_HTLTbin7", "SR2_HTLTbin8", "SR2_HTLTbin9", "SR2_HTLTbin10",
+				    "SR3_BDTbin1","SR3_BDTbin2","SR3_BDTbin3","SR3_BDTbin4","SR3_BDTbin5","SR3_BDTbin6","SR3_BDTbin7","SR3_BDTbin8","SR3_BDTbin9","SR3_BDTbin10","SR3_BDTbin11","SR3_BDTbin12","SR3_BDTbin13","SR3_BDTbin14","SR3_BDTbin15","SR3_BDTbin16","SR3_BDTbin17"};
+
   
   ///// STANDARD ANALYSIS LIMIT LABELS                                                                                                                                                                                                                                                                                                                                                                                                                                                     
   if(sr==MuonSR1    || sr==ElectronSR1   || sr==ElectronMuonSR1)      labels = SR1labels;

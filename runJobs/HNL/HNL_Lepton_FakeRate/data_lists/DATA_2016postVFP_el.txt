@@ -1,3 +1,6 @@
+SingleEG:F
+SingleEG:G
+SingleEG:H
 DoubleEG:F
 DoubleEG:G
 DoubleEG:H

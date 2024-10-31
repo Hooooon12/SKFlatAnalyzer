@@ -657,12 +657,12 @@ bool AnalyzerCore::ConversionSplitting(std::vector<Lepton *> leps, bool RunConvM
 
     if(LowPtConv) return true;
     else return false;
+
   }
   else if(MCSample.Contains("WGToLNuG")) {
     if(!LowPtConv) return true;
     else return false;
   }
- 
 
   return true;
 

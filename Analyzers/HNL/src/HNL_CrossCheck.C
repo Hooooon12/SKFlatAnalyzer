@@ -207,7 +207,7 @@ void HNL_CrossCheck::RunControlRegions(AnalyzerParameter param, vector<TString> 
 	}
 	else{
 	  //cout << "Internal Conv" << endl;
-	  int Idx_Closest    = GenMatchedIdx(*ilep,All_Gens);
+	  unsigned int Idx_Closest    = GenMatchedIdx(*ilep,All_Gens);
 	  //cout << "Idx_Closest = " << Idx_Closest << endl;
 	  Gen Mother = GenGetMother(All_Gens[Idx_Closest]);
 	  int nLep(0);
@@ -321,7 +321,6 @@ void HNL_CrossCheck::RunControlRegions(AnalyzerParameter param, vector<TString> 
     int ConvLepType=0;
     int nPrompt =0;
     bool GENTMatched=false;
-    bool PartonPhMatched=false;
     int nFake =0;
 
     for(auto ilep : LepsT){
@@ -335,18 +334,6 @@ void HNL_CrossCheck::RunControlRegions(AnalyzerParameter param, vector<TString> 
       if(ilep->LeptonGenType() > 3) {HasConv = true; ConvLepType = ilep->LeptonGenType();}
       if(ilep->LeptonGenType() < -4) {HasConv = true;  ConvLepType = ilep->LeptonGenType();}
 
-      for(unsigned int i=2; i<All_Gens.size(); i++){
-	Gen gen = All_Gens.at(i);
-        if(ilep->DeltaR(gen) < 0.2) {
-          if(gen.PID() == 22 && gen.isPromptFinalState() && gen.Pt()> 15.) {
-	    int motherindex = gen.MotherIndex();
-	    while(All_Gens[motherindex].PID() == 22) motherindex = All_Gens[motherindex].MotherIndex();
-	    if(fabs(All_Gens[motherindex].PID()) <7 || fabs(All_Gens[motherindex].PID()) == 21) {
-	      PartonPhMatched=true;
-	    }	    
-	  }
-	}
-      }
 
       for(unsigned int i=2; i<All_Gens.size(); i++){
 	Gen gen = All_Gens.at(i);
@@ -362,13 +349,6 @@ void HNL_CrossCheck::RunControlRegions(AnalyzerParameter param, vector<TString> 
       }
     }
 
-    /*if(PartonPhMatched){
-      if(LepsT.size()==2)cout << "2l PartonPhMatched MATCH" << endl;
-      if(LepsT.size()==3)cout << "3l PartonPhMatched MATCH" << endl;
-      for(auto i : LepsT)   cout << i->GetFlavour() << " "  << i->PrintInfo() << endl;
-      PrintGen(All_Gens);
-      for(auto i : LepsT)PrintMatchedGen( All_Gens,*i);
-      }*/
     if(GENTMatched){
       cout << " " << endl;
       if(LepsT.size()==2)cout << "2l GENT MATCH" << endl;

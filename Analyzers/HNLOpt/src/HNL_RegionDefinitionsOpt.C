@@ -338,7 +338,7 @@ bool  HNL_RegionDefinitionsOpt::PassPreselection(HNL_LeptonCore::Channel channel
   if (param.SRConfig.Contains("PreSel_MZ_5_"))    mz_cut = 5.;
   if (param.SRConfig.Contains("PreSel_MZ_0_"))    mz_cut = 0.;
 
-  if (channel==EE  && (fabs(ll.M()-90.) < mz_cut)) return false;
+  if (channel==EE  && (fabs(ll.M()-M_Z) < mz_cut)) return false;
 
   if(ll.M() < 10) return false; // TO_CHECK: IS 20 BEST OPTION
 
@@ -455,7 +455,7 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK8String(TString mass, HNL_Lep
   int m=-999;
   for(UInt_t emme=0; emme<AK8_JetColl.size(); emme++){
     dijetmass_tmp = AK8_JetColl[emme].SDMass();
-    if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+    if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
       dijetmass = dijetmass_tmp;
       m = emme;
     }
@@ -727,7 +727,7 @@ TString HNL_RegionDefinitionsOpt::PassSigRegion1(std::vector<Jet> jets, std::vec
       dijetmass_tmp = (jets[emme]+jets[enne]).M();
       if(emme == enne) continue;
 
-      if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+      if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
         dijetmass = dijetmass_tmp;
         m = emme;
         n = enne;
@@ -837,7 +837,7 @@ TString HNL_RegionDefinitionsOpt::PassSigRegion2(std::vector<Jet> jets, std::vec
   for(UInt_t emme=0; emme<fatjets.size(); emme++){
     ST += fatjets[emme].Pt();
     dijetmass_tmp = fatjets[emme].SDMass();
-    if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+    if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
       dijetmass = dijetmass_tmp;
       m = emme;
     }
@@ -1170,7 +1170,7 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_lep_charge",param);
 
   Particle ll =  (*leps[0]) + (*leps[1]);
-  if (channel==EE  && (fabs(ll.M()-90.) < 10)) {
+  if (channel==EE  && (fabs(ll.M()-M_Z) < M_ZWINDOW_VETO)) {
     FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_mll",param);
     return "false";
   }
@@ -1274,7 +1274,7 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
       dijetmass_tmp = (JetColl[emme]+JetColl[enne]).M();
 
       
-      if ( fabs(dijetmass_tmp-80.4) < fabs(dijetmass-80.4) ) {
+      if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
         dijetmass = dijetmass_tmp;
         m = emme;
         n = enne;

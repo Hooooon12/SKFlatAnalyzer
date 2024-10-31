@@ -41,6 +41,7 @@ Lepton::Lepton() : Particle() {
   j_elSCeta= -999;
   j_RelIso = -999.;
   j_MiniRelIso = -999.;
+  j_HTOverPt = -999;
   j_ptcone = -999.;
   j_lep_jetptrel=-999.;
   j_lep_jetptratio=-999.;
@@ -309,6 +310,13 @@ void Lepton::SetUncorrectedPt(double uncorrPt){
 void Lepton::SetElSCEta(double sceta){
   j_elSCeta=sceta;
 }
+
+void Lepton::SetHTOverPt(double f){
+
+  j_HTOverPt = (f / this->Pt());
+
+}
+
 
 void Lepton::SetdXY(double dXY, double dXYerr){
   j_dXY = dXY;

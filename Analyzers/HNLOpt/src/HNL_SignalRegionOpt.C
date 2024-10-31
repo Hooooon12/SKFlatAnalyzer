@@ -41,20 +41,6 @@ void HNL_SignalRegionOpt::executeEvent(){
   
   
   //// SYST IF USED CURRENTLY DOES NOT RUN
-  if(!IsData) RunSyst=false;
-  if(RunSyst){
-    TString param_signal_name = param_signal.Name;
-    vector<AnalyzerParameter::Syst> SystList;// = GetSystList("Initial");
-    
-    for(auto isyst : SystList){
-      param_signal.syst_ = AnalyzerParameter::Syst(isyst);
-      
-      param_signal.Name = "Syst_"+param_signal.GetSystType()+param_signal_name;
-      param_signal.DefName = "Syst_"+param_signal.GetSystType()+param_signal_name;
-      RunULAnalysis(param_signal);
-    }    
-  }
-
 
   return ;
 }

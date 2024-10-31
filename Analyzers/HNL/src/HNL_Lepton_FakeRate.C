@@ -61,11 +61,13 @@ void HNL_Lepton_FakeRate::executeEvent(){
                             "HNL_ULID_FO_v9_c",
                             "HNL_ULID_FO_v0"};
 			    
+    LIDs = {"HNL_ULID_FO"};
 
     vector<TString> NIDs;
     for(auto i : LIDs){
       TString aname = i;
       aname = aname.ReplaceAll("HNL_ULID_FO_","HNL_LooseID_FO");
+      aname = aname.ReplaceAll("HNL_ULID_FO","HNL_LooseID_FO");
       NIDs.push_back(i);
     }
     
@@ -107,12 +109,14 @@ void HNL_Lepton_FakeRate::executeEvent(){
                             "HNL_ULID_FO_v8_c",
                             "HNL_ULID_FO_v9_c",
                             "HNL_ULID_FO_v0"};
-
-
+    
+    LIDs = {"HNL_ULID_FO"};
+ 
     vector<TString> NIDs;
     for(auto i : LIDs){
       TString aname = i;
       aname = aname.ReplaceAll("HNL_ULID_FO_","HNL_LooseID_FO");
+      aname = aname.ReplaceAll("HNL_ULID_FO","HNL_LooseID_FO");
       NIDs.push_back(i);
     }
 
@@ -274,6 +278,15 @@ void HNL_Lepton_FakeRate::executeEvent(){
     goto RunJobs;
   }
 
+  if(HasFlag("MakeRegionPlots")){
+    VParameters.clear();
+    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,MuMu,HNL_LeptonCore::NormTo1Invpb,{"MakeSingleLeptonPlots"},"HNL_ID_MakeSingleLeptonPlots"     ,"HNL_ULID_"+GetYearString(), "HNL_ULID_FO"));
+    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,  HNL_LeptonCore::NormTo1Invpb,{"MakeSingleLeptonPlots"},"HNL_ID_MakeSingleLeptonPlots"     ,"HNL_ULID_"+GetYearString(), "HNL_ULID_FO"));
+    goto RunJobs;
+  }
+
+
+
  RunJobs:
   
   for(auto param : VParameters)  executeEventFromParameter(param);
@@ -351,18 +364,19 @@ void HNL_Lepton_FakeRate::RunM(std::vector<Electron> loose_el,  std::vector<Muon
       double PtParton = ilep->PtParton(GetPtPartonSF(*ilep, param.Muon_Loose_ID,param),ilep->MVAFakeCut(param.Muon_Tight_ID,GetYearString()));
       double PtPartonUncorr = ilep->PtParton(1,ilep->MVAFakeCut(param.Muon_Tight_ID,GetYearString()));
       double W = event_weight;
+      if(UseEvent(leps , jets, 30., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ30_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("HFTop"), PtParton, W, 50, -1, 1);
       if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("HFTop"), PtParton, W, 50, -1, 1);
-      FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_Inclusive_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("HFTop"), PtParton, W, 50, -1, 1);
+      if(UseEvent(leps , jets, 60., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ60_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("HFTop"), PtParton, W, 50, -1, 1);
       
-      FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_Inclusive_MVA_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 50, -1, 1);
       if(UseEvent(leps , jets, 30., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ30_MVA_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 50, -1, 1);
       if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 50, -1, 1);
       if(UseEvent(leps , jets, 60., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ60_MVA_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 50, -1, 1);
 
-      FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_Inclusive_MVA2_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 200, -1, 1);
-      if(UseEvent(leps , jets, 30., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ30_MVA2_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 200, -1, 1);
-      if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA2_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 200, -1, 1);
-      if(UseEvent(leps , jets, 60., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ60_MVA2_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 200, -1, 1);
+      FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_Inclusive_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("HFTop"), PtParton, W, 50, -1, 1);
+      FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_Inclusive_MVA_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 50, -1, 1);
+ 
+      if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_"+ilep->GetEtaRegion("2bin")+"_PtParton").Data(), ilep->HNL_MVA_Fake("HFTop"), PtParton, W, 50, -1, 1);
+      if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_"+ilep->GetEtaRegion("2bin")+"_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("HFTop"), PtPartonUncorr, W, 50, -1, 1);
 
     }
     return;
@@ -370,6 +384,119 @@ void HNL_Lepton_FakeRate::RunM(std::vector<Electron> loose_el,  std::vector<Muon
 
 
   if(param.HasFlag("FR") || param.HasFlag("PR"))   GetFakeRateAndPromptRates(param, leps,blepsT,jets,param.Name+param.Channel,event_weight);   
+  
+  if(param.HasFlag("MakeSingleLeptonPlots")){
+    
+    /// Code to check SB in MT for W dominated CR
+  
+    if(loose_mu.size() != 1) return;
+
+
+    Double_t MT=0;
+    Double_t METdphi=0;
+    for(unsigned int imu = 0; imu < loose_mu.size();  imu++){
+      METdphi=  TVector2::Phi_mpi_pi((loose_mu.at(imu).Phi()- METv.Phi()));
+      MT = sqrt(2.* loose_mu.at(imu).Et()*METv.Pt() * (1 - cos( METdphi)));
+    }
+
+
+    bool truth_match= false;
+    if(!IsDATA) {
+      if(loose_mu.at(0).IsPrompt()) truth_match=true;
+    }
+    else truth_match=true;
+
+    if(MCSample.Contains("QCD")) truth_match=true;
+    
+    //// Apply corr
+    Event ev = GetEvent();
+
+    if(1){
+      if(ev.PassTrigger(TrigList_POG_Mu[0]) && loose_mu[0].Pt() > 30){
+
+	bool TriggerDec= (!IsDATA || (IsDATA&& ev.IsPDForTrigger(TrigList_POG_Mu[0], this->DataStream) ));
+	if(TriggerDec){
+	  
+	  float trigger_ps_singlelepweight = ev.GetTriggerLumi("Full");
+	  trigger_ps_singlelepweight*= event_weight;
+	  
+	  
+	  if(METv.Pt() > 30 && (60. < MT)  &&(MT < 100.) &&truth_match)          FillRegionPlots("MuMu", "SingleLooseMuJet_prompt_unprescaled_"+param.Name , jets,   loose_el,loose_mu,  METv, trigger_ps_singlelepweight);
+	}
+      }
+
+    }
+
+    float prescale_trigger = GetPrescale(leps);
+
+       
+    if(prescale_trigger == 0.) return;
+    event_weight*=prescale_trigger;
+    
+
+    if(jets.size() >=1){
+      if(jets[0].Pt() > 40){
+	FillRegionPlots("MuMu", "SingleLooseMuJet_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+      }      
+    }
+
+    if(blepsT[0]){
+      if(jets.size() >=1){
+	if(jets[0].Pt() >40){
+	  FillRegionPlots("MuMu", "SingleTightMuJet_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+	} 
+      }
+    }
+    if(truth_match){
+
+      if(jets.size() >=1){
+	if(jets[0].Pt() >40){
+	  FillRegionPlots("MuMu", "SingleLooseMuJet_tm_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+	} 
+      }
+
+      if(blepsT[0]){
+	if(jets.size() >=1){
+	  if(jets[0].Pt() >40){
+	    FillRegionPlots("MuMu", "SingleTightMuJet_tm_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+	  }
+	}
+      }
+
+    }
+
+    if(METv.Pt()  > 30 && (60. < MT)  &&(MT < 100.) &&truth_match)  {
+
+      if(jets.size() >=1){
+	if(jets[0].Pt() >40){
+	  FillRegionPlots("MuMu", "SingleLooseMuJet_prompt_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+	} 
+      }
+      
+      if(blepsT[0]){
+	if(jets.size() >=1){
+	  if(jets[0].Pt() >40){
+	    FillRegionPlots("MuMu", "SingleTightMuJet_prompt_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+	  }
+	}
+      }
+    }
+    
+    if(UseEvent(leps , jets, 40., METv, event_weight)) {
+
+      if(jets.size() >=1)             FillRegionPlots("MuMu", "LooseMu_MR_NoTM_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+      if(blepsT[0] && jets.size() >=1)             FillRegionPlots("MuMu", "TightMu_MR_NoTM_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+
+      if(truth_match){
+	if(jets.size() >=1)             FillRegionPlots("MuMu", "LooseMu_MR_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+	if(blepsT[0] && jets.size() >=1)             FillRegionPlots("MuMu", "TightMu_MR_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+      }
+    }
+  
+    
+    return;
+  }
+
   
   return;
 
@@ -406,6 +533,8 @@ void HNL_Lepton_FakeRate::RunE( std::vector<Electron> loose_el, std::vector<Muon
   }
 
   if(param.HasFlag("DATAProfile")){
+
+    //// Code used to measure prefile SF in ptparton
     
     if(leps.size() != 1) return;
    
@@ -416,9 +545,18 @@ void HNL_Lepton_FakeRate::RunE( std::vector<Electron> loose_el, std::vector<Muon
       double W = event_weight;
 
       FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_Inclusive_MVA_"+ilep->GetEtaRegion("2bin")+"_PtParton").Data(), ilep->HNL_MVA_Fake("EDv5"), PtParton, W, 40, -1, 1);
-      if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("EDv5"), PtParton, W, 40, -1, 1);
-
       FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_Inclusive_MVA_"+ilep->GetEtaRegion("2bin")+"_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("EDv5"), PtPartonUncorr, W, 40, -1, 1);
+      
+      if(UseEvent(leps , jets, 30., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ30_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("EDv5"), PtParton, W, 40, -1, 1);
+      if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("EDv5"), PtParton, W, 40, -1, 1);
+      if(UseEvent(leps , jets, 60., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ60_MVA_PtParton").Data(), ilep->HNL_MVA_Fake("EDv5"), PtParton, W, 40, -1, 1);
+      if(UseEvent(leps , jets, 30., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ30_MVA_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("EDv5"), PtPartonUncorr, W, 40, -1, 1);
+      if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("EDv5"), PtPartonUncorr, W, 40, -1, 1);
+      if(UseEvent(leps , jets, 60., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ60_MVA_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("EDv5"), PtPartonUncorr, W, 40, -1, 1);
+
+      if(UseEvent(leps , jets, 30., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ30_MVA_"+ilep->GetEtaRegion("2bin")+"_PtParton").Data(), ilep->HNL_MVA_Fake("EDv5"), PtParton, W, 40, -1, 1);
+      if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_"+ilep->GetEtaRegion("2bin")+"_PtParton").Data(), ilep->HNL_MVA_Fake("EDv5"), PtParton, W, 40, -1, 1);
+      if(UseEvent(leps , jets, 60., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ60_MVA_"+ilep->GetEtaRegion("2bin")+"_PtParton").Data(), ilep->HNL_MVA_Fake("EDv5"), PtParton, W, 40, -1, 1);
       if(UseEvent(leps , jets, 30., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ30_MVA_"+ilep->GetEtaRegion("2bin")+"_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("EDv5"), PtPartonUncorr, W, 40, -1, 1);
       if(UseEvent(leps , jets, 40., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ40_MVA_"+ilep->GetEtaRegion("2bin")+"_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("EDv5"), PtPartonUncorr, W, 40, -1, 1);
       if(UseEvent(leps , jets, 60., METv, event_weight)) FillProf(("DATAProfile/"+param.Name + "/FakeCR"+param.GetSystType()+"_AJ60_MVA_"+ilep->GetEtaRegion("2bin")+"_PtPartonUncorr").Data(), ilep->HNL_MVA_Fake("EDv5"), PtPartonUncorr, W, 40, -1, 1);
@@ -429,6 +567,123 @@ void HNL_Lepton_FakeRate::RunE( std::vector<Electron> loose_el, std::vector<Muon
 
   if(param.HasFlag("FR") || param.HasFlag("PR"))   GetFakeRateAndPromptRates(param, leps,blepsT,jets,param.Name+param.Channel,event_weight);   
 
+  if(param.HasFlag("MakeSingleLeptonPlots")){
+
+    /// Code to check SB in MT for W dominated CR                                                                                                                                                                                                                                                                                                                                                                                                                                        
+
+    if(loose_el.size() != 1) return;
+
+
+    Double_t MT=0;
+    Double_t METdphi=0;
+    for(unsigned int iel = 0; iel < loose_el.size();  iel++){
+      METdphi=  TVector2::Phi_mpi_pi((loose_el.at(iel).Phi()- METv.Phi()));
+      MT = sqrt(2.* loose_el.at(iel).Et()*METv.Pt() * (1 - cos( METdphi)));
+    }
+
+
+    bool truth_match= false;
+    if(!IsDATA) {
+      if(loose_el.at(0).IsPrompt()) truth_match=true;
+    }
+    else truth_match=true;
+
+    if(MCSample.Contains("QCD")) truth_match=true;
+
+    //// Apply corr                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+
+    Event ev = GetEvent();
+
+    if(1){
+      if(ev.PassTrigger(TrigList_POG_EG[0]) && loose_el[0].Pt() > 40){
+        float trigger_ps_singlelepweight = ev.GetTriggerLumi("Full");
+        trigger_ps_singlelepweight*= event_weight;
+
+
+	bool TriggerDec= (!IsDATA || (IsDATA&& ev.IsPDForTrigger(TrigList_POG_EG[0], this->DataStream) ));
+	if(TriggerDec){
+	  
+	  if(METv.Pt() > 30 && (60. < MT)  &&(MT < 100.) &&truth_match)          FillRegionPlots("EE", "SingleLooseElJet_prompt_unprescaled_"+param.Name , jets,   loose_el,loose_mu,  METv, trigger_ps_singlelepweight);
+	  
+	}
+      }
+
+    }
+
+    float prescale_trigger = GetPrescale(leps);
+
+
+    if(prescale_trigger == 0.) return;
+    event_weight*=prescale_trigger;
+
+
+    if(jets.size() >=1){
+      if(jets[0].Pt() > 40){
+        FillRegionPlots("EE", "SingleLooseElJet_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+      }
+    }
+
+    if(blepsT[0]){
+      if(jets.size() >=1){
+        if(jets[0].Pt() >40){
+          FillRegionPlots("EE", "SingleTightElJet_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+        }
+      }
+    }
+    if(truth_match){
+
+      if(jets.size() >=1){
+        if(jets[0].Pt() >40){
+          FillRegionPlots("EE", "SingleLooseElJet_tm_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+        }
+      }
+
+      if(blepsT[0]){
+        if(jets.size() >=1){
+          if(jets[0].Pt() >40){
+            FillRegionPlots("EE", "SingleTightElJet_tm_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+          }
+        }
+      }
+
+    }
+
+    if(METv.Pt()  > 30 && (60. < MT)  &&(MT < 100.) &&truth_match)  {
+
+      if(jets.size() >=1){
+        if(jets[0].Pt() >40){
+          FillRegionPlots("EE", "SingleLooseElJet_prompt_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+        }
+      }
+
+      if(blepsT[0]){
+        if(jets.size() >=1){
+          if(jets[0].Pt() >40){
+            FillRegionPlots("EE", "SingleTightElJet_prompt_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+          }
+        }
+      }
+    }
+
+    if(UseEvent(leps , jets, 40., METv, event_weight)) {
+
+      if(jets.size() >=1)             FillRegionPlots("EE", "LooseEl_MR_NoTM_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+      if(blepsT[0] && jets.size() >=1)             FillRegionPlots("EE", "TightEl_MR_NoTM_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+
+      if(truth_match){
+        if(jets.size() >=1)             FillRegionPlots("EE", "LooseEl_MR_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+        if(blepsT[0] && jets.size() >=1)             FillRegionPlots("EE", "TightEl_MR_"+param.Name , jets,   loose_el,loose_mu,  METv, event_weight);
+      }
+    }
+
+
+    return;
+  }
+
+  
+  
+
+  
   return;
   
 

@@ -53,24 +53,27 @@ do
 
     if [[ $1 == "MakeRegionPlots" ]]; then
 	
-	SKFlat.py -a $analyzer  -l $datapath/DATA_${i}_mu.txt  -n ${njobs_data}  --nmax ${nmax}  -e ${i}    --userflags MakeRegionPlotsL&
-        SKFlat.py -a $analyzer  -l $mcpath/MC.txt              -n ${njobs}       --nmax ${nmax}  -e ${i}    --userflags MakeRegionPlotsL&         
-
-	#SKFlat.py -a $analyzer  -l $datapath/DATA_${i}_mu.txt  -n ${njobs_data}  --nmax ${nmax}  -e ${i}   --skim SkimTree_HNFakeBDT --userflags MakeRegionPlotsL&
-	#SKFlat.py -a $analyzer  -l $mcpath/MC.txt              -n ${njobs}       --nmax ${nmax}  -e ${i}   --skim SkimTree_HNFakeBDT --userflags MakeRegionPlotsL&
-	
-        #SKFlat.py -a $analyzer  -l $datapath/DATA_${i}_el.txt  -n ${njobs_data}  --nmax ${nmax}  -e ${i}   --skim SkimTree_HNFakeBDT --userflags MakeRegionPlots&
-        #SKFlat.py -a $analyzer  -l ${mcpath}/QCD_${i}.txt  -n ${njobs}  --nmax ${nmax}  -e ${i}   --skim SkimTree_FakeEventSkimBDT --userflags MakeRegionPlots&                                                     
-	#SKFlat.py -a $analyzer  -i DYJetsToMuMu_MiNNLO  -n  ${njobs_data}  --nmax ${nmax}  -e ${i}  --skim SkimTree_DileptonBDT --userflags MakeRegionPlotsLL &
-	#SKFlat.py -a $analyzer  -i DYJetsToEE_MiNNLO    -n  ${njobs_data}  --nmax ${nmax}  -e ${i}  --skim SkimTree_DileptonBDT --userflags MakeRegionPlotsLL &
-        #SKFlat.py -a $analyzer  -l $datapath/DATA_${i}_ll.txt   -n  ${njobs_data}  --nmax ${nmax}  -e ${i}  --skim SkimTree_DileptonBDT --userflags MakeRegionPlotsLL &
-	
+	SKFlat.py -a $analyzer  -l $datapath/DATA_${i}_mu.txt  -n ${njobs_data}  --nmax ${nmax}  -e ${i}    --userflags MakeRegionPlots&
+	SKFlat.py -a $analyzer  -l $datapath/DATA_${i}_el.txt  -n ${njobs_data}  --nmax ${nmax}  -e ${i}    --userflags MakeRegionPlots&	
+        SKFlat.py -a $analyzer  -l $mcpath/MC.txt              -n ${njobs}       --nmax ${nmax}  -e ${i}    --userflags MakeRegionPlots&         
+	SKFlat.py -a $analyzer  -l $mcpath/QCD_${i}_Mu.txt              -n ${njobs}       --nmax ${nmax}  -e ${i}    --userflags MakeRegionPlots --skim SkimTree_FakeEventSkimBDT&
+	SKFlat.py -a $analyzer  -l $mcpath/QCD_${i}.txt              -n ${njobs}       --nmax ${nmax}  -e ${i}    --userflags MakeRegionPlots --skim SkimTree_FakeEventSkimBDT&
+		
     fi
 
     if [[ $1 == "GetNvtxSF" ]]; then
         SKFlat.py -a $analyzer  -l $mc/DY.txt              -n ${njobs}       --nmax ${nmax}  -e ${i}   --skim SkimTree_HNFakeBDT --userflags MakeRegionPlots&
         SKFlat.py -a $analyzer  -l $datapath/DATA_${i}_mu.txt  -n ${njobs_data}  --nmax ${nmax}  -e ${i}   --skim SkimTree_HNFakeBDT --userflags MakeRegionPlots&
         SKFlat.py -a $analyzer  -l $datapath/DATA_${i}_el.txt  -n ${njobs_data}  --nmax ${nmax}  -e ${i}   --skim SkimTree_HNFakeBDT --userflags MakeRegionPlots&
+    fi
+
+
+
+if [[ $1 == "TETS" ]]; then
+
+        SKFlat.py -a $analyzer  -i WZ_pythia             -n ${njobs}       --nmax ${nmax}  -e ${i}    --userflags MakeRegionPlots&
+
+
     fi
 
 

@@ -12,8 +12,8 @@ void ExampleRun::initializeAnalyzer(){
   //================================================================
 
   //==== if you use "--userflags RunSyst" with SKFlat.py, HasFlag("RunSyst") will return "true"
-  RunSyst = HasFlag("RunSyst");
-  cout << "[ExampleRun::initializeAnalyzer] RunSyst = " << RunSyst << endl;
+  RunFullSyst = HasFlag("RunFullSyst");
+  cout << "[ExampleRun::initializeAnalyzer] RunFullSyst = " << RunFullSyst << endl;
 
   //==== Dimuon Z-peak with two muon IDs
   //==== I defined "vector<TString> MuonIDs;" in Analyzers/include/ExampleRun.h
@@ -160,9 +160,9 @@ void ExampleRun::executeEvent(){
     executeEventFromParameter(param);
 
     //==== 2) Now, loop over systematic sources
-    //==== without --userflag RunSyst, this will not be ran
+    //==== without --userflag RunFullSyst, this will not be ran
 
-    if(RunSyst){
+    if(RunFullSyst){
 
       for(int it_syst=1; it_syst<AnalyzerParameter::NSyst; it_syst++){
 
