@@ -20,8 +20,8 @@ public:
   SkimTree_EGammaTnP_HighPt();
   ~SkimTree_EGammaTnP_HighPt();
 
-  TTree* newtree;
-  TTree* weight_tree;
+  TTree *newtree;
+  TTree *weight_tree;
   float weight;
   float PUweight,PUweight_up,PUweight_down;
   float prefireweight,prefireweight_up,prefireweight_down;
@@ -50,6 +50,7 @@ public:
   double scoreHNLMVAFake;
   bool passEGL1SingleEGOr;
   bool passHltEle27WPTightGsf;
+  bool passHltEle27eta2p1WPTightGsf;
   bool passHltEle28WPTightGsf;
   bool passHltEle32WPTightGsf;
   bool passHltEle32DoubleEGWPTightGsf;
@@ -73,6 +74,7 @@ public:
 
   bool tag_passEGL1SingleEGOr;
   bool tag_passHltEle27WPTightGsf;
+  bool tag_passHltEle27eta2p1WPTightGsf;
   bool tag_passHltEle28WPTightGsf;
   bool tag_passHltEle32WPTightGsf;
   bool tag_passHltEle32DoubleEGWPTightGsf;

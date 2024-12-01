@@ -719,10 +719,10 @@ bool AnalyzerCore::ConversionVeto(std::vector<Lepton *> leps,const std::vector<G
 
 void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& parton1,Gen& l0,Gen& l1,int mode){
   //mode 0:bare 1:dressed01 2:dressed04 3:beforeFSR
-  if(!IsDYSample&&!MCSample.Contains("GamGamToLL")&&!MCSample.Contains("TTLL")){
-    cout <<"[SMPAnalyzerCore::GetAFBGenParticles] this is only for dilepton event"<<endl;
-    exit(EXIT_FAILURE);
-  }
+  //if(!IsDYSample&&!MCSample.Contains("GamGamToLL")&&!MCSample.Contains("TTLL")){
+  //  cout <<"[SMPAnalyzerCore::GetAFBGenParticles] this is only for dilepton event"<<endl;
+  //  exit(EXIT_FAILURE);
+  //} //JH : SkimTree_EGamma_HighPt need this
   parton0=Gen();
   parton1=Gen();
   l0=Gen();
@@ -730,7 +730,13 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
   vector<const Gen*> leptons;
   vector<const Gen*> photons;
   int ngen=gens.size();
+  cout << "[GetAFBGenParticles] ngen : " << ngen << endl; //JH
+  cout << "[GetAFBGenParticles] lhe_l0 ID : " << lhe_l0.ID() << endl; //JH
+  cout << "[GetAFBGenParticles] lhe_l1 ID : " << lhe_l1.ID() << endl; //JH
   for(int i=0;i<ngen;i++){
+    if(gens.at(i).isHardProcess()&&(abs(gens.at(i).PID())==11||abs(gens.at(i).PID())==13)) cout << "hard process lepton : " << i << ", " << gens.at(i).PID() << endl; //JH
+    if(gens.at(i).isPrompt()&&(abs(gens.at(i).PID())==11||abs(gens.at(i).PID())==13)) cout << "prompt lepton : " << i << ", " << gens.at(i).PID() << endl; //JH
+    if(gens.at(i).Status()==1&&(abs(gens.at(i).PID())==11||abs(gens.at(i).PID())==13)) cout << "status 1 lepton : " << i << ", " << gens.at(i).PID() << endl; //JH
     if(!gens.at(i).isPrompt()) continue;
     int genpid=gens.at(i).PID();
     if(gens.at(i).isHardProcess()){
@@ -742,9 +748,13 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
     if(gens.at(i).Status()==1){
       if(abs(genpid)==11||abs(genpid)==13) leptons.push_back(&gens[i]);
       else if(gens.at(i).PID()==22) photons.push_back(&gens[i]);
+      if(abs(genpid)==11||abs(genpid)==13) cout << i << " : " << gens[i].PID() << endl; // JH
     }
   }
+  cout << "lhe_l0 ID : " << lhe_l0.ID() << endl; // JH
+  cout << "lhe_l1 ID : " << lhe_l1.ID() << endl; // JH
   int nlepton=leptons.size();
+  cout << "nlepton : " << leptons.size() << endl; // JH
   const double maxdr=0.4;
   for(int i=0;i<nlepton;i++){
     if(leptons[i]->PID()!=lhe_l0.ID()) continue;
@@ -781,6 +791,8 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
     l0=l1;
     l1=tmp;
   }
+  cout << "l0 PID : " << l0.PID() << endl; // JH
+  cout << "l1 PID : " << l1.PID() << endl; // JH
   if(mode>=3){
     if(nlepton>=4){
       for(int i=0;i<nlepton;i++){
@@ -817,17 +829,19 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
 }
 
 void  AnalyzerCore::GetAFBLHEParticles(const vector<LHE>& lhes,LHE& p0,LHE& p1,LHE& l0,LHE& l1,LHE& j0){
-  if(!IsDYSample&&!MCSample.Contains("GamGamToLL")&&!MCSample.Contains("TTLL")){
-    cout <<"[AFBAnalyzer::GetAFBLHEParticles] this is only for dilepton event"<<endl;
-    exit(EXIT_FAILURE);
-  }
+  //if(!IsDYSample&&!MCSample.Contains("GamGamToLL")&&!MCSample.Contains("TTLL")){
+  //  cout <<"[AFBAnalyzer::GetAFBLHEParticles] this is only for dilepton event"<<endl;
+  //  exit(EXIT_FAILURE);
+  //} //JH
   p0=LHE();
   p1=LHE();
   l0=LHE();
   l1=LHE();
   j0=LHE();
+  cout << "[GetAFBLHEParticles] lhes.size() : " << lhes.size() << endl; // JH
   if(!lhes.size()) return;
   for(int i=0;i<(int)lhes.size();i++){
+    cout << "lhe[i].ID : " << lhes[i].ID() << endl; //JH
     if(p0.ID()==0&&lhes[i].Status()==-1&&lhes[i].Eta()>0) p0=lhes[i];
     if(p1.ID()==0&&lhes[i].Status()==-1&&lhes[i].Eta()<0) p1=lhes[i];
     if(l0.ID()==0&&(abs(lhes[i].ID())==11||abs(lhes[i].ID())==13||abs(lhes[i].ID())==15)) l0=lhes[i];

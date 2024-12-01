@@ -66,6 +66,7 @@ void SkimTree_EGammaTnP_HighPt::initializeAnalyzer(){
 
   newtree->Branch("passEGL1SingleEGOr",&passEGL1SingleEGOr);
   newtree->Branch("passHltEle27WPTightGsf",&passHltEle27WPTightGsf);
+  newtree->Branch("passHltEle27eta2p1WPTightGsf",&passHltEle27eta2p1WPTightGsf);
   newtree->Branch("passHltEle28WPTightGsf",&passHltEle28WPTightGsf);
   newtree->Branch("passHltEle32WPTightGsf",&passHltEle32WPTightGsf);
   newtree->Branch("passHltEle32DoubleEGWPTightGsf",&passHltEle32DoubleEGWPTightGsf);
@@ -89,6 +90,7 @@ void SkimTree_EGammaTnP_HighPt::initializeAnalyzer(){
 
   newtree->Branch("tag_passEGL1SingleEGOr",&tag_passEGL1SingleEGOr);
   newtree->Branch("tag_passHltEle27WPTightGsf",&tag_passHltEle27WPTightGsf);
+  newtree->Branch("tag_passHltEle27eta2p1WPTightGsf",&tag_passHltEle27eta2p1WPTightGsf);
   newtree->Branch("tag_passHltEle28WPTightGsf",&tag_passHltEle28WPTightGsf);
   newtree->Branch("tag_passHltEle32WPTightGsf",&tag_passHltEle32WPTightGsf);
   newtree->Branch("tag_passHltEle32DoubleEGWPTightGsf",&tag_passHltEle32DoubleEGWPTightGsf);
@@ -134,6 +136,7 @@ void SkimTree_EGammaTnP_HighPt::initializeAnalyzer(){
 
 bool SkimTree_EGammaTnP_HighPt::IsGoodTagProbe(Electron el_tag, Electron el_probe){
   
+  // https://indico.cern.ch/event/1255216/contributions/5273071/attachments/2594851/4478919/HEEP%20ID%202016UL%20for%20EGamma.pdf
   if(el_probe.Pt() < 35) return false;
   if(fabs(el_probe.scEta()) >2.5) return false;
   if(el_probe.etaRegion()==Electron::GAP) return false;
@@ -159,7 +162,8 @@ bool SkimTree_EGammaTnP_HighPt::IsTag(Electron el_tag){
   // Match trigger in data
   if(IsDATA){
     if(DataYear == 2016){
-      if(!el_tag.PassPath("HLT_Ele27_eta2p1_WPTight_Gsf_v")) return false; 
+      //if(!el_tag.PassPath("HLT_Ele27_eta2p1_WPTight_Gsf_v")) return false; 
+      if(!el_tag.PassPath("HLT_Ele27_WPTight_Gsf_v")) return false; 
     }
     else if(DataYear == 2017){
       if(!el_tag.PassPath("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v")) return false;
@@ -184,7 +188,8 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
     AnalyzerParameter p = HNL_LeptonCore::InitialiseHNLParameter("Basic");
     
     if(DataYear == 2016){
-      if(! (ev.PassTrigger("HLT_Ele27_eta2p1_WPTight_Gsf_v")))return;
+      //if(! (ev.PassTrigger("HLT_Ele27_eta2p1_WPTight_Gsf_v")))return; // No skim now
+      if(! (ev.PassTrigger("HLT_Ele27_WPTight_Gsf_v")))return;
     }
     if(DataYear == 2017){
       if(! (ev.PassTrigger("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v"))) return;
@@ -202,6 +207,27 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
     map<Electron*,Gen*> genmatching;
 
     if(!IsDATA){
+      cout << "[executeEvent] gen_l0_dressed Pt, Eta, Phi, E : " << gen_l0_dressed.Pt() << ", " << gen_l0_dressed.Eta() << ", " << gen_l0_dressed.Phi() << ", " << gen_l0_dressed.E() << endl; //JH
+      cout << "[executeEvent] gen_l1_dressed Pt, Eta, Phi, E : " << gen_l0_dressed.Pt() << ", " << gen_l0_dressed.Eta() << ", " << gen_l0_dressed.Phi() << ", " << gen_l0_dressed.E() << endl; //JH
+      cout << "[executeEvent] mass : " << (gen_l0_dressed+gen_l1_dressed).M() << endl; //JH
+      for(Electron&  electron: electrons){
+        if(electron.IsFake()){
+          cout << "[executeEvent] fake electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
+        }
+        if(electron.LeptonIsCF()){
+          cout << "[executeEvent] CF electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
+        }
+        if(electron.LeptonIsPromptConv()){
+          cout << "[executeEvent] prompt CF electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
+        }
+        if(electron.IsConv()){
+          cout << "[executeEvent] conv electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
+        }
+        if(electron.IsPrompt()){
+          cout << "[executeEvent] prompt electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
+        }
+      }
+      PrintGen(All_Gens); //JH
 
       for(Gen* gen:{&gen_l0_dressed,&gen_l1_dressed}){
         vector<Electron*> cands={};
@@ -379,6 +405,7 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
         
         passEGL1SingleEGOr=probe.PassFilter("hltEGL1SingleEGOrFilter");
         passHltEle27WPTightGsf=probe.PassPath("HLT_Ele27_WPTight_Gsf_v");
+        passHltEle27eta2p1WPTightGsf=probe.PassPath("HLT_Ele27_eta2p1_WPTight_Gsf_v");
         passHltEle28WPTightGsf=probe.PassPath("HLT_Ele28_WPTight_Gsf_v");
         passHltEle32WPTightGsf=probe.PassPath("HLT_Ele32_WPTight_Gsf_v");
         passHltEle32DoubleEGWPTightGsf=probe.PassPath("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v");
@@ -406,12 +433,13 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
         
         tag_passEGL1SingleEGOr=tag.PassFilter("hltEGL1SingleEGOrFilter");
         tag_passHltEle27WPTightGsf=tag.PassPath("HLT_Ele27_WPTight_Gsf_v");
+        tag_passHltEle27eta2p1WPTightGsf=tag.PassPath("HLT_Ele27_eta2p1_WPTight_Gsf_v");
         tag_passHltEle28WPTightGsf=tag.PassPath("HLT_Ele28_WPTight_Gsf_v");
         tag_passHltEle32WPTightGsf=tag.PassPath("HLT_Ele32_WPTight_Gsf_v");
         tag_passHltEle32DoubleEGWPTightGsf=tag.PassPath("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v");
         tag_passHltEle35WPTightGsf=tag.PassPath("HLT_Ele35_WPTight_Gsf_v");
 
-        if(!(tag_passHltEle27WPTightGsf|tag_passHltEle28WPTightGsf|tag_passHltEle32WPTightGsf|tag_passHltEle32DoubleEGWPTightGsf|tag_passHltEle35WPTightGsf)) continue;
+        //if(!(tag_passHltEle27WPTightGsf|tag_passHltEle28WPTightGsf|tag_passHltEle32WPTightGsf|tag_passHltEle32DoubleEGWPTightGsf|tag_passHltEle35WPTightGsf)) continue;
 
         tag_passingCutBasedMedium94XV2=tag.passMediumID();
         tag_passingCutBasedTight94XV2=tag.passTightID();
@@ -485,9 +513,9 @@ void SkimTree_EGammaTnP_HighPt::WriteHist(){
   outfile->mkdir("tnpEleIDs");
   outfile->cd("tnpEleIDs");
   newtree->Write();
-  outfile->mkdir("tnpEleTrig");
-  outfile->cd("tnpEleTrig");
-  newtree->Write();
+  //outfile->mkdir("tnpEleTrig");
+  //outfile->cd("tnpEleTrig");
+  //newtree->Write();
   outfile->cd();
 }
 

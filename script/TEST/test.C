@@ -8,7 +8,8 @@ void test(TString era, bool isdata, TString sample, TString skim, TString flag){
   //HNL_ControlRegionPlotter m;
   //HNL_SignalRegionPlotter m;
   //HNL_SignalRegion_Plotter m;
-  HNL_ControlRegion_Plotter m;
+  //HNL_ControlRegion_Plotter m;
+  SkimTree_EGammaTnP_HighPt m;
 
   m.SetTreeName("recoTree/SKFlat");
 
@@ -91,6 +92,18 @@ void test(TString era, bool isdata, TString sample, TString skim, TString flag){
   }
   else if(era=="2017" && isdata && sample=="DoubleEG" && skim=="DileptonBDT"){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/DATA_SkimTree_DileptonBDT/DoubleEG/periodB/2023_09_02_114749/SKFlatNtuple_2017_DATA_0.root")) exit(EIO);
+  }
+  else if(era=="2017" && !isdata && sample=="ZZ_pythia" && skim=="DileptonBDT"){
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/MC_SkimTree_DileptonBDT/ZZ_TuneCP5_13TeV-pythia8/2023_09_02_114749/SKFlatNtuple_2017_MC_0.root")) exit(EIO);
+  }
+  else if(era=="2017" && !isdata && sample=="ST_tW_top" && skim=="DileptonBDT"){
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/MC_SkimTree_DileptonBDT/ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8/2023_09_02_014631/SKFlatNtuple_2017_MC_0.root")) exit(EIO);
+  }
+  else if(era=="2017" && !isdata && sample=="TTLJ" && skim=="DileptonBDT"){
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/MC_SkimTree_DileptonBDT/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/2023_09_02_114749/SKFlatNtuple_2017_MC_0.root")) exit(EIO);
+  }
+  else if(era=="2017" && !isdata && sample=="TTLL" && skim=="DileptonBDT"){
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/MC_SkimTree_DileptonBDT/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/2023_09_02_114749/SKFlatNtuple_2017_MC_0.root")) exit(EIO);
   }
   else if(era=="2017" && isdata && sample=="MuonEG" && skim=="HNMultiLepBDT"){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/DATA_SkimTree_HNMultiLepBDT/MuonEG/periodB/2023_09_04_143241/SKFlatNtuple_2017_DATA_0.root")) exit(EIO);
