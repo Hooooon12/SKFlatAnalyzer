@@ -513,7 +513,6 @@ TString HNL_RegionForLeptonOpt::RunSignalRegionAK4String(HNL_LeptonCore::Channel
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_lep_pt",param);
 
   if (leps_veto.size() != 2) {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_2vl",param);
     return "false";
   }
 
@@ -524,7 +523,6 @@ TString HNL_RegionForLeptonOpt::RunSignalRegionAK4String(HNL_LeptonCore::Channel
 
   Particle ll =  (*leps[0]) + (*leps[1]);
   if (channel==EE  && (fabs(ll.M()-M_Z) < 10)) {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_mll",param);
     return "false";
   }
 
@@ -544,13 +542,11 @@ TString HNL_RegionForLeptonOpt::RunSignalRegionAK4String(HNL_LeptonCore::Channel
   
   
   if(NB_JetColl>  0)  {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_bveto",param);
     return "false";
   }
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_bveto",param);
 
   if(!PassHMMet) {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_met",param);
     return "false";
   }
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_MET",param);  
@@ -576,7 +572,6 @@ TString HNL_RegionForLeptonOpt::RunSignalRegionAK4String(HNL_LeptonCore::Channel
   if(JetColl.size() >0)FillCutflow(HNL_LeptonCore::SR3, w, "SR3_jet",param);
 
   if(JetColl.size() < 2) {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_dijet",param);
     return "false";
   }
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_dijet",param);
@@ -584,7 +579,6 @@ TString HNL_RegionForLeptonOpt::RunSignalRegionAK4String(HNL_LeptonCore::Channel
   if(Modifier == "MassDep_EXO17028")      return "SR3_bin3";
 
   if(JetColl[0].Pt() < 25.)  {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_0jpt",param);
     return "false";
   }
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_J1Pt",param);

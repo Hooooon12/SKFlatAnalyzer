@@ -72,6 +72,12 @@ public:
   bool el_3charge;
   float el_l1et;
 
+  bool el_IsFake;
+  bool el_IsConv;
+  bool el_IsPromptConv;
+  bool el_IsPrompt;
+  bool el_IsCF;
+
   bool tag_passEGL1SingleEGOr;
   bool tag_passHltEle27WPTightGsf;
   bool tag_passHltEle27eta2p1WPTightGsf;
@@ -88,6 +94,11 @@ public:
   bool tag_passingMVALoose;
   bool tag_passingTriggerEmul;
 
+  bool tag_IsFake;
+  bool tag_IsConv;
+  bool tag_IsPromptConv;
+  bool tag_IsPrompt;
+  bool tag_IsCF;
 
   float tag_Ele_IsoMVA94XV2;
   float tag_Ele_e;
@@ -108,12 +119,7 @@ public:
   float pair_pt;
   float pair_pt_cor;
 
-  float mc_probe_e;
-  float mc_probe_et;
-  float mc_probe_eta;
-  float mc_probe_phi;
   bool mcTrue;
-  float mcMass;
 
 };
 

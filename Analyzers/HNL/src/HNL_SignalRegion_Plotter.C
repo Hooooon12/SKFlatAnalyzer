@@ -41,7 +41,6 @@ void HNL_SignalRegion_Plotter::executeEvent(){
   if(RunHighPtID) LepIDs = {"HighPt"};
   if(RunPekingID) LepIDs = {"Peking"};
 
-  if(RunFullSyst) LepIDs = {"HNL_ULID"};
 
   //  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULID","POGTight","TopHN","HNTightV2","MVAPOG"};//,"HNTightV2","POGTight","TopHN","HighPt"};
 
@@ -52,13 +51,15 @@ void HNL_SignalRegion_Plotter::executeEvent(){
   if(ChannelsToRun.size() == 0) ChannelsToRun = {EE,MuMu,EMu};
 
   for (auto id: LepIDs){
-    RunNoSyst= (id == "HNL_ULID") ? false : true;
+
     for(auto channel : ChannelsToRun){
 
       AnalyzerParameter param = HNL_LeptonCore::InitialiseHNLParameter(id,channel);
       param.PlottingVerbose = 0; //// Draw basic plots
       if(id == "HNL_ULID")         param.PlottingVerbose = 1; /// Draw more plots
       if(id.Contains("HEEP"))      param.PlottingVerbose = 1;
+
+      param.PlottingVerbose = 3; //// TEMP FOR LIMIT BIN STUDY
 
       RunULAnalysis(param);
 

@@ -364,3 +364,34 @@ vector<Muon> HNL_LeptonCore::SkimLepColl(const vector<Muon>& MuColl,  TString Op
 
   return ReturnColl;
 }
+
+
+bool  HNL_LeptonCore::ComparePtTune(Muon mu, double ratio){
+  
+  double pt = mu.Pt();
+
+  Particle this_tunep4 = mu.TuneP4();
+  double tunep= this_tunep4.Pt();
+
+  if(this_tunep4.Pt()<200){
+
+    double TunePOverPt = this_tunep4.Pt() / mu.MiniAODPt();
+    tunep      = TunePOverPt * mu.Pt(); 
+    
+  }
+  else{
+    if(!IsDATA){
+
+      ScaledPts ptvalues;
+      ptvalues = muonGE->GeneralizedEndpointPt(GetEraShort(), this_tunep4.Pt(), this_tunep4.Charge(), this_tunep4.Eta(), this_tunep4.Phi()*180./M_PI, event);
+      tunep = ptvalues.ScaledPt;
+    }
+  }
+  
+  if(fabs( (tunep- pt) / tunep) > ratio){
+    cout << "ComparePtTune : tunep" << tunep << " pt=" <<  pt << endl;
+    return true;
+  }
+  return false;
+
+}

@@ -73,7 +73,8 @@ CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_
 #InputWPs = ["PR55_HNL_ULID","PR55_HighPt"]
 #InputWPs = ["PR55_HNL_ULID"]
 #InputWPs = ["PR55_NoMinPt_HighPt"]
-InputWPs = ["PR75_HNL_ULID"]
+#InputWPs = ["PR75_HNL_ULID"]
+InputWPs = ["PR85_HNL_ULID"]
 #OutputTag = "_NOsr2inv"
 #OutputTag = "_NOsr2inv_NOzgcr1"
 #OutputTag = "_NOsr2inv_NOcr1Norm_FixCF"
@@ -92,6 +93,10 @@ InputWPs = ["PR75_HNL_ULID"]
 OutputTag = ""
 if args.Decorr: OutputTag+="_Decorr"
 
+regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
+regions_sr = ["sr1","sr2","sr3"]
+
+
 ################################################################################################################################################
 
 def CardSetting(isCR, WP, era, channel, mass):
@@ -99,12 +104,6 @@ def CardSetting(isCR, WP, era, channel, mass):
   with open("card_skeleton_Norm.txt",'r') as f: # your workspace
     lines = f.readlines()
 
-  #regions_cr = ["sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","wz_cr1","wz_cr2","wz_cr3","zg_cr1","zg_cr3","zz_cr1","zz_cr3"]
-  #regions_cr = ["sr1_inv","sr3_inv","cf_cr","ww_cr","wz_cr1","wz_cr2","wz_cr3","zg_cr1","zg_cr3","zz_cr1","zz_cr3"]
-  #regions_cr = ["sr1_inv","sr3_inv","cf_cr","ww_cr","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr1","zz_cr3"]
-  #regions_cr = ["sr1_inv","sr3_inv","cf_cr","ww_cr","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr3"]
-  #regions_cr = ["sr1_inv","sr3_inv","cf_cr","ww_cr","wz_cr","zg_cr","zz_cr"]
-  regions_cr = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","wz_cr","zg_cr","zz_cr"]
   lines_cr = {}
   # cr norm setting
   for region in regions_cr:
@@ -139,7 +138,6 @@ def CardSetting(isCR, WP, era, channel, mass):
     lines_cr[region] = this_lines_cr
 
   # sr setting
-  regions_sr = ["sr","sr1","sr2","sr3"]
   lines_sr = {}
   lines_sronly = {}
 
@@ -246,6 +244,13 @@ for InputWP in InputWPs:
         else: Add_cf_cr = "cf_cr=card_"+era+"_"+channel+"_"+mass+"_cf_cr.txt"
 
         if args.Combine == "CR":
+
+          sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+"_"+sr+systTag+".txt" for sr in regions_sr])
+          cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr])
+          #print "combineCards.py",cr_combine
+          os.system("combineCards.py "+sr_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+systTag+".txt")
+
+          """
           if mass == "M100": # no signalDYVBF in SR1, SR2 with M100 for now FIXME later
             os.system("combineCards.py \
                                        sr3=card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+".txt \
@@ -333,6 +338,7 @@ for InputWP in InputWPs:
                                      wz_cr=card_"+era+"_"+channel+"_"+mass+"_wz_cr.txt \
                                      zz_cr=card_"+era+"_"+channel+"_"+mass+"_zz_cr.txt \
                                      > card_"+era+"_"+channel+"_"+mass+"_sr"+systTag+"_NoCFCR_NoInv_Combined.txt")
+        """
         elif args.Combine == "SR": # Combine SR1 only, SR2 only, SR3 only (no rateParam)
           os.system("combineCards.py \
                                      sr1=card_"+era+"_"+channel+"_"+mass+"_sronly_sr1"+systTag+".txt \

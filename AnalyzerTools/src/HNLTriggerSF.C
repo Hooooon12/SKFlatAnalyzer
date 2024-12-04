@@ -89,7 +89,7 @@ float MCCorrection::TriggerEfficiency(vector<Electron>& EleColl, vector<Muon>& M
     HistEff1 = map_hist_Electron["Trigger_Eff_"+StrMCorData+"_DiMuIsoMu8_HNL_ULID"];
   }
   else if(SFKey.Contains("DiMuIso")){
-    DiMuTrig=true; MinPt1=20., MinPt2=10., MaxPt1=1000., MaxPt2=1000., MaxfEta1=2.4;
+    DiMuTrig=true; MinPt1=20., MinPt2=10., MaxPt1=999., MaxPt2=999., MaxfEta1=2.4;
     TString Key1(SFKey), Key2(SFKey); Key1.ReplaceAll("DiMuIso","DiMuIsoMu17"); Key2.ReplaceAll("DiMuIso","DiMuIsoMu8");
     HistEff1 = map_hist_Muon["Trigger_Eff_"+StrMCorData+"_"+Key1];
     HistEff2 = map_hist_Muon["Trigger_Eff_"+StrMCorData+"_"+Key2];
@@ -193,7 +193,7 @@ float MCCorrection::TriggerEfficiency(vector<Electron>& EleColl, vector<Muon>& M
       float feta1 = fabs(MuColl.at(0).Eta()), feta2 = fabs(MuColl.at(1).Eta());
       pt1  = min(max(pt1,MinPt1),MaxPt1), pt2 = min(max(pt2,MinPt2),MaxPt2);
       feta1 = min(max(feta1,((float)-1.)*MaxfEta1),MaxfEta1), feta2 = min(max(feta2,((float)-1.)*MaxfEta1),MaxfEta1);
-
+      
       float EffLeg1_Mu1 = HistEff1->GetBinContent(HistEff1->FindBin(feta1, pt1));
       float EffLeg2_Mu2 = HistEff2->GetBinContent(HistEff2->FindBin(feta2, pt2));
       float ErrLeg1_Mu1 = HistEff1->GetBinError(HistEff1->FindBin(feta1, pt1));

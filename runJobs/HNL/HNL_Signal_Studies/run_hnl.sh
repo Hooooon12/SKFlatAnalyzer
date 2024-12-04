@@ -27,7 +27,10 @@ if [[ $1 == "Sig" ]]; then
 	SKFlat.py -a $analyzer  -l $sigpath/SSWW.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
 	SKFlat.py -a $analyzer  -l $sigpath/DY.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
 	SKFlat.py -a $analyzer  -l $sigpath/VBF.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
-	
+
+        SKFlat.py -a $analyzer  -l $sigpath/SSWWOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
+        SKFlat.py -a $analyzer  -l $sigpath/DYOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
+        SKFlat.py -a $analyzer  -l $sigpath/VBFOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
 
     done
 
@@ -46,12 +49,10 @@ if [[ $1 == "DY" ]]; then
 
 fi
 
-if [[ $1 == "1000" ]]; then
+if [[ $1 == "CheckMuonInEff" ]]; then
 
-    #SKFlat.py -a $analyzer  -i DYTypeI_DF_M100_private  -n 10  --nmax 10   -e 2018 --skim SkimTree_HNMultiLepBDT &
-    SKFlat.py -a $analyzer  -i DYTypeI_DF_M1000_private  -n 10  --nmax 10   -e 2017 --skim SkimTree_HNMultiLepBDT &
-    #SKFlat.py -a $analyzer  -i VBFTypeI_DF_M1000_private  -n 10  --nmax 10   -e 2018 --skim SkimTree_HNMultiLepBDT &
-    #SKFlat.py -a $analyzer  -i SSWWTypeI_SF_M1000_private  -n 10  --nmax ${nmax}   -e 2018 --skim SkimTree_HNMultiLepBDT&
+    SKFlat.py -a $analyzer  -i DYTypeI_DF_M3000_private  -n 10  --nmax 500   -e 2017 --skim SkimTree_HNMultiLepBDT --userflags CheckMuonInEff &
+    SKFlat.py -a $analyzer  -i DYTypeI_DF_M1000_private  -n 10  --nmax 500   -e 2017 --skim SkimTree_HNMultiLepBDT --userflags CheckMuonInEff &
     
 
 fi

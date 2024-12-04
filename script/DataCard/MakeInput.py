@@ -2,7 +2,8 @@
 # It does hadd first, and then create inputs for Combine.
 # Which to hadd is controlled by the Merge* flags.
 # If you want to do hadd only for some reason, then set regions as blank.
-# Run python MakeInput.py --Syst\ python MakeInput.py --CR --Syst. 
+# Run: python MakeInput.py --Merge\ python MakeInput.py --CR --Merge \
+# python MakeInput.py --Syst\ python MakeInput.py --CR --Syst. 
 
 import os, sys
 import commands as cmd
@@ -28,7 +29,7 @@ eras = ["2017"]
 #eras = ["Run2"] # Let's merge Run2 after running all eras first
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M1000","M10000"]
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250"]
 #masses = ["M1000"]
 #masses = ["M100"]
@@ -59,7 +60,7 @@ tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
 #outputTag = "PR55_NoMinPt_" # tag the output directory name as you wish
 #outputTag = "PR52_TestScan_" # tag the output directory name as you wish
 #outputTag = "PR52_SSWWrescale_" # tag the output directory name as you wish
-outputTag = "PR75_" # tag the output directory name as you wish
+outputTag = "PR85_" # tag the output directory name as you wish
 
 if args.CnC:
   outputTag += 'CnC_'
@@ -89,14 +90,24 @@ if args.CR:
   Analyzer = "HNL_ControlRegion_Plotter"
 
   #regions = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","zg_cr","zg_cr1","zg_cr3","wz_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr","zz_cr1","zz_cr3"] # for CRs
-  regions = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","zg_cr","wz_cr","zz_cr"] if not args.Merge else "" # for CRs
+  #regions = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","zg_cr","wz_cr","zz_cr"] if not args.Merge else "" # for CRs
+  regions = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
+  ########### JH: ww_cr is just SR2 but high MET? Then isn't it just InvMET_CR2? #########
   #regions = "" # Use this when merging only
 
   RegionToCRFlagMap['sr_inv'] = "SS_CR__"
   RegionToCRFlagMap['sr1_inv'] = "SS_CR__"
   RegionToCRFlagMap['sr2_inv'] = "SS_CR__"
   RegionToCRFlagMap['sr3_inv'] = "SS_CR__"
-  RegionToCRFlagMap['cf_cr']  = "SS_CR__"
+  RegionToCRFlagMap['sr1_InvMET'] = "SS_CR__"
+  RegionToCRFlagMap['sr2_InvMET'] = "SS_CR__"
+  RegionToCRFlagMap['sr3_InvMET'] = "SS_CR__"
+  RegionToCRFlagMap['sr1_bjet'] = "SS_CR__"
+  RegionToCRFlagMap['sr2_bjet'] = "SS_CR__"
+  RegionToCRFlagMap['sr3_bjet'] = "SS_CR__"
+  RegionToCRFlagMap['cf_cr1']  = "SS_CR__"
+  RegionToCRFlagMap['cf_cr2']  = "SS_CR__"
+  RegionToCRFlagMap['cf_cr3']  = "SS_CR__"
   RegionToCRFlagMap['ww_cr']  = "VBF_CR__"
   RegionToCRFlagMap['zg_cr']  = "LLL_VR__"
   RegionToCRFlagMap['zg_cr1']  = "LLL_VR__"
@@ -106,14 +117,22 @@ if args.CR:
   RegionToCRFlagMap['wz_cr2']  = "LLL_VR__"
   RegionToCRFlagMap['wz_cr3']  = "LLL_VR__"
   RegionToCRFlagMap['zz_cr']  = "LLL_VR__"
-  RegionToCRFlagMap['zz_cr1']  = "LLL_VR__"
+  RegionToCRFlagMap['zz_cr2']  = "LLL_VR__"
   RegionToCRFlagMap['zz_cr3']  = "LLL_VR__"
 
   RegionToChannelMap['sr_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['sr1_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['sr2_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['sr3_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['cf_cr']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['sr1_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['sr2_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['sr3_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['sr1_bjet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['sr2_bjet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['sr3_bjet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cf_cr1']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cf_cr2']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cf_cr3']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['ww_cr']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['zg_cr']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['zg_cr1']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
@@ -123,14 +142,22 @@ if args.CR:
   RegionToChannelMap['wz_cr2']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['wz_cr3']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['zz_cr']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
-  RegionToChannelMap['zz_cr1']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
+  RegionToChannelMap['zz_cr2']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
   RegionToChannelMap['zz_cr3']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
 
   RegionToHistSuffixMap['sr_inv']  = {'MuMu':'LimitBins/MuonCR',  'EE':'LimitBins/ElectronCR',  'EMu':'LimitBins/ElectronMuonCR'}
   RegionToHistSuffixMap['sr1_inv'] = {'MuMu':'LimitBins/MuonCR1', 'EE':'LimitBins/ElectronCR1', 'EMu':'LimitBins/ElectronMuonCR1'}
   RegionToHistSuffixMap['sr2_inv'] = {'MuMu':'LimitBins/MuonCR2', 'EE':'LimitBins/ElectronCR2', 'EMu':'LimitBins/ElectronMuonCR2'}
   RegionToHistSuffixMap['sr3_inv'] = {'MuMu':'LimitBins/MuonCR3', 'EE':'LimitBins/ElectronCR3', 'EMu':'LimitBins/ElectronMuonCR3'}
-  RegionToHistSuffixMap['cf_cr']   = {'MuMu':'LimitShape_CF/Binned', 'EE':'LimitShape_CF/Binned', 'EMu':'LimitShape_CF/Binned'}
+  RegionToHistSuffixMap['sr1_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR1', 'EE':'LimitBins/ElectronInvMETCR1', 'EMu':'LimitBins/ElectronMuonInvMETCR1'}
+  RegionToHistSuffixMap['sr2_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR2', 'EE':'LimitBins/ElectronInvMETCR2', 'EMu':'LimitBins/ElectronMuonInvMETCR2'}
+  RegionToHistSuffixMap['sr3_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR3', 'EE':'LimitBins/ElectronInvMETCR3', 'EMu':'LimitBins/ElectronMuonInvMETCR3'}
+  RegionToHistSuffixMap['sr1_bjet'] = {'MuMu':'LimitBins/MuonBJetCR1', 'EE':'LimitBins/ElectronBJetCR1', 'EMu':'LimitBins/ElectronMuonBJetCR1'}
+  RegionToHistSuffixMap['sr2_bjet'] = {'MuMu':'LimitBins/MuonBJetCR2', 'EE':'LimitBins/ElectronBJetCR2', 'EMu':'LimitBins/ElectronMuonBJetCR2'}
+  RegionToHistSuffixMap['sr3_bjet'] = {'MuMu':'LimitBins/MuonBJetCR3', 'EE':'LimitBins/ElectronBJetCR3', 'EMu':'LimitBins/ElectronMuonBJetCR3'}
+  RegionToHistSuffixMap['cf_cr1']   = {'MuMu':'LimitShape_CF_SR1/Binned', 'EE':'LimitShape_CF_SR1/Binned', 'EMu':'LimitShape_CF_SR1/Binned'}
+  RegionToHistSuffixMap['cf_cr2']   = {'MuMu':'LimitShape_CF_SR2/Binned', 'EE':'LimitShape_CF_SR2/Binned', 'EMu':'LimitShape_CF_SR2/Binned'}
+  RegionToHistSuffixMap['cf_cr3']   = {'MuMu':'LimitShape_CF_SR3/Binned', 'EE':'LimitShape_CF_SR3/Binned', 'EMu':'LimitShape_CF_SR3/Binned'}
   RegionToHistSuffixMap['ww_cr']   = {'MuMu':'LimitShape_WW/Binned', 'EE':'LimitShape_WW/Binned', 'EMu':'LimitShape_WW/Binned'}
   RegionToHistSuffixMap['zg_cr']   = {'MuMu':'LimitShape_ZG/Binned', 'EE':'LimitShape_ZG/Binned', 'EMu':'LimitShape_ZG/Binned'}
   RegionToHistSuffixMap['zg_cr1']  = {'MuMu':'LimitShape_ZG_SR1/Binned', 'EE':'LimitShape_ZG_SR1/Binned', 'EMu':'LimitShape_ZG_SR1/Binned'}
@@ -140,7 +167,7 @@ if args.CR:
   RegionToHistSuffixMap['wz_cr2']  = {'MuMu':'LimitShape_WZ_SR2/Binned', 'EE':'LimitShape_WZ_SR2/Binned', 'EMu':'LimitShape_WZ_SR2/Binned'}
   RegionToHistSuffixMap['wz_cr3']  = {'MuMu':'LimitShape_WZ_SR3/Binned', 'EE':'LimitShape_WZ_SR3/Binned', 'EMu':'LimitShape_WZ_SR3/Binned'}
   RegionToHistSuffixMap['zz_cr']   = {'MuMu':'LimitShape_ZZ/Binned', 'EE':'LimitShape_ZZ/Binned', 'EMu':'LimitShape_ZZ/Binned'}
-  RegionToHistSuffixMap['zz_cr1']  = {'MuMu':'LimitShape_ZZ_SR1/Binned', 'EE':'LimitShape_ZZ_SR1/Binned', 'EMu':'LimitShape_ZZ_SR1/Binned'}
+  RegionToHistSuffixMap['zz_cr2']  = {'MuMu':'LimitShape_ZZ_SR2/Binned', 'EE':'LimitShape_ZZ_SR2/Binned', 'EMu':'LimitShape_ZZ_SR2/Binned'}
   RegionToHistSuffixMap['zz_cr3']  = {'MuMu':'LimitShape_ZZ_SR3/Binned', 'EE':'LimitShape_ZZ_SR3/Binned', 'EMu':'LimitShape_ZZ_SR3/Binned'}
 
 else:
@@ -148,7 +175,7 @@ else:
   CRflags = [""]
   Analyzer = "HNL_SignalRegion_Plotter"
 
-  regions = ["sr","sr1","sr2","sr3"] if not args.Merge else "" # for SRs
+  regions = ["sr1","sr2","sr3"] if not args.Merge else "" # for SRs
   #regions = ["sr"] # for SRs
   #regions = "" # Use this when merging only
 

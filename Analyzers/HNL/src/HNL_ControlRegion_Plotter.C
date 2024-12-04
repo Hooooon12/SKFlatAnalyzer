@@ -32,6 +32,8 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   run_Debug=false; //JH
 
   vector<TString> LepIDs = {"HNL_ULID"};//,"HNTightV2"};
+
+  /// Set ID by flag
   if(RunTopID) LepIDs = {"TopHN"};
   if(RunPOGID) LepIDs = {"POGTight"};
   if(RunHighPtID) LepIDs = {"HighPt"};
@@ -60,7 +62,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
 
   for (auto id: LepIDs){
     /// For non HNL_ULID run no syst
-    RunNoSyst= (id == "HNL_ULID") ? false : true;
+    RunJetSyst= (id == "HNL_ULID") ? false : true;
 
     for(auto channel : ChannelsToRun){
       if(channel != MuMu  && id =="TopHN") continue;

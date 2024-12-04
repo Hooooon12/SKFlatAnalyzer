@@ -87,6 +87,11 @@ void SkimTree_EGammaTnP_HighPt::initializeAnalyzer(){
   newtree->Branch("el_q",&el_q);
   newtree->Branch("el_3charge",&el_3charge);
   newtree->Branch("el_l1et",&el_l1et);
+  newtree->Branch("el_IsFake",&el_IsFake);
+  newtree->Branch("el_IsConv",&el_IsConv);
+  newtree->Branch("el_IsPromptConv",&el_IsPromptConv);
+  newtree->Branch("el_IsPrompt",&el_IsPrompt);
+  newtree->Branch("el_IsCF",&el_IsCF);
 
   newtree->Branch("tag_passEGL1SingleEGOr",&tag_passEGL1SingleEGOr);
   newtree->Branch("tag_passHltEle27WPTightGsf",&tag_passHltEle27WPTightGsf);
@@ -118,18 +123,19 @@ void SkimTree_EGammaTnP_HighPt::initializeAnalyzer(){
   newtree->Branch("tag_Ele_3charge",&tag_Ele_3charge);
   newtree->Branch("tag_sc_eta",&tag_sc_eta);
 
+  newtree->Branch("tag_IsFake",&tag_IsFake);
+  newtree->Branch("tag_IsConv",&tag_IsConv);
+  newtree->Branch("tag_IsPromptConv",&tag_IsPromptConv);
+  newtree->Branch("tag_IsPrompt",&tag_IsPrompt);
+  newtree->Branch("tag_IsCF",&tag_IsCF);
+
   newtree->Branch("pair_mass",&pair_mass);
   newtree->Branch("pair_mass_cor",&pair_mass_cor);
   newtree->Branch("pair_pt",&pair_pt);
   newtree->Branch("pair_pt_cor",&pair_pt_cor);
 
   if(!IsDATA){
-    newtree->Branch("mc_probe_e",&mc_probe_e);
-    newtree->Branch("mc_probe_et",&mc_probe_et);
-    newtree->Branch("mc_probe_eta",&mc_probe_eta);
-    newtree->Branch("mc_probe_phi",&mc_probe_phi);
     newtree->Branch("mcTrue",&mcTrue);
-    newtree->Branch("mcMass",&mcMass);
   }
   
 }
@@ -204,50 +210,8 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
     
     if(!PassMETFilter()) return;
     
-    map<Electron*,Gen*> genmatching;
-
     if(!IsDATA){
-      cout << "[executeEvent] gen_l0_dressed Pt, Eta, Phi, E : " << gen_l0_dressed.Pt() << ", " << gen_l0_dressed.Eta() << ", " << gen_l0_dressed.Phi() << ", " << gen_l0_dressed.E() << endl; //JH
-      cout << "[executeEvent] gen_l1_dressed Pt, Eta, Phi, E : " << gen_l0_dressed.Pt() << ", " << gen_l0_dressed.Eta() << ", " << gen_l0_dressed.Phi() << ", " << gen_l0_dressed.E() << endl; //JH
-      cout << "[executeEvent] mass : " << (gen_l0_dressed+gen_l1_dressed).M() << endl; //JH
-      for(Electron&  electron: electrons){
-        if(electron.IsFake()){
-          cout << "[executeEvent] fake electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
-        }
-        if(electron.LeptonIsCF()){
-          cout << "[executeEvent] CF electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
-        }
-        if(electron.LeptonIsPromptConv()){
-          cout << "[executeEvent] prompt CF electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
-        }
-        if(electron.IsConv()){
-          cout << "[executeEvent] conv electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
-        }
-        if(electron.IsPrompt()){
-          cout << "[executeEvent] prompt electron Pt, Eta, Phi, E : " << electron.Pt() << ", " << electron.Eta() << ", " << electron.Phi() << ", " << electron.E() << endl; //JH
-        }
-      }
-      PrintGen(All_Gens); //JH
-
-      for(Gen* gen:{&gen_l0_dressed,&gen_l1_dressed}){
-        vector<Electron*> cands={};
-        for(Electron&  electron: electrons){
-          if(gen->DeltaR(electron)<0.2) cands.push_back(&electron);
-          double mindpt=1000.;
-          Electron *matched=NULL;
-          for(Electron* cand:cands){
-            double dpt=fabs((cand->Pt()-gen->Pt())/gen->Pt());
-            if(dpt<mindpt&&genmatching.find(cand)==genmatching.end()){
-              mindpt=dpt;
-              matched=cand;
-            }
-          }
-          if(matched){
-            genmatching[matched]=gen;
-          }
-        }
-      }
-
+      //PrintGen(All_Gens); //JH
 
       weight=p.w.lumiweight;
       PUweight=p.w.PUweight;
@@ -279,9 +243,6 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
     
     /// Fill matched_pair_electrons with T&P pairs
     vector<pair<Electron,Electron> > matched_pair_electrons;
-    vector<bool> matched_truth_pair_electrons;
-    vector<Gen*> v_gen_tag;
-    vector<Gen*> v_gen_probe;
     /// if nTags == 1 then use High Pt probe 
 
     if(nTagPair==0) return;
@@ -302,29 +263,9 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
 
             if(matched_pair_electrons.size() == 2){
               /// Reset to update Highest Pt
-              if(!IsData) {
-                v_gen_tag.pop_back();
-                v_gen_probe.pop_back();
-                matched_truth_pair_electrons.pop_back();
-              }
               matched_pair_electrons.pop_back();
             }
             matched_pair_electrons.push_back(make_pair(tag,probe));
-            /// Check Trth match for MC
-            if(!IsData){
-              /// Fill Tag and Probe Gen closest matched
-              Gen* NullGen= NULL;
-              if((genmatching.find(&tag)!=genmatching.end())) v_gen_tag.push_back(genmatching.find(&tag)->second);
-              else v_gen_tag.push_back(NullGen);
-              if((genmatching.find(&probe)!=genmatching.end())) v_gen_probe.push_back(genmatching.find(&probe)->second);
-              else v_gen_probe.push_back(NullGen);
-
-              /// If both are found set pair match true
-              if(genmatching.find(&probe)!=genmatching.end() && (genmatching.find(&tag)!=genmatching.end())) {
-                matched_truth_pair_electrons.push_back(true);
-              }
-              else matched_truth_pair_electrons.push_back(false);
-            }
           }
         }
       }
@@ -335,11 +276,8 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
 
       for(Electron& tag:electrons){
         double pt_probe_highest_pt = 0;
-        bool truth_matched_pair=false;
         if(!IsTag(tag)) continue;
         Electron probe_assigned;
-        Gen* TagGen=NULL;
-        Gen* ProbeGen=NULL;
         for(Electron& probe:electrons){
           if(&tag==&probe) continue;
 
@@ -348,25 +286,9 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
           if(probe.Pt() > pt_probe_highest_pt) {
             pt_probe_highest_pt = probe.Pt();
             probe_assigned = probe;
-            if(!IsData){
-              if(genmatching.find(&probe)!=genmatching.end() && (genmatching.find(&tag)!=genmatching.end())) truth_matched_pair=true;
-              else truth_matched_pair=false;
-
-              Gen* NullGen= NULL;
-              if((genmatching.find(&tag)!=genmatching.end())) TagGen = genmatching.find(&tag)->second;
-              else TagGen = NullGen;
-              if((genmatching.find(&probe)!=genmatching.end())) ProbeGen = genmatching.find(&probe)->second;
-              else ProbeGen = NullGen;
-
-            }
           }
         }// probe loop
         matched_pair_electrons.push_back(make_pair(tag,probe_assigned));
-        if(!IsData){
-          matched_truth_pair_electrons.push_back(truth_matched_pair);
-          v_gen_tag.push_back(TagGen);  
-          v_gen_probe.push_back(ProbeGen);  
-        }
       } // tag loop
     } // multi Tag pairs loop
           
@@ -473,28 +395,35 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
         pair_pt_cor=pair_cor.Pt();
         
         if(!IsDATA){
-          Gen *mc_probe=v_gen_probe.at(nPairs_counter);
-          Gen *mc_tag=v_gen_tag.at(nPairs_counter);
           
-          if(mc_probe){
-            //if(RunDebug) cout << " mc_probe->E()  " << mc_probe->E() << " mc_probe->Et() = " << mc_probe->Et() << " mc_probe->Eta() " << mc_probe->Eta() << " mc_probe->Phi() = " << mc_probe->Phi() << endl;
-            mc_probe_e=mc_probe->E();
-            mc_probe_et=mc_probe->Et();
-            mc_probe_eta=mc_probe->Eta();
-            mc_probe_phi=mc_probe->Phi();
-          }else{
-            mc_probe_e=0.;
-            mc_probe_et=0.;
-            mc_probe_eta=0.;
-            mc_probe_phi=0.;
-          }
-          if(matched_truth_pair_electrons.at(nPairs_counter)){
+          if(tag.IsPrompt()&&probe.IsPrompt()){
             mcTrue=true;
-            mcMass=(*mc_probe+*mc_tag).M();
           }else{
             mcTrue=false;
-            mcMass=0;
           }
+
+          if(tag.IsFake()) tag_IsFake=true;
+					else tag_IsFake=false;
+          if(tag.IsConv()) tag_IsConv=true;
+					else tag_IsConv=false;
+          if(tag.LeptonIsPromptConv()) tag_IsPromptConv=true;
+					else tag_IsPromptConv=false;
+          if(tag.LeptonIsCF()) tag_IsCF=true;
+					else tag_IsCF=false;
+          if(tag.IsPrompt()) tag_IsPrompt=true;
+					else tag_IsPrompt=false;
+
+          if(probe.IsFake()) el_IsFake=true;
+					else el_IsFake=false;
+          if(probe.IsConv()) el_IsConv=true;
+					else el_IsConv=false;
+          if(probe.LeptonIsPromptConv()) el_IsPromptConv=true;
+					else el_IsPromptConv=false;
+          if(probe.LeptonIsCF()) el_IsCF=true;
+					else el_IsCF=false;
+          if(probe.IsPrompt()) el_IsPrompt=true;
+					else el_IsPrompt=false;
+
         }
         
         newtree->Fill();

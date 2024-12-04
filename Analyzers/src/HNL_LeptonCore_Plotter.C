@@ -97,8 +97,6 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter param, TString region, TStr
 
   //// Only Draw JEC/Fake Syst
   if(!DrawSyst(param)) return;
-
-
   if(fatjets.size() == 0) return;
   if((leps.size()  == 1) && !(param.ChannelType() == "Lepton"))     return;
   if((leps.size()  == 2) && !(param.ChannelType() == "Dilepton"))   return;
@@ -251,6 +249,8 @@ void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter param, TString plot_dir,
   TString region ="/"+param.Name + param.hprefix;
   TString regionL = "/"+param.NameInclusive_Channel + param.hprefix;
 
+  //  cout << region << " " << regionL << endl;
+
   /// Draw Main plot with All syst
   Fill_Main_Plots(param, region, plot_dir , Taus,jets,fatjets, leps, met, nvtx, w);
   Fill_Main_Plots(param, regionL,plot_dir , Taus,jets,fatjets, leps, met, nvtx, w);
@@ -259,7 +259,6 @@ void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter param, TString plot_dir,
   Fill_Standard_Plots(param, region ,plot_dir , Taus,jets,fatjets, leps, met, nvtx, w);
   Fill_Standard_Plots(param, regionL,plot_dir , Taus,jets,fatjets, leps, met, nvtx, w);
   
-  if(DrawConfig == 0) return;
   if(param.syst_ != AnalyzerParameter::Syst::Central) return;
 
   int PlotVerbose = param.PlottingVerbose;
@@ -317,13 +316,13 @@ void HNL_LeptonCore::Fill_Standard_Plots(AnalyzerParameter param, TString region
     }
     Particle N1Cand  = jets[m]+jets[n]+ *leps[0] ;
     Particle N2Cand  = jets[m]+jets[n]+ *leps[1] ;
-    int nSRbins=6;
-    double mljbins[nSRbins] = { 0., 100.,200., 400.,  1000.,3000.};
+    int nSRbins=12;
+    double mljbins[nSRbins] = { 0., 100.,200., 400.,450,500,550,600,700,800,  1000.,3000.};
     double MN1  = (N1Cand.M() > 2500.) ? 2499. : N1Cand.M();
     double MN2  = (N2Cand.M() > 2500.) ? 2499. : N2Cand.M();
 
-    FillHist( plot_dir+ region+ "/Mass/DiJet_M_l1W",             MN1,        w, 5, mljbins , "Reco M_{l1jj}");
-    FillHist( plot_dir+ region+ "/Mass/DiJet_M_l2W",             MN2,        w, 5, mljbins , "Reco M_{l2jj} ");
+    FillHist( plot_dir+ region+ "/Mass/DiJet_M_l1W",             MN1,        w, 11, mljbins , "Reco M_{l1jj}");
+    FillHist( plot_dir+ region+ "/Mass/DiJet_M_l2W",             MN2,        w, 11, mljbins , "Reco M_{l2jj} ");
   }
 
   return;
@@ -409,6 +408,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
   /// Draw N leptons                                                                                                                                                                                             
   if(DrawLevel1) FillHist( plot_dir+ region+ "/NObj/N_El", nel,  w, 5, 0, 5, "El size");
   if(DrawLevel1) FillHist( plot_dir+ region+ "/NObj/N_Mu", nmu,  w, 5, 0, 5, "Mu size");
+  if(DrawLevel1) FillHist( plot_dir+ region+ "/NObj/N_tau", TauColl.size(),  w, 5, 0, 5, "Tau size");
   // Draw N jets                                                                                                        
 
 
@@ -620,8 +620,9 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
   double HT = GetHT(jets, fatjets);
   if(DrawLevel3)FillHist( plot_dir+ region+ "/SKEvent/Ev_LT", LT  , w, 200, 0., 2000.,"L_{T} GeV");
   if(DrawLevel2)FillHist( plot_dir+ region+ "/SKEvent/Ev_HT", HT  , w, 200, 0., 2000.,"H_{T} GeV");
-  if(DrawLevel1)FillHist( plot_dir+ region+ "/SKEvent/HToLepPt1", HT/ leps[0]->Pt()  , w, 100, 0., 20.,"HT/PT(1)");
-  if(DrawLevel3)FillHist( plot_dir+ region+ "/SKEvent/HToLepPt2", HT/ leps[1]->Pt()  , w, 100, 0., 20.,"HT/PT(2)");
+  if(DrawLevel1)FillHist( plot_dir+ region+ "/SKEvent/HToLepPt1", leps[0]->HTOverPt()  , w, 100, 0., 20.,"HT/PT(1)");
+  if(DrawLevel3)FillHist( plot_dir+ region+ "/SKEvent/HToLepPt2", leps[1]->HTOverPt()  , w, 100, 0., 20.,"HT/PT(1)");
+  //  if(DrawLevel3)FillHist( plot_dir+ region+ "/SKEvent/HToLepPt2", HT/ leps[1]->Pt()  , w, 100, 0., 20.,"HT/PT(2)");
   if(threelep&&DrawLevel3)FillHist( plot_dir+ region+ "/SKEvent/HToLepPt3", HT/ leps[2]->Pt()  , w, 100, 0., 20.,"HT/PT(3)");
   if(fourlep&&DrawLevel3)FillHist( plot_dir+ region+ "/SKEvent/HToLepPt4", HT/ leps[3]->Pt()  , w, 100, 0., 20.,"HT/PT(4)");
   if(DrawLevel3)FillHist( plot_dir+ region+ "/SKEvent/nPV",  nvtx , w, 120, 0., 120.);
@@ -799,6 +800,40 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
 
 
 
+
+void HNL_LeptonCore::FillTandP(bool passProbe, TString Tag, TString ID, double pr_pt, double eta,  double weight, TString BinLabel){
+
+  int n_bin    =4;
+  vector<double> bins = { 0,120,200,450,1000};
+
+  if(BinLabel == "Bin2"){
+    n_bin    =3;
+    bins ={ 0,120,200,1000};
+  }
+
+  double arrx_bins [n_bin+1];
+  std::copy(bins.begin(), bins.end(), arrx_bins);
+
+  FillHist( Tag+"_"+BinLabel+"/Denom",  pr_pt,  weight, n_bin,arrx_bins);
+  if(passProbe)       FillHist( Tag+"_"+BinLabel+"/Num",  pr_pt,  weight, n_bin,arrx_bins);
+
+  if(fabs(eta) < 0.9){
+    FillHist( Tag+"_"+BinLabel+"_Eta1/Denom",  pr_pt,  weight, n_bin,arrx_bins);
+    if(passProbe)       FillHist( Tag+"_"+BinLabel+"_Eta1/Num",  pr_pt,  weight, n_bin,arrx_bins);
+  }
+  else  if(fabs(eta) < 1.2){
+    FillHist( Tag+"_"+BinLabel+"_Eta2/Denom",  pr_pt,  weight, n_bin,arrx_bins);
+    if(passProbe)       FillHist( Tag+"_"+BinLabel+"_Eta2/Num",  pr_pt,  weight, n_bin,arrx_bins);
+  }
+  else {
+    FillHist( Tag+"_"+BinLabel+"_Eta3/Denom",  pr_pt,  weight, n_bin,arrx_bins);
+    if(passProbe)       FillHist( Tag+"_"+BinLabel+"_Eta3/Num",  pr_pt,  weight, n_bin,arrx_bins);
+
+  }
+
+  return;
+
+}
 
 
 /// FillMuonPlots Fills all kinamatics                                                                                                                                                                                                                                          

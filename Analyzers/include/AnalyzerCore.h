@@ -275,6 +275,7 @@ public:
   // ------ General HNL functions (HNL_LeptonCore.C)                                                                                              
   inline bool IsSignal() const {
     if(MCSample.Contains("TypeI")) return true;
+    if(MCSample.Contains("Weinberg")) return true;
     return false;
   }
 
@@ -527,6 +528,10 @@ public:
   bool IsHEMIssueRun();
   bool IsHEMIssueReg(Particle& Particle);
   bool IsHEMCRReg(Particle& Particle, TString Option);
+
+
+
+  bool  ComparePtTune(Muon mu);
 
   /// Variables for filling MVA branches 
   float vSKWeight;

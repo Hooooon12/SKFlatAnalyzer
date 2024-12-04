@@ -21,7 +21,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",true,\"MuonEG\",\"HNMultiLepBDT\",\"RunFake\");" | root -l 2>&1 | tee "MuonEG_RunFake".log
 #echo -e ".L test.C\n test(\"2017\",false,\"DYJets\",\"HNMultiLepBDT\",\"RunCF\");" | root -l 2>&1 | tee "DYJets_RunCF".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"DileptonBDT\",\"RunCF\");" | root -l 2>&1 | tee "DoubleEG_RunCF".log
-#echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000".log
+echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"VBFTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "VBFTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_SF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M1000".log
@@ -50,7 +50,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR\");" | root -l 2>&1 |                     tee "2018_ZG_SS_CR".log
 
 # SkimTree_EGammaTnP_HighPt
-echo -e ".L test.C\n test(\"2017\",false,\"ZZ_pythia\",\"DileptonBDT\",\"\");" | root -l 2>&1 | tee "2017_ZZ_pythia".log
+#echo -e ".L test.C\n test(\"2017\",false,\"ZZ_pythia\",\"DileptonBDT\",\"\");" | root -l 2>&1 | tee "2017_ZZ_pythia".log
 #echo -e ".L test.C\n test(\"2017\",false,\"ST_tW_top\",\"DileptonBDT\",\"\");" | root -l 2>&1 | tee "2017_ST_tW_top".log
 #echo -e ".L test.C\n test(\"2017\",false,\"TTLJ\",\"DileptonBDT\",\"\");" | root -l 2>&1 | tee "2017_TTLJ".log
 #echo -e ".L test.C\n test(\"2017\",false,\"TTLL\",\"DileptonBDT\",\"\");" | root -l 2>&1 | tee "2017_TTLL".log

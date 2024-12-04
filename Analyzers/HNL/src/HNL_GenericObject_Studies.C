@@ -827,7 +827,7 @@ void HNL_GenericObject_Studies::executeEvent(){
   }
 }
 
-void HNL_GenericObject_Studies::RunLeptonChannel(HNL_LeptonCore::Channel channel_ID, std::vector<Lepton *> LepsT,std::vector<Lepton *> LepsV, std::vector<Tau> TauColl,  std::vector<Jet> JetCollLoose, std::vector<Jet> JetColl, std::vector<Jet> VBFJetColl,  std::vector<FatJet> FatjetColl,std::vector<Jet> BJetColl,   Event Ev, AnalyzerParameter param,  float _weight)   {
+void HNL_GenericObject_Studies::RunLeptonChannel(HNL_LeptonCore::Channel channel_ID, std::vector<Lepton *> LepsT,std::vector<Lepton *> LepsV, std::vector<Tau> TauColl,  std::vector<Jet> JetCollLoose, std::vector<Jet> JetColl, std::vector<Jet> VBFJetColl,  std::vector<FatJet> FatjetColl,std::vector<Jet> BJetColl,   Event Ev, AnalyzerParameter param,  double _weight)   {
   
 
   FillHist (GetChannelString(channel_ID)+"_NoCut", 1, _weight, 2, 0., 2.,"");
@@ -978,7 +978,7 @@ void HNL_GenericObject_Studies::RunLeptonChannel(HNL_LeptonCore::Channel channel
   if (LepsV.size() != 2) return;
   FillCutflow(Region1,_weight, "SS"+GetChannelString(channel_ID)+"_LepVeto",param);
   
-  if(!PassHEMVeto(LepsT)) return;
+  if(!PassHEMVeto(LepsT,_weight)) return;
   FillCutflow(Region1,_weight, "SS"+GetChannelString(channel_ID)+"_HEMVeto",param);
   
 

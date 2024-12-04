@@ -1,0 +1,36 @@
+#WZTo3LNu_amcatnlo # this slightly overestimate the bkg. (xsec is 10% larger than powheg) use powheg instead.
+#ZZTo4L_powheg ## why is it so slow? --> many stats. split more
+WZTo3LNu_mllmin4p0_powheg
+WZ_EWK
+WWTo2L2Nu_DS
+WWTo2L2Nu_powheg
+WWW
+WWZ
+WZZ
+ZZZ
+WpWp_EWK
+WpWp_QCD
+ttWToLNu
+ttZToLLNuNu
+#ttZToQQ_ll
+#GluGluHToWWTo2L2Nu
+GluGluHToZZTo4L
+GluGluToZZto2e2mu
+GluGluToZZto4e
+GluGluToZZto4mu
+GluGluToZZto2mu2tau
+GluGluToZZto2e2tau
+TTTT
+TTZZ
+tZq
+#SingleTop_sch_Lep
+#SingleTop_tch_antitop_Incl
+#SingleTop_tch_top_Incl
+#SingleTop_tW_antitop_NoFullyHad
+#SingleTop_tW_top_NoFullyHad
+VHToNonbb
+VBF_HToZZTo4L
+#VBFHToWWTo2L2Nu   # almost no entry
+#VBFHToTauTau_M125 # almost no entry
+ttHToNonbb
+tHq

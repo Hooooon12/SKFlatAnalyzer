@@ -48,20 +48,45 @@ class HNL_LeptonCore : public AnalyzerCore {
   };
   enum SearchRegion
   {
-    ChannelDepPresel,    ChannelDepSR1,    ChannelDepSR2,     ChannelDepSR3,    ChannelDepSR3HM,ChannelDepFAILSR3,    ChannelDepDilep,    ChannelDepTrigger,    ChannelDepInc,ChannelDepIncQ,
+    ChannelDepPresel,
+    ChannelDepSR1,     ChannelDepSR2,     ChannelDepSR3,     ChannelDepSR3HM,
+    ChannelDepDilep,   ChannelDepTrigger,     ChannelDepInc,ChannelDepIncQ,
     ChannelDepCR1,    ChannelDepCR2,    ChannelDepCR3,ChannelDepCR3HM,
+    
     MuonSRSummary,    ElectronSRSummary,    ElectronMuonSRSummary,
     
-    MuonSR1,    ElectronSR1,    ElectronMuonSR1,    MuonSR2,    ElectronSR2,    ElectronMuonSR2,    MuonSR3,    ElectronSR3,    ElectronMuonSR3,
+    MuonSR1,    ElectronSR1,    ElectronMuonSR1,    
+    MuonSR2,    ElectronSR2,    ElectronMuonSR2,    
+    MuonSR3,    ElectronSR3,    ElectronMuonSR3,
     MuonSR3BDT,    ElectronSR3BDT,    ElectronMuonSR3BDT,    
 
-    MuonCR1,    ElectronCR1,    ElectronMuonCR1,    MuonCR2,    ElectronCR2,    ElectronMuonCR2,    MuonCR3,    ElectronCR3,    ElectronMuonCR3,
-    MuonCR3BDT,    ElectronCR3BDT,    ElectronMuonCR3BDT,    
+    MuonInvMETCR1,    ElectronInvMETCR1,    ElectronMuonInvMETCR1,
+    MuonInvMETCR2,    ElectronInvMETCR2,    ElectronMuonInvMETCR2,    
+    MuonInvMETCR3,    ElectronInvMETCR3,    ElectronMuonInvMETCR3,
+    MuonInvMETCR3BDT,    ElectronInvMETCR3BDT,    ElectronMuonInvMETCR3BDT,    
 
-    MuonSR,    ElectronSR,    ElectronMuonSR,    MuonCR,    ElectronCR,    ElectronMuonCR,
-    MuonSRBDT,    ElectronSRBDT,    ElectronMuonSRBDT,    MuonCRBDT,    ElectronCRBDT,    ElectronMuonCRBDT,
-    MuonSROpt,    ElectronSROpt,    ElectronMuonSROpt,    MuonSRBDTOpt,    ElectronSRBDTOpt,    ElectronMuonSRBDTOpt,
-    SR1,    SR2,    SR3,    SR3Fail,    SR3BDT,    SR4,    CR1,    CR2,    CR3,CR3BDT, 
+    MuonBJetCR1,    ElectronBJetCR1,    ElectronMuonBJetCR1,
+    MuonBJetCR2,    ElectronBJetCR2,    ElectronMuonBJetCR2,
+    MuonBJetCR3,    ElectronBJetCR3,    ElectronMuonBJetCR3,
+    MuonBJetCR3BDT,    ElectronBJetCR3BDT,    ElectronMuonBJetCR3BDT,
+
+    MuonCR1,    ElectronCR1,    ElectronMuonCR1,
+    MuonCR2,    ElectronCR2,    ElectronMuonCR2,
+    MuonCR3,    ElectronCR3,    ElectronMuonCR3,
+    MuonCR3BDT,    ElectronCR3BDT,    ElectronMuonCR3BDT,
+
+    MuonSR,    ElectronSR,    ElectronMuonSR,
+    MuonCR,    ElectronCR,    ElectronMuonCR, 
+    MuonSRBDT,    ElectronSRBDT,    ElectronMuonSRBDT,
+    MuonCRBDT,    ElectronCRBDT,    ElectronMuonCRBDT, 
+
+    SR1,    SR2,    SR3,    SR3BDT,
+    InvMETCR1,   InvMETCR2,  InvMETCR3,    InvMETCR3BDT, 
+    BJetCR1,    BJetCR2,    BJetCR3,   BJetCR3BDT, 
+
+    MuonSROpt,    ElectronSROpt,    ElectronMuonSROpt,    
+    MuonSRBDTOpt,    ElectronSRBDTOpt,    ElectronMuonSRBDTOpt,
+
     Presel,    PreselSS,    PreselOS,
     sigmm,    sigee,    sigem,   sigmm_17028,    sigee_17028,    sigem_17028,
     ControlRegion,    SignalRegion,  SRLowMass,SRHighMass,  CR,
@@ -93,6 +118,11 @@ class HNL_LeptonCore : public AnalyzerCore {
   AnalyzerParameter DefaultParam(TString s_setup_version,TString channel_st);
 
   double GetLimitBin(TString region, vector<Lepton*> leps, vector<Jet> AK4Jets, vector<FatJet> AK8_JetColl , Event ev, double & nbins_reg);
+  vector<TString> GetLimitLabels(TString SR,TString channel="");
+  vector<double> GetLimitBinBoundary(TString SR, TString channel="");
+  vector<TString> GetBDTLimitLabels(TString key);
+
+  TString GetSR3StringBin(TString RegionTag, TString channel, bool LowJet, double met2_st, double LT, double ll_dphi);
 
   /// List of Setups
   void GetSetup_POGTight(AnalyzerParameter& paramEv);
@@ -124,6 +154,9 @@ class HNL_LeptonCore : public AnalyzerCore {
   double ReturnCFWeight(vector<double> CFRates);
   double ReturnCFWeight(double CFRates);
 
+
+  bool PassTandP_PairCriteria(vector<Muon> muons, int itag, int iprobe);
+
   /// Jet Functions   HNL_LeptonCore_Jet                                                                                                                           
   JetTagging::Parameters GetParamJetTagger(AnalyzerParameter param);
   void  EvalJetWeight(std::vector<Jet>    AK4_JetColl, std::vector<FatJet> fatjets, double & w,AnalyzerParameter& param); 
@@ -143,6 +176,10 @@ class HNL_LeptonCore : public AnalyzerCore {
   double  GetBJetSF(AnalyzerParameter param,vector<Jet> jets, JetTagging::Parameters jtp);
   double GetJetPileupIDSF(vector<Jet> jets , TString WP, AnalyzerParameter param);
 
+
+  void  DefineLimitBins();
+  void DefineBDTLimitBins();
+  void SetBinningBDT(TString channel,TString mass, TString RegionTag, TString BinBoundaries_label, vector<pair<TString, double > >& BDTLimitBins);
 
 
   ///// MET FUNCTIONS  HNL_LeptonCore_MET
@@ -189,8 +226,10 @@ class HNL_LeptonCore : public AnalyzerCore {
   /// ------ Corrections  HNL_LeptonCore_Corrections                                                                                                                                                
   double HNLZvtxSF(HNL_LeptonCore::Channel ch);
   double HNLZvtxSF(TString  ch);
-  bool PassHEMVeto(std::vector<Lepton *> leps);
-  
+  bool PassHEMVeto(std::vector<Lepton *> leps,double& weight_hem);
+  void  PassJetHEMVeto(vector<Jet> jets,TString Flag, double& weight_hem);
+
+
   double GetDYWeakWeight(double mass);
 
   //  ================= MC weight functions              HNL_LeptonCore_EvCorr.C   =================                           
@@ -225,6 +264,8 @@ class HNL_LeptonCore : public AnalyzerCore {
   std::vector<Tau>    SelectTaus(TString id, double ptmin, double fetamax);
 
 
+  bool ComparePtTune(Muon mu, double ratio);
+
   vector<Muon>     SkimLepColl(const vector<Muon>& MuColl,     AnalyzerParameter param, TString Option);
   vector<Electron> SkimLepColl(const vector<Electron>& ElColl, AnalyzerParameter param,TString Option);
   vector<Electron> SkimLepColl(const vector<Electron>& ElColl, TString Option);
@@ -239,6 +280,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   std::vector<FatJet> SelectFatJets(AnalyzerParameter param,TString ID, double ptmin, double fetamax);
   std::vector<FatJet> SelectFatJets(TString id, double ptmin, double fetamax);
   std::vector<FatJet> SelectFatJets(const std::vector<FatJet>& jets, TString id, double ptmin, double fetamax);
+
   vector<Jet>      SkimJetColl(const vector<Jet>& JetColl,     vector<Gen>& TruthColl, AnalyzerParameter param,TString Option);
 
 
@@ -291,6 +333,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   /// Function to check which hists to plot whening running systematics
   bool DrawSyst(AnalyzerParameter param_sys);
 
+  void FillTandP(bool passProbe, TString Tag, TString ID, double pr_pt,double eta , double weight, TString binstring);
   void FillMuonCollPlots     (bool passSel, TString sel, AnalyzerParameter param, TString cut,  std::vector<Muon> muons, double w);
   void FillMuonCollPlots     (AnalyzerParameter param, TString cut,  std::vector<Muon> muons, double w);
   void FillMuonPlots         (bool passSel, TString sel, AnalyzerParameter param, TString cut,  Muon muon, double w);
@@ -335,14 +378,16 @@ class HNL_LeptonCore : public AnalyzerCore {
   void FillTypeCutflow(TString histname, double weight, vector<TString> lables, TString label1, TString label2);
   void FillFullTypeCutflow(TString histname, double weight, vector<TString> lables, TString label1, TString label2);
   
+  void FillCutflow2D(TString cutflow_dirname,TString cutflow_histname, double weight, vector<TString> bin_lables, TString fill_label);
   void FillCutflowDef(TString dirname, TString histname, double weight, vector<TString> lables, TString label);
   void FillCutflow(TString analysis_dir_name,TString histname, double weight, vector<TString> lables, TString label);
 
   void FillCutflow(AnalyzerParameter param,TString histname, double weight, vector<TString> lables, TString label);
   void FillCutflow(HNL_LeptonCore::SearchRegion sr, double event_weight, TString label,  AnalyzerParameter param);
   void FillCutflow(HNL_LeptonCore::SearchRegion sr, double event_weight, TString label,  TString hist_path);
-  void FillLimitInput(HNL_LeptonCore::SearchRegion sr, double event_weight, TString label,  TString hist_path);
+  void FillLimitInput(HNL_LeptonCore::SearchRegion sr, double event_weight, TString label,  TString hist_path, TString bin_key="", TString channel="MuMu");
 
+  vector<TString>  GetLimitLabelsFromRegion(HNL_LeptonCore::SearchRegion sr, TString bin_key="",TString channel="");
   vector<TString>  GetLabelsFromRegion(HNL_LeptonCore::SearchRegion sr);
   TString GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr);
   void FillCutFlow(bool IsCentral, TString suffix, TString histname, double weight);
@@ -357,6 +402,10 @@ class HNL_LeptonCore : public AnalyzerCore {
   /// Map to store booked settings
   map<TString, TString > map_bdt_booked;
 
+  map<TString, vector<double> > map_bdt_limit_bins;
+  map<TString, vector<double> > map_bins_boundaries;
+  map<TString, vector<TString> > map_BDT_bins_labels;
+  map<TString, vector<TString> > map_bins_labels;
 
   /// Event BDT var 
   void InitializeTreeVars();
@@ -468,7 +517,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   //==== Functions                                                                                                                                                                                          
   //================                                                                                                                                                                                        
 
-  vector<TString> ConvertCutFlowLabels(vector<TString> SRlabels);
+  vector<TString> ConvertCutFlowLabels(vector<TString> SRlabels, TString SRName, TString CRName);
   bool    IsExists(TString filepath);
 
   //==== LEPTON CHARGE                                                                                                                                                                                           
@@ -478,7 +527,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   bool SameCharge(std::vector<Lepton *> leps, int ch=0);
 
   /// global var for user flags
-  bool RunPrompt,RunFake,RunOSFake,RunFakeTF, RunCF,  RunConv,RunNoSyst,RunPromptTLRemoval,run_ORTrigger,RunFullSyst;
+  bool RunPrompt,RunFake,RunOSFake,RunFakeTF, RunCF,  RunConv,RunJetSyst,RunPromptTLRemoval,run_ORTrigger,RunFullSyst;
   bool RunEE;
   bool RunEMu;
   bool RunMuMu;

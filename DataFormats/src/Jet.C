@@ -172,6 +172,7 @@ bool Jet::PassID(TString ID) const {
   if(ID=="tight") return Pass_tightJetID();
   if(ID=="tightLepVeto") return Pass_tightLepVetoJetID();
   if(ID=="HNTight") return Pass_HNTight();
+  if(ID=="Tight") return Pass_tightJetID();
 
 
 

@@ -189,16 +189,16 @@ double HNL_LeptonCore::HNLZvtxSF(HNL_LeptonCore::Channel ch){
 
 
 
-bool HNL_LeptonCore::PassHEMVeto(std::vector<Lepton *> leps){
+bool HNL_LeptonCore::PassHEMVeto(std::vector<Lepton *> leps, double& weight_hem){
+  
+  if (DataEra!="2018") return true;
 
   int nel_hem(0);
-  if (DataEra=="2018"){
-    for(auto ilep : leps){
-      if(ilep->IsMuon()) continue;
-
-      if (ilep->Eta() < -1.25){
-	if((ilep->Phi() < -0.82) && (ilep->Phi() > -1.62)) nel_hem++;
-      }
+  for(auto ilep : leps){
+    if(ilep->IsMuon()) continue;
+    
+    if (ilep->Eta() < -1.25){
+      if((ilep->Phi() < -0.82) && (ilep->Phi() > -1.62)) nel_hem++;
     }
   }
 
@@ -208,6 +208,36 @@ bool HNL_LeptonCore::PassHEMVeto(std::vector<Lepton *> leps){
 
 }
 
+void  HNL_LeptonCore::PassJetHEMVeto(vector<Jet> jets, TString Flag, double& weight_hem){
+ 
+  //// Check status of Jets in HEM region  
+
+  std::vector<Muon> muons = SelectMuons("POGLoose", 5, 2.8);
+  
+  int nJets_orig = jets.size();
+  int nJets_HEMVeto (0);
+  for(auto  ijet : jets) {
+    
+    bool PassHEM=true;
+    FillHist( Flag+"/Jet_HEM_EtaPhi", ijet.Eta(), ijet.Phi(),  fabs(weight_hem), 100, -5.,5., 100, -5., 5.);
+    
+    if (ijet.Eta() < -1.3){
+      if((ijet.Phi() < -0.87) && (ijet.Phi() > -1.57)) PassHEM=false;
+    }
+    
+    if(PassHEM)   {
+      FillHist( Flag+"/PassVeto_Jet_HEM_EtaPhi", ijet.Eta(), ijet.Phi(),  fabs(weight_hem), 100, -5.,5., 100, -5., 5.);
+      nJets_HEMVeto++;
+    }
+    else       FillHist( Flag+"/FailVeto_Jet_HEM_EtaPhi", ijet.Eta(), ijet.Phi(),  fabs(weight_hem), 100, -5.,5., 100, -5., 5.);
+
+  }
+  
+  FillHist( Flag+"/PassVeto_NJet", nJets_orig, nJets_HEMVeto,  fabs(weight_hem), 10, 0.,10., 10,0., 10.);
+  
+
+  return;
+}
 
 double HNL_LeptonCore::GetDYWeakWeight(double mass){
   if(IsDATA) return 1.;

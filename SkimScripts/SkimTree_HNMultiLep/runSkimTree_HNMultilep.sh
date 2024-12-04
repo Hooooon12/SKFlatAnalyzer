@@ -20,13 +20,11 @@ if [[ $1 == "Signal" ]]; then
     done
 fi
 
-if [[ $1 == "WG" ]]; then
-
-    declare  -a era_list=("2018")
+if [[ $1 == "Weinberg" ]]; then
 
     for i in "${era_list[@]}"
     do
-        SKFlat.py -a $analyzer  -i  WGToLNuG_01J_5f_Pt10_resub    -n ${njobs}  --nmax ${nmax}   -e ${i}  &
+        SKFlat.py -a $analyzer  -l ${sigpath}/Weinberg.txt    -n ${njobs}  --nmax ${nmax}   -e ${i}  &
     done
 fi
 

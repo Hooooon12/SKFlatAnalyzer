@@ -204,7 +204,6 @@ vector<Jet> HNL_LeptonCore::SkimJetColl(const vector<Jet>& JetColl, vector<Gen>&
   return ReturnVec;
 }
 
-
 std::vector<Jet> HNL_LeptonCore::SelectJets(const std::vector<Jet>& jets, TString id, double ptmin, double fetamax){
 
   std::vector<Jet> out;
@@ -212,7 +211,27 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(const std::vector<Jet>& jets, TStrin
     if(!( jets.at(i).Pt()>ptmin ))            continue;
     if(!( fabs(jets.at(i).Eta())<fetamax ))   continue;
     if(!( jets.at(i).PassID(id) ))            continue;
-    out.push_back( jets.at(i) );
+
+    if(HasFlag("RemoveHEMJet")){
+      if(DataEra=="2018"){
+	if (jets.at(i).Eta() < -1.3){
+          if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)) continue;
+        }
+      } 
+    }
+    if(HasFlag("ScaleHEMJet")){
+      Jet this_jet = jets.at(i);
+
+      if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){
+        if (jets.at(i).Eta() < -1.3){
+          if (jets.at(i).Eta() > - 2.5)   this_jet *= 0.8;
+          else  this_jet *= 0.65;
+        }
+      }
+      out.push_back(this_jet);
+    }
+    else     out.push_back( jets.at(i) );
+
   }
   std::sort(out.begin(),       out.end(),        PtComparing);
 
@@ -235,13 +254,35 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(AnalyzerParameter param,TString id, 
     if(!( jets.at(i).Pt()> ptmin ))            continue;
     if(!( fabs(jets.at(i).Eta() )< fetamax ))  continue;
     if(!( jets.at(i).PassID( id) ))            continue;
-    out.push_back( jets.at(i) );
+
+    if(HasFlag("RemoveHEMJet")){
+      if(DataEra=="2018"){
+        if (jets.at(i).Eta() < -1.3){
+          if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)) continue;
+        }
+      }
+    }
+    if(HasFlag("ScaleHEMJet")){
+      Jet this_jet = jets.at(i);
+
+      if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){
+        if (jets.at(i).Eta() < -1.3){
+          if (jets.at(i).Eta() > - 2.5)   this_jet *= 0.8;
+          else  this_jet *= 0.65;
+        }
+      }
+      out.push_back(this_jet);
+    }
+    else     out.push_back( jets.at(i) );
+
   }
 
   std::sort(out.begin(),       out.end(),        PtComparing);
 
   return out;
 }
+
+
 
 
 
@@ -253,7 +294,27 @@ std::vector<FatJet> HNL_LeptonCore::SelectFatJets(const std::vector<FatJet>& jet
     if(!( jets.at(i).Pt()>ptmin ))           continue;
     if(!( fabs(jets.at(i).Eta())<fetamax ))  continue;
     if(!( jets.at(i).PassID(id) ))           continue;
-    out.push_back( jets.at(i) );
+
+    if(HasFlag("RemoveHEMJet")){
+      if(DataEra=="2018"){
+        if (jets.at(i).Eta() < -1.3){
+          if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)) continue;
+        }
+      }
+    }
+    if(HasFlag("ScaleHEMJet")){
+      FatJet this_jet = jets.at(i);
+
+      if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){
+        if (jets.at(i).Eta() < -1.3){
+          if (jets.at(i).Eta() > - 2.5)   this_jet *= 0.8;
+          else  this_jet *= 0.65;
+        }
+      }
+      out.push_back(this_jet);
+    }
+    else     out.push_back( jets.at(i) );
+
   }
   std::sort(out.begin(),       out.end(),        PtComparing);
 
@@ -290,7 +351,27 @@ std::vector<FatJet> HNL_LeptonCore::SelectFatJets(AnalyzerParameter param,TStrin
     if(!( jets.at(i).Pt()>  ptmin ))          continue;
     if(!( fabs(jets.at(i).Eta())< fetamax ))  continue;
     if(!( jets.at(i).PassID(id) ))            continue;
-    out.push_back( jets.at(i) );
+
+    if(HasFlag("RemoveHEMJet")){
+      if(DataEra=="2018"){
+        if (jets.at(i).Eta() < -1.3){
+          if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)) continue;
+        }
+      }
+    }
+    if(HasFlag("ScaleHEMJet")){
+      FatJet this_jet = jets.at(i);
+
+      if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){
+        if (jets.at(i).Eta() < -1.3){
+          if (jets.at(i).Eta() > - 2.5)   this_jet *= 0.8;
+          else  this_jet *= 0.65;
+        }
+      }
+      out.push_back(this_jet);
+    }
+    else     out.push_back( jets.at(i) );
+    
   }
 
   std::sort(out.begin(),       out.end(),        PtComparing);

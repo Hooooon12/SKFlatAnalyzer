@@ -132,7 +132,7 @@ void HNL_CrossCheck::RunControlRegions(AnalyzerParameter param, vector<TString> 
   std::vector<Lepton *> LepsT       = MakeLeptonPointerVector(MuonTightColl, ElectronTightColl,     param);
   std::vector<Lepton *> LepsV       = MakeLeptonPointerVector(MuonVetoColl,ElectronVetoColl,param);
 
-  if(!PassHEMVeto(LepsV)) return;  
+  if(!PassHEMVeto(LepsV,weight)) return;  
 
   //  if (! (CheckLeptonFlavourForChannel(dilep_channel, LepsT))) return;
   //  if (!PassTriggerSelection(dilep_channel, ev, LepsT,param.TriggerSelection)) return;

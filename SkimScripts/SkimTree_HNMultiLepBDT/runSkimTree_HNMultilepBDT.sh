@@ -8,13 +8,22 @@ njobs_data=100
 nmax=500
 declare  -a era_list=("2016postVFP" "2016preVFP"  "2017" "2018")
 
-if [[ $1 == "WG" ]]; then
-
-    declare  -a era_list=("2018")
+if [[ $1 == "Weinberg" ]]; then
 
     for i in "${era_list[@]}"
     do
-        SKFlat.py -a $analyzer  -i  WGToLNuG_01J_5f_Pt10_resub    -n ${njobs}  --nmax ${nmax}   -e ${i}  --skim  SkimTree_HNMultiLep   &
+        SKFlat.py -a $analyzer  -l ${sigpath}/Weinberg.txt    -n ${njobs}  --nmax ${nmax}   -e ${i}  &
+    done
+fi
+
+
+
+if [[ $1 == "ZZ" ]]; then
+
+    for i in "${era_list[@]}"
+    do
+        SKFlat.py -a $analyzer  -i  GluGluToZZto2e2tau -n ${njobs}  --nmax ${nmax}   -e ${i}  &
+	SKFlat.py -a $analyzer  -i  GluGluToZZto2mu2tau -n ${njobs}  --nmax ${nmax}   -e ${i} &
     done
 fi
 
@@ -28,12 +37,13 @@ if [[ $1 == "GG" ]]; then
 fi
 
 
-if [[ $1 == "VBF" ]]; then
+if [[ $1 == "HighMass" ]]; then
 
+    declare  -a era_list=("2016preVFP")
     for i in "${era_list[@]}"
     do
-	SKFlat.py -a $analyzer  -i VBFTypeI_DF_M300_private -n 20  --nmax ${nmax}   -e ${i} &
-	SKFlat.py -a $analyzer  -i VBFTypeI_DF_M400_private -n 20  --nmax ${nmax}   -e ${i} &
+	SKFlat.py -a $analyzer  -l ${sigpath}/HighMass.txt -n 20  --nmax ${nmax}   -e ${i} &
+
     done
 fi
 

@@ -32,6 +32,7 @@ def get_skflat_on_tamsa(_path,_era):
     for line in skip_dsn_list:
         if len(line.split()) ==  2:
             if line.split()[0] == "201*" or line.split()[0] ==  _era:
+                print("Removing " + line.split()[1])
                 arr_skflatdir.remove(line.split()[1] )
     skip_dsn_list.close()
     

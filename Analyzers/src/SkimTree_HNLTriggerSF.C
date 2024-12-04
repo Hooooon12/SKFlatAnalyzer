@@ -83,22 +83,31 @@ void SkimTree_HNLTriggerSF::executeEvent(){
     for(int j=i+1;j<nmuon;j++){
       if(muons.at(i).Pt()<20) continue;
       if(muons.at(j).Pt()<7) continue;
-      if(newtree->Fill()<0) exit(EIO);
       return;
+      if(newtree->Fill()<0) exit(EIO);
     }
   }
   for(int i=0;i<nmuon;i++){
     for(int j=0;j<nelectron;j++){
       if(muons.at(i).Pt()<20) continue;
       if(electrons.at(j).Pt()<7) continue;
-      if(newtree->Fill()<0) exit(EIO);
       return;
+      if(newtree->Fill()<0) exit(EIO);
     }
   }
   for(int i=0;i<nelectron;i++){
     for(int j=i+1;j<nelectron;j++){
       if(electrons.at(i).Pt()<25) continue;
       if(electrons.at(j).Pt()<10) continue;
+      return;
+      if(newtree->Fill()<0) exit(EIO);
+    }
+  }
+
+  for(int i=0;i<nmuon;i++){
+    for(int j=0;j<nelectron;j++){
+      if(muons.at(i).Pt()<7) continue;
+      if(electrons.at(j).Pt()<20) continue;
       if(newtree->Fill()<0) exit(EIO);
       return;
     }

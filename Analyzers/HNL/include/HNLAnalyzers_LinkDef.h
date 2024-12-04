@@ -6,6 +6,7 @@
 #pragma link C++ nestedclasses;
 
 #pragma link C++ class HNL_CrossCheck+;
+#pragma link C++ class HNL_HighPtMuon_Studies+;
 #pragma link C++ class HNL_Lepton_FakeRate+;
 #pragma link C++ class HNL_Lepton_FakeRate_Region_Plotter+;
 #pragma link C++ class HNL_Lepton_FakeRate_MC+;
@@ -21,6 +22,7 @@
 #pragma link C++ class HNL_SR3_BDT_KinVar+;
 #pragma link C++ class HNL_ElectronID_HighPt+;
 #pragma link C++ class HNL_Signal_Efficiency+;
+#pragma link C++ class HNL_TandP_Efficiency+;
 #pragma link C++ class HNL_Signal_Studies+;
 #pragma link C++ class HNL_GenericObject_Studies+;
 #pragma link C++ class HNL_Validation+;

@@ -152,6 +152,7 @@ bool Muon::PassID(TString ID) const {
   if(ID=="POGHighPt") return isPOGHighPt();
   if(ID=="POGMedium") return isPOGMedium();
   if(ID=="POGLoose")  return isPOGLoose();
+  if(ID=="Global")  return IsType(GlobalMuon);
   if(ID=="POGTightWithTightIso")     return Pass_POGTightWithTightIso();
   if(ID=="POGHighPtWithLooseTrkIso") return Pass_POGHighPtWithLooseTrkIso();
   if(ID=="POGHighPtWithVLooseTrkIso") return Pass_POGHighPtWithVLooseTrkIso();
@@ -183,6 +184,16 @@ bool Muon::PassID(TString ID) const {
   if(ID=="HNTightV1") return Pass_HNTight(0.07, 0.02, 0.05, 3.);
   if(ID=="HNTightV2") return (HLTCut && (fabs(dZ())<0.1) && Pass_HNTight(0.07, 0.05, 0.1, 3.));
   /// OTHER GROUP IDs
+
+
+  if(ID=="PekingNoIso") {
+    if(!isPOGTight())       return false;
+
+    double dxy_cut = (this->Pt() < 20) ? 0.01 : 0.02 ;
+    if(fabs(dXY()) >  dxy_cut) return false;
+    if(fabs(dZ()) >  0.1)      return false;
+    return true;
+  }
 
   if(ID=="Peking") {
     if(!isPOGTight())       return false;

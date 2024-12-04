@@ -146,7 +146,7 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
   // Jet
   vector<Jet> JetColl = GetJets(param.Jet_ID,10.,5.);
 
-  if(!PassHEMVeto(Leptons)) return ;
+  if(!PassHEMVeto(Leptons,EvWeight)) return ;
 
 
   if(HasFlag("ElCFRates")){

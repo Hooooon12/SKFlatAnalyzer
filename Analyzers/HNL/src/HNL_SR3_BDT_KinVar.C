@@ -162,7 +162,7 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
   std::vector<Lepton *> LepsT  = MakeLeptonPointerVector(MuonCollT,ElectronCollT);
   std::vector<Lepton *> LepsV  = MakeLeptonPointerVector(MuonCollV,ElectronCollV);
 
-  if(!PassHEMVeto(LepsV)) return;
+  if(!PassHEMVeto(LepsV,weight)) return;
 
   FillHist("CutFlow_MuMu", 2.5, 1., 10, 0., 10.);
   FillHist("CutFlow_EE", 2.5, 1., 10, 0., 10.);

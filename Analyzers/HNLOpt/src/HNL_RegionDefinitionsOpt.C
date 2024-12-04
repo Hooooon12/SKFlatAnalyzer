@@ -1160,7 +1160,6 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_lep_pt",param);
 
   if (leps_veto.size() != 2) {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_2vl",param);
     return "false";
   }
 
@@ -1171,7 +1170,6 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
 
   Particle ll =  (*leps[0]) + (*leps[1]);
   if (channel==EE  && (fabs(ll.M()-M_Z) < M_ZWINDOW_VETO)) {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_mll",param);
     return "false";
   }
 
@@ -1218,13 +1216,11 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
   
   
   if(NB_JetColl>  0)  {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_bveto",param);
     return "false";
   }
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_bveto",param);
 
   if(!PassHMMet) {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_met",param);
     return "false";
   }
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_MET",param);  
@@ -1250,7 +1246,6 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
   if(JetColl.size() >0)FillCutflow(HNL_LeptonCore::SR3, w, "SR3_jet",param);
 
   if(JetColl.size() < 2) {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_dijet",param);
     return "false";
   }
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_dijet",param);
@@ -1258,7 +1253,6 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
   if(Modifier == "MassDep_EXO17028")      return "SR3_bin3";
 
   if(JetColl[0].Pt() < 25.)  {
-    FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_0jpt",param);
     return "false";
   }
   FillCutflow(HNL_LeptonCore::SR3, w, "SR3_J1Pt",param);
@@ -1410,7 +1404,6 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
   if(Modifier == "Binning_Version3"){
     
     if(Wcand.M() < 300)  {
-      FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_Wmass300",param);
       return "false";
     }
     
@@ -1424,18 +1417,15 @@ TString HNL_RegionDefinitionsOpt::RunSignalRegionAK4String(HNL_LeptonCore::Chann
     if(param.WriteOutVerbose == 0)FillHist( "LimitSR3/"+param.Name+"/N1Mass_Central",  N1cand.M(),  w, nSRbins-1, ml1jbins, "Reco M_{l1jj}");
     
     if(leps[0]->Pt() < pt_bin2  || leps[1]->Pt() < 20)  {
-      FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_leppt",param);
       
       return "false";
     }
 
     
     if(Wcand.M() < 400) {
-      FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_Wmass400",param);
       return "false";
     }
     if(N1cand.M() < 300)  {
-      FillCutflow(HNL_LeptonCore::SR3Fail, w, "SR3_Nmass300",param);
       
       return "false";
     }

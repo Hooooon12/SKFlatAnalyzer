@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumsign sumw
+SSWWjj_DIM5_WeinbergOpt_EMu_private	SSWWjj_DIM5_WeinbergOpt_EMu	7.45E-07	981000	279456.0	0.7387972832 
