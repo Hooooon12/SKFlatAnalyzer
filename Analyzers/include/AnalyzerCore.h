@@ -120,7 +120,7 @@ public:
   std::vector<Gen>    GetGens();
   std::vector<LHE>    GetLHEs();
 
-  std::vector<Muon>   UseTunePMuon(const std::vector<Muon>& muons);
+  std::vector<Muon>   UseTunePMuon(const std::vector<Muon>& muons, double ptboundary=200);
 
   std::vector<Jet>       GetJets(TString ID, double ptmin, double fetamax);
   std::vector<FatJet>    GetFatJets(TString ID, double ptmin, double fetamax);
@@ -307,6 +307,7 @@ public:
   // ================= MET Functions AnalyzerCore_MET.C  ===================
 
   Particle UpdateMET(const Particle& METv, const std::vector<Muon>& muons);
+  Particle UpdateMETTuneP(const Particle& METv, const std::vector<Muon>& muons);
   Particle UpdateMETSmearedJet(const Particle& METv, const std::vector<Jet>& jets);
   Particle UpdateMETSyst(AnalyzerParameter param, const Particle& METv, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Muon> muons, std::vector<Electron> electrons);
   Particle UpdateMETSyst(double met_pt, double met_phi, double met_shift_pt, double met_shift_phi, const Particle& METv);

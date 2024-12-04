@@ -46,6 +46,30 @@ Particle AnalyzerCore::UpdateMETCF(const Particle METv, const std::vector<Electr
 }
 
 
+Particle AnalyzerCore::UpdateMETTuneP(const Particle& METv, const std::vector<Muon>& muons){
+
+  double met_x = METv.Px();
+  double met_y = METv.Py();
+
+  double px_orig(0.), py_orig(0.),px_corrected(0.), py_corrected(0.);
+  for(unsigned int i=0; i<muons.size(); i++){
+
+    px_orig+= muons.at(i).MiniAODTunePPt()*TMath::Cos(muons.at(i).Phi());
+    py_orig+= muons.at(i).MiniAODTunePPt()*TMath::Sin(muons.at(i).Phi());
+
+    px_corrected += muons.at(i).TuneP4().Px();
+    py_corrected += muons.at(i).TuneP4().Py();
+
+  }
+
+  met_x = met_x + px_orig - px_corrected;
+  met_y = met_y + py_orig - py_corrected;
+
+  Particle METout;
+  METout.SetPxPyPzE(met_x,met_y,0,sqrt(met_x*met_x+met_y*met_y));
+  return METout;
+
+}
 
 Particle AnalyzerCore::UpdateMET(const Particle& METv, const std::vector<Muon>& muons){
 

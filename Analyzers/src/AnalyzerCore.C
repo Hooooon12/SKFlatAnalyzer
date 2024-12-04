@@ -993,7 +993,7 @@ std::vector<LHE> AnalyzerCore::GetLHEs(){
 
 }
 
-std::vector<Muon> AnalyzerCore::UseTunePMuon(const std::vector<Muon>& muons){
+std::vector<Muon> AnalyzerCore::UseTunePMuon(const std::vector<Muon>& muons, double ptboundary){
 
   std::vector<Muon> out;
   for(unsigned int i=0; i<muons.size(); i++){
@@ -1007,7 +1007,7 @@ std::vector<Muon> AnalyzerCore::UseTunePMuon(const std::vector<Muon>& muons){
     //==== 2) if tuneP pt >= 200 -> Generalized Endpoint
 
     double new_pt( this_tunep4.Pt() ), new_pt_up( this_tunep4.Pt() ), new_pt_down( this_tunep4.Pt() );
-    if(this_tunep4.Pt()<200){
+    if(this_tunep4.Pt()<ptboundary){
 
       //==== 19/03/24 (jskim) : For 99% of the muons, MiniAODPt and TunePPt are same
       //==== we can just use MiniAODPt * RochesterCorrection, multiplied by (TuneP Pt)/(MiniAODPt)

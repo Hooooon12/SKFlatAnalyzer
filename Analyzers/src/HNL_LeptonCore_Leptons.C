@@ -389,7 +389,7 @@ bool  HNL_LeptonCore::ComparePtTune(Muon mu, double ratio){
   }
   
   if(fabs( (tunep- pt) / tunep) > ratio){
-    cout << "ComparePtTune : tunep" << tunep << " pt=" <<  pt << endl;
+    cout << "ComparePtTune : tunep" << tunep << " pt=" <<  pt << " event = " << event << " run = " << run <<  endl;
     return true;
   }
   return false;

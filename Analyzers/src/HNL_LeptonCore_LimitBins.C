@@ -13,31 +13,31 @@ void HNL_LeptonCore::DefineLimitBins(){
 
   if(DataEra == "2016preVFP") {
     sr1bins_mm = { 0., 400,  2000.};
-    sr1bins_ee = { 0., 400, 500,  2000.};
-    sr1bins_em = { 0., 400, 500,  600, 2000.};
+    sr1bins_ee = { 0., 400,  500,  2000.};
+    sr1bins_em = { 0., 400,  500,  600, 2000.};
   }
   if(DataEra == "2016postVFP") {
     sr1bins_mm = { 0., 400,  2000.};
-    sr1bins_ee  = { 0.,400, 500, 750,  2000.};
-    sr1bins_em = { 0., 400, 500, 2000.};
+    sr1bins_ee = { 0., 400,  500, 750,  2000.};
+    sr1bins_em = { 0., 400,  500, 2000.};
   }
   if(DataEra == "2017") {
     sr1bins_mm  = { 0., 300., 500,  600., 2000.};
-    sr1bins_ee  = { 0., 400, 500,  750., 2000.};
-    sr1bins_em  = { 0., 300.,400, 500,  600, 800., 2000.};
+    sr1bins_ee  = { 0., 400,  500,  750., 2000.};
+    sr1bins_em  = { 0., 300., 400,  500,  600, 800., 2000.};
   }
   if(DataEra == "2018") {
-    sr1bins_mm = { 0.,  300.,400., 500, 750., 2000.};
-    sr1bins_ee  = { 0., 300.,400., 500, 625,  750., 2000.};
-    sr1bins_em = { 0.,  300.,400., 500, 600, 800., 2000.};
+    sr1bins_mm = { 0.,  300., 400., 500, 750., 2000.};
+    sr1bins_ee = { 0.,  300., 400., 500, 625,  750., 2000.};
+    sr1bins_em = { 0.,  300., 400., 500, 600,  800., 2000.};
   }
 
   vector<TString> MuMu_SR1_BinTags, EE_SR1_BinTags ,EMu_SR1_BinTags, InvMETCR1_BinTags, BJetCR1_BinTags;
   for(unsigned int i_d =1 ; i_d <  sr1bins_mm.size(); i_d++)  MuMu_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
   for(unsigned int i_d =1 ; i_d <  sr1bins_ee.size(); i_d++)  EE_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
   for(unsigned int i_d =1 ; i_d <  sr1bins_em.size(); i_d++)  EMu_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
-  for(unsigned int i_d =1 ; i_d <  cr1bins.size(); i_d++)  InvMETCR1_BinTags.push_back("InvMETCR1_MNbin"+to_string(i_d));
-  for(unsigned int i_d =1 ; i_d <  cr1bins.size(); i_d++)  BJetCR1_BinTags.push_back("BJetCR1_MNbin"+to_string(i_d));
+  for(unsigned int i_d =1 ; i_d <  cr1bins.size(); i_d++)     InvMETCR1_BinTags.push_back("InvMETCR1_MNbin"+to_string(i_d));
+  for(unsigned int i_d =1 ; i_d <  cr1bins.size(); i_d++)     BJetCR1_BinTags.push_back("BJetCR1_MNbin"+to_string(i_d));
   map_bins_labels ["SR1_MuMu"]= MuMu_SR1_BinTags;
   map_bins_labels ["SR1_EE"]  = EE_SR1_BinTags;
   map_bins_labels ["SR1_EMu"] = EMu_SR1_BinTags;
@@ -55,14 +55,14 @@ void HNL_LeptonCore::DefineLimitBins(){
   //// Define SR 2 binning  
   
   if(DataYear == 2016) {
-    map_bins_labels ["SR2"] = {"SR2_HTLTbin1", "SR2_HTLTbin2", "SR2_HTLTbin3", "SR2_HTLTbin4"};
+    map_bins_labels ["SR2"]       = {"SR2_HTLTbin1",       "SR2_HTLTbin2",       "SR2_HTLTbin3",     "SR2_HTLTbin4"};
     map_bins_labels ["InvMETCR2"] = {"InvMETCR2_HTLTbin1", "InvMETCR2_HTLTbin2", "InvMETCR2_HTLTbin3"};
-    map_bins_labels ["BJetCR2"] = {"BJetCR2_HTLTbin1"};
+    map_bins_labels ["BJetCR2"]   = {"BJetCR2_HTLTbin1"};
   }
   else {
-    map_bins_labels ["SR2"] = {"SR2_HTLTbin1", "SR2_HTLTbin2", "SR2_HTLTbin3", "SR2_HTLTbin4", "SR2_HTLTbin5", "SR2_HTLTbin6","SR2_HTLTbin7"};
+    map_bins_labels ["SR2"]       = {"SR2_HTLTbin1",       "SR2_HTLTbin2",       "SR2_HTLTbin3",       "SR2_HTLTbin4", "SR2_HTLTbin5", "SR2_HTLTbin6","SR2_HTLTbin7"};
     map_bins_labels ["InvMETCR2"] = {"InvMETCR2_HTLTbin1", "InvMETCR2_HTLTbin2", "InvMETCR2_HTLTbin3"};
-    map_bins_labels ["BJetCR2"] = {"BJetCR2_HTLTbin1","BJetCR2_HTLTbin2"};
+    map_bins_labels ["BJetCR2"]   = {"BJetCR2_HTLTbin1",   "BJetCR2_HTLTbin2"};
   }
 
   //// Define SR 3 binning                                                                                                                              
@@ -138,8 +138,8 @@ TString HNL_LeptonCore::GetSR3StringBin(TString RegionTag, TString channel, bool
 	else               return RegionTag+"_bin3";
       }
       else{
-	if(LT<= 150)  return RegionTag+"_bin4";
-	else          return RegionTag+"_bin5";
+	if(LT<= 150)      return RegionTag+"_bin4";
+	else              return RegionTag+"_bin5";
       }
     }
     else{
@@ -616,8 +616,8 @@ double HNL_LeptonCore::GetLimitBin(TString region, vector<Lepton*> leps, vector<
 
     Particle l1J =  *leps[0] +  AK8_JetColl[0];
     if(l1J.M() < 200) Binvalue=0.5;
-    else if(l1J.M() < 500) Binvalue=1.5;
-    else if(l1J.M() < 750) Binvalue= 2.5;
+    else if(l1J.M() < 500)  Binvalue=1.5;
+    else if(l1J.M() < 750)  Binvalue= 2.5;
     else if(l1J.M() < 1000) Binvalue= 3.5;
     else Binvalue= 4.5;
     //// 3 bins                                                                                                                                                  

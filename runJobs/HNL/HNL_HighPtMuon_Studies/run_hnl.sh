@@ -6,13 +6,24 @@ njobs_data=20
 nmax=400
 skim=' '
 
-declare  -a era_list=( "2018")
+declare  -a era_list=( "2017" "2018")
 
-if [[ $1 == "" ]]; then
+if [[ $1 == "DATA" ]]; then
+
+    for i in "${era_list[@]}"
+    do	
+        #SKFlat.py -a $analyzer  -l ${datapath}/SL/${i}_SingleLepton_Mu.txt    -n 1  --nmax 1  -e ${i}  --skim SkimTree_HNMultiLepBDT&
+	SKFlat.py -a $analyzer  -l ${datapath}/DL/${i}_DiLepton_MuMu.txt    -n 300  --nmax 300  -e ${i}  --skim SkimTree_DileptonBDT&
+    done
+fi
+
+if [[ $1 == "SIG" ]]; then
+
+    declare  -a era_list=( "2018")
 
     for i in "${era_list[@]}"
     do
-	
-        SKFlat.py -a $analyzer  -l ${datapath}/SL/${i}_SingleLepton_Mu.txt    -n 1  --nmax 1  -e ${i}  --skim SkimTree_HNMultiLepBDT&
+        SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/SampleSig.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
     done
 fi
+
