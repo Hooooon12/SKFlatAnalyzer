@@ -29,7 +29,8 @@ eras = ["2017"]
 #eras = ["Run2"] # Let's merge Run2 after running all eras first
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M1000","M10000"]
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
+#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250"]
 #masses = ["M1000"]
 #masses = ["M100"]
@@ -60,7 +61,8 @@ tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
 #outputTag = "PR55_NoMinPt_" # tag the output directory name as you wish
 #outputTag = "PR52_TestScan_" # tag the output directory name as you wish
 #outputTag = "PR52_SSWWrescale_" # tag the output directory name as you wish
-outputTag = "PR85_" # tag the output directory name as you wish
+#outputTag = "PR85_" # tag the output directory name as you wish
+outputTag = "PR86_" # tag the output directory name as you wish
 
 if args.CnC:
   outputTag += 'CnC_'

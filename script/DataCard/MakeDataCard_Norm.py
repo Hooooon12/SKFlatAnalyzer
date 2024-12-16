@@ -1,7 +1,7 @@
 # Make Datacards
 # Place this at CombineTool/CMSSW_10_2_13/src/<your working directory>
 # You need to place card_skeletons already
-# python MakeDataCard_Norm.py --CR --Syst; python MakeDataCard_Norm.py --Combine CR --Syst <-- add rateParam
+# python MakeDataCard_Norm.py --CR --Syst [--Decorr]; python MakeDataCard_Norm.py --Combine CR --Syst [--Decorr] <-- add rateParam
 # python MakeDataCard_Norm.py --Combine Era --Syst
 # python MakeDataCard_Norm.py --Syst; python MakeDataCard_Norm.py --Combine SR --Syst <-- without rateParam ("sronly" setting)
 
@@ -40,8 +40,9 @@ channels = ["MuMu","EE","EMu"]
 #masses = ["M500","M1000","M5000"]
 #masses = ["M3000"]
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-masses = ["M100","M500","M1000","M3000","M10000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M85","M90","M95","M100"]#"M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M100","M500","M1000","M3000","M10000"]
 #masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100"]
 #masses = ["M20000"]
@@ -53,8 +54,10 @@ masses = ["M100","M500","M1000","M3000","M10000"]
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR52/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR52/LimitExtraction/"
-SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
-CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
+SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR75/LimitExtraction/"
+CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR75/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
 
 #InputWPs = ["240422_HNL_ULID"]
 #InputWPs = ["240501_1704_HNL_ULID","240501_1704_HNTightV2"]
@@ -73,8 +76,8 @@ CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_
 #InputWPs = ["PR55_HNL_ULID","PR55_HighPt"]
 #InputWPs = ["PR55_HNL_ULID"]
 #InputWPs = ["PR55_NoMinPt_HighPt"]
-#InputWPs = ["PR75_HNL_ULID"]
-InputWPs = ["PR85_HNL_ULID"]
+InputWPs = ["PR75_HNL_ULID"]
+#InputWPs = ["PR86_HNL_ULID"]
 #OutputTag = "_NOsr2inv"
 #OutputTag = "_NOsr2inv_NOzgcr1"
 #OutputTag = "_NOsr2inv_NOcr1Norm_FixCF"
@@ -90,10 +93,11 @@ InputWPs = ["PR85_HNL_ULID"]
 #OutputTag = "_AN"
 #OutputTag = "_SUScomment"
 #OutputTag = "_Singluarity"
-OutputTag = ""
+OutputTag = "_CompToPR86"
 if args.Decorr: OutputTag+="_Decorr"
 
-regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
+#regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
+regions_cr = ["cf_cr","sr1_inv","sr2_inv","sr3_inv","ww_cr","wz_cr","zg_cr","zz_cr"]
 regions_sr = ["sr1","sr2","sr3"]
 
 
@@ -159,7 +163,13 @@ def CardSetting(isCR, WP, era, channel, mass):
     #else: this_lines_sr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             0            -1\n" # no DYVBF
     for i in range(len(this_lines_sr)):
       this_lines_sr[i] = this_lines_sr[i].replace('bin1',region)
-    if not args.Syst:
+    if args.Syst: #FIXME THIS IS REALLY BAD..
+      if channel=="MuMu":
+        this_lines_sr[33] = "" # remove electron syst sources.
+        this_lines_sr[34] = "" # remove electron syst sources.
+      elif channel=="EE":
+        this_lines_sr[29] = "" # remove electron syst sources.
+    else:
       for i in range(22,40):
         this_lines_sr[i] = "" # remove unnecessary syst sources.
 
@@ -240,15 +250,23 @@ for InputWP in InputWPs:
       os.system('echo \'Systematics have been added.\'')
     for channel, mass in [(channel, mass) for channel in channels for mass in masses]:
       for era in eras:
-        if "Mu" in channel: Add_cf_cr = ""
-        else: Add_cf_cr = "cf_cr=card_"+era+"_"+channel+"_"+mass+"_cf_cr.txt"
 
         if args.Combine == "CR":
-
+          if "Mu" in channel: regions_cr = [cr for cr in regions_cr if "cf" not in cr]
+          if int(mass.strip('M'))<=100:
+            regions_sr = ["sr3"]
           sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+"_"+sr+systTag+".txt" for sr in regions_sr])
           cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr])
-          #print "combineCards.py",cr_combine
+          # merge all SRs
           os.system("combineCards.py "+sr_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+systTag+".txt")
+          if int(mass.strip('M'))>100:
+            # limit from each SRs
+            sr1_combine = "sr1=card_"+era+"_"+channel+"_"+mass+"_sr1"+systTag+".txt"
+            os.system("combineCards.py "+sr1_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr1"+systTag+"_Combined.txt")
+            sr2_combine = "sr2=card_"+era+"_"+channel+"_"+mass+"_sr2"+systTag+".txt"
+            os.system("combineCards.py "+sr2_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr2"+systTag+"_Combined.txt")
+            sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+".txt"
+            os.system("combineCards.py "+sr3_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+"_Combined.txt")
 
           """
           if mass == "M100": # no signalDYVBF in SR1, SR2 with M100 for now FIXME later

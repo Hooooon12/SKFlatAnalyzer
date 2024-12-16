@@ -10,16 +10,17 @@ parser.add_argument('--Full', action='store_true')
 args = parser.parse_args()
 
 #workdir = "/data6/Users/jihkim/CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter/Batch/"
-workdir = "/data6/Users/jihkim/NewCombine/CMSSW_14_1_0_pre4/src/DilepHN/Batch/"
+#workdir = "/data6/Users/jihkim/NewCombine/CMSSW_14_1_0_pre4/src/DilepHN/Batch/"
+workdir = "/data6/Users/jihkim/LatestCombine/CMSSW_14_1_0_pre4/src/DilepHN/Batch/"
 
 years = ["2016","2017","2018"]
 years = ["Run2"]
 years = ["2016preVFP","2016postVFP","2017","2018","Run2"]
 #years = ["Run2"]
 years = ["2017"]
-#channels = ["MuMu","EE","EMu"]
+channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
-channels = ["EE"]
+#channels = ["EE"]
 #masses = ["100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000"]
 #masses = ["90","100","150","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["90","100","150","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
@@ -29,8 +30,8 @@ masses = ["85","90","95","100","125","150","200","250","300","400","500","600","
 IDs = [""] #["_ID"]
 #tags = ["_sronly_syst"] #["_DYVBF"]
 #tags = ["_sronly"] #["_DYVBF"]
-#tags = ["_syst"] #["_DYVBF"]
-tags = ["_sr_Combined"] #["_DYVBF"]
+tags = ["_syst"] #["_DYVBF"]
+#tags = ["_sr_Combined"] #["_DYVBF"]
 #myWPs = ["240422_HNL_ULID"]
 #myWPs = ["240501_1704_HNL_ULID","240501_1704_HNTightV2"]
 #myWPs = ["240504_PR44_HNL_ULID"]
@@ -39,7 +40,8 @@ tags = ["_sr_Combined"] #["_DYVBF"]
 #myWPs = ["rateParam_HNL_ULID"]
 #myWPs = ["PR48_rateParam_HNL_ULID"]
 #myWPs = ["PR55_HNL_ULID","PR55_HighPt"]
-myWPs = ["PR55_NoMinPt_HighPt"]
+#myWPs = ["PR55_NoMinPt_HighPt"]
+myWPs = ["PR86_HNL_ULID_Decorr"]
 
 for WP in myWPs:
   this_workdir = workdir+WP
@@ -47,8 +49,8 @@ for WP in myWPs:
   for year, channel, ID, tag in [[year, channel, ID, tag] for year in years for channel in channels for ID in IDs for tag in tags]:
     
     if args.Asymptotic:
-      with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Asym_limit.txt", 'w') as f:
-      #with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Run2Scaled_Asym_limit.txt", 'w') as f:
+      #with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Asym_limit.txt", 'w') as f:
+      with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Run2Scaled_Asym_limit.txt", 'w') as f:
       #with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Run23Scaled_Asym_limit.txt", 'w') as f:
   
         for mass in masses:
@@ -60,14 +62,14 @@ for WP in myWPs:
           tree_Asym = f_Asym.Get("limit")
   
           tree_Asym.GetEntry(2) # substitute for obs. limit for now
-          f.write(mass+"\t"+str(round(tree_Asym.limit,3))+"\t")
-          #f.write(mass+"\t"+str(round(tree_Asym.limit/1.87,3))+"\t") # FIXME estimating full Run2 from 2017
+          #f.write(mass+"\t"+str(round(tree_Asym.limit,3))+"\t")
+          f.write(mass+"\t"+str(round(tree_Asym.limit/1.87,3))+"\t") # FIXME estimating full Run2 from 2017
           #f.write(mass+"\t"+str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
   
           for i in range(5): # expected limits
             tree_Asym.GetEntry(i)
-            f.write(str(round(tree_Asym.limit,3))+"\t")
-            #f.write(str(round(tree_Asym.limit/1.87,3))+"\t") # FIXME estimating full Run2 from 2017
+            #f.write(str(round(tree_Asym.limit,3))+"\t")
+            f.write(str(round(tree_Asym.limit/1.87,3))+"\t") # FIXME estimating full Run2 from 2017
             #f.write(str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
           f.write("\n")
           print "done."

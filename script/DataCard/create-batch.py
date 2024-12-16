@@ -8,7 +8,7 @@ import argparse
 import datetime
 
 parser = argparse.ArgumentParser(description='option')
-parser.add_argument('--pdf', action='store_true', help='do pdfseparate')
+parser.add_argument('--pdf', action='store_true', help='do pdfseparate; run this after getting all impacts')
 parser.add_argument('-i', dest='Input', help='take a single argument. [NOTE] feed realpath of a card (or workspace) !!')
 parser.add_argument('-l', dest='RunLists', nargs='+', help='take args as a list, return error when there is no arg')
 parser.add_argument('--Full', action='store_true')
@@ -69,7 +69,7 @@ for RunList in args.RunLists:
  
     if args.pdf:
       os.chdir(pwd+"/"+WP+"/"+shortcard)
-      os.system("pdfseparate "+shortcard+".pdf -f 1 -l 1 "+shortcard+"_1.pdf") # this doesn't work in singularity environment.................
+      os.system("pdfseparate "+shortcard+".pdf -f 1 -l 1 "+shortcard+"_1.pdf")
       os.system("cp "+shortcard+"_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
       if float(shortcard.split('_')[2].replace("M","")) > 3000.: # mass is above 3000 GeV so that it only contains SSWW --> get impact with default physics model
         os.system("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf")
@@ -90,7 +90,7 @@ for RunList in args.RunLists:
       os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/full_CLs/'+shortcard+'/submit_Q4.sh')
       os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/full_CLs/'+shortcard+'/submit_Q5.sh')
       os.system('mkdir -p Batch/'+WP+'/Asymptotic/'+shortcard+'/output/')
-      os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/Asymptotic/'+shortcard+'/submit_Asympt.sh')
+      os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/Asymptotic/'+shortcard+'/submit_Asymptotic.sh')
   
     if args.Full or args.Q1:
       with open("Batch/"+WP+"/full_CLs/"+shortcard+"/run_Q1.sh",'w') as runfile:
@@ -172,7 +172,7 @@ for RunList in args.RunLists:
       with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
         runfile.write("#!/bin/bash\n")
         runfile.write("combine -M AsymptoticLimits "+card+" --run blind\n")
-      with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asympt.sh",'a') as submitfile:
+      with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
         submitfile.write("executable = run_Asymptotic.sh\n")
         submitfile.write("log = "+shortcard+"_Asymptotic.log\n")
         submitfile.write("output = "+shortcard+"_Asymptotic.out\n")
@@ -181,7 +181,7 @@ for RunList in args.RunLists:
         submitfile.write("transfer_output_remaps = \"higgsCombineTest.AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic.root\"\n")
         submitfile.write("queue\n")
       os.chdir('Batch/'+WP+'/Asymptotic/'+shortcard)
-      os.system('condor_submit submit_Asympt.sh -batch-name '+shortcard+'_'+WP+'_Asymptotic')
+      os.system('condor_submit submit_Asymptotic.sh -batch-name '+shortcard+'_'+WP+'_Asymptotic')
       os.chdir(pwd)
 
     if args.Work:

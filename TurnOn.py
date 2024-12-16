@@ -1,26 +1,61 @@
-import os, sys
+import os, sys, argparse
 import commands as cmd
 import argparse
 import math
 import numpy as np
+from datetime import datetime
 from ROOT import *
 gROOT.SetBatch(kTRUE)
 
-#eras = ["2016preVFP","2016postVFP","2017","2018"]
-#eras = ["2018"]
+parser = argparse.ArgumentParser(description='Tool for high pt electron SF measurement', formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-n', dest='Nevents', type=int, default=-1, help='Number of events to run; < 0 : full')
+parser.add_argument('-t', dest='Time', action='store_true', help='Print running times')
+args = parser.parse_args()
+
+Name_Nevents = "_N"+str(args.Nevents) if args.Nevents > 0 else ""
+
+#It_Probes = ['HEEP', 'HNLMVA', 'CutBasedTight94XV2', 'HNLMVA_TrkIso', 'HNLHeep', 'HNLMVAFake', 'HNLMVAConv', 'HNLMVACF', 'MVALoose']
+It_Probes = ['HNLMVA']
+#It_Probes = ['MVALoose']
+It_IsPasses = ['Pass','Fail']
+#It_EtaRegions = ['BB','EC']
+It_EtaRegions = ['BB']
+#It_Charges = ["os","ss","ss_zpt","ss_tot","ss_zpt_tot"]
+It_Charges = ["os","ss","ss_tot"]
+
 eras = [
   "2016preVFP",
-  #"2016postVFP",
-  #"2017",
-  #"2018",
+  "2016postVFP",
+  "2017",
+  "2018",
 ]
+grouped_eras = {
+                '2016preVFP': ["2016preVFP"], 
+                #'2016postVFP': ["2016postVFP"], 
+                #'2016': ["2016preVFP","2016postVFP"], 
+                #'2017': ["2017"], 
+                #'2018': ["2018"]
+}
 luminosity = {
+  '2016' : '36.3',
   '2016preVFP' : '19.5',
   '2016postVFP' : '16.8',
   '2017' : '41.5',
   '2018' : '59.8',
 }
 samples = {
+  '2016' : [
+     "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+     "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
+     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+     "WW_TuneCP5_13TeV-pythia8",
+     "WZ_TuneCP5_13TeV-pythia8",
+     "ZZ_TuneCP5_13TeV-pythia8",
+     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+     "SingleElectron",
+  ],
   '2016preVFP' : [
      "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
      "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
@@ -45,8 +80,28 @@ samples = {
     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "SingleElectron",
   ],
+  '2017' : [
+    "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+    "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+    "WW_TuneCP5_13TeV-pythia8",
+    "WZ_TuneCP5_13TeV-pythia8",
+    "ZZ_TuneCP5_13TeV-pythia8",
+    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "SingleElectron",
+  ],
   '2018' : [
     "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+    "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+    "WW_TuneCP5_13TeV-pythia8",
+    "WZ_TuneCP5_13TeV-pythia8",
+    "ZZ_TuneCP5_13TeV-pythia8",
+    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "EGamma",
   ],
 }
@@ -136,20 +191,82 @@ dates = {
                          'periodH' : '2024_11_26_102156',
                         },
     },
+  '2017':
+    {
+     'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : {
+                                                             '' : '2024_12_13_185927',
+                                                            },
+     'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : {
+                                                             '' : '2024_12_13_185927',
+                                                            },
+     'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'WW_TuneCP5_13TeV-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'WZ_TuneCP5_13TeV-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'ZZ_TuneCP5_13TeV-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'SingleElectron' : {
+                         'periodB' : '2024_12_13_185927',
+                         'periodC' : '2024_12_13_185927',
+                         'periodD' : '2024_12_13_185927',
+                         'periodE' : '2024_12_13_185927',
+                         'periodF' : '2024_12_13_185927',
+                        },
+    },
   '2018':
     {
      'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : {
-                                                             '' : '2024_12_03_013251',
+                                                             '' : '2024_12_13_185927',
                                                             },
+     'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : {
+                                                             '' : '2024_12_13_185927',
+                                                            },
+     'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'WW_TuneCP5_13TeV-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'WZ_TuneCP5_13TeV-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
+     'ZZ_TuneCP5_13TeV-pythia8' : {
+     '' : '2024_12_13_185927',
+     },
      'EGamma' : {
-                 'periodA' : '2024_12_03_013251',
-                 'periodB' : '2024_12_03_013251',
-                 'periodC' : '2024_12_03_013251',
-                 'periodD' : '2024_12_03_013251',
+                 'periodA' : '2024_12_13_185927',
+                 'periodB' : '2024_12_13_185927',
+                 'periodC' : '2024_12_13_185927',
+                 'periodD' : '2024_12_13_185927',
                 },
     },
 }
 triggers = {
+            '2016'        : 'passHltEle27WPTightGsf',
             '2016preVFP'  : 'passHltEle27WPTightGsf',
             '2016postVFP' : 'passHltEle27WPTightGsf',
             '2017'        : 'passHltEle32DoubleEGWPTightGsf',
@@ -169,6 +286,35 @@ nameFilter = {
   'EGamma' : 'data',
 }
 
+def GetMinMax(*hists):
+
+  if not hists:
+    raise ValueError("[GetMinMax] At least one histogram must be provided.")
+
+  global_min = float('inf')
+  global_max = float('-inf')
+
+  for hist in hists:
+    if not isinstance(hist, TH1):
+      raise TypeError("[GetMinMax] Expected a TH1 histogram or subclass, but got " + str(type(hist)))
+
+    # Get the minimum and maximum bin content of the histogram
+    local_min_bin = hist.GetMinimumBin()
+    local_min_bin_value = hist.GetBinContent(local_min_bin)
+    print 0, hist.GetBinContent(0)
+    for i in range(hist.GetNbinsX()):
+      print i+1, hist.GetBinContent(i+1)
+    print i+2, hist.GetBinContent(i+2)
+    local_min = hist.GetMinimum()
+    local_max = hist.GetMaximum()
+
+    # Update global min and max
+    global_min = min(global_min, local_min)
+    global_max = max(global_max, local_max)
+
+  return local_min_bin, local_min_bin_value, global_min, global_max
+
+
 def add_overflow(hist):
 
   last_bin = hist.GetNbinsX()
@@ -185,92 +331,146 @@ def add_overflow(hist):
   return hist
 
 def TurnOn():
-  OutFile = TFile.Open("./Out_TurnOn/TurnOn.root","RECREATE")
-  for era, sample in [(era, sample) for era in eras for sample in samples[era]]:
-    print "Calling",era,sample,"..."
-    path_to_add = []
-  
-    for period in dates[era][sample]:
-      path_to_add.append("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root")
-    
-    this_chain = TChain("tnpEleIDs/fitter_tree")
-    for path in path_to_add:
-      print "Adding",path,"..."
-      this_chain.Add(path)
-  
-    print this_chain.GetEntries()
-  
-    outName = era+"_"+nameFilter[sample]
-    this_chain.Draw("el_pt_cor>>h_den_Inc(200,0,200)")
-    this_chain.Draw("el_pt_cor>>h_den_OS(200,0,200)","el_q+tag_Ele_q==0")
-    this_chain.Draw("el_pt_cor>>h_den_SS(200,0,200)","el_q+tag_Ele_q!=0")
-    this_chain.Draw("el_pt_cor>>h_den_Subt(200,0,200)","el_q+tag_Ele_q==0")
-    this_chain.Draw("el_pt_cor>>"+outName+"_Inc(200,0,200)",triggers[era])
-    this_chain.Draw("el_pt_cor>>"+outName+"_OS(200,0,200)",triggers[era]+"&&(el_q+tag_Ele_q==0)")
-    this_chain.Draw("el_pt_cor>>"+outName+"_SS(200,0,200)",triggers[era]+"&&(el_q+tag_Ele_q!=0)")
-    this_chain.Draw("el_pt_cor>>"+outName+"_Subt(200,0,200)",triggers[era]+"&&(el_q+tag_Ele_q==0)")
-    this_chain.Draw("tag_Ele_pt_cor>>h_tag_den_Inc(200,0,200)")
-    this_chain.Draw("tag_Ele_pt_cor>>h_tag_den_OS(200,0,200)","el_q+tag_Ele_q==0")
-    this_chain.Draw("tag_Ele_pt_cor>>h_tag_den_SS(200,0,200)","el_q+tag_Ele_q!=0")
-    this_chain.Draw("tag_Ele_pt_cor>>h_tag_den_Subt(200,0,200)","el_q+tag_Ele_q==0")
-    this_chain.Draw("tag_Ele_pt_cor>>tag_"+outName+"_Inc(200,0,200)","tag_"+triggers[era])
-    this_chain.Draw("tag_Ele_pt_cor>>tag_"+outName+"_OS(200,0,200)","tag_"+triggers[era]+"&&(el_q+tag_Ele_q==0)")
-    this_chain.Draw("tag_Ele_pt_cor>>tag_"+outName+"_SS(200,0,200)","tag_"+triggers[era]+"&&(el_q+tag_Ele_q!=0)")
-    this_chain.Draw("tag_Ele_pt_cor>>tag_"+outName+"_Subt(200,0,200)","tag_"+triggers[era]+"&&(el_q+tag_Ele_q==0)")
+  for year, eras in grouped_eras.items():
+    OutFile = TFile.Open("./Out_TurnOn/TurnOn_"+year+".root","RECREATE")
 
-    if not "data" in outName:
-      this_chain.Draw("el_pt_cor>>h_den_Inc_gen(200,0,200)","mcTrue")
-      this_chain.Draw("el_pt_cor>>h_den_OS_gen(200,0,200)","(el_q+tag_Ele_q==0)&&mcTrue")
-      this_chain.Draw("el_pt_cor>>h_den_SS_gen(200,0,200)","(el_q+tag_Ele_q!=0)&&mcTrue")
-      this_chain.Draw("el_pt_cor>>h_den_Subt_gen(200,0,200)","(el_q+tag_Ele_q==0)&&mcTrue")
-      this_chain.Draw("el_pt_cor>>"+outName+"_Inc_gen(200,0,200)",triggers[era]+"&&mcTrue")
-      this_chain.Draw("el_pt_cor>>"+outName+"_OS_gen(200,0,200)",triggers[era]+"&&(el_q+tag_Ele_q==0)&&mcTrue")
-      this_chain.Draw("el_pt_cor>>"+outName+"_SS_gen(200,0,200)",triggers[era]+"&&(el_q+tag_Ele_q!=0)&&mcTrue")
-      this_chain.Draw("el_pt_cor>>"+outName+"_Subt_gen(200,0,200)",triggers[era]+"&&(el_q+tag_Ele_q==0)&&mcTrue")
-      this_chain.Draw("tag_Ele_pt_cor>>h_tag_den_Inc_gen(200,0,200)","mcTrue")
-      this_chain.Draw("tag_Ele_pt_cor>>h_tag_den_OS_gen(200,0,200)","(el_q+tag_Ele_q==0)&&mcTrue")
-      this_chain.Draw("tag_Ele_pt_cor>>h_tag_den_SS_gen(200,0,200)","(el_q+tag_Ele_q!=0)&&mcTrue")
-      this_chain.Draw("tag_Ele_pt_cor>>h_tag_den_Subt_gen(200,0,200)","(el_q+tag_Ele_q==0)&&mcTrue")
-      this_chain.Draw("tag_Ele_pt_cor>>tag_"+outName+"_Inc_gen(200,0,200)","tag_"+triggers[era]+"&&mcTrue")
-      this_chain.Draw("tag_Ele_pt_cor>>tag_"+outName+"_OS_gen(200,0,200)","tag_"+triggers[era]+"&&(el_q+tag_Ele_q==0)&&mcTrue")
-      this_chain.Draw("tag_Ele_pt_cor>>tag_"+outName+"_SS_gen(200,0,200)","tag_"+triggers[era]+"&&(el_q+tag_Ele_q!=0)&&mcTrue")
-      this_chain.Draw("tag_Ele_pt_cor>>tag_"+outName+"_Subt_gen(200,0,200)","tag_"+triggers[era]+"&&(el_q+tag_Ele_q==0)&&mcTrue")
-  
-    charges = ["Inc","OS","SS","Subt"]
-    tags = ["","tag_"]
-    denlist = []
-    numlist = []
-    for tag in tags:
-      for charge in charges:
-        denlist.append(gDirectory.Get("h_"+tag+"den_"+charge))
-        numlist.append(gDirectory.Get(tag+outName+"_"+charge))
+    for sample in samples[year]:
+
+      t1 = datetime.now()
+      print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling",year,sample,"..."
+      path_to_add = []
+      this_chain = TChain("tnpEleIDs/fitter_tree")
+
+      for era in eras:
+        for period in dates[era][sample]:
+          path_to_add.append("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root")
+        
+      for path in path_to_add:
+        print "Adding",path,"..."
+        this_chain.Add(path)
+      t2 = datetime.now()
+      print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+    
+      t1 = datetime.now()
+      print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
+      print "Total",this_chain.GetEntries(),"events."
+      t2 = datetime.now()
+      print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+    
+      outName = year+"_"+nameFilter[sample]
+
+      charges = ["Inc","OS","SS","Subt"]
+      chargeComms = {
+                     "Inc"  : "(1==1)",
+                     "OS"   : "(el_q+tag_Ele_q==0)",
+                     "SS"   : "(el_q+tag_Ele_q!=0)",
+                     "Subt" : "(el_q+tag_Ele_q==0)",
+      }
+      tags = ["","tag_"]
+      tagPts = {
+                "" : "el_pt_cor",
+                "tag_" : "tag_Ele_pt_cor",
+      }
+      trigs = ["den_",outName+"_"]
+      trigComms = {
+                    "den_" : "",
+                    outName+"_" : "&&"+triggers[year],
+      }
+      IDs = ["","HEEP_"]
+      IDComms = {
+                    "" : "",
+                    "HEEP_" : "&&(passingHEEP)",
+      }
+      Barrels = ["","barrel_"]
+      BarrelComms = {
+                     "" : "",
+                     "barrel_" : "&&(fabs(el_sc_eta)<=1.4442)",
+      }
+
+      denlist = []
+      numlist = []
+
+      t1 = datetime.now()
+      print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Main jobs begin ..."
+      for charge, tag, trig, ID, Barrel in [(charge, tag, trig, ID, Barrel) for charge in charges for tag in tags for trig in trigs for ID in IDs for Barrel in Barrels]:
+        print "Running: this_chain.Draw(\""+tagPts[tag]+">>h_"+tag+trig+ID+Barrel+charge+"(200,0,200)\",\""+chargeComms[charge]+trigComms[trig]+IDComms[ID]+BarrelComms[Barrel]+"\")"
+        this_chain.Draw(tagPts[tag]+">>h_"+tag+trig+ID+Barrel+charge+"(200,0,200)",chargeComms[charge]+trigComms[trig]+IDComms[ID]+BarrelComms[Barrel])
+        denlist.append(gDirectory.Get("h_"+tag+trig+ID+Barrel+charge)) if "den" in trig else numlist.append(gDirectory.Get("h_"+tag+trig+ID+Barrel+charge))
         if not "data" in outName:
-          denlist.append(gDirectory.Get("h_"+tag+"den_"+charge+"_gen"))
-          numlist.append(gDirectory.Get(tag+outName+"_"+charge+"_gen"))
-    #print denlist, numlist
-    print "last bin:",denlist[0].GetBinContent(200), "overflow bin:",denlist[0].GetBinContent(201)
-  
-    for i in range(len(denlist)):
-      denlist[i] = add_overflow(denlist[i])
-      numlist[i] = add_overflow(numlist[i])
-    print "now last bin:",denlist[0].GetBinContent(200)
-  
-    for i in range(len(denlist)):
-      if "Subt" in denlist[i].GetName():
-        denlist[i].Add(denlist[i-1],-1)
-        numlist[i].Add(numlist[i-1],-1)
-  
-    for i in range(len(denlist)):
-      numlist[i].Divide(numlist[i],denlist[i],1,1,"B")
-  
-    OutFile.cd()
-    for i in range(len(denlist)):
-      numlist[i].Write()
-  
-  OutFile.Close()
+          this_chain.Draw(tagPts[tag]+">>h_"+tag+trig+ID+Barrel+charge+"_gen(200,0,200)",chargeComms[charge]+trigComms[trig]+IDComms[ID]+BarrelComms[Barrel])
+          denlist.append(gDirectory.Get("h_"+tag+trig+ID+Barrel+charge+"_gen")) if "den" in trig else numlist.append(gDirectory.Get("h_"+tag+trig+ID+Barrel+charge+"_gen"))
+      t2 = datetime.now()
+      print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+      #for i in range(len(denlist)):
+      #  print denlist[i].GetName()
+      #for i in range(len(denlist)):
+      #  print numlist[i].GetName()
+      #return
+
+      print "last bin:",denlist[0].GetBinContent(200), "overflow bin:",denlist[0].GetBinContent(201)
+      for i in range(len(denlist)):
+        denlist[i] = add_overflow(denlist[i])
+        numlist[i] = add_overflow(numlist[i])
+      print "now last bin:",denlist[0].GetBinContent(200)
+    
+      for i in range(len(denlist)):
+        if "Subt" in denlist[i].GetName():
+          if "gen" in denlist[i].GetName(): # MC
+            denlist[i].Add(denlist[i-16],-1)
+            numlist[i].Add(numlist[i-16],-1)
+          else: # data
+            denlist[i].Add(denlist[i-8],-1)
+            numlist[i].Add(numlist[i-8],-1)
+    
+      for i in range(len(denlist)):
+        numlist[i].Divide(numlist[i],denlist[i],1,1,"B")
+    
+      OutFile.cd()
+      for i in range(len(denlist)):
+        numlist[i].Write()
+    
+    OutFile.Close()
+
   return
 
-def makePlots(Data_OS, Stack, Bundle, Error, era):
+def classify_hist(this_year, this_chain):
+
+  if not this_chain.mcTrue:
+    return None
+
+  # EtaRegion
+  if abs(this_chain.el_sc_eta) < 1.4442:
+    EtaRegion = 'BB'
+  elif 1.566 < abs(this_chain.el_sc_eta) < 2.5:
+    EtaRegion = 'EC'
+  else:
+    return None
+
+  if EtaRegion not in It_EtaRegions:
+    return None
+
+  # Charge
+  Charges = []
+  if (this_chain.el_q+this_chain.tag_Ele_q)==0:
+    Charges.append('os')
+  elif (this_chain.el_q+this_chain.tag_Ele_q)!=0:
+    #Charges.append('ss_OSTurnOn') # add this if necessary
+    if getattr(this_chain, "tag_"+triggers[this_year]):
+      Charges.append('ss')
+      #Charges.append('ss_zpt')
+
+  # Probe type
+  Probes = {}
+  for this_probe in It_Probes:
+    Probes[this_probe] = 'Pass' if getattr(this_chain, "passing"+this_probe) else 'Fail'
+  #for attr in dir(this_chain):
+  #  if attr.startswith('passing'):
+  #    ID = attr.replace('passing','')
+  #    Probes[ID] = 'Pass' if getattr(this_chain, attr) else 'Fail' # use this to include every IDs
+
+  return EtaRegion, Charges, Probes
+
+def makePlots(Data_OS, Stack, Bundle, Error, Era, Name):
 
   c1 = TCanvas("c1","",1000,1000)
   c1.cd()
@@ -303,7 +503,7 @@ def makePlots(Data_OS, Stack, Bundle, Error, era):
   Data_OS.SetMarkerColor(kBlack)
   Data_OS.Draw("ep same")
 
-  lg = TLegend(0.6, 0.45, 0.9, 0.85)
+  lg = TLegend(0.6, 0.45, 0.8, 0.85)
   lg.AddEntry(Error, "Stat. Uncertainty", "f")
   lg.AddEntry(Data_OS, "Data_OS", "lep")
   lg.AddEntry(Bundle[0], "DY", "f")
@@ -318,12 +518,12 @@ def makePlots(Data_OS, Stack, Bundle, Error, era):
   lg.SetShadowColor(0)
   lg.Draw("same")
  
-  txt = TLatex()
-  txt.SetNDC()
-  txt.SetTextSize(0.05)
-  txt.SetTextAlign(32)
-  txt.SetTextFont(42)
-  txt.DrawLatex(.95,.96, luminosity[era]+" fb^{-1} (13 TeV)")
+  txt_lumi = TLatex()
+  txt_lumi.SetNDC()
+  txt_lumi.SetTextSize(0.05)
+  txt_lumi.SetTextAlign(32)
+  txt_lumi.SetTextFont(42)
+  txt_lumi.DrawLatex(.95,.96, luminosity[Era]+" fb^{-1} (13 TeV)")
 
   c1.cd()
 
@@ -357,7 +557,7 @@ def makePlots(Data_OS, Stack, Bundle, Error, era):
 
   Error_Stat.SetTitle("")
   Error_Stat.SetStats(0)
-  Error_Stat.GetXaxis().SetTitle("p_{T}")
+  Error_Stat.GetXaxis().SetTitle("p_{T} [GeV]")
   Error_Stat.GetYaxis().SetTitle("#frac{Obs.}{Pred.}")
   #Error_Stat.GetXaxis().SetRange(minBinNumber, maxBinNumber)
   Error_Stat.GetYaxis().SetRangeUser(0.5, 1.5)
@@ -398,140 +598,571 @@ def makePlots(Data_OS, Stack, Bundle, Error, era):
   line.SetLineColor(2)
   line.Draw()
 
-  c1.SaveAs("./Out_TurnOn/TEST.png")
+  c1.SaveAs("./Out_TurnOn/Pt_"+Era+Name+".png")
   del c1
 
   return
 
+def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, OutFile):
 
-def makePtComparison():
+  OutName = "SF_Pt_"+Era+"_"+EtaRegion+"_"+Probe+Tag
+
+  this_nBins = Data_OS['Pass'].GetNbinsX()
+  this_Bins = Data_OS['Pass'].GetXaxis().GetXbins().GetArray()
+
+  #Bundle : DY, WJets, ttbar, Diboson, SingleTop, Fakes
+
+  for i in range(len(Bundle['Pass'])):
+    if i==0 : continue # skip DY
+    Data_OS['Pass'].Add(Bundle['Pass'][i],-1)
+    Data_OS['Fail'].Add(Bundle['Fail'][i],-1)
+
+  Data_Eff = Data_OS['Pass'].Clone()
+  Data_Tot = Data_OS['Pass'].Clone()
+  Data_Tot.Add(Data_OS['Fail'])
+
+  combined_data_pass = Data_Eff.Integral()
+  combined_data_tot = Data_Tot.Integral()
+  combined_data_eff = combined_data_pass/combined_data_tot
+
+  #print "Data eff check:"
+  #for i in range(this_nBins):
+  #  if Data_Eff.GetBinContent(i+1)>0:
+  #    print i+1,Data_Eff.GetBinContent(i+1)
+  #    print i+1,Data_Tot.GetBinContent(i+1)
+  #    print i+1,Data_Eff.GetBinContent(i+1)/Data_Tot.GetBinContent(i+1)
+
+  Data_Eff.Divide(Data_Eff,Data_Tot,1,1,"B")
+
+  #for i in range(this_nBins):
+  #  print i+1,Data_Eff.GetBinContent(i+1)
+
+  MC_Eff = Bundle['Pass'][0].Clone()
+  MC_Tot = Bundle['Pass'][0].Clone()
+  MC_Tot.Add(Bundle['Fail'][0])
+
+  combined_mc_pass = MC_Eff.Integral()
+  combined_mc_tot = MC_Tot.Integral()
+  combined_mc_eff = combined_mc_pass/combined_mc_tot
+
+  combined_sf = combined_data_eff/combined_mc_eff
+
+  print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  print "Running", OutName, "..."
+  print "Combined data efficiency:", combined_data_eff
+  print "Combined mc efficiency:", combined_mc_eff
+  print "Combined scale factor:", combined_sf # FIXME add error later
+  print "Saving into", OutFile.GetName(), "..." # FIXME add error later
+  print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+  # Fill Gap
+  Save['Data_Eff'].SetBinContent(2, 0)
+  Save['MC_Eff']  .SetBinContent(2, 0)
+  Save['SF']      .SetBinContent(2, 0)
+  if EtaRegion == "BB":
+    Save['Data_Eff'].SetBinContent(1, combined_data_eff)
+    Save['MC_Eff']  .SetBinContent(1, combined_mc_eff)
+    Save['SF']      .SetBinContent(1, combined_sf)
+  elif EtaRegion == "EC":
+    Save['Data_Eff'].SetBinContent(3, combined_data_eff)
+    Save['MC_Eff']  .SetBinContent(3, combined_mc_eff)
+    Save['SF']      .SetBinContent(3, combined_sf)
+  else:
+    raise ValueError("Unknown EtaRegion: "+EtaRegion)
+
+  #print "MC eff check:"
+  #for i in range(this_nBins):
+  #  if MC_Eff.GetBinContent(i+1)>0:
+  #    print i+1,MC_Eff.GetBinContent(i+1),"+-",MC_Eff.GetBinError(i+1)
+  #    print i+1,MC_Tot.GetBinContent(i+1),"+-",MC_Tot.GetBinError(i+1)
+  #    print i+1,MC_Eff.GetBinContent(i+1)/MC_Tot.GetBinContent(i+1)
+
+  MC_Eff.Divide(MC_Eff,MC_Tot,1,1,"B")
+
+  #for i in range(this_nBins):
+  #  print i+1,MC_Eff.GetBinContent(i+1),"+-",MC_Eff.GetBinError(i+1)
+
+  c1 = TCanvas("c1","",1000,1000)
+  c1.cd()
+
+  c_up = TPad("c_up", "", 0, 0.25, 1, 1)
+  c_up.SetTopMargin(0.08)
+  c_up.SetBottomMargin(0.017)
+  c_up.SetLeftMargin(0.14)
+  c_up.SetRightMargin(0.04)
+  c_up.SetLogx()
+  c_up.Draw()
+  c_up.cd()
+
+  dummy1, dummy2, c_up_min, c_up_max = GetMinMax(Data_Eff, MC_Eff)
+  #c_up_min, c_up_max = GetMinMax(Data_Eff, MC_Eff)
+  c_up_min *= 0.9
+
+  Data_Eff.SetTitle("")
+  Data_Eff.SetStats(0)
+  Data_Eff.GetXaxis().SetLabelSize(0)
+  Data_Eff.GetYaxis().SetLabelSize(0.045)
+  Data_Eff.GetYaxis().SetTitle("Efficiency")
+  Data_Eff.GetYaxis().SetTitleSize(0.075)
+  Data_Eff.GetYaxis().SetTitleOffset(0.7)
+  Data_Eff.GetYaxis().SetRangeUser(c_up_min, 1.1)
+  Data_Eff.SetMarkerStyle(20)
+  Data_Eff.SetMarkerColor(kBlack)
+  Data_Eff.SetLineColor(kBlack)
+  Data_Eff.Draw("ep")
+  MC_Eff.SetMarkerStyle(20)
+  MC_Eff.SetMarkerColor(kRed)
+  MC_Eff.SetLineWidth(1)
+  MC_Eff.SetLineColor(kRed)
+  MC_Eff.Draw("ep same")
+
+  lg = TLegend(0.3, 0.72, 0.5, 0.87)
+  lg.AddEntry(Data_Eff, "Data", "lep")
+  lg.AddEntry(MC_Eff, "MC", "lep")
+  lg.SetBorderSize(0)
+  lg.SetTextSize(0.03)
+  lg.SetFillStyle(1001)
+  lg.SetShadowColor(0)
+  lg.Draw("same")
+ 
+  txt_lumi = TLatex()
+  txt_lumi.SetNDC()
+  txt_lumi.SetTextSize(0.05)
+  txt_lumi.SetTextAlign(32)
+  txt_lumi.SetTextFont(42)
+  txt_lumi.DrawLatex(.95,.96, luminosity[Era]+" fb^{-1} (13 TeV)")
+
+  IDnames = {
+             'HEEP'               : 'HEEP',
+             'HNLMVA'             : 'MVA ID',
+             'CutBasedTight94XV2' : 'POG Tight',
+             'HNLMVA_TrkIso'      : 'MVA ID w/ TrkIso',
+             'HNLHeep'            : 'MVA + HEEP combi.',
+             'HNLMVAFake'         : 'MVA Fake',
+             'HNLMVACF'           : 'MVA CF',
+             'HNLMVAConv'         : 'MVA Conv',
+             'MVALoose'           : 'Basic sel. for MVA',
+  }
+  txt_id = TLatex()
+  txt_id.SetNDC()
+  txt_id.SetTextSize(0.06)
+  txt_id.SetTextAlign(12)
+  txt_id.SetTextFont(42)
+  txt_id.DrawLatex(.58,.86, IDnames[Probe])
+
+  txt_eta = TLatex()
+  txt_eta.SetNDC()
+  txt_eta.SetTextSize(0.06)
+  txt_eta.SetTextAlign(12)
+  txt_eta.SetTextFont(42)
+  txt_eta.DrawLatex(.58,.78, "|#eta| < 1.4442") if EtaRegion=='BB' else txt_eta.DrawLatex(.58,.78, "1.566 < |#eta| < 2.5")
+
+  c1.cd()
+
+  c_down = TPad("c_down", "", 0, 0, 1, 0.25)
+  c_down.SetTopMargin(0.03)
+  c_down.SetBottomMargin(0.35)
+  c_down.SetLeftMargin(0.14)
+  c_down.SetRightMargin(0.04)
+  c_down.SetGridx()
+  c_down.SetGridy()
+  c_down.SetLogx()
+  c_down.Draw()
+  c_down.cd()
+
+  Ratio = Data_Eff.Clone()
+  Ratio.GetYaxis().SetRange()
+  Ratio.Divide(MC_Eff)
+
+  dummy1, dummy2, c_down_min, c_down_max = GetMinMax(Ratio)
+  #c_down_min, c_down_max = GetMinMax(Ratio)
+  print "min bin:", str(dummy1)
+  print "value at min bin:", str(dummy2)
+  print "original c_down_min:", str(c_down_min)
+  print "original c_down_min*0.9:", str(c_down_min*0.9)
+  c_down_min = min(0.9, c_down_min*0.9)
+  c_down_max = 1.+(1.-c_down_min)
+  print "fixed c_down_min:", str(c_down_min)
+
+  Ratio.SetTitle("")
+  Ratio.SetStats(0)
+  Ratio.GetXaxis().SetTitle("p_{T} [GeV]")
+  Ratio.GetYaxis().SetTitle("#frac{Data}{MC}")
+  Ratio.GetYaxis().SetRangeUser(c_down_min, c_down_max)
+  Ratio.GetXaxis().SetLabelSize(0.12)
+  Ratio.GetYaxis().SetLabelSize(0.08)
+  Ratio.GetXaxis().SetTitleSize(0.16)
+  Ratio.GetYaxis().SetTitleSize(0.14)
+  Ratio.GetXaxis().SetTitleOffset(0.9)
+  Ratio.GetYaxis().SetTitleOffset(0.4)
+  Ratio.SetLineColor(1)
+  Ratio.SetMarkerColor(1)
+  Ratio.SetMarkerStyle(20)
+  Ratio.Draw("ep")
+
+  #lg2 = TLegend(0.75, 0.88, 0.9, 0.95)
+  #lg2.AddEntry(Ratio, "Scale factor", "lep")
+  #lg2.SetBorderSize(1)
+  #lg2.SetTextSize(0.06)
+  #lg2.SetFillStyle(1001)
+  #lg2.SetShadowColor(0)
+  #lg2.Draw("same")
+
+  minRange = Data_Eff.GetBinLowEdge(1)
+  maxRange = Data_Eff.GetBinLowEdge(this_nBins) + Data_Eff.GetBinWidth(this_nBins)
+
+  line = TLine(minRange, 1., maxRange, 1.)
+  line.SetLineWidth(1)
+  line.SetLineColor(2)
+  line.Draw()
+
+  c1.SaveAs("./Out_TurnOn/"+OutName+".png")
+  del c1
+
+  return
+
+def makeKinComparison():
 
   pt_bins = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 300, 400, 1000], dtype=np.float64)
   nBins = len(pt_bins)-1
-  
-  OutFile = TFile.Open("./Out_TurnOn/TEST.root","RECREATE")
-  TurnOnFile = TFile.Open("./Out_TurnOn/TurnOn.root")
-  
-  for era in eras:
-    nMC = len(samples[era])-1
+
+  HEEP_eta_bins = np.array([0, 1.4442, 1.566, 2.5], dtype='d')
+  nBins_HEEP_eta = len(HEEP_eta_bins)-1
+
+  #for era in eras:
+  for year, eras in grouped_eras.items():
+ 
+    # Call necessary files and hists first
+    TurnOnFiles = {}
+    TurnOnHists = {}
+    for era in eras:
+      TurnOnFiles[era] = TFile.Open("./Out_TurnOn/TurnOn_"+era+".root")
+      TurnOnHists[era] = TurnOnFiles[era].Get("h_"+era+"_data_HEEP_barrel_Subt")
+
+    OutFile = TFile.Open("./Out_TurnOn/SF_"+year+".root","RECREATE")
+
+    nMC = len(samples[year])-1
     mc_chains = [TChain("tnpEleIDs/fitter_tree") for _ in range(nMC)] # Don't use [] * nMC <-- this makes all the items share the same reference
   
-    #h_probe_pt = TH1D("pt_"+era,era+" probe pt",nBins,pt_bins)
-    h_mc_os = [TH1D("pt_"+era+"_"+nameFilter[sample]+"_os","pt_"+era+"_"+nameFilter[sample]+"_os",nBins,pt_bins) for sample in samples[era]]
-    del h_mc_os[-1] # remove data
-    h_mc_ss = [TH1D("pt_"+era+"_"+nameFilter[sample]+"_ss","pt_"+era+"_"+nameFilter[sample]+"_ss",nBins,pt_bins) for sample in samples[era]]
-    del h_mc_ss[-1] # remove data
-    h_mc_ss_tot = TH1D("pt_"+era+"_MC_ss","pt_"+era+"_MC_ss",nBins,pt_bins)
-  
-    # Call TurnOn weight
-    h_TurnOn = TurnOnFile.Get(era+"_data_Subt")
+    # Initialize h_mc
+    h_mc = {}
 
-    for i, sample in enumerate(samples[era]):
+    for EtaRegion in It_EtaRegions:
+      h_mc[EtaRegion] = {}
+      for Charge in It_Charges:
+        h_mc[EtaRegion][Charge] = {}
+        # ID iteration
+        for Probe in It_Probes:
+          h_mc[EtaRegion][Charge][Probe] = {}
+          for IsPass in It_IsPasses:
+            h_mc[EtaRegion][Charge][Probe][IsPass] = TH1D("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass,"pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass,nBins,pt_bins) if "tot" in Charge else [TH1D("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass,"pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass,nBins,pt_bins) for sample in samples[year][:-1]]
+        # All probes
+        h_mc[EtaRegion][Charge]['All'] = TH1D("pt_"+year+"_"+Charge+"_"+EtaRegion,"pt_"+year+"_"+Charge+"_"+EtaRegion,nBins,pt_bins) if "tot" in Charge else [TH1D("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge,"pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge,nBins,pt_bins) for sample in samples[year][:-1]] 
+
+    for i, sample in enumerate(samples[year]):
   
-      if i == len(samples[era])-1: continue # skip the data
+      if i == len(samples[year])-1: continue # skip the data
   
-      print "Adding","/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+dates[era][sample]['']+"/*.root","..."
-      mc_chains[i].Add("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+dates[era][sample]['']+"/*.root")
-  
-      #print mc_chains[i].GetEntries()
-  
-      #this_draw_command = "el_pt_cor>>pt_"+era+"_"+nameFilter[sample]
-      #mc_chains[i].Draw(this_draw_command)
-  
-      for entry in range(mc_chains[i].GetEntries()):
+      for era in eras:
+        t1 = datetime.now()
+        print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Adding","/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+dates[era][sample]['']+"/*.root","..."
+        mc_chains[i].Add("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+dates[era][sample]['']+"/*.root")
+        t2 = datetime.now()
+        print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+
+      t1 = datetime.now()
+      print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
+      Nevents = args.Nevents if args.Nevents > 0 else mc_chains[i].GetEntries()
+      t2 = datetime.now()
+      print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+
+      print "Running",Nevents,"events ..."
+      
+      t1 = datetime.now()
+      print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Filling MC OS, SS events ..."
+      for entry in range(Nevents):
         mc_chains[i].GetEntry(entry)
+       
+        # apply era-based turn on, even though the results can be merged
+        this_era = mc_chains[i].GetCurrentFile().GetName().split('/')[-1].split('_')[1] # /gv0/DATA/SKFlat/Run2UltraLegacy_v3/2016preVFP/MC_SkimTree_EGammaTnP_HighPt/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/2024_12_03_013251/SKFlatNtuple_2016preVFP_MC_0.root
 
-        #weight_pt = mc_chains[i].tag_Ele_pt_cor
-        weight_pt = mc_chains[i].el_pt_cor
+        weight_pt = mc_chains[i].tag_Ele_pt_cor
         if weight_pt >= 200: weight_pt = 199.5
-        TurnOn_Weight = h_TurnOn.GetBinContent(h_TurnOn.FindBin(weight_pt)) # let's simulate as if MC tag passed the trigger
+        TurnOn_Weight = TurnOnHists[this_era].GetBinContent(TurnOnHists[this_era].FindBin(weight_pt)) # let's simulate as if MC tag passed the trigger
 
-        #if entry%1000==0:
+        #if entry%10000==0:
         #  print "weight_pt:",mc_chains[i].tag_Ele_pt_cor,"TurnOn:",TurnOn_Weight
         #  print "probe_pt:",mc_chains[i].el_pt_cor
-        #  print "tag passed trigger?", getattr(mc_chains[i],"tag_"+triggers[era])
-        #  print "probe passed trigger?", getattr(mc_chains[i],triggers[era])
 
-        if (mc_chains[i].el_q+mc_chains[i].tag_Ele_q)==0 and mc_chains[i].mcTrue: #OS2l prompt
-          h_mc_os[i].Fill(mc_chains[i].el_pt_cor,mc_chains[i].totWeight*TurnOn_Weight)
-        elif (mc_chains[i].el_q+mc_chains[i].tag_Ele_q)!=0 and mc_chains[i].mcTrue: #SS2l prompt
-          h_mc_ss[i].Fill(mc_chains[i].el_pt_cor,mc_chains[i].totWeight*TurnOn_Weight) # Check each SS2l (study purposes)
-          h_mc_ss_tot.Fill(mc_chains[i].el_pt_cor,mc_chains[i].totWeight*TurnOn_Weight) # Add up all SS2l in one
+        histinfo = classify_hist(year, mc_chains[i])
+
+        if histinfo is not None:
+          EtaRegion, Charges, Probes = histinfo
+
+          this_weight = mc_chains[i].totWeight # Basic
+
+          for Charge in Charges:
+            if 'os' in Charge or 'zpt' in Charge:
+              this_weight *= mc_chains[i].zptweight # Zpt
+            if 'os' in Charge:
+              this_weight *= TurnOn_Weight # OS TurnOn
+            
+            # ID iteration
+            for ID, isPass in Probes.items():
+              h_mc[EtaRegion][Charge][ID][isPass][i].Fill(mc_chains[i].el_pt_cor,this_weight)
+              if 'ss' in Charge: h_mc[EtaRegion][Charge+'_tot'][ID][isPass].Fill(mc_chains[i].el_pt_cor,this_weight)
+            # All probes
+            h_mc[EtaRegion][Charge]['All'][i].Fill(mc_chains[i].el_pt_cor,this_weight)
+            if 'ss' in Charge: h_mc[EtaRegion][Charge+'_tot']['All'].Fill(mc_chains[i].el_pt_cor,this_weight)
+      t2 = datetime.now()
+      print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
   
-      #print h_mc_os[i].GetBinContent(nBins), h_mc_os[i].GetBinError(nBins), h_mc_os[i].GetBinContent(nBins+1)
-      h_mc_os[i] = add_overflow(h_mc_os[i])
-      h_mc_ss[i] = add_overflow(h_mc_ss[i])
-      #print h_mc_os[i].GetBinContent(nBins), h_mc_os[i].GetBinError(nBins), h_mc_os[i].GetBinContent(nBins+1)
       OutFile.cd()
-      h_mc_os[i].Write()
-      h_mc_ss[i].Write()
-    h_mc_ss_tot = add_overflow(h_mc_ss_tot)
-    OutFile.cd()
-    h_mc_ss_tot.Write()
+      t1 = datetime.now()
+      print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Writing hists ..."
+      for EtaRegion in It_EtaRegions:
+        for Charge in It_Charges:
+          if "tot" not in Charge:
+            h_mc[EtaRegion][Charge]['All'][i] = add_overflow(h_mc[EtaRegion][Charge]['All'][i])
+            #h_mc[EtaRegion][Charge]['All'][i].Write()
+            for Probe in It_Probes:
+              for IsPass in It_IsPasses:
+                  h_mc[EtaRegion][Charge][Probe][IsPass][i] = add_overflow(h_mc[EtaRegion][Charge][Probe][IsPass][i])
+                  #h_mc[EtaRegion][Charge][Probe][IsPass][i].Write()
+      t2 = datetime.now()
+      print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
 
-    # Now collect MCs into bundles
-    h_Bundle = []
+    #### Sample iteration done.
+
+    OutFile.cd()
+    print "before add_overflow:", h_mc['BB']['ss_tot']['All'].GetBinContent(nBins), h_mc['BB']['ss_tot']['All'].GetBinContent(nBins+1)
+    for EtaRegion in It_EtaRegions:
+      for Charge in It_Charges:
+        if "tot" in Charge:
+          h_mc[EtaRegion][Charge]['All'] = add_overflow(h_mc[EtaRegion][Charge]['All'])
+          h_mc[EtaRegion][Charge]['All'].Write()
+          for Probe in It_Probes:
+            for IsPass in It_IsPasses:
+                h_mc[EtaRegion][Charge][Probe][IsPass] = add_overflow(h_mc[EtaRegion][Charge][Probe][IsPass])
+                h_mc[EtaRegion][Charge][Probe][IsPass].Write()
+    print "now:",h_mc['BB']['ss_tot']['All'].GetBinContent(nBins)
+
+    # Now collect OS MC samples into bundles
+    h_Bundle = {}
+    for EtaRegion in It_EtaRegions:
+      h_Bundle[EtaRegion] = {}
+      # ID iteration
+      for Probe in It_Probes:
+        h_Bundle[EtaRegion][Probe] = {}
+        for IsPass in It_IsPasses:
+          h_Bundle[EtaRegion][Probe][IsPass] = []
+      # All probes
+      h_Bundle[EtaRegion]['All'] = []
     
-    h_Bundle.append(h_mc_os[0].Clone()) # DY
-    h_Bundle.append(h_mc_os[1].Clone()) # WJets
-    h_Bundle.append(h_mc_os[2].Clone()) # ttbar
-    h_Bundle.append(h_mc_os[4].Clone()) # Diboson
-    h_Bundle.append(h_mc_os[7].Clone()) # SingleTop
-    h_Bundle[2].Add(h_mc_os[3])
-    h_Bundle[3].Add(h_mc_os[5])
-    h_Bundle[3].Add(h_mc_os[6])
-    h_Bundle[4].Add(h_mc_os[8])
+    for EtaRegion in It_EtaRegions:
+      for Probe in It_Probes:
+        for IsPass in It_IsPasses:
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][0].Clone()) # DY
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][1].Clone()) # WJets
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][2].Clone()) # ttbar
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][4].Clone()) # Diboson
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][7].Clone()) # SingleTop
+          h_Bundle[EtaRegion][Probe][IsPass][2].Add(h_mc[EtaRegion]['os'][Probe][IsPass][3])
+          h_Bundle[EtaRegion][Probe][IsPass][3].Add(h_mc[EtaRegion]['os'][Probe][IsPass][5])
+          h_Bundle[EtaRegion][Probe][IsPass][3].Add(h_mc[EtaRegion]['os'][Probe][IsPass][6])
+          h_Bundle[EtaRegion][Probe][IsPass][4].Add(h_mc[EtaRegion]['os'][Probe][IsPass][8])
   
-    h_Bundle[0].SetFillColor(kSpring+10)
-    h_Bundle[1].SetFillColor(kBlue)
-    h_Bundle[2].SetFillColor(kYellow)
-    h_Bundle[3].SetFillColor(kRed)
-    h_Bundle[4].SetFillColor(kViolet)
+          h_Bundle[EtaRegion][Probe][IsPass][0].SetFillColor(kSpring+10)
+          h_Bundle[EtaRegion][Probe][IsPass][1].SetFillColor(kBlue)
+          h_Bundle[EtaRegion][Probe][IsPass][2].SetFillColor(kYellow)
+          h_Bundle[EtaRegion][Probe][IsPass][3].SetFillColor(kRed)
+          h_Bundle[EtaRegion][Probe][IsPass][4].SetFillColor(kViolet)
+
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][0].Clone()) # DY
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][1].Clone()) # WJets
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][2].Clone()) # ttbar
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][4].Clone()) # Diboson
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][7].Clone()) # SingleTop
+      h_Bundle[EtaRegion]['All'][2].Add(h_mc[EtaRegion]['os']['All'][3])
+      h_Bundle[EtaRegion]['All'][3].Add(h_mc[EtaRegion]['os']['All'][5])
+      h_Bundle[EtaRegion]['All'][3].Add(h_mc[EtaRegion]['os']['All'][6])
+      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os']['All'][8])
+  
+      h_Bundle[EtaRegion]['All'][0].SetFillColor(kSpring+10)
+      h_Bundle[EtaRegion]['All'][1].SetFillColor(kBlue)
+      h_Bundle[EtaRegion]['All'][2].SetFillColor(kYellow)
+      h_Bundle[EtaRegion]['All'][3].SetFillColor(kRed)
+      h_Bundle[EtaRegion]['All'][4].SetFillColor(kViolet)
   
     # Data
     data_chain = TChain("tnpEleIDs/fitter_tree")
   
-    # now sample is data...
-    for period in dates[era][sample]:
-      print "Adding","/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root","..."
-      data_chain.Add("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root")
+    # now 'sample' is data...
+    t1 = datetime.now()
+    print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling",year,"data ..."
+    for era in eras:
+      for period in dates[era][sample]:
+        print "Adding","/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root","..."
+        data_chain.Add("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root")
+    t2 = datetime.now()
+    print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
   
-    h_data_os = TH1D("pt_"+era+"_"+nameFilter[sample]+"_os","pt_"+era+"_"+nameFilter[sample]+"_os",nBins,pt_bins)
-    h_data_ss = TH1D("pt_"+era+"_"+nameFilter[sample]+"_ss","pt_"+era+"_"+nameFilter[sample]+"_ss",nBins,pt_bins)
+    t1 = datetime.now()
+    print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
+    print "data entries:",data_chain.GetEntries()
+    t2 = datetime.now()
+    print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+
+    h_data = {}
+
+    for EtaRegion in It_EtaRegions:
+      h_data[EtaRegion] = {}
+      for Charge in ["os","ss"]:
+        h_data[EtaRegion][Charge] = {}
+        # ID iteration
+        for Probe in It_Probes:
+          h_data[EtaRegion][Charge][Probe] = {}
+          for IsPass in It_IsPasses:
+            h_data[EtaRegion][Charge][Probe][IsPass] = TH1D("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass,"pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass,nBins,pt_bins)
+        # All probes
+        h_data[EtaRegion][Charge]['All'] = TH1D("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge,"pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge,nBins,pt_bins)
+
+    # pre-processing for main jobs
+    this_draw_command = "el_pt_cor>>pt_"+year+"_"+nameFilter[sample]
+    this_cuts = {
+                 "BB" : "(fabs(el_sc_eta)<1.4442)",
+                 "EC" : "(1.566<fabs(el_sc_eta))&&(fabs(el_sc_eta)<2.5)",
+                 "os" : "(el_q+tag_Ele_q==0)",
+                 "ss" : "(el_q+tag_Ele_q!=0)",
+    }
+    for Probe in It_Probes:
+      this_cuts[Probe] = {
+                          'Pass':"(passing"+Probe+"==1)",
+                          'Fail':"(passing"+Probe+"==0)",
+      }
+
+    #### create hists w/ cuts applied
+    t1 = datetime.now()
+    print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Creating hists ..."
+
+    for EtaRegion in It_EtaRegions:
+      for Charge in ["os","ss"]:
+        # ID iteration
+        for Probe in It_Probes:
+          for IsPass in It_IsPasses:
+            draw_command = this_draw_command+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass
+            cut_condition = this_cuts[EtaRegion]+"&&"+this_cuts[Charge]+"&&"+this_cuts[Probe][IsPass]
+            if args.Nevents > 0:
+              cut_condition += "&&Entry$<"+str(args.Nevents)
+            print "Now processing: Draw(\""+draw_command+"\",\""+cut_condition+"\")"
+            data_chain.Draw(draw_command, cut_condition)
+        # All probes
+        draw_command = this_draw_command+"_"+EtaRegion+"_"+Charge
+        cut_condition = this_cuts[EtaRegion]+"&&"+this_cuts[Charge]
+        if args.Nevents > 0:
+          cut_condition += "&&Entry$<"+str(args.Nevents)
+        print "Now processing:","Draw(\""+draw_command+"\",\""+cut_condition+"\")"
+        data_chain.Draw(draw_command, cut_condition)
+
+    t2 = datetime.now()
+    print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
   
-    this_draw_command = "el_pt_cor>>pt_"+era+"_"+nameFilter[sample]
-    data_chain.Draw(this_draw_command+"_os","el_q+tag_Ele_q==0")
-    data_chain.Draw(this_draw_command+"_ss","el_q+tag_Ele_q!=0")
-  
-    #print h_data_os.GetBinContent(nBins), h_data_os.GetBinContent(nBins+1)
-    h_data_os = add_overflow(h_data_os)
-    h_data_ss = add_overflow(h_data_ss)
-    #print h_data_os.GetBinContent(nBins), h_data_os.GetBinContent(nBins+1)
+    h_Stack = {}
+    h_Error = {}
+    for EtaRegion in It_EtaRegions:
+      h_Stack[EtaRegion] = {}
+      h_Error[EtaRegion] = {}
+      # ID iteration
+      for Probe in It_Probes:
+        h_Stack[EtaRegion][Probe] = {}
+        h_Error[EtaRegion][Probe] = {}
+        for IsPass in It_IsPasses:
+          h_Stack[EtaRegion][Probe][IsPass] = THStack("hs_pt_"+year+"_"+EtaRegion+"_"+Probe+"_"+IsPass,"hs_pt_"+year+"_"+EtaRegion+"_"+Probe+"_"+IsPass)
+          h_Error[EtaRegion][Probe][IsPass] = h_Bundle[EtaRegion][Probe][IsPass][0].Clone()
+          h_Error[EtaRegion][Probe][IsPass].Reset()
+      # All probes
+      h_Stack[EtaRegion]['All'] = THStack("hs_pt_"+year+"_"+EtaRegion,"hs_pt_"+year+"_"+EtaRegion)
+      h_Error[EtaRegion]['All'] = h_Bundle[EtaRegion]['All'][0].Clone()
+      h_Error[EtaRegion]['All'].Reset()
 
     OutFile.cd()
-    h_data_os.Write()
-    h_data_ss.Write()
 
-    # SS data - SS prompt = OS fake
-    h_data_ss.Add(h_mc_ss_tot,-1)
-    h_Bundle.append(h_data_ss.Clone()) # Fake
-    h_Bundle[5].SetFillColor(kAzure+1)
+    # Declare Eff, SF hists
+    h_SFs = {}
 
-    # Now Sum up all bkgs to estimate combined error, and collect bundles into one stack
-    h_Stack = THStack("hs","")
-    h_Error = h_Bundle[0].Clone()
-    h_Error.Reset()
-    print h_Error.GetBinContent(1), h_Error.GetBinError(1) # to check h_Error was reset successfully
-    for iBundle in reversed(range(len(h_Bundle))):
-      h_Error.Add(h_Bundle[iBundle])
-      h_Bundle[iBundle].SetLineWidth(0)
-      h_Stack.Add(h_Bundle[iBundle])
-    print h_Error.GetBinContent(1), h_Error.GetBinError(1)
+    #### make plots and measure SFs
+    t1 = datetime.now()
+    print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Measuring SFs ..."
+
+    #print "before add_overflow:",h_data['BB']['os']['All'].GetBinContent(nBins), h_data['BB']['os']['All'].GetBinContent(nBins+1)
+
+    for EtaRegion in It_EtaRegions:
+      # ID iteration
+      for Probe in It_Probes:
+        if Probe not in h_SFs:
+          h_SFs[Probe] = {
+                          'Data_Eff' : TH1D("DataEff_"+Probe, "DataEff_"+Probe, nBins_HEEP_eta, HEEP_eta_bins),
+                          'MC_Eff'   : TH1D("MCEff_"+Probe, "MCEff_"+Probe, nBins_HEEP_eta, HEEP_eta_bins),
+                          'SF'       : TH1D("SF_"+Probe, "SF_"+Probe, nBins_HEEP_eta, HEEP_eta_bins),
+          }
+        for IsPass in It_IsPasses:
+          for Charge in ["os","ss"]:
+            # Add overflow
+            h_data[EtaRegion][Charge][Probe][IsPass] = add_overflow(h_data[EtaRegion][Charge][Probe][IsPass])
+            #h_data[EtaRegion][Charge][Probe][IsPass].Write()
+
+          # SS data - SS prompt = OS fake
+          h_data[EtaRegion]['ss'][Probe][IsPass].Add(h_mc[EtaRegion]['ss_tot'][Probe][IsPass],-1)
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_data[EtaRegion]['ss'][Probe][IsPass].Clone()) # Fake
+          h_Bundle[EtaRegion][Probe][IsPass][5].SetFillColor(kAzure+1)
+
+          # Now Sum up all bkgs to estimate combined error, and collect bundles into one stack
+          for iBundle in reversed(range(len(h_Bundle[EtaRegion][Probe][IsPass]))):
+            h_Bundle[EtaRegion][Probe][IsPass][iBundle].SetLineWidth(0)
+            h_Error[EtaRegion][Probe][IsPass].Add(h_Bundle[EtaRegion][Probe][IsPass][iBundle])
+            h_Stack[EtaRegion][Probe][IsPass].Add(h_Bundle[EtaRegion][Probe][IsPass][iBundle])
   
-    makePlots(h_data_os, h_Stack, h_Bundle, h_Error, era)
+          makePlots(h_data[EtaRegion]['os'][Probe][IsPass], h_Stack[EtaRegion][Probe][IsPass], h_Bundle[EtaRegion][Probe][IsPass], h_Error[EtaRegion][Probe][IsPass], year, "_"+EtaRegion+"_"+Probe+"_"+IsPass+Name_Nevents)
+        measureSFs(h_data[EtaRegion]['os'][Probe], h_Bundle[EtaRegion][Probe], year, EtaRegion, Probe, Name_Nevents, h_SFs[Probe], OutFile)
+
+      # All probes
+      for Charge in ["os","ss"]:
+        # Add overflow
+        h_data[EtaRegion][Charge]['All'] = add_overflow(h_data[EtaRegion][Charge]['All'])
+        #h_data[EtaRegion][Charge]['All'].Write()
+
+      # SS data - SS prompt = OS fake
+      h_data[EtaRegion]['ss']['All'].Add(h_mc[EtaRegion]['ss_tot']['All'],-1)
+      h_Bundle[EtaRegion]['All'].append(h_data[EtaRegion]['ss']['All'].Clone()) # Fake
+      h_Bundle[EtaRegion]['All'][5].SetFillColor(kAzure+1)
+
+      # Now Sum up all bkgs to estimate combined error, and collect bundles into one stack
+      print h_Error[EtaRegion]['All'].GetBinContent(1), h_Error[EtaRegion]['All'].GetBinError(1) # to check h_Error was reset successfully
+      for iBundle in reversed(range(len(h_Bundle[EtaRegion]['All']))):
+        h_Bundle[EtaRegion]['All'][iBundle].SetLineWidth(0)
+        h_Error[EtaRegion]['All'].Add(h_Bundle[EtaRegion]['All'][iBundle])
+        h_Stack[EtaRegion]['All'].Add(h_Bundle[EtaRegion]['All'][iBundle])
+      print h_Error[EtaRegion]['All'].GetBinContent(1), h_Error[EtaRegion]['All'].GetBinError(1)
+  
+      makePlots(h_data[EtaRegion]['os']['All'], h_Stack[EtaRegion]['All'], h_Bundle[EtaRegion]['All'], h_Error[EtaRegion]['All'], year, "_"+EtaRegion+"_AllProbes"+Name_Nevents)
+    #### EtaRegion done.
+
+    #print "now:",h_data['BB']['os']['All'].GetBinContent(nBins)
+
+    t2 = datetime.now()
+    print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+
+    for Probe in h_SFs.keys():
+      for SF in h_SFs[Probe].keys():
+        h_SFs[Probe][SF].Write()
+
+    OutFile.Close()
 
   return
 
 if __name__ == '__main__':
-  TurnOn()
-  #makePtComparison()
+  beginTime = datetime.now()
+  #TurnOn()
+  makeKinComparison()
+  endTime = datetime.now()
+  print "["+endTime.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Total done in",endTime-beginTime,"."
