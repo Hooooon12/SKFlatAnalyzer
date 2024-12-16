@@ -2,7 +2,7 @@
 #define ScaledPts_h
 
 struct ScaledPts {
-  double ScaledPt, ScaeldPt_Up, ScaeldPt_Down;
+  double ScaledPt, ScaledPt_Up, ScaledPt_Down;
 };
 
 #endif

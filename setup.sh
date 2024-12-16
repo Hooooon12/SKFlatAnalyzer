@@ -86,3 +86,11 @@ echo "-----------------------------------------------------------------"
 ## Log Dir ##
 echo "* Your Log Directory Usage (ctrl+c to skip)"
 #du -sh $SKFlatRunlogDir
+
+#export LANG=en_US.UTF-8
+#export LC_ALL=en_US.UTF-8
+#export LANGUAGE=en_US.UTF-8
+
+#LANG="en_US.utf-8"
+##LC_COLLATE="lt_LT.utf-8"
+#LC_TIME="en_DK.utf-8"

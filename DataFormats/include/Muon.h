@@ -145,6 +145,7 @@ public:
   bool Pass_POGHighPtWithVLooseTrkIso() const;
   bool Pass_POGHighPtWithLooseTrkIso() const;
   bool Pass_POGHighPtTight() const;
+  bool Pass_POGHighPtTightWithIP() const;
   bool Pass_POGHighPtTightOR() const;
   bool Pass_POGHighPtLoose() const;
   bool Pass_POGHighPtLooseOR() const;

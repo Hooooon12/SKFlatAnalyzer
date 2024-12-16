@@ -333,6 +333,7 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter param, TString region,  T
                                 vector<Tau> TauColl,  std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Lepton *> leps ,
                                 Particle  met, double nvtx,  double w){
 
+  if(leps.size() < 2) return;
 
   double ST = GetST(leps, jets, fatjets, met);
   double met2_st = pow(met.Pt(),2.)/ ST;
@@ -350,7 +351,7 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter param, TString region,  T
     double MN1 = (N1Cand.M() > 2000.) ? 1999. : N1Cand.M();
 
     FillHist( plot_dir+ region+ "/Master/M1J",          MN1,          w, nSRbins-1, mljbins, "M_{Jl_{1}} GeV" );
-
+    
     return;
   }
   else{
@@ -360,9 +361,9 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter param, TString region,  T
     FillHist( plot_dir+ region+ "/Master/HT_PT1",     leps[0]->HTOverPt(),     w, nSRbins-1, mhtptins, "H_{T}/p_{T}");
     
     
-    int nPtbins=10;
-    double Pt1bins[nPtbins+1] = { 20.,25., 30., 40., 50., 70., 100.,  150.,  200.,400.,600};
-    double Pt2bins[nPtbins+1] = { 10.,15., 20., 30., 40., 50., 100.,  120.,  140., 160.,  200.};
+    int nPtbins=12;
+    double Pt1bins[nPtbins+1] = { 20.,25., 30., 40., 50., 70., 100.,  150.,  200.,400.,600,1000,2000};
+    double Pt2bins[nPtbins+1] = { 10.,15., 20., 30., 40., 50., 100.,  120.,  140., 160.,  200.,400,1000};
     double PTLep1  = (leps[0]->Pt() > 500.) ? 499. : leps[0]->Pt();
     double PTLep2  = (leps[1]->Pt() > 200.) ? 199. : leps[1]->Pt();
     

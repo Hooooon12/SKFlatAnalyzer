@@ -3437,6 +3437,8 @@ double MCCorrection::MuonReco_SF(TString key, double eta, double p, int sys){
   if(key=="Default") return 1.;
 
   double value = -1.;
+  double error_up = 0.;
+  double error_down = 0.;
   double error = 0.;
 
   eta = fabs(eta);
@@ -3452,170 +3454,357 @@ double MCCorrection::MuonReco_SF(TString key, double eta, double p, int sys){
     if(eta>=2.4) eta = 2.39;
 
     //https://twiki.cern.ch/twiki/bin/view/CMS/MuonUL2016#RECO_efficiencies
-    if(DataEra.Contains("2016")){
+
+    if(DataEra  == "2016preVFP"){
+      if( eta < 1.6  ){
+        if( p < 100){
+          error_up=0.995227801323898;
+          error_down=0.994125661987993;
+          value=0.9946767316559455;
+        }
+        else if( p < 150){
+	  error_up=0.9992971079470516;
+          error_down=0.9983044687053764;
+          value=0.998800788326214;
+        }
+        else if( p < 200){
+	  error_up=1.0006919833780739;
+          error_down=0.9993354675244253;
+          value=1.0000137254512496;
+        }
+        else if( p < 300){
+	  error_up=1.0003450607514124;
+          error_down=0.9988239782076257;
+          value=0.9995845194795191;
+        }
+        else if( p < 400){
+	  error_up=1.0009512177465236;
+          error_down=0.9974986685593457;
+          value=0.9992249431529346;
+        }
+        else if( p < 600){
+	  error_up=1.0020476967834313;
+          error_down=0.9962302127919886;
+          value=0.99913895478771;
+        }
+        else if( p < 1500){
+	  error_up=1.0031575636920835;
+          error_down=0.9832126701900217;
+          value=0.9931851169410526;
+	}
+        else if( p < 3500){
+	  error_up=0.7135634730037197;
+          error_down=0.09926689577708875;
+          value=0.40641518439040425;
+        }
+      }
+      else if( eta < 2.4  ){
+	if( p < 100){
+          error_up=1.;
+          error_down=1.;
+          value=1.;
+        }
+        else if( p < 150){
+	  error_up=0.9960360524184441;
+          error_down=0.9916217541150506;
+          value=0.9938289032667473;
+        }
+        else  if( p < 200){
+	  error_up=0.9955722693414139;
+          error_down=0.994016476410681;
+          value=0.9947943728760474;
+        }
+        else  if( p < 300){
+	  error_up=0.9904363039717452;
+          error_down=0.9890618258283379;
+          value=0.9897490649000416;
+        }
+        else  if( p < 400){
+	  error_up=0.9889311423295442;
+          error_down=0.9866255818663261;
+          value=0.9877783620979351;
+        }
+        else  if( p < 600){
+	  error_up=0.9845169634353598;
+          error_down=0.9813576797186575;
+          value=0.9829373215770086;
+        }
+        else  if( p < 1500){
+	  error_up=0.9819584607662794;
+          error_down=0.9751102314105503;
+          value=0.9785343460884148;
+        }
+        else  if( p < 3500){
+	  error_up=0.9289459343427907;
+          error_down=0.8062601657488716;
+          value=0.8676030500458312;
+        }
+      }
+    }
+
+    if(DataEra =="2016postVFP"){
       if( eta < 1.6  ){
         if( p < 100){      
-	  error=0.0008; 
-	  value=0.9914;  
+	  error_up=0.9952458090969507;
+          error_down=0.9942774651685373;
+          value=0.994761637132744;
 	}
         else if( p < 150){
-	  error=0.0009; 
-	  value=0.9936;
+	  error_up=0.9984969334216286;
+          error_down=0.997527833503865;
+          value=0.9980123834627468;
         }
         else if( p < 200){ 
-	  error=0.001;
-	  value=0.993;
+	  error_up=1.0003081580613284;
+          error_down=0.9990817187103893;
+          value=0.9996949383858589;
         }
         else if( p < 300){ 
-	  error=0.002; 
-	  value=0.993;
+	  error_up=1.0014241464145324;
+          error_down=1.0001284047735537;
+          value=1.000776275594043;
         }
         else if( p < 400){
-	  error=0.004; 
-	  value=0.990;
+	  error_up=1.000115661673285;
+          error_down=0.9974618254931225;
+          value=0.9987887435832037;
 	}
         else if( p < 600){ 
-	  error=0.003;
-	  value=0.990; 
+	  error_up=1.0066094560103684;
+          error_down=1.0026120834858474;
+          value=1.004610769748108;
 	}
         else if( p < 1500){
-	  error=0.004; 
-	  value=0.989;
+	  error_up=0.9946914547731844;
+          error_down=0.9781850693240632;
+          value=0.9864382620486238;
       }
         else if( p < 3500){ 
-	  error=0.3;
-	  value=0.8;
+	  error_up=0.9172845394883645;
+          error_down=0.30264389466787656;
+          value=0.6099642170781205;
 	}
       }
       else if( eta < 2.4  ){
         if( p < 100){ 
-	  error=0.; 
-	  value=1.; 
+	  error_up=1.3675000000000002;
+          error_down=0.6325;
+          value=1.0;
 	}
         else  if( p < 150){ 
-	  error=0.001;
-	  value=0.993;
+	  error_up=0.9961574992167305;
+          error_down=0.9914378558504254;
+          value=0.993797677533578;
 	}
         else  if( p < 200){
-	  error=0.001;
-	  value=0.991;
+	  error_up=0.9910038694607181;
+          error_down=0.989474909446801;
+          value=0.9902393894537596;
 	}
         else  if( p < 300){  
-	  error=0.001;
-	  value=0.985;
+	  error_up=0.9872890297959525;
+          error_down=0.9858709806954036;
+          value=0.986580005245678;
 	}
         else  if( p < 400){    
-	  error=0.002; 
-	  value=0.981; 
+	  error_up=0.9859852399421813;
+          error_down=0.9837357831810145;
+          value=0.9848605115615979;
 	}
         else  if( p < 600){
-	  error=0.004; 
-	  value=0.979;
+	  error_up=0.9787932077956544;
+          error_down=0.9757496435099909;
+          value=0.9772714256528227;
 	}
         else  if( p < 1500){
-	  error=0.005; 
-	  value=0.978; 
+	  error_up=0.9731578694891617;
+          error_down=0.967194930594714;
+          value=0.9701764000419378;
 	}
 	else  if( p < 3500){  
-	  error=0.2; 
-	  value=0.9;     }
+	  error_up=0.9428604681642978;
+          error_down=0.8537608822977072;
+          value=0.8983106752310025;
+	}
       }
     }
 
-    if(DataEra=="2017"){
+    else if(DataEra=="2017"){
       if( eta < 1.6  ){
         if( p < 100){      
-	  error=0.0006; 
-	  value=0.9938;  
+	  error_up=0.9948795406366364;
+          error_down=0.9936900729345366;
+          value=0.9942848067855865;
 	}
         else if( p < 150){ 
-	  error=0.0007;
-	  value=0.9950;
+	  error_up=0.9977473776473309;
+          error_down=0.9966262399225394;
+          value=0.9971868087849352;
         }
         else if( p < 200){ 
-	  error=0.001;
-	  value=0.996;
+	  error_up=0.9999019988337379;
+          error_down=0.9983973791806195;
+          value=0.9991496890071787;
         }
         else if( p < 300){ 
-	  error=0.001;
-	  value=0.996;
+	  error_up=1.0011180886507811;
+          error_down=0.9997957595397501;
+          value=1.0004569240952657;
         }
         else if( p < 400){
-	  error=0.001;
-	  value=0.994; 
+	  error_up=1.0003360542823345;
+          error_down=0.9980258419730407;
+          value=0.9991809481276875;
 	}
         else if( p < 600){
-	  error=0.006;
-	  value=1.003;
+	  error_up=1.0010455523435753;
+          error_down=0.9978320157692674;
+          value=0.9994387840564214;
 	}
         else if( p < 1500){
-	  error=0.003;
-	  value=0.987;
+	  error_up=1.0005913340427095;
+          error_down=0.9921529862255839;
+          value=0.9963721601341468;
 	}
         else if( p < 3500){ 
-	  error=0.1;
-	  value=0.9;
+	  error_up=0.8195883888830711;
+          error_down=0.40398213663456756;
+          value=0.6117852627588193;
 	}
       }
       else if( eta < 2.4  ){
         if( p < 100){ 
-	  error=0.;
-	  value=1.;
+	  error_up=1.6;
+          error_down=0.4;
+          value=1;
 	}
         else  if( p < 150){
-	  error=0.001;
-	  value=0.993;
+	  error_up=0.9939986228182041;
+          error_down=0.9877430617098582;
+          value=0.9908708422640311;
 	}
         else  if( p < 200){
-	  error=0.001; 
-	  value=0.989;
+	  error_up=0.9883758813162412;
+          error_down=0.9858267294813762;
+          value=0.9871013053988087;
 	}
         else  if( p < 300){ 
-	  error=0.001; 
-	  value=0.986;
+	  error_up=0.9873557088250168;
+          error_down=0.9853593609294634;
+          value=0.9863575348772401;
 	}
         else  if( p < 400){ 
-	  error=0.001; 
-	  value=0.989;  
+	  error_up=0.9821041844954014;
+          error_down=0.9795758826153608;
+          value=0.9808400335553811;
 	}
         else  if( p < 600){ 
-	  error=0.003;
-	  value=0.983; 
+	  error_up=0.9815896653733617;
+          error_down=0.9786751767048915;
+          value=0.9801324210391266;
 	}
         else  if( p < 1500){   
-	  error=0.006;
-	  value=0.986;
+	  error_up=0.9780596921978489;
+          error_down=0.9736188827735329;
+          value=0.9758392874856909;
 	}
 	else  if( p < 3500){ 
-	  error=0.01; 
-	  value=1.01;
+	  error_up=0.9693729392576922;
+          error_down=0.9186720565856947;
+          value=0.9440224979216935;
 	}
       }
     }
-
-
-    if(DataEra=="2018"){
+    else if(DataEra=="2018"){
       if( eta < 1.6  ){
-	if( p < 100){	    error=0.0007;   value=0.9943;	}
-	else if( p < 150){ error=0.0007;  value=0.9948;	}
-	else if( p < 200){ error=0.0009;  value=0.9950;        }
-	else if( p < 300){ error=0.001;   value=0.994;        }
-	else if( p < 400){ error=0.0009;  value=0.9914;       }
-	else if( p < 600){ error=0.002;    value=0.993;       }
-	else if( p < 1500){ error=0.004;   value=0.991;      }
-	else if( p < 3500){  error=0.1;    value=1.;         }
+        if( p < 100){
+          error_up=0.9960185764743364;
+          error_down=0.9949202552228559;
+          value=0.9954694158485962;
+        }
+        else if( p < 150){
+          error_up=0.9980450760959432;
+          error_down=0.9969556392097965;
+          value=0.9975003576528698;
+        }
+        else if( p < 200){
+          error_up=0.9993621637394963;
+          error_down=0.9979759356484939;
+          value=0.9986690496939951;
+        }
+        else if( p < 300){
+          error_up=0.9986443075093399;
+          error_down=0.9974570852428604;
+          value=0.9980506963761001;
+        }
+        else if( p < 400){
+          error_up=0.9990211860548934;
+          error_down=0.9969010814976738;
+          value=0.9979611337762836;
+        }
+        else if( p < 600){
+          error_up=1.0010239170101964;
+          error_down=0.99822553959427;
+          value=0.9996247283022333;
+        }
+        else if( p < 1500){
+          error_up=0.9965751142706425;
+          error_down=0.9889760274242743;
+          value=0.9927755708474584;
+        }
+        else if( p < 3500){
+          error_up=1.0357738580360492;
+          error_down=0.7314880389782692;
+          value=0.8836309485071592;
+        }
       }
       else if( eta < 2.4  ){
-	if( p < 100){ error=0.;   value=1.;	}
-	else  if( p < 150){     error=0.001;   value=0.993;  }
-	else  if( p < 200){     error=0.001;   value=0.990;  }
-	else  if( p < 300){     error=0.001;   value=0.988;  }
-	else  if( p < 400){     error=0.002;   value=0.981;  }
-	else  if( p < 600){     error=0.003;   value=0.983;	}
-	else  if( p < 1500){    error=0.006;   value=0.978;	}
-	else  if( p < 3500){    error=0.03;    value=0.98;	}
+        if( p < 100){
+          error_up=1.8399999999999999;
+          error_down=0.16000000000000003;
+          value=1.0;
+        }
+        else  if( p < 150){
+          error_up=0.9989776561237231;
+          error_down=0.9906878406602764;
+          value=0.9948327483919998;
+        }
+        else  if( p < 200){
+          error_up=0.9904796219870464;
+          error_down=0.9882286893690275;
+          value=0.989354155678037;
+        }
+        else  if( p < 300){
+          error_up=0.9847926661903523;
+          error_down=0.982960800497906;
+          value=0.9838767333441292;
+        }
+        else  if( p < 400){
+          error_up=0.9818963616444432;
+          error_down=0.9794762086336957;
+          value=0.9806862851390694;
+        }
+        else  if( p < 600){
+          error_up=0.9785028851501875;
+          error_down=0.9757961539897776;
+          value=0.9771495195699825;
+        }
+        else  if( p < 1500){
+          error_up=0.9746258589475912;
+          error_down=0.9704134714564226;
+          value=0.9725196652020069;
+        }
+        else  if( p < 3500){
+          error_up=0.8613748500937793;
+          error_down=0.8065308683508711;
+          value=0.8339528592223252;
+        }
       }
+
     }
+
+
+
   }
   else   if(key=="LowPMuonRecoSF"){
     
@@ -4810,7 +4999,12 @@ double MCCorrection::MuonReco_SF(TString key, double eta, double p, int sys){
   //https://gitlab.cern.ch/cms-muonPOG/muonefficiencies/-/blob/master/Run2/UL/2018/Efficiency_muon_generalTracks_Run2018_UL_trackerMuon.json  
 
   if(value > 0) {
-    return value+double(sys)*error;
+    if(key=="HighPtMuonRecoSF" || (key=="MuonRecoSF" && p > 200))   {
+      if(sys == 0) return value;
+      if(sys > 0) return error_up;
+      if(sys < 0) return error_down;
+    }
+    else return value+double(sys)*error;
   }
 
   TH2F *this_hist = map_hist_Muon["RECO_SF_"+key];

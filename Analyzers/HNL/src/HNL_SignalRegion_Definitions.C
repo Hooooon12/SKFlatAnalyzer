@@ -111,8 +111,7 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     
     if(!ConversionSplitting(LepsT,RunConv,2,param)) continue;
 
-    FillCutflow(CutFlow_Region, weight_ll, "ConvFilter",param);
-
+    //    FillCutflow(CutFlow_Region, weight_ll, "ConvFilter",param);
 
 
     if(! CheckLeptonFlavourForChannel(dilep_channel, LepsT))  continue;
@@ -152,7 +151,7 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     if(LepsV.size()==2)     FillCutflow(CutFlow_Region, weight_channel, "LepVeto",param);
   
     if(LepsV.size()==2&& B_JetColl.size()==0)     FillCutflow(CutFlow_Region, weight_channel, "BJet",param);
-
+    if(LepsV.size()==2&& B_JetColl.size()==0 && ev.MET2ST() < 15)   FillCutflow(CutFlow_Region, weight_channel, "MET",param);
 
     /// RunMainRegionCode runs SR1/SR2/SR3
     

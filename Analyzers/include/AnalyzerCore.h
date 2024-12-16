@@ -120,7 +120,14 @@ public:
   std::vector<Gen>    GetGens();
   std::vector<LHE>    GetLHEs();
 
-  std::vector<Muon>   UseTunePMuon(const std::vector<Muon>& muons, double ptboundary=200);
+  std::vector<Muon>   UseTunePMuon(const std::vector<Muon>& muons);
+  std::vector<Muon>   UseTunePMuonUL(const std::vector<Muon>& muons);
+
+  double GetSmearFactor(double p, double eta);
+  void SmearHighPtMuon(Muon& muon);
+  void SmearHighPtMuonSyst(std::vector<Muon>&);
+
+  void HighPtMuonCorr(std::vector<Muon>& muons);
 
   std::vector<Jet>       GetJets(TString ID, double ptmin, double fetamax);
   std::vector<FatJet>    GetFatJets(TString ID, double ptmin, double fetamax);
@@ -421,6 +428,9 @@ public:
   //==================
   //==== Systematics
   //==================
+  
+  std::vector<Muon> GetHighPtMuons(TString method, TString ID, double pt, double eta);
+
 
   // AnalyzerCore_Lepton.C
   std::vector<Electron> ScaleElectrons(const std::vector<Electron>& electrons, int sys);

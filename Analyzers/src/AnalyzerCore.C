@@ -141,9 +141,18 @@ std::vector<Muon> AnalyzerCore::GetAllMuons(){
 
     double rc = muon_roch_sf->at(i);
     double rc_err = muon_roch_sf_up->at(i)-rc;
+    //if(muon_pt->at(i) > 200) {
+    //  rc=1;
+    //  rc_err=0;
+    // }
     //==== For the Rochester corection, up and down err are the same
     mu.SetMomentumScaleUpDown( muon_pt->at(i) * (rc+rc_err), muon_pt->at(i) * (rc-rc_err)  );
+
+    //if(muon_pt->at(i) > 200) cout << "muon_pt->at(i) = " << muon_pt->at(i) << " rc =" <<rc << endl;
+
     mu.SetPtEtaPhiM(muon_pt->at(i)*rc, muon_eta->at(i), muon_phi->at(i), muon_mass->at(i));
+
+
 
     //==== TuneP
     //==== Apply scailing later with AnalyzerCore::UseTunePMuon()
@@ -993,21 +1002,66 @@ std::vector<LHE> AnalyzerCore::GetLHEs(){
 
 }
 
-std::vector<Muon> AnalyzerCore::UseTunePMuon(const std::vector<Muon>& muons, double ptboundary){
+
+std::vector<Muon> AnalyzerCore::UseTunePMuonUL(const std::vector<Muon>& muons){
+
+  std::vector<Muon> out;
+  for(unsigned int i=0; i<muons.size(); i++){
+
+    Muon this_muon=muons.at(i);
+
+    Particle this_tunep4 = this_muon.TuneP4();
+    
+    //==== Momentum scaling                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    //==== 1) if tuneP Pt < 200 -> Rochester                                                                                                                                                                                                                                                                                                                                                                                                                   
+    //==== 2) if tuneP pt >= 200 -> No Corr
+
+    double new_pt( this_tunep4.Pt() ), new_pt_up( this_tunep4.Pt() ), new_pt_down( this_tunep4.Pt() );
+    if(this_tunep4.Pt()<200){
+
+      double TunePOverPt = this_tunep4.Pt() / this_muon.MiniAODPt();
+      new_pt      = TunePOverPt * this_muon.Pt(); // this_muon.Pt() = MiniAODPt * RochesterCorrection                                                                                                                                                                                                                                                                                                                                                          
+      new_pt_up   = TunePOverPt * this_muon.MomentumShift(+1);
+      new_pt_down = TunePOverPt * this_muon.MomentumShift(-1);
+
+      this_muon.SetPtEtaPhiM( new_pt, this_tunep4.Eta(), this_tunep4.Phi(), this_tunep4.M() );
+      this_muon.SetMomentumScaleUpDown(new_pt_up,new_pt_down);
+   
+    }
+
+    this_muon.SetPtEtaPhiM( new_pt, this_tunep4.Eta(), this_tunep4.Phi(), this_tunep4.M() );
+    this_muon.SetMomentumScaleUpDown(new_pt_up,new_pt_down);
+    this_muon.SetCharge( this_tunep4.Charge() );
+    this_muon.SetMiniAODPt( this_muon.MiniAODTunePPt() ); 
+
+    out.push_back(this_muon);
+  }
+
+  std::sort(out.begin(),       out.end(),        PtComparing);
+
+  return out;
+
+}
+
+
+
+
+std::vector<Muon> AnalyzerCore::UseTunePMuon(const std::vector<Muon>& muons){
 
   std::vector<Muon> out;
   for(unsigned int i=0; i<muons.size(); i++){
     //==== muons is a const vector. So in this function, we have to copy the elements like below
     Muon this_muon=muons.at(i);
-
+    
     Particle this_tunep4 = this_muon.TuneP4();
+    
 
     //==== Momentum scaling
     //==== 1) if tuneP Pt < 200 -> Rochester
     //==== 2) if tuneP pt >= 200 -> Generalized Endpoint
 
     double new_pt( this_tunep4.Pt() ), new_pt_up( this_tunep4.Pt() ), new_pt_down( this_tunep4.Pt() );
-    if(this_tunep4.Pt()<ptboundary){
+    if(this_tunep4.Pt()<200){
 
       //==== 19/03/24 (jskim) : For 99% of the muons, MiniAODPt and TunePPt are same
       //==== we can just use MiniAODPt * RochesterCorrection, multiplied by (TuneP Pt)/(MiniAODPt)
@@ -1045,8 +1099,8 @@ std::vector<Muon> AnalyzerCore::UseTunePMuon(const std::vector<Muon>& muons, dou
         new_pt = ptvalues.ScaledPt;
         //==== Mode == 1 : Kappa up
         //==== Mode == 2 : Kappa down
-        new_pt_up = ptvalues.ScaeldPt_Up;
-        new_pt_down = ptvalues.ScaeldPt_Down;
+        new_pt_up = ptvalues.ScaledPt_Up;
+        new_pt_down = ptvalues.ScaledPt_Down;
 
 /*
         cout << "## GeneralizedEndpointPt ##" << endl;

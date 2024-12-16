@@ -18,6 +18,8 @@ class HNL_HighPtMuon_Studies : public HNL_RegionDefinitions {
   ~HNL_HighPtMuon_Studies();
 
 
+  void DrawMuonPlotsHighPt(vector<Muon> muons, Event ev,TString label, vector<Electron> electron, AnalyzerParameter param);
+
 
 };
 

@@ -21,19 +21,23 @@ fi
 if [[ $1 == "Sig" ]]; then
 
     declare  -a era_list=("2017")
-
+    declare  -a  flags=("SignalKinematics")
+    
     for i in "${era_list[@]}"
     do
-	SKFlat.py -a $analyzer  -l $sigpath/SSWW.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
-	SKFlat.py -a $analyzer  -l $sigpath/DY.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
-	SKFlat.py -a $analyzer  -l $sigpath/VBF.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
 
-        SKFlat.py -a $analyzer  -l $sigpath/SSWWOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
-        SKFlat.py -a $analyzer  -l $sigpath/DYOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
-        SKFlat.py -a $analyzer  -l $sigpath/VBFOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT&
-
+	for j in "${flags[@]}"
+	do
+	    SKFlat.py -a $analyzer  -l $sigpath/Private/SSWW.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags ${j} &
+	    SKFlat.py -a $analyzer  -l $sigpath/Private/DY.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags ${j} &
+	    SKFlat.py -a $analyzer  -l $sigpath/Private/VBF.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags ${j} &
+	    
+            SKFlat.py -a $analyzer  -l $sigpath/Official/SSWWOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags ${j} & 
+            SKFlat.py -a $analyzer  -l $sigpath/Official/DYOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags ${j} &
+            SKFlat.py -a $analyzer  -l $sigpath/Official/VBFOfficial.txt  -n $njobs  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags ${j} &
+	    
+	done
     done
-
 fi
 
 

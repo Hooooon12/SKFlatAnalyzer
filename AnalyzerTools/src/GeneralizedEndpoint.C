@@ -119,8 +119,8 @@ ScaledPts GeneralizedEndpoint::GeneralizedEndpointPt(TString Era, float MuonPt, 
 
   ScaledPts out;
   out.ScaledPt = MuonPt;
-  out.ScaeldPt_Up = MuonPt;
-  out.ScaeldPt_Down = MuonPt;
+  out.ScaledPt_Up = MuonPt;
+  out.ScaledPt_Down = MuonPt;
 
   //Check the input format.
   if (fabs(MuonEta)>2.4) {
@@ -200,8 +200,8 @@ ScaledPts GeneralizedEndpoint::GeneralizedEndpointPt(TString Era, float MuonPt, 
   MuonPt_Down = MuonPt_Down*1000.;//Return to Pt in GeV.
 
   out.ScaledPt = MuonPt_Central;
-  out.ScaeldPt_Up = MuonPt_Up;
-  out.ScaeldPt_Down = MuonPt_Down;
+  out.ScaledPt_Up = MuonPt_Up;
+  out.ScaledPt_Down = MuonPt_Down;
 
   return out;
 };

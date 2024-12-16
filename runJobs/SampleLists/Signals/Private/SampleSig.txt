@@ -5,5 +5,5 @@ DYTypeI_DF_M2000_private
 VBFTypeI_DF_M1000_private
 VBFTypeI_DF_M500_private
 VBFTypeI_DF_M2000_private
-SSWWTypeI_DF_M10000_private
-SSWWTypeI_DF_M1000_private
+SSWWTypeI_SF_M10000_private
+SSWWTypeI_SF_M1000_private
