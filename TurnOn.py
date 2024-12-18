@@ -349,11 +349,11 @@ def TurnOn():
       t2 = datetime.now()
       print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
     
-      #t1 = datetime.now()
-      #print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
-      #print "Total",this_chain.GetEntries(),"events." # The most time consuming part
-      #t2 = datetime.now()
-      #print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+      t1 = datetime.now()
+      print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
+      print "Total",this_chain.GetEntries(),"events."
+      t2 = datetime.now()
+      print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
     
       outName = year+"_"+nameFilter[sample]
 
@@ -880,8 +880,8 @@ def makeKinComparison():
 
       t1 = datetime.now()
       print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
-      #Nevents = args.Nevents if args.Nevents > 0 else mc_chains[i].GetEntriesFast() # The most time consuming part
-      Nevents = args.Nevents if args.Nevents > 0 else mc_chains[i].GetEntries() # The most time consuming part
+      #Nevents = args.Nevents if args.Nevents > 0 else mc_chains[i].GetEntriesFast() # Why this doesn't work?
+      Nevents = args.Nevents if args.Nevents > 0 else mc_chains[i].GetEntries()
       t2 = datetime.now()
       print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
 
@@ -1018,7 +1018,7 @@ def makeKinComparison():
   
     #t1 = datetime.now()
     #print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
-    #print "data entries:",data_chain.GetEntries() # The most time consuming part
+    #print "data entries:",data_chain.GetEntries()
     #t2 = datetime.now()
     #print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
 
