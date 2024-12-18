@@ -47,19 +47,20 @@ void HNL_LeptonCore::GetSetup_HighPt(AnalyzerParameter& param_default ){
 
   /////// Fake Bkg                                                                                                                                                  
   param_default.FakeRateMethod       = "Standard";
-  param_default.FakeRateParam        = "Pt";
+  param_default.FakeRateParam        = "PtCone";
   param_default.k.Muon_FR            = "FR_cent";
   param_default.k.Electron_FR        = "AwayJetPt40";
   param_default.Muon_FR_ID           = "POGHighPt";
-  param_default.Electron_FR_ID       = "HEEPLoose_v3";
+  param_default.Electron_FR_ID       = "passHEEPLoose_v3";
 
   //// Lepton Corr [not needed as set false]                                                                                                                        
   param_default.k.Muon_RECO_SF       = "HighPtMuonRecoSF";
-  param_default.Electron_Tight_ID   = "passHEEPID_v3";
+  param_default.k.Electron_CF        = "CFRate_InvPtEta3_PBSExtrap_Central_passHEEPID_v3";
 
-  param_default.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_passHEEPID_v3";
-
+                                                                                                                                                 
+  param_default.Apply_Weight_TriggerSF = false;
   param_default.TriggerSelection = "Dilep";
+  //  param_default.TriggerSelection     = "HighPt";
 
 
   return;
@@ -78,7 +79,7 @@ void HNL_LeptonCore::GetSetup_MVAPOG(AnalyzerParameter& param_default ){
 
   ///FIX                                                                                                                                                                                                                                                  
   param_default.FakeRateMethod       = "Standard";
-  param_default.FakeRateParam        = "PtCone";
+  param_default.FakeRateParam        = "Pt";
   param_default.k.Muon_FR            = "AwayJetPt40";
   param_default.k.Electron_FR        = "AwayJetPt40";
   param_default.k.Electron_ID_SF     = "passHNTightV2";

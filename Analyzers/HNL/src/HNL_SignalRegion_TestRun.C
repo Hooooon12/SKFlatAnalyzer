@@ -1,6 +1,6 @@
-#include "HNL_SignalRegion_Plotter.h"
+#include "HNL_SignalRegion_TestRun.h"
 
-void HNL_SignalRegion_Plotter::initializeAnalyzer(){
+void HNL_SignalRegion_TestRun::initializeAnalyzer(){
 
   // All default settings like trigger/ PD/ BJet are decalred in HNL_LeptonCore::initializeAnalyzer to make them consistent for all HNL codes
 
@@ -10,82 +10,62 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
   bool run_mm_bdt=false;
   bool run_em_bdt=false;
   
-  if(HasFlag("EE") || HasFlag("MuMu") || HasFlag("EMu")){
-    run_ee_bdt=HasFlag("EE");
-    run_mm_bdt=HasFlag("MuMu");
-    run_em_bdt=HasFlag("EMu");
-    SetupEventMVAReader("V2",run_ee_bdt,run_mm_bdt,run_em_bdt);
-  }
-  else SetupEventMVAReader("V2");
+  SetupEventMVAReader("V2");
 
   nLog = 100000;
-
-  RunTopID = HasFlag("RunHNTop");
-  RunPOGID = HasFlag("RunPOG");
-  RunHighPtID = HasFlag("RunHighPt");
-  RunPekingID = HasFlag("RunPeking");
-  
 }
 
 
-void HNL_SignalRegion_Plotter::executeEvent(){
+void HNL_SignalRegion_TestRun::executeEvent(){
 
-  //FillTimer("START_EV");
+  FillTimer("START_EV");
   
+
   if(_jentry == 0){
-    cout << "HNL_SignalRegion_Plotter::IsData = " << IsData << endl;
+    cout << "HNL_SignalRegion_TestRun::IsData = " << IsData << endl;
   }
-  vector<TString> LepIDs = {"HNL_ULID"}; //,"HNTightV2", "POGTight"};
-  if(RunTopID) LepIDs = {"TopHN"};
-  if(RunPOGID) LepIDs = {"POGTight"};
-  if(RunHighPtID) LepIDs = {"HNL_ULID","HighPt"};
-  if(RunPekingID) LepIDs = {"Peking"};
+  vector<TString> LepIDs = {"HNL_ULID","HNL_ULID_NoConv","HNL_ULID_ConvFix"};
 
 
   //  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULID","POGTight","TopHN","HNTightV2","MVAPOG"};//,"HNTightV2","POGTight","TopHN","HighPt"};
 
-  vector<HNL_LeptonCore::Channel> ChannelsToRun = {};
-  if(RunEE)   ChannelsToRun.push_back(EE);
-  if(RunMuMu) ChannelsToRun.push_back(MuMu);
-  if(RunEMu)  ChannelsToRun.push_back(EMu);
+  vector<HNL_LeptonCore::Channel> ChannelsToRun = {EE};
   if(ChannelsToRun.size() == 0) ChannelsToRun = {EE,MuMu,EMu};
-
-  if(RunHighPtID) ChannelsToRun = {MuMu};
 
 
   for (auto id: LepIDs){
 
     for(auto channel : ChannelsToRun){
-      
-      AnalyzerParameter param = HNL_LeptonCore::InitialiseHNLParameter(id,channel);
-      
+            
+      AnalyzerParameter param = HNL_LeptonCore::InitialiseHNLParameter("HNL_ULID",channel);
+      param.Name = id;
+      param.DefName = id;
+
+      param.Electron_Tight_ID = id;
+
       param.PlottingVerbose = 0; //// Draw basic plots
-      if(id == "HNL_ULID")         param.PlottingVerbose = 1; /// Draw more plots
-      if(id.Contains("HEEP"))      param.PlottingVerbose = 1;
 
       param.PlottingVerbose = 3; //// TEMP FOR LIMIT BIN STUDY
 
-      if(HasFlag("HighPtTrigger")) param.TriggerSelection     = "HighPt";          
-      if(HasFlag("HighPtTrigger")) param.Apply_Weight_TriggerSF = false;
-
+      
       RunULAnalysis(param);
 
       TString param_name = param.Name;
 
-      for(auto isyst : GetSystList("All",channel)){ //JH
-        bool runJob = UpdateParamBySyst(id,param,AnalyzerParameter::Syst(isyst),param_name);
-        if(runJob) RunULAnalysis(param);
+      for(auto isyst : GetSystList()){
+	bool runJob = UpdateParamBySyst(id,param,AnalyzerParameter::Syst(isyst),param_name);
+	if(runJob) RunULAnalysis(param);
       }
     }
   }
-  //FillTimer("END_EV");
+  FillTimer("END_EV");
 
   return ;
 }
 
-void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
+void HNL_SignalRegion_TestRun::RunULAnalysis(AnalyzerParameter param){
 
-  if(run_Debug) cout << "HNL_SignalRegion_Plotter::executeEvent " << endl;
+  if(run_Debug) cout << "HNL_SignalRegion_TestRun::executeEvent " << endl;
 
   Event ev = GetEvent();
   double weight =SetupWeight(ev,param);
@@ -119,11 +99,12 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
   std::vector<Jet>    AK4_JetCollLoose            = GetHNLJets("Loose",     param);
   std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param);
  
+  //Particle METv = GetvMET("PuppiT1xyULCorr",param);
   Particle METv = GetvMET("PuppiT1xyULCorr", param, AK4_VBF_JetColl, AK8_JetColl, MuonCollT, ElectronCollT); // returns MET with systematic correction; run this after all object selection done; NOTE that VBF jet is used here
   
   EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
 
-  //FillTimer("START_SR");
+  FillTimer("START_SR");
 
   vector<int> RunEl ;
   if(RunCF) RunEl =  {0,1} ;
@@ -132,25 +113,25 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
   for(auto ir : RunEl){
     
     RunAllSignalRegions(Inclusive,
-      ElectronCollT,ElectronCollV,MuonCollT,MuonCollV,  TauColl,
-      AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl, 
-      ev,METv, param, ir, weight);
+			ElectronCollT,ElectronCollV,MuonCollT,MuonCollV,  TauColl,
+			AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl, 
+			ev,METv, param, ir, weight);
   }
 
-  //FillTimer("END_SR"); //JH
+  FillTimer("END_SR");
 
 
 }
  
 
-HNL_SignalRegion_Plotter::HNL_SignalRegion_Plotter(){
+HNL_SignalRegion_TestRun::HNL_SignalRegion_TestRun(){
 
-  cout << "HNL_SignalRegion_Plotter::HNL_SignalRegion_Plotter  TMVA::Tools::Instance() " << endl;
+  cout << "HNL_SignalRegion_TestRun::HNL_SignalRegion_TestRun  TMVA::Tools::Instance() " << endl;
   SetupEvMVA();
   
 }
  
-HNL_SignalRegion_Plotter::~HNL_SignalRegion_Plotter(){
+HNL_SignalRegion_TestRun::~HNL_SignalRegion_TestRun(){
 
   DeleteEvMVA();
 

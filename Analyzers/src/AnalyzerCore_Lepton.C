@@ -230,11 +230,16 @@ std::vector<Muon> AnalyzerCore::GetHighPtMuons(TString method, TString ID, doubl
   std::vector<Muon> out;
 
   for(unsigned int i=0; i<muons.size(); i++){
-    if(method.Contains("Tune")){
 
-      Muon this_muon=muons.at(i);
+    Muon this_muon=muons.at(i);
+    double new_pt, new_pt_up, new_pt_down;
+
+    if(method.Contains("TuneP")){
       Particle this_tunep4 = this_muon.TuneP4();
-      double new_pt( this_tunep4.Pt() ), new_pt_up( this_tunep4.Pt() ), new_pt_down( this_tunep4.Pt() );
+      new_pt= this_tunep4.Pt();
+      new_pt_up = this_tunep4.Pt();
+      new_pt_down= this_tunep4.Pt();
+
       if(method.Contains("Roch")){
 	double TunePOverPt = this_tunep4.Pt() / this_muon.MiniAODPt();
 	new_pt      = TunePOverPt * this_muon.Pt(); // this_muon.Pt() = MiniAODPt * RochesterCorrection                                                                                               
@@ -268,8 +273,11 @@ std::vector<Muon> AnalyzerCore::GetHighPtMuons(TString method, TString ID, doubl
       
     }
     else{
-      Muon this_muon=muons.at(i);
-      double new_pt( this_muon.Pt() ), new_pt_up( this_muon.MomentumShift(+1) ), new_pt_down( this_muon.MomentumShift(-1) );
+      
+      new_pt =this_muon.Pt();
+      new_pt_up =this_muon.MomentumShift(+1) ;
+      new_pt_down = this_muon.MomentumShift(-1);
+
       if(method.Contains("Nom")){
 	new_pt= this_muon.MiniAODPt();
       }
@@ -291,7 +299,8 @@ std::vector<Muon> AnalyzerCore::GetHighPtMuons(TString method, TString ID, doubl
       this_muon.SetPtEtaPhiM( new_pt, this_muon.Eta(), this_muon.Phi(), this_muon.M() );
       this_muon.SetMomentumScaleUpDown(new_pt_up,new_pt_down);
     }
-  }  
+    out.push_back(this_muon);
+  }
 
   return out;
 }

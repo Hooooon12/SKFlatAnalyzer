@@ -325,6 +325,10 @@ public:
   bool Pass_MultiFunction_Opt(TString ID) const;
   bool Pass_LepMVAID() const ;
   bool Pass_LepMVAID_TrkIso() const ;
+  bool Pass_LepMVAID_split1() const;
+  bool Pass_LepMVAID_split2() const;
+  bool Pass_LepMVAID_split3() const;
+  bool Pass_LepMVAID_split4() const;
   bool Pass_LepMVATopID() const ;
   bool passLooseHEEPID() const;
   bool passLooseHEEPID_NoMinPt() const; //JH

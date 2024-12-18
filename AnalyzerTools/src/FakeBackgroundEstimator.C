@@ -235,6 +235,8 @@ double FakeBackgroundEstimator::GetMuonFakeRate(TString ID, TString key, TString
   mapit = map_hist_Muon.find("FakeRate_"+ID+"_"+key);
 
   if(mapit==map_hist_Muon.end()){
+    cout << "Missing  " << "FakeRate_"+ID+"_"+key << endl;
+    for(auto i : map_hist_Muon) cout << i.first << endl;
     if(IgnoreNoHist){
       TString MapK = "FakeRate_"+ID+"_"+key;
       if (std::find(MissingHists.begin(), MissingHists.end(), MapK ) == MissingHists.end())   MissingHists.push_back(MapK);

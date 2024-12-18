@@ -141,6 +141,9 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
       
       weight_channel = GetFakeWeight(LepsT, param);
       FillFakeWeightHist(param.Name+"/FakeWeight", LepsT,param, weight_channel);
+
+      //// Fix for current High Pt Fakes, which are wrong
+      if(RunHighPtID) weight_channel = weight_channel*0.5;
     }
 
     if (!PassTriggerSelection(dilep_channel, ev, LepsT,param.TriggerSelection)) continue;
