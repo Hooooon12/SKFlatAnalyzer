@@ -240,8 +240,6 @@ bool Electron::PassID(TString ID) const{
   if(PassIDLoose(ID)   >=0) return (PassIDLoose(ID)==1)    ? true : false;
   if(PassIDTight(ID)   >=0) return (PassIDTight(ID)==1)    ? true : false;
 
-  if(ID=="HEEPLoose_v3") return BtoI(passLooseHEEPID() && Pass_TriggerEmulationLoose()&&PassConversionVeto() && IsGsfCtfChargeConsistent()); //JH to run HighPt flag
-
   cout << "[Electron::PassID] No id : " << ID << endl;
   exit(ENODATA);
 

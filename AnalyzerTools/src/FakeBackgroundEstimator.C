@@ -61,8 +61,8 @@ void FakeBackgroundEstimator::ReadHistograms(bool IsData, bool ScanIDs){
         //  cout << "Check " <<  this_frname <<  " --  " << b+"_"+c << " --  " << d << endl;
         
         if (b.Contains("HighPt")) {
-          //if (!this_frname.Contains(c)) continue; //JH
-          //if (!this_frname.Contains(d)) continue; //JH
+          if (!this_frname.Contains(c)) continue;
+          if (!this_frname.Contains(d)) continue;
         }
         else if (!b.Contains("Top")) {
           if (!this_frname.Contains(b+"_"+c)) continue;

@@ -7,7 +7,6 @@ FakeRate      TopHN                		ptcone_eta      FR_cent               MainF
 FakeRate      Peking               		ptcone_eta      FR_cent               MainFiles/FR_Mu_2017_HNL_PtCone.root
 FakeRate      HNTightV2                      	ptcone_eta      FR_cent               MainFiles/FR_Mu_2017_HNL_PtCone.root
 FakeRate      POGHighPtWithLooseTrkIso       	ptcone_eta      FR_cent     	      MainFiles/FR_Mu_2017_HighPt_PtCone.root
-FakeRate      POGHighPtWithLooseTrkIso       	pt_eta      FR_cent     	      MainFiles/FR_Mu_2017_HighPt_PtCone.root
 ###-----------------------------------------------------------------------------------------------------------------------------
 ###--- Following entries for MVA HNL IDs using v5 [Binning SYST]
 ###-----------------------------------------------------------------------------------------------------------------------------
