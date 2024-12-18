@@ -57,31 +57,31 @@ void FakeBackgroundEstimator::ReadHistograms(bool IsData, bool ScanIDs){
       TFile *file = new TFile(FFRPath+"/"+e);
       TList *histlist = file->GetListOfKeys();
       for(int i=0;i<histlist->Capacity();i++){
-	TString this_frname = histlist->At(i)->GetName();
-	//	cout << "Check " <<  this_frname <<  " --  " << b+"_"+c << " --  " << d << endl;
-
+        TString this_frname = histlist->At(i)->GetName();
+        //  cout << "Check " <<  this_frname <<  " --  " << b+"_"+c << " --  " << d << endl;
+        
         if (b.Contains("HighPt")) {
-	  if (!this_frname.Contains(c)) continue;
-	  if (!this_frname.Contains(d)) continue;
-	}
-	else if (!b.Contains("Top")) {
-	  if (!this_frname.Contains(b+"_"+c)) continue;
-	  //if (!this_frname.Contains(c)) continue;
-	  if (!this_frname.Contains(d)) continue;
-	}
-	else{
-	  if (!this_frname.Contains(b)) continue;
+          //if (!this_frname.Contains(c)) continue; //JH
+          //if (!this_frname.Contains(d)) continue; //JH
+        }
+        else if (!b.Contains("Top")) {
+          if (!this_frname.Contains(b+"_"+c)) continue;
+          //if (!this_frname.Contains(c)) continue;
           if (!this_frname.Contains(d)) continue;
-	}
-	histDir->cd();
-	
-	if(ihmap.Contains("Electron")) map_hist_Electron[a+"_"+b+"_"+c+"_"+d] = (TH2D *)file->Get(this_frname)->Clone(a+"_"+b+"_"+c+"_"+d);
-	else  map_hist_Muon[a+"_"+b+"_"+c+"_"+d] = (TH2D *)file->Get(this_frname)->Clone(a+"_"+b+"_"+c+"_"+d);
+        }
+        else{
+          if (!this_frname.Contains(b)) continue;
+                if (!this_frname.Contains(d)) continue;
+        }
+        histDir->cd();
+        
+        if(ihmap.Contains("Electron")) map_hist_Electron[a+"_"+b+"_"+c+"_"+d] = (TH2D *)file->Get(this_frname)->Clone(a+"_"+b+"_"+c+"_"+d);
+        else  map_hist_Muon[a+"_"+b+"_"+c+"_"+d] = (TH2D *)file->Get(this_frname)->Clone(a+"_"+b+"_"+c+"_"+d);
+        
+        origDir->cd();
+        if(ihmap.Contains("Electron")) cout << ihmap << " [FakeBackgroundEstimator::FakeBackgroundEstimator] map_hist_Electron : " << a+"_"+b+"_"+c+"_"+d+ " --> "+this_frname << endl;
+        else cout << ihmap << " [FakeBackgroundEstimator::FakeBackgroundEstimator] map_hist_Muon : " << a+"_"+b+"_"+c+"_"+d+ " --> "+this_frname << endl;
 
-	origDir->cd();
-	if(ihmap.Contains("Electron")) cout << ihmap << " [FakeBackgroundEstimator::FakeBackgroundEstimator] map_hist_Electron : " << a+"_"+b+"_"+c+"_"+d+ " --> "+this_frname << endl;
-	else cout << ihmap << " [FakeBackgroundEstimator::FakeBackgroundEstimator] map_hist_Muon : " << a+"_"+b+"_"+c+"_"+d+ " --> "+this_frname << endl;
-	
       }
       file->Close();
       delete file;

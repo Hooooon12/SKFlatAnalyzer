@@ -15,8 +15,10 @@ args = parser.parse_args()
 Name_Nevents = "_N"+str(args.Nevents) if args.Nevents > 0 else ""
 
 #It_Probes = ['HEEP', 'HNLMVA', 'CutBasedTight94XV2', 'HNLMVA_TrkIso', 'HNLHeep', 'HNLMVAFake', 'HNLMVAConv', 'HNLMVACF', 'MVALoose']
-It_Probes = ['HNLMVA']
+#It_Probes = ['HNLMVA']
 #It_Probes = ['MVALoose']
+#It_Probes = ['HNLHeep']
+It_Probes = ['HNLMVAFake', 'HNLMVAConv', 'HNLMVACF', 'MVALoose']
 It_IsPasses = ['Pass','Fail']
 #It_EtaRegions = ['BB','EC']
 It_EtaRegions = ['BB']
@@ -30,10 +32,10 @@ eras = [
   "2018",
 ]
 grouped_eras = {
-                '2016preVFP': ["2016preVFP"], 
+                #'2016preVFP': ["2016preVFP"], 
                 #'2016postVFP': ["2016postVFP"], 
                 #'2016': ["2016preVFP","2016postVFP"], 
-                #'2017': ["2017"], 
+                '2017': ["2017"], 
                 #'2018': ["2018"]
 }
 luminosity = {
@@ -300,19 +302,15 @@ def GetMinMax(*hists):
 
     # Get the minimum and maximum bin content of the histogram
     local_min_bin = hist.GetMinimumBin()
-    local_min_bin_value = hist.GetBinContent(local_min_bin)
-    print 0, hist.GetBinContent(0)
-    for i in range(hist.GetNbinsX()):
-      print i+1, hist.GetBinContent(i+1)
-    print i+2, hist.GetBinContent(i+2)
-    local_min = hist.GetMinimum()
-    local_max = hist.GetMaximum()
+    local_min = hist.GetBinContent(local_min_bin)
+    local_max_bin = hist.GetMaximumBin()
+    local_max = hist.GetBinContent(local_max_bin)
 
     # Update global min and max
     global_min = min(global_min, local_min)
     global_max = max(global_max, local_max)
 
-  return local_min_bin, local_min_bin_value, global_min, global_max
+  return global_min, global_max
 
 
 def add_overflow(hist):
@@ -351,11 +349,11 @@ def TurnOn():
       t2 = datetime.now()
       print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
     
-      t1 = datetime.now()
-      print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
-      print "Total",this_chain.GetEntries(),"events."
-      t2 = datetime.now()
-      print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+      #t1 = datetime.now()
+      #print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
+      #print "Total",this_chain.GetEntries(),"events." # The most time consuming part
+      #t2 = datetime.now()
+      #print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
     
       outName = year+"_"+nameFilter[sample]
 
@@ -632,6 +630,13 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, OutFile):
   #    print i+1,Data_Tot.GetBinContent(i+1)
   #    print i+1,Data_Eff.GetBinContent(i+1)/Data_Tot.GetBinContent(i+1)
 
+  # handling exceptions
+  print "Checking Data eff bins ..."
+  for i in range(Data_Eff.GetNbinsX()):
+    print i+1, "th bin num:", Data_Eff.GetBinContent(i+1), "den:", Data_Tot.GetBinContent(i+1)
+    if Data_Eff.GetBinContent(i+1) <= 0:
+      Data_Eff.SetBinContent(i+1, 1)
+      Data_Tot.SetBinContent(i+1, 0.01) # eff = 100 so out of range
   Data_Eff.Divide(Data_Eff,Data_Tot,1,1,"B")
 
   #for i in range(this_nBins):
@@ -677,6 +682,13 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, OutFile):
   #    print i+1,MC_Tot.GetBinContent(i+1),"+-",MC_Tot.GetBinError(i+1)
   #    print i+1,MC_Eff.GetBinContent(i+1)/MC_Tot.GetBinContent(i+1)
 
+  # handling exceptions
+  print "Checking MC eff bins ..."
+  for i in range(MC_Eff.GetNbinsX()):
+    print i+1, "th bin num:", MC_Eff.GetBinContent(i+1), "den:", MC_Tot.GetBinContent(i+1)
+    if MC_Eff.GetBinContent(i+1) <= 0:
+      MC_Eff.SetBinContent(i+1, 1)
+      MC_Tot.SetBinContent(i+1, 0.1) # eff = 10 so out of range
   MC_Eff.Divide(MC_Eff,MC_Tot,1,1,"B")
 
   #for i in range(this_nBins):
@@ -694,8 +706,7 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, OutFile):
   c_up.Draw()
   c_up.cd()
 
-  dummy1, dummy2, c_up_min, c_up_max = GetMinMax(Data_Eff, MC_Eff)
-  #c_up_min, c_up_max = GetMinMax(Data_Eff, MC_Eff)
+  c_up_min, c_up_max = GetMinMax(Data_Eff, MC_Eff)
   c_up_min *= 0.9
 
   Data_Eff.SetTitle("")
@@ -771,18 +782,15 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, OutFile):
   c_down.cd()
 
   Ratio = Data_Eff.Clone()
-  Ratio.GetYaxis().SetRange()
   Ratio.Divide(MC_Eff)
 
-  dummy1, dummy2, c_down_min, c_down_max = GetMinMax(Ratio)
-  #c_down_min, c_down_max = GetMinMax(Ratio)
-  print "min bin:", str(dummy1)
-  print "value at min bin:", str(dummy2)
-  print "original c_down_min:", str(c_down_min)
-  print "original c_down_min*0.9:", str(c_down_min*0.9)
-  c_down_min = min(0.9, c_down_min*0.9)
+  print "Checking SF bins ..."
+  for i in range(Ratio.GetNbinsX()):
+    print i+1,"th bin:",Ratio.GetBinContent(i+1)
+
+  c_down_min, c_down_max = GetMinMax(Ratio)
+  c_down_min = max(0.9, c_down_min*0.95)
   c_down_max = 1.+(1.-c_down_min)
-  print "fixed c_down_min:", str(c_down_min)
 
   Ratio.SetTitle("")
   Ratio.SetStats(0)
@@ -872,7 +880,8 @@ def makeKinComparison():
 
       t1 = datetime.now()
       print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
-      Nevents = args.Nevents if args.Nevents > 0 else mc_chains[i].GetEntries()
+      #Nevents = args.Nevents if args.Nevents > 0 else mc_chains[i].GetEntriesFast() # The most time consuming part
+      Nevents = args.Nevents if args.Nevents > 0 else mc_chains[i].GetEntries() # The most time consuming part
       t2 = datetime.now()
       print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
 
@@ -1007,11 +1016,11 @@ def makeKinComparison():
     t2 = datetime.now()
     print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
   
-    t1 = datetime.now()
-    print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
-    print "data entries:",data_chain.GetEntries()
-    t2 = datetime.now()
-    print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+    #t1 = datetime.now()
+    #print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
+    #print "data entries:",data_chain.GetEntries() # The most time consuming part
+    #t2 = datetime.now()
+    #print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
 
     h_data = {}
 
@@ -1122,7 +1131,9 @@ def makeKinComparison():
             h_Error[EtaRegion][Probe][IsPass].Add(h_Bundle[EtaRegion][Probe][IsPass][iBundle])
             h_Stack[EtaRegion][Probe][IsPass].Add(h_Bundle[EtaRegion][Probe][IsPass][iBundle])
   
+          print "Making pass/fail plots ..."
           makePlots(h_data[EtaRegion]['os'][Probe][IsPass], h_Stack[EtaRegion][Probe][IsPass], h_Bundle[EtaRegion][Probe][IsPass], h_Error[EtaRegion][Probe][IsPass], year, "_"+EtaRegion+"_"+Probe+"_"+IsPass+Name_Nevents)
+        print "Calculating SFs ..."
         measureSFs(h_data[EtaRegion]['os'][Probe], h_Bundle[EtaRegion][Probe], year, EtaRegion, Probe, Name_Nevents, h_SFs[Probe], OutFile)
 
       # All probes
@@ -1144,6 +1155,7 @@ def makeKinComparison():
         h_Stack[EtaRegion]['All'].Add(h_Bundle[EtaRegion]['All'][iBundle])
       print h_Error[EtaRegion]['All'].GetBinContent(1), h_Error[EtaRegion]['All'].GetBinError(1)
   
+      print "Making all probes plots ..."
       makePlots(h_data[EtaRegion]['os']['All'], h_Stack[EtaRegion]['All'], h_Bundle[EtaRegion]['All'], h_Error[EtaRegion]['All'], year, "_"+EtaRegion+"_AllProbes"+Name_Nevents)
     #### EtaRegion done.
 
