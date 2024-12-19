@@ -1016,11 +1016,11 @@ def makeKinComparison():
     t2 = datetime.now()
     print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
   
-    #t1 = datetime.now()
-    #print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
-    #print "data entries:",data_chain.GetEntries()
-    #t2 = datetime.now()
-    #print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
+    t1 = datetime.now()
+    print "["+t1.strftime("%Y-%m-%d %H:%M:%S")+"]","Calling total entries ..."
+    print "data entries:",data_chain.GetEntries()
+    t2 = datetime.now()
+    print "["+t2.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Done in",t2-t1,"."
 
     h_data = {}
 
