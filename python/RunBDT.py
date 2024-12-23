@@ -161,8 +161,7 @@ for TMVADir in TMVADirs:
   if args.IsVBF:
     isvbf_C= "true"
 
-  submitMacro = args.Analyzer+".C(TString channel="EE",  int eta_mode=0, TString signal="LowMass", TString NTrees="1000", TString NormMode="NumEvents", TString   MinNodeSize ="1.5", TSt\
-ring MaxDepth = "3", TString nCuts="100", bool IgnoreNegweights=true){
+  submitMacro = args.Analyzer+".C(TString channel="EE",  int eta_mode=0, TString signal="LowMass", TString NTrees="1000", TString NormMode="NumEvents", TString   MinNodeSize ="1.5", TString MaxDepth = "3", TString nCuts="100", bool IgnoreNegweights=true){
 
   submitMacro = args.Analyzer+".C(\""+str(args.Channel)+"\","+args.Mass+",\""+args.Era+"\","+isvbf_C+","+str(args.MetMode)+","+str(args.NbMode)+","+str(args.JetMode)+","+str(args.NTree)+" )"
   

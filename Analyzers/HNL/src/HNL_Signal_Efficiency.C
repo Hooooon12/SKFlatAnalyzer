@@ -83,7 +83,16 @@ void HNL_Signal_Efficiency::executeEvent(){
 
   vector<HNL_LeptonCore::Channel> channels = {EE};//,MuMu};//, EMu};
   
-  vector<TString> ElectronIDs = {"NoCut","HNVetoMVA","CutBasedLooseNoIso","CutBasedMediumNoIso","CutBasedTightNoIso","MVALooseNoIso","CutBasedVetoNoIso","HNTightV2","passPOGTight","passPOGMedium","passMVAID_noIso_WP80","passMVAID_noIso_WP90","passMVAID_Iso_WP80","passMVAID_Iso_WP90","HNL_ULID_"+GetYearString(),"MVALoose","TopHNSST","HNL_ULID_NoConv","HNL_ULID_ConvLowPt","HNL_ULID_Conv_Lone","HNL_ULID_Baseline","HNL_ULID_Conv_LowPt1","HNL_ULID_Conv_LowPt2","HNL_ULID_Conv_LowPt3","HNL_ULID_Conv_LowPt4","HNL_ULID_Defv1_FO", "HNL_ULID_Defv2_FO","HNL_ULID_Defv3_FO","HNL_ULID_Defv4_FO","HNL_ULID_Defv5_FO","HNL_ULID_Defv6_FO","HNL_ULID_Defv7_FO","HNL_ULID_Defv7","HNL_ULID_Defv8_FO","HNL_ULID_Defv9_FO", "HNL_ULID_Defv3","HNL_ULID_Defv4","HNL_ULID_Defv5","HNL_ULID_Defv6","HNL_ULID_Defv8","HNL_ULID_Defv9","HNL_ULID_Split_1","HNL_ULID_Split_2","HNL_ULID_Split_3","HNL_ULID_Split_4","HNL_ULID_Split_5","HNL_ULID_Split_6","HNL_ULID_Split_7","HNL_ULID_Split_8","HNL_ULID_Probe_Split_2","HNL_ULID_Probe_Split_3","HNL_ULID_Probe_Split_4","HNL_ULID_Probe_Split_5","HNL_ULID_Probe_Split_6","HNL_ULID_Probe_Split_7","HNL_ULID_Probe_Split_8"};
+  vector<TString> ElectronIDs = {"NoCut","HNVetoMVA",
+				 "CutBasedLooseNoIso","CutBasedMediumNoIso","CutBasedTightNoIso","MVALooseNoIso","CutBasedVetoNoIso","HNTightV2",
+				 "passPOGTight","passPOGMedium","passMVAID_noIso_WP80","passMVAID_noIso_WP90","passMVAID_Iso_WP80","passMVAID_Iso_WP90",
+				 "HNL_ULID_"+GetYearString(),"MVALoose","TopHNSST",
+				 "HNL_ULID_NoConv","HNL_ULID_ConvLowPt","HNL_ULID_Conv_Lone","HNL_ULID_Baseline",
+				 "HNL_ULID_Conv_LowPt",	  "HNL_ULID_Defv1_FO", "HNL_ULID_Defv2_FO","HNL_ULID_Defv3_FO","HNL_ULID_Defv4_FO","HNL_ULID_Defv5_FO",
+				 "HNL_ULID_Defv3","HNL_ULID_Defv4","HNL_ULID_Defv5",
+				 "HNL_ULID_Split_1","HNL_ULID_Split_2","HNL_ULID_Split_3","HNL_ULID_Split_4","HNL_ULID_Split_4b",
+				 "HNL_ULID_Split_5","HNL_ULID_Split_6","HNL_ULID_Split_7","HNL_ULID_Split_8","HNL_ULID_Split_8b",
+				 "HNL_ULID_Probe_Split_2","HNL_ULID_Probe_Split_3","HNL_ULID_Probe_Split_4","HNL_ULID_Probe_Split_5","HNL_ULID_Probe_Split_6","HNL_ULID_Probe_Split_7","HNL_ULID_Probe_Split_8"};
   
   vector<TString> MuonIDs = {"NoCut","POGTight","POGHighPt","POGMedium","POGLoose","POGTightWithTightIso","HNLoosePOG","HNTightV2","HNTightPFIsoLoose", "HNTightPFIsoMedium","HNTightPFIsoTight","HNTightPFIsoVeryTight","HNTightPFIsoVeryVeryTight","HNL_HN3L","Peking","HNL_ULID_"+GetYearString(),"MVALoose", "TopHN"};  
   

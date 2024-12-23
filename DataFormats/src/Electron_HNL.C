@@ -32,7 +32,7 @@ int  Electron::PassHNLTight(TString ID) const{
   //// HNL_ULID_Defv2_FO_ has Medium Charge cut on top of HNL_ULID_Defv1_FO_                                                                                                                                            
   if(ID == "HNL_ULID")           return BtoI(PassID("HNL_ULID_Defv2_FO") && PassID("HNL_ULID_Fake"));
   if(ID == "HNL_ULID_ConvLowPt") return BtoI(PassID("HNL_ULID_Defv3_FO") && PassID("HNL_ULID_Fake"));
-  if(ID == "HNL_ULID_NoConv")    return BtoI(PassID("HNL_ULID_Defv8_FO") && PassID("HNL_ULID_Fake"));
+  if(ID == "HNL_ULID_NoConv")    return BtoI(PassID("HNL_ULID_Defv4_FO") && PassID("HNL_ULID_Fake"));
 
 
   if(ID == "HNL_ULID_"+Year)    return BtoI(PassID("HNL_ULID_Defv2_FO") && PassID("HNL_ULID_Fake"));
@@ -42,18 +42,6 @@ int  Electron::PassHNLTight(TString ID) const{
 						   PassID("HNL_ULID_TrkIso_CF")     &&
 						   PassID("HNL_ULID_TrkIso_Fake"));
   
-  if(ID == "HNL_ULID_HEEP")    {
-    if(this->Pt() < 150)      return BtoI(PassID("HNL_ULID_TrkIso_Conv")   && 
-					  PassID("HNL_ULID_TrkIso_CF")     && 
-					  PassID("HNL_ULID_TrkIso_Fake")   && 
-					  PassID("passHEEPID_v3")); //// HNL ID && HEEP
-    else if(this->Pt() > 200) return BtoI(PassID("passHEEPID_v3")); //// HEEP ONLY
-    else return BtoI(PassID("HNL_ULID_HEEP_Conv") && 
-		     PassID("HNL_ULID_HEEP_CF")   &&  
-		     PassID("HNL_ULID_HEEP_Fake") && 
-		     PassID("passHEEPID_v3"));
-    
-  }
   ///// Check Side Band for conv inclusion                                                                                                                                                                            
   if(ID == "HNL_ULID_CONVSB")   return  BtoI(PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
   
@@ -63,32 +51,26 @@ int  Electron::PassHNLTight(TString ID) const{
   if(ID == "HNL_ULID_Defv1_FO")   return BtoI(PassID("HNL_ULID_Conv")   && PassID("HNL_ULID_CF"));
   // HNL_ULID_Defv2_FO_ is new default FO ID WIth medium charge cut                                                                                                                                                     
   if(ID == "HNL_ULID_Defv2_FO")   return BtoI(PassID("HNL_ULID_Conv")         && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
-  if(ID == "HNL_ULID_Defv3_FO")   return BtoI(PassID("HNL_ULID_Conv_LowPt1")  && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
-  if(ID == "HNL_ULID_Defv4_FO")   return BtoI(PassID("HNL_ULID_Conv_LowPt2")  && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
-  if(ID == "HNL_ULID_Defv5_FO")   return BtoI(PassID("HNL_ULID_Conv_LowPt3")  && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
-  if(ID == "HNL_ULID_Defv6_FO")   return BtoI(PassID("HNL_ULID_Conv_LowPt4")  && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
-  if(ID == "HNL_ULID_Defv7_FO")   return BtoI(PassID("HNL_ULID_Conv_LowPt5")  && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
-  if(ID == "HNL_ULID_Defv8_FO")   return BtoI(PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
-  if(ID == "HNL_ULID_Defv9_FO")   return BtoI(PassMVABaseLine()&&IsGsfCtfChargeConsistent());
+  if(ID == "HNL_ULID_Defv3_FO")   return BtoI(PassID("HNL_ULID_Conv_LowPt")  && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
+  if(ID == "HNL_ULID_Defv4_FO")   return BtoI(PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent());
+  if(ID == "HNL_ULID_Defv5_FO")   return BtoI(PassMVABaseLine()&&IsGsfCtfChargeConsistent());
 
-  if(ID == "HNL_ULID_Defv3")   return BtoI(PassID("HNL_ULID_Conv_LowPt1")   && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent()&& PassID("HNL_ULID_Fake") );
-  if(ID == "HNL_ULID_Defv4")   return BtoI(PassID("HNL_ULID_Conv_LowPt2")   && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent()&& PassID("HNL_ULID_Fake") );
-  if(ID == "HNL_ULID_Defv5")   return BtoI(PassID("HNL_ULID_Conv_LowPt3")   && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent()&& PassID("HNL_ULID_Fake") );
-  if(ID == "HNL_ULID_Defv6")   return BtoI(PassID("HNL_ULID_Conv_LowPt4")   && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent()&& PassID("HNL_ULID_Fake") );
-  if(ID == "HNL_ULID_Defv7")   return BtoI(PassID("HNL_ULID_Conv_LowPt5")   && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent()&& PassID("HNL_ULID_Fake") );
-  if(ID == "HNL_ULID_Defv8")   return BtoI(PassID("HNL_ULID_CF") && PassID("HNL_ULID_Fake")   &&  IsGsfCtfChargeConsistent());
-  if(ID == "HNL_ULID_Defv9")   return BtoI(PassMVABaseLine()&&IsGsfCtfChargeConsistent()&& PassID("HNL_ULID_Fake") );
+  if(ID == "HNL_ULID_Defv3")   return BtoI(PassID("HNL_ULID_Conv_LowPt")   && PassID("HNL_ULID_CF") &&  IsGsfCtfChargeConsistent()&& PassID("HNL_ULID_Fake") );
+  if(ID == "HNL_ULID_Defv4")   return BtoI(PassID("HNL_ULID_CF") && PassID("HNL_ULID_Fake")   &&  IsGsfCtfChargeConsistent());
+  if(ID == "HNL_ULID_Defv5")   return BtoI(PassMVABaseLine()&&IsGsfCtfChargeConsistent()&& PassID("HNL_ULID_Fake") );
 
   if(ID == "HNL_ULID_Split_1") return BtoI(Pass_LepMVAID_split1());
   if(ID == "HNL_ULID_Split_2") return BtoI(PassID("HNL_ULID_Split_1") && Pass_LepMVAID_split2());
   if(ID == "HNL_ULID_Split_3") return BtoI(PassID("HNL_ULID_Split_2") && Pass_LepMVAID_split3());
   if(ID == "HNL_ULID_Split_4") return BtoI(PassID("HNL_ULID_Split_3") && Pass_LepMVAID_split4());
+  if(ID == "HNL_ULID_Split_4b") return BtoI(PassID("HNL_ULID_Split_3") && Pass_LepMVAID_split4b());
   if(ID == "HNL_ULID_Split_5") return BtoI(PassID("HNL_ULID_Split_4") && IsGsfCtfChargeConsistent());
   if(ID == "HNL_ULID_Split_6") return BtoI(PassID("HNL_ULID_Split_5") && PassID("HNL_ULID_CF"));
   if(ID == "HNL_ULID_Split_7") return BtoI(PassID("HNL_ULID_Split_6") && PassID("HNL_ULID_Fake"));
   if(ID == "HNL_ULID_Split_8") return BtoI(PassID("HNL_ULID_Split_7") && PassID("HNL_ULID_Conv"));
+  if(ID == "HNL_ULID_Split_8b") return BtoI(PassID("HNL_ULID_Split_7") && PassID("HNL_ULID_Conv_LowPt"));
 
-  if(ID == "HNL_ULID_Probe_Split_2") return BtoI((Pass_LepMVAID_split1() ));
+  if(ID == "HNL_ULID_Probe_Split_2") return BtoI(Pass_LepMVAID_split1());
   if(ID == "HNL_ULID_Probe_Split_3") return BtoI((PassID("HNL_ULID_Probe_Split_2") && Pass_LepMVAID_split2()));
   if(ID == "HNL_ULID_Probe_Split_4") return BtoI((PassID("HNL_ULID_Probe_Split_3") && Pass_LepMVAID_split3()));
   if(ID == "HNL_ULID_Probe_Split_5") return BtoI((PassID("HNL_ULID_Probe_Split_4") && Pass_LepMVAID_split4()));
@@ -96,14 +78,6 @@ int  Electron::PassHNLTight(TString ID) const{
   if(ID == "HNL_ULID_Probe_Split_7") return BtoI((PassID("HNL_ULID_Probe_Split_6") && PassID("HNL_ULID_CF")));
   if(ID == "HNL_ULID_Probe_Split_8") return BtoI((PassID("HNL_ULID_Probe_Split_7") && PassID("HNL_ULID_Fake")));
   
-
-
-
-  if(ID.Contains("HNL_ULID_HEEP_FO")){
-    if(this->Pt() < 150) return BtoI(PassID("HNL_ULID_FO_v9_a")&&PassID("passHEEPID_v3"));
-    else  return PassID("HEEPLoose_v3") && IsGsfCtfChargeConsistent() ;
-  }
-
   /// FO = Fake Obj, is main obj in NP bkg estimate                                                                                                                                                                
   if(ID == "HNL_ULID_FO")  return BtoI(PassID("HNL_ULID_FO_v9_a"));
   if(ID == "HNL_ULID_FO_Down") return BtoI(PassID("HNL_ULID_FO_v0"));
@@ -182,26 +156,7 @@ int  Electron::PassHNLTight(TString ID) const{
     if(this->Pt() > 80) return 1;
     return BtoI( Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,60, -0.7,0.) , GetPtSlopeCut(20,60,-0.7,0.) ,   "Conv_v5"));
   }     
-  if(ID == "HNL_ULID_Conv_LowPt1" ) {
-    if(this->Pt() > 80) return 1;
-    return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,60, -0.7,0.) , GetPtSlopeCut(20,60,-0.7,0.) ,   "Conv_v5"));
-  }
-  if(ID == "HNL_ULID_Conv_LowPt2" ) {
-    if(this->Pt() > 80) return 1;
-    return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,60, -0.7,-0.2) , GetPtSlopeCut(20,60,-0.7,-0.2) ,   "Conv_v5"));
-  }
-  if(ID == "HNL_ULID_Conv_LowPt3" ) {
-    if(this->Pt() > 80) return 1;
-    return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,60, -0.7,-0.7) , GetPtSlopeCut(20,60,-0.7,-0.7) ,   "Conv_v5"));
-  }
-  if(ID == "HNL_ULID_Conv_LowPt4" ) {
-    if(this->Pt() > 80) return 1;
-    return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,60, -0.5,-0.5) , GetPtSlopeCut(20,60,-0.5,-0.5) ,   "Conv_v5"));
-  }
-  if(ID == "HNL_ULID_Conv_LowPt5" ) {
-    if(this->Pt() > 80) return 1;
-    return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,60, -0.7,0.2) , GetPtSlopeCut(20,60,-0.7,0.2) ,   "Conv_v5"));
-  }
+
   
   if(Run_Year()==2016){
     if(ID == "HNL_ULID_Conv" ) return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,60, -0.7,0.) , GetPtSlopeCut(20,60,-0.7,0.) ,   "Conv_v5"));
@@ -212,9 +167,12 @@ int  Electron::PassHNLTight(TString ID) const{
     if(ID == "HNL_ULID_TrkIso_CF"   ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("CF_EDv5",   el_mva_cut_cf_2016_B,   el_mva_cut_cf_2016_EC,     "CF_v5"));
     if(ID == "HNL_ULID_TrkIso_Fake" ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Fake_EDv5", el_mva_cut_fake_2016_B, el_mva_cut_fake_2016_EC,   "Fake_v5"));
 
-    if(ID == "HNL_ULID_HEEP_Conv" ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(150,200, 0,-1.),  GetPtSlopeCut(150,200,0,-1.) ,   "Conv_v5"));
-    if(ID == "HNL_ULID_HEEP_CF"   ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("CF_EDv5",   GetPtSlopeCut(150,200,el_mva_cut_cf_2016_B,-1),    GetPtSlopeCut(150,200,  el_mva_cut_cf_2016_EC,-1),     "CF_v5"));
-    if(ID == "HNL_ULID_HEEP_Fake" ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Fake_EDv5", GetPtSlopeCut(150,200,el_mva_cut_fake_2016_B,-1),  GetPtSlopeCut(150,200, el_mva_cut_fake_2016_EC,-1),   "Fake_v5"));
+
+
+    if(ID == "HNL_ULID_Conv_LowPt" ) {
+      if(this->Pt() > 80) return 1;
+      return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,60, -0.7,0.) , GetPtSlopeCut(20,60,-0.7,0.) ,   "Conv_v5"));
+    }
 
   }
   /// 2017                                                                                                                                                                                     
@@ -228,9 +186,10 @@ int  Electron::PassHNLTight(TString ID) const{
     if(ID == "HNL_ULID_TrkIso_CF"   ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("CF_EDv5",   el_mva_cut_cf_2017_B,   el_mva_cut_cf_2017_EC,     "CF_v5"));
     if(ID == "HNL_ULID_TrkIso_Fake" ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Fake_EDv5", el_mva_cut_fake_2017_B, el_mva_cut_fake_2017_EC,   "Fake_v5"));
 
-    if(ID == "HNL_ULID_HEEP_Conv" ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(150,200, 0,-1.) , GetPtSlopeCut(150,200,0.2,-1.) ,   "Conv_v5"));
-    if(ID == "HNL_ULID_HEEP_CF"   ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("CF_EDv5",   GetPtSlopeCut(150,200,el_mva_cut_cf_2017_B,-1),   GetPtSlopeCut(150,200,  el_mva_cut_cf_2017_EC,-1),     "CF_v5"));
-    if(ID == "HNL_ULID_HEEP_Fake" )  return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Fake_EDv5", GetPtSlopeCut(150,200,el_mva_cut_fake_2017_B,-1), GetPtSlopeCut(150,200, el_mva_cut_fake_2017_EC,-1),   "Fake_v5"));
+    if(ID == "HNL_ULID_Conv_LowPt" ) {
+      if(this->Pt() > 80) return 1;
+      return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,50, -0.4,0.) , GetPtSlopeCut(20,50,-0.4,0.2) ,   "Conv_v5"));
+    }
     
   }
   else{
@@ -244,9 +203,10 @@ int  Electron::PassHNLTight(TString ID) const{
     if(ID == "HNL_ULID_TrkIso_Fake" ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Fake_EDv5", el_mva_cut_fake_2018_B, el_mva_cut_fake_2018_EC ,   "Fake_v5"));
 
 
-    if(ID == "HNL_ULID_HEEP_Conv" ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(150,200, 0.2,-1.) , GetPtSlopeCut(150,200,0.2,-1.) ,   "Conv_v5"));
-    if(ID == "HNL_ULID_HEEP_CF"   ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("CF_EDv5",   GetPtSlopeCut(150,200,el_mva_cut_cf_2018_B,-1),  GetPtSlopeCut(150,200,  el_mva_cut_cf_2018_EC,-1),     "CF_v5"));
-    if(ID == "HNL_ULID_HEEP_Fake" ) return BtoI(PassMVABaseLineTrkIso() && Pass_MVA_BBEC("Fake_EDv5", GetPtSlopeCut(150,200,el_mva_cut_fake_2018_B,-1), GetPtSlopeCut(150,200, el_mva_cut_fake_2018_EC,-1),   "Fake_v5"));
+    if(ID == "HNL_ULID_Conv_LowPt" ) {
+      if(this->Pt() > 80) return 1;
+      return BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Conv_EDv5", GetPtSlopeCut(20,50, -0.4,0.2) , GetPtSlopeCut(20,50,-0.4,0.2) ,   "Conv_v5"));
+    }
 
   }
   return -1;
@@ -350,6 +310,18 @@ bool Electron::Pass_LepMVAID_split4() const {
   return true;
 
 }
+
+bool Electron::Pass_LepMVAID_split4b() const {
+
+  if(this->Pt() < 10) return false;
+  if(this->fEta() > 2.5) return false;
+  if(! (TrkIso()<20.) ) return false;
+  if(NMissingHits() > 1) return false;
+  return true;
+
+}
+
+
 
 
 

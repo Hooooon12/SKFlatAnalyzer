@@ -329,6 +329,7 @@ public:
   bool Pass_LepMVAID_split2() const;
   bool Pass_LepMVAID_split3() const;
   bool Pass_LepMVAID_split4() const;
+  bool Pass_LepMVAID_split4b() const;
   bool Pass_LepMVATopID() const ;
   bool passLooseHEEPID() const;
   bool passLooseHEEPID_NoMinPt() const; //JH
