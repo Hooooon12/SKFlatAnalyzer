@@ -36,7 +36,8 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   /// Set ID by flag
   if(RunTopID) LepIDs = {"TopHN"};
   if(RunPOGID) LepIDs = {"POGTight"};
-  if(RunHighPtID) LepIDs = {"HighPt"};
+  //if(RunHighPtID) LepIDs = {"HighPt"};
+  if(RunHighPtID) LepIDs = {"HNL_ULID","HighPt"};
   if(RunPekingID) LepIDs = {"Peking"};
 
   //// If Full syst only run Main ID
@@ -49,6 +50,8 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   if(RunMuMu) ChannelsToRun.push_back(MuMu);
   if(RunEMu)  ChannelsToRun.push_back(EMu);
   if(ChannelsToRun.size() == 0)ChannelsToRun = {EE,MuMu,EMu};
+
+  if(RunHighPtID) ChannelsToRun = {MuMu};
 
   ///// Run command 
 
@@ -66,7 +69,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
 
     for(auto channel : ChannelsToRun){
       if(channel != MuMu  && id =="TopHN") continue;
-      if(channel != EE  && id =="HighPt") continue;
+      if(channel != EE  && id =="HEEP") continue;
 
       AnalyzerParameter param_signal = HNL_LeptonCore::InitialiseHNLParameter(id,channel);
       if(channel == EMu) param_signal.CFMethod   = "MC";
