@@ -22,9 +22,12 @@ void HNL_Lepton_ChargeFlip::initializeAnalyzer(){
 
 void HNL_Lepton_ChargeFlip::executeEvent(){
   
-  vector<TString> LepIDs = {"HNL_ULID","TopHN", "POGTight", "HNTightV2", "passHEEPID_v1","passHEEPID_v3"};
-  if(HasFlag("ClosureTest")) LepIDs = {"HNL_ULID" , "passHEEPID_v1",  "passHEEPID_v3" };
-  if(HasFlag("ScaleFactor")) LepIDs = {"HNL_ULID" , "passHEEPID_v1","passHEEPID_v3" };
+  vector<TString> LepIDs = {"HNL_ULID","TopHN", "POGTight", "HNTightV2", "passHEEPID_v1","passHEEPID_v3", "HNL_HighPt_ULID"};
+
+  if(HasFlag("ClosureTest")) LepIDs = {"HNL_ULID" , "HNL_HighPt_ULID",  "passHEEPID_v1",  "passHEEPID_v3" };
+  if(HasFlag("ScaleFactor")) LepIDs = {"HNL_ULID" , "HNL_HighPt_ULID", "passHEEPID_v1","passHEEPID_v3" };
+  if(HasFlag("ScaleFactorTop"))  LepIDs = {"TopHN"};
+
   //  if(HasFlag("ShiftEnergyZ")) LepIDs = {"HNL_ULID" , "POGTight","passHEEPID_v3", "TpHN", };
 
 
@@ -38,6 +41,10 @@ void HNL_Lepton_ChargeFlip::executeEvent(){
     param.Apply_Weight_LumiNorm = false;
     
     if(HasFlag("ScaleFactor")){
+      param.Apply_Weight_LumiNorm = true;
+      param.Apply_Weight_Norm1Ipb = true;
+    }
+    if(HasFlag("ScaleFactorTop")){
       param.Apply_Weight_LumiNorm = true;
       param.Apply_Weight_Norm1Ipb = true;
     }
@@ -69,6 +76,7 @@ void HNL_Lepton_ChargeFlip::executeEvent(){
     if(id =="POGTight")   param.Electron_Tight_ID  = "passPOGTight";
     
     if(id =="HNL_ULID")      param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_HNL_ULID";
+    if(id =="HNL_HighPt_ULID")      param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_HNL_HighPt_ULID";
     if(id =="TopHN")         param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_TopHNSST";
     if(id =="HNTightV2")     param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_HNTightV2";
     if(id =="POGTight")      param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_POGTight";
@@ -1229,7 +1237,7 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
   }
 
   
-  if(HasFlag("ScaleFactor")){
+  if(HasFlag("ScaleFactor") || HasFlag("ScaleFactorTop") ){
 
     FillHist(param.Name+"/ZGSub/All",  1    , EvWeight ,2., 0, 2, "");
 

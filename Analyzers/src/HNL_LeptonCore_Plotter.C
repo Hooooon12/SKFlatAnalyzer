@@ -76,15 +76,14 @@ void HNL_LeptonCore::FillFakeHistograms(AnalyzerParameter param, TString plot_di
 bool HNL_LeptonCore::DrawSyst(AnalyzerParameter param_sys){
   
   vector<AnalyzerParameter::Syst> SystToPlot;
-
-  //if(IsData){
-  //  if(RunFake) SystToPlot= {AnalyzerParameter::Syst::FRUp,AnalyzerParameter::Syst::FRDown, AnalyzerParameter::Syst::FRAJ30,AnalyzerParameter::Syst::FRAJ60,AnalyzerParameter::Syst::FRLooseIDDJUp,AnalyzerParameter::Syst::FRLooseIDDJDown,AnalyzerParameter::Syst::FRPartonSFUp, AnalyzerParameter::Syst::FRPartonSFDown};
-  //  if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown, AnalyzerParameter::Syst::CFSFUp,AnalyzerParameter::Syst::CFSFDown};
-  //  
-  //}
-  //else {
-  //  SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown};
-  //} //JH
+  if(IsData){
+    if(RunFake) SystToPlot= {AnalyzerParameter::Syst::FRUp,AnalyzerParameter::Syst::FRDown, AnalyzerParameter::Syst::FRAJUp,AnalyzerParameter::Syst::FRAJDown,AnalyzerParameter::Syst::FRLooseIDDJUp,AnalyzerParameter::Syst::FRLooseIDDJDown,AnalyzerParameter::Syst::FRPartonSFUp, AnalyzerParameter::Syst::FRPartonSFDown};
+    if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown, AnalyzerParameter::Syst::CFSFUp,AnalyzerParameter::Syst::CFSFDown};
+    
+  }
+  else {
+    SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown};
+  }
   
   SystToPlot.push_back(AnalyzerParameter::Syst::Central);
   if(std::find(SystToPlot.begin(), SystToPlot.end(), param_sys.syst_) != SystToPlot.end()) return true;
@@ -323,6 +322,7 @@ void HNL_LeptonCore::Fill_Standard_Plots(AnalyzerParameter param, TString region
 
     FillHist( plot_dir+ region+ "/Mass/DiJet_M_l1W",             MN1,        w, 11, mljbins , "Reco M_{l1jj}");
     FillHist( plot_dir+ region+ "/Mass/DiJet_M_l2W",             MN2,        w, 11, mljbins , "Reco M_{l2jj} ");
+
   }
 
   return;
@@ -571,19 +571,25 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
   if(DrawLevel3&&minDRLep2Tau < 999)FillHist( plot_dir+ region+ "/DeltaR/dRMin_Lep2_Tau", minDRLep2Tau  ,w, 50, 0, 5, "#DeltaR (Tau,lep2)");
 
   int nPtbins=10;
-  double Pt1bins[nPtbins+1] = { 20.,25.,30., 40.,50., 70., 100.,  150.,  200.,400.,600};
+  double Pt1bins[nPtbins+1] = { 20.,25.,30., 40.,50., 70., 100.,  150.,  200.,400.,1000};
   double Pt2bins[nPtbins+1] = { 10.,15., 20.,30., 40.,50., 100.,120., 140., 160.,  200.};
   double PTLep1  = (leps[0]->Pt() > 500.) ? 499. : leps[0]->Pt();
   double PTLep2  = (leps[1]->Pt() > 300.) ? 299. : leps[1]->Pt();
 
 
   for(auto il : leps){
-    double PTLep = (il->Pt() > 200.) ? 199. : il->Pt();
+    double PTLep = (il->Pt() > 600.) ? 599. : il->Pt();
     TString LepType = (IsData) ? "Data" : il->sLepGenType();
     if (LepType == "") continue;
     
     if(DrawLevel3)FillHist( plot_dir+ region+ "/Leptons/"+LepType+"_Lep_pt", PTLep  ,  w, nPtbins, Pt1bins,"l_{1} p_{T} GeV");
-    if(DrawLevel3)FillHist( plot_dir+ region+ "/Leptons/"+LepType+"_Lep_eta", il->fEta()  , w, 60, 0.,  3.,"l_{2} #eta");
+    if(DrawLevel2)FillHist( plot_dir+ region+ "/Leptons/"+LepType+"_Lep_eta", il->fEta()  , w, 60, 0.,  3.,"l_{2} #eta");
+
+    if(PTLep > 500)FillHist( plot_dir+ region+ "/Leptons/"+LepType+"_Lep_eta_pt500", il->Eta() ,  1, 100,-2.5,2.5,"l_{1} p_{T} GeV");
+    else if(PTLep > 300)FillHist( plot_dir+ region+ "/Leptons/"+LepType+"_Lep_eta_pt300", il->Eta() ,  1, 100,-2.5,2.5,"l_{1} p_{T} GeV");
+    else if(PTLep > 200)FillHist( plot_dir+ region+ "/Leptons/"+LepType+"_Lep_eta_pt200", il->Eta() ,  1, 100,-2.5,2.5,"l_{1} p_{T} GeV");
+    else if(PTLep > 100)FillHist( plot_dir+ region+ "/Leptons/"+LepType+"_Lep_eta_pt100", il->Eta() ,  1, 100,-2.5,2.5,"l_{1} p_{T} GeV");
+    else FillHist( plot_dir+ region+ "/Leptons/"+LepType+"_Lep_eta_pt20", il->Eta() ,  1, 100,-2.5,2.5,"l_{1} p_{T} GeV");
     
     map<TString, double> lep_bdt_map = il->MAPBDT();
     for(auto i : lep_bdt_map)  {
@@ -594,6 +600,14 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
       }
     }
   }
+
+  if(leps.size() > 1){
+    
+    FillHist( plot_dir+ region+ "/Leptons/Lep_pt_eta", -leps[0]->PtMaxed(1000.) , leps[0]->Eta(),  1, nPtbins,Pt1bins , 50, -2.5, 2.5);
+    FillHist( plot_dir+ region+ "/Leptons/Lep_pt_eta", leps[1]->PtMaxed(1000.)  , leps[1]->Eta(),  1, nPtbins,Pt1bins, 50, -2.5, 2.5);
+    
+  }
+
 
   if(DrawLevel2)FillHist( plot_dir+ region+ "/Leptons/Lep_1_Pt", PTLep1  ,  w, nPtbins, Pt1bins,"l_{1} p_{T} GeV");
   if(DrawLevel2)FillHist( plot_dir+ region+ "/Leptons/Lep_2_Pt", PTLep2  ,  w, nPtbins, Pt2bins,"1_{2} p_{T} GeV");

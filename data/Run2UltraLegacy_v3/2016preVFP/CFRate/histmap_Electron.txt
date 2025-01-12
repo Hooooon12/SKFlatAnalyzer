@@ -1,4 +1,5 @@
 CFRate          InvPtEta3       PBSExtrap   Central         HNL_ULID                MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root
+CFRate          InvPtEta3       PBSExtrap   Central         HNL_HighPt_ULID         MainFiles/HNL_CF_Version8_Electron_2016a_Rates.root
 CFRate          InvPtEta3       PBSExtrap   Central         HNTightV2               MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root
 CFRate          InvPtEta3       PBSExtrap   Central         TopHNSST                MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root
 CFRate          InvPtEta3       PBSExtrap   Central         POGTight                MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root

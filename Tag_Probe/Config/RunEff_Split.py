@@ -485,6 +485,7 @@ def makeDataMCplots(Data_OS, Stack, Bundle, Error, Era, Name, n_job):
   os.system('mkdir -p '+WorkDir+"/Out_SF/"+Era+"/Comp")
 
   TS=Era+Name+"_"+ str(n_job) if n_job >=0 else Era+Name
+
   c1 = TCanvas("c1_"+TS,"",1000,1000)
   c1.cd()
   gStyle.SetPadTickX(1)
@@ -622,6 +623,8 @@ def makeDataMCplots(Data_OS, Stack, Bundle, Error, Era, Name, n_job):
   return
 
 def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile):
+
+  return 
 
   os.system('mkdir -p '+WorkDir+"/Out_SF/"+Era+"/SF")
 

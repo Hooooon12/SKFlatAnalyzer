@@ -132,6 +132,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   void GetSetup_HNL16(AnalyzerParameter& paramEv);
   void GetSetup_HNLTopID(AnalyzerParameter& paramEv);
   void GetSetup_HNLID(AnalyzerParameter& paramEv);
+  void GetSetup_HNLHPTID(AnalyzerParameter& paramEv);
   void GetSetup_Peking(AnalyzerParameter& paramEv);
   void GetSetup_HNLOpt(AnalyzerParameter& paramEv);
   void GetSetup_BDT(AnalyzerParameter& paramEv);

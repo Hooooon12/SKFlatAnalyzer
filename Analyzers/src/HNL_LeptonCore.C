@@ -376,8 +376,8 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
   else if(RunFake){
     SystList.push_back(AnalyzerParameter::FRUp);
     SystList.push_back(AnalyzerParameter::FRDown);
-    SystList.push_back(AnalyzerParameter::FRAJ30);
-    SystList.push_back(AnalyzerParameter::FRAJ60);
+    SystList.push_back(AnalyzerParameter::FRAJUp);
+    SystList.push_back(AnalyzerParameter::FRAJDown);
     SystList.push_back(AnalyzerParameter::FRLooseIDDJUp);
     SystList.push_back(AnalyzerParameter::FRLooseIDDJDown);
     SystList.push_back(AnalyzerParameter::FRPartonSFUp);
@@ -409,6 +409,8 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
         SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
         SystList.push_back(AnalyzerParameter::MuonEnUp);
         SystList.push_back(AnalyzerParameter::MuonEnDown);
+        SystList.push_back(AnalyzerParameter::MuonResUp);
+        SystList.push_back(AnalyzerParameter::MuonResDown);
         SystList.push_back(AnalyzerParameter::MuonIDSFUp);
         SystList.push_back(AnalyzerParameter::MuonIDSFDown);
         //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
@@ -596,8 +598,8 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
   TString ElFRBin = (paramEv.syst_ ==AnalyzerParameter::FRAltBinning) ? "" : "_El12";
 
   TString JFRJetPt = "_AJ40";
-  if(paramEv.syst_ ==AnalyzerParameter::FRAJ30) JFRJetPt = "_AJ30";
-  if(paramEv.syst_ ==AnalyzerParameter::FRAJ60) JFRJetPt = "_AJ60";
+  if(paramEv.syst_ ==AnalyzerParameter::FRAJUp) JFRJetPt = "_AJ30";
+  if(paramEv.syst_ ==AnalyzerParameter::FRAJDown) JFRJetPt = "_AJ60";
 
   if(GetEra() == "2016preVFP"){
 
@@ -679,6 +681,7 @@ AnalyzerParameter HNL_LeptonCore::SetupHNLParameter(TString s_setup_version, TSt
   if (s_setup_version=="EXO17028")  GetSetup_HNL16(param);
   if (s_setup_version=="TopHN")     GetSetup_HNLTopID(param);
   if (s_setup_version=="HNL_ULID")  GetSetup_HNLID(param);
+  if (s_setup_version=="HNL_ULIDv2")  GetSetup_HNLHPTID(param);
   if (s_setup_version=="Peking")  GetSetup_Peking(param);
   if (s_setup_version=="HNL_Opt") GetSetup_HNLOpt(param);
   if (s_setup_version=="BDT")     GetSetup_BDT(param);

@@ -689,9 +689,19 @@ public:
 
   
   inline double GetPtSlopeCut(double MinPt, double MaxPt, double MinCut, double MaxCut) const{
-
-    double cutSlope  = (MaxCut-MinCut) / (MaxPt-MinPt);
-    double cutFinal = std::max( MinCut, std::min(MaxCut , MinCut + cutSlope*(this->Pt()-MinPt) ) );
+    
+    double cutSlope(0);
+    double cutFinal(0);
+    if(MinCut < MaxCut){
+      
+      cutSlope  = (MaxCut-MinCut) / (MaxPt-MinPt);
+      cutFinal  = std::max( MinCut, std::min(MaxCut , MinCut + cutSlope*(this->Pt()-MinPt) ) );
+    }
+    else   if(MinCut >MaxCut){
+      cutSlope  = (MaxCut-MinCut) / (MaxPt-MinPt);
+      cutFinal  = std::min(MinCut,std::max( MaxCut,MinCut + cutSlope*(this->Pt()-MinPt)));
+    }
+    else cutFinal = MinCut;
 
     return cutFinal;
   }

@@ -97,7 +97,7 @@ class AnalyzerParameter{
   Weight w;
   enum Syst{
     Central,
-    FRAJ30,FRAJ40,FRAJ60,
+    FRAJUp,FRAJ40,FRAJDown,
     FRLooseIDDJUp,FRLooseIDDJDown,
     FRPartonSFUp, FRPartonSFDown,PRApplied,FRAltBinning,
     JetResUp, JetResDown,    JetEnUp, JetEnDown,

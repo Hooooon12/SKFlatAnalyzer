@@ -52,22 +52,34 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
   newtree->Branch("passingMVA90",&passingMVA90);
   newtree->Branch("passingHEEP",&passingHEEP);
   newtree->Branch("passingMVALoose",&passingMVALoose);
+  newtree->Branch("passingMVABaseline",&passingMVABaseline);
   newtree->Branch("passingTriggerEmul",&passingTriggerEmul);
 
   newtree->Branch("passingHNLMVA",&passingHNLMVA);
+  newtree->Branch("passingHNLMVA_HighPt",&passingHNLMVA_HighPt);
   newtree->Branch("passingHNLMVA_TrkIso",&passingHNLMVA_TrkIso);
   newtree->Branch("passingHNLMVACF",&passingHNLMVACF);
   newtree->Branch("passingHNLMVAConv",&passingHNLMVAConv);
   newtree->Branch("passingHNLMVAFake",&passingHNLMVAFake);
-  newtree->Branch("passingHNL_ULID_NoConv",&passingHNL_ULID_NoConv);
+  newtree->Branch("passingHNLMVA_NoConv",&passingHNLMVA_NoConv);
+  newtree->Branch("passingHNLMVA_NoCF",&passingHNLMVA_NoCF);
+  newtree->Branch("passingHNLMVA_NoFake",&passingHNLMVA_NoFake);
   newtree->Branch("passingHNL_ULID_Split_1",&passingHNL_ULID_Split_1);
   newtree->Branch("passingHNL_ULID_Split_2",&passingHNL_ULID_Split_2);
   newtree->Branch("passingHNL_ULID_Split_3",&passingHNL_ULID_Split_3);
   newtree->Branch("passingHNL_ULID_Split_4",&passingHNL_ULID_Split_4);
   newtree->Branch("passingHNL_ULID_Split_4b",&passingHNL_ULID_Split_4b);
   newtree->Branch("passingHNL_ULID_Split_5",&passingHNL_ULID_Split_5);
+  newtree->Branch("passingHNL_ULID_Split_5b",&passingHNL_ULID_Split_5b);
   newtree->Branch("passingHNL_ULID_Split_6",&passingHNL_ULID_Split_6);
   newtree->Branch("passingHNL_ULID_Split_7",&passingHNL_ULID_Split_7);
+  newtree->Branch("passingHNL_ULID_Split_7b",&passingHNL_ULID_Split_7b);
+  newtree->Branch("passingHNL_ULID_Split_7c",&passingHNL_ULID_Split_7c);
+  newtree->Branch("passingHNL_ULID_Split_7d",&passingHNL_ULID_Split_7d);
+  newtree->Branch("passingHNL_ULID_Split_7e",&passingHNL_ULID_Split_7e);
+  newtree->Branch("passingHNL_ULID_Split_7f",&passingHNL_ULID_Split_7f);
+  newtree->Branch("passingHNL_ULID_Split_7g",&passingHNL_ULID_Split_7g);
+  newtree->Branch("passingHNL_ULID_Split_7h",&passingHNL_ULID_Split_7h);
   newtree->Branch("passingHNL_ULID_Split_8",&passingHNL_ULID_Split_8);
   newtree->Branch("passingHNL_ULID_Split_8b",&passingHNL_ULID_Split_8b);
   
@@ -334,35 +346,47 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
         passingMVA80 = probe.passMVAID_noIso_WP90();
         passingMVA90 = probe.passMVAID_noIso_WP90();
         passingMVALoose = probe.PassMVABaseLine(); 
+        passingMVABaseline = probe.PassID("HNL_ULID_BaseLineCC"); 
         passingTriggerEmul  = probe.PassID("TriggerLoose"); 
         passingHNLMVACF   =probe.PassID("HNL_ULID_CF");
         passingHNLMVAConv =probe.PassID("HNL_ULID_Conv");
         passingHNLMVAFake =probe.PassID("HNL_ULID_Fake");
         passingHNLMVA     =probe.PassID("HNL_ULID_"+GetYearString());
-        passingHNLMVA_TrkIso     =probe.PassID("HNL_ULID_TrkIso");
-
+        passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_"+GetYearString());
+        passingHNLMVA_TrkIso =probe.PassID("HNL_ULID_TrkIso");
+	passingHNLMVA_NoFake = probe.PassID("HNL_ULID_Defv3_FO");
+	passingHNLMVA_NoConv = probe.PassID("HNL_ULID_NoConv");
+	passingHNLMVA_NoCF = probe.PassID("HNL_ULID_Defv6");
 
 	//// Split IDs
-	passingHNL_ULID_NoConv =probe.PassID("HNL_ULID_NoConv");
+	
 	passingHNL_ULID_Split_1 = probe.PassID("HNL_ULID_Split_1"); 
 	passingHNL_ULID_Split_2 = probe.PassID("HNL_ULID_Split_2"); 
 	passingHNL_ULID_Split_3 = probe.PassID("HNL_ULID_Split_3"); 
 	passingHNL_ULID_Split_4 = probe.PassID("HNL_ULID_Split_4"); 
 	passingHNL_ULID_Split_4b = probe.PassID("HNL_ULID_Split_4b"); 
 	passingHNL_ULID_Split_5 = probe.PassID("HNL_ULID_Split_5"); 
+	passingHNL_ULID_Split_5b = probe.PassID("HNL_ULID_Split_5b"); 
 	passingHNL_ULID_Split_6 = probe.PassID("HNL_ULID_Split_6"); 
 	passingHNL_ULID_Split_7 = probe.PassID("HNL_ULID_Split_7"); 
+	passingHNL_ULID_Split_7b = probe.PassID("HNL_ULID_Split_7b"); 
+	passingHNL_ULID_Split_7c = probe.PassID("HNL_ULID_Split_7c"); 
+	passingHNL_ULID_Split_7d = probe.PassID("HNL_ULID_Split_7d"); 
+	passingHNL_ULID_Split_7e = probe.PassID("HNL_ULID_Split_7e"); 
+	passingHNL_ULID_Split_7f = probe.PassID("HNL_ULID_Split_7f"); 
+	passingHNL_ULID_Split_7g = probe.PassID("HNL_ULID_Split_7g"); 
+	passingHNL_ULID_Split_7h = probe.PassID("HNL_ULID_Split_7h"); 
 	passingHNL_ULID_Split_8 = probe.PassID("HNL_ULID_Split_8"); 
 	passingHNL_ULID_Split_8b = probe.PassID("HNL_ULID_Split_8b"); 
 
 	//// Split IDs                                                                                                                                           
-        passingHNL_ULID_Probe_Split_2 = probe.PassID("HNL_ULID_Probe_Split_2");
-        passingHNL_ULID_Probe_Split_3 = probe.PassID("HNL_ULID_Probe_Split_3");
-        passingHNL_ULID_Probe_Split_4 = probe.PassID("HNL_ULID_Probe_Split_4");
-        passingHNL_ULID_Probe_Split_5 = probe.PassID("HNL_ULID_Probe_Split_5");
-        passingHNL_ULID_Probe_Split_6 = probe.PassID("HNL_ULID_Probe_Split_6");
-        passingHNL_ULID_Probe_Split_7 = probe.PassID("HNL_ULID_Probe_Split_7");
-        passingHNL_ULID_Probe_Split_8 = probe.PassID("HNL_ULID_Probe_Split_8");
+        passingHNL_ULID_Probe_Split_2 = passingHNL_ULID_Split_1;//probe.PassID("HNL_ULID_Probe_Split_2");
+        passingHNL_ULID_Probe_Split_3 = passingHNL_ULID_Split_2;
+        passingHNL_ULID_Probe_Split_4 = passingHNL_ULID_Split_3;
+        passingHNL_ULID_Probe_Split_5 = passingHNL_ULID_Split_4;
+        passingHNL_ULID_Probe_Split_6 = passingHNL_ULID_Split_5;
+        passingHNL_ULID_Probe_Split_7 = passingHNL_ULID_Split_6;
+        passingHNL_ULID_Probe_Split_8 = passingHNL_ULID_Split_7;
 
 
         scoreHNLMVACF=probe.HNL_MVA_CF("EDv5");

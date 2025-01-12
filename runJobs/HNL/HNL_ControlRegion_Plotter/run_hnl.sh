@@ -20,13 +20,13 @@ if [[ $1 == "CF" ]]; then
     done
 fi
 
-if [[ $1 == "WZ" ]]; then
+if [[ $1 == "Data" ]]; then
 
-    declare  -a era_list=("2018")
+    declare  -a era_list=("2017")
+    #"2018")
     for i in "${era_list[@]}"
     do
-
-	SKFlat.py -a $analyzer  -i   WZTo3LNu_mllmin4p0_powheg -n 100        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags SSMultiLep,RunPrompt&
+        SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags SSMultiLep &
     done
 fi
 

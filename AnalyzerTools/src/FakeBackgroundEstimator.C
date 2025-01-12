@@ -114,6 +114,21 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
 
   bool IsMC = false;
 
+  double ApplyHighPtCorr=1;
+  if(ID.Contains("HNL_HighPt")) {
+    //// Initial Corr                                                                                                                                                                                                                       
+    if(fabs(eta) < 1.5){
+      if(pt > 200)  ApplyHighPtCorr=2;
+      else if(pt > 150)  ApplyHighPtCorr=1.5;
+    }
+    else{
+      if(pt > 200)  ApplyHighPtCorr=1.4;
+      else if(pt > 150)  ApplyHighPtCorr=1.2;
+    }
+  }
+
+  if(ID.Contains("HighPt")) ID=ID.ReplaceAll("_HighPt","");
+
   TString PtType = "pt_eta_";
   if(key.Contains("MC")){
     IsMC=true;
@@ -178,7 +193,7 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
 
   //cout << "[FakeBackgroundEstimator::FakeBackgroundEstimator] value = " << value << endl;
 
-  return value+double(sys)*error;
+  return ApplyHighPtCorr*(value+double(sys)*error);
 
 }
 

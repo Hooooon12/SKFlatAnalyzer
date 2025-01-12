@@ -45,6 +45,9 @@ double HNL_LeptonCore::GetCFSF(AnalyzerParameter param, TString EraReg, bool App
 
   //// A second correction is applied based on Integral in Data Z peak fit, where an axtra shift is applied to miniise Data chi2
 
+  CFSFValues["HNL_HighPt_ULID_BB"]      =  {0.9170, 1.044,1.552,1.430};
+  CFSFValues["HNL_HighPt_ULID_EC"]      =  {0.873,0.914,1.329,1.293};
+
   CFSFValues["HNL_ULID_BB"]      =  {0.9704, 1.1178,1.5525,1.4446};
   CFSFValues["HNL_ULID_EC"]      =  {0.925,0.999,1.361,1.308};
 
@@ -202,7 +205,10 @@ double HNL_LeptonCore::GetShiftCFEl(Electron el,TString ID, bool ApplyDataCorr, 
   //// By default if HNL ID just use extraoplated Shift based on pt binned MC Truth
   
   if(ID.Contains("HNL_ULID")) ID=ID.ReplaceAll("_"+GetYearString(),"");//// Remove Year for CF inputs 
-  
+
+  //// Set the shift for HighPt same as Old ID since diff is < 1%
+  if(ID.Contains("HighPt")) ID="HNL_ULID";
+
   double DataCorr = 1.;
   if(ApplyDataCorr){
     if(DataEra=="2016preVFP"  && el.IsBB()) DataCorr=0.985;

@@ -40,6 +40,8 @@ public:
   bool passingCutBasedMedium94XV2;
   bool passingCutBasedTight94XV2;
   bool passingHNLMVA;
+  bool passingHNLMVA_HighPt;
+  bool passingHNLMVA_HighPt_Tight;
   bool passingHNLMVA_TrkIso;
   bool passingHNLHeep;
   bool passingHNLMVACF;

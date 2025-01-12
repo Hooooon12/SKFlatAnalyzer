@@ -2,7 +2,10 @@
 
 double HNL_LeptonCore::GetPtPartonSF(Lepton  Lep, TString LooseID,AnalyzerParameter param){
 
-  if(!LooseID.Contains("HNL_ULID")) return 1;
+  if(!LooseID.Contains("ULID")) return 1;
+
+  /// Treat HNL_HighPt_ULID ... same as HNL_ULID
+  if(LooseID.Contains("HighPt")) LooseID=LooseID.ReplaceAll("_HighPt","");
 
   bool IsMuon=(Lep.LeptonFlavour() == Lepton::MUON);
 
@@ -149,8 +152,8 @@ double HNL_LeptonCore::GetFakeRateElectron(Electron el, AnalyzerParameter param)
   double  LepPt  = el.PtMaxed(80);
   TString  fr_key = param.k.Electron_FR;
 
-  if(param.syst_ == AnalyzerParameter::FRAJ30) fr_key = fr_key.ReplaceAll("40","30");
-  if(param.syst_ == AnalyzerParameter::FRAJ60) fr_key = fr_key.ReplaceAll("40","60");
+  if(param.syst_ == AnalyzerParameter::FRAJUp) fr_key = fr_key.ReplaceAll("40","30");
+  if(param.syst_ == AnalyzerParameter::FRAJDown) fr_key = fr_key.ReplaceAll("40","60");
 
   return fakeEst->GetElectronFakeRate(param.Electron_Tight_ID, fr_key,param.FakeRateMethod, param.FakeRateParam, LepEta, LepPt, el.LeptonFakeTagger() );
 
@@ -162,8 +165,8 @@ double HNL_LeptonCore::GetFakeRateMuon(Muon mu, AnalyzerParameter param){
   double  LepPt  = mu.PtMaxed(80);
   TString  fr_key = param.k.Muon_FR;
 
-  if(param.syst_ == AnalyzerParameter::FRAJ30) fr_key = fr_key.ReplaceAll("40","30");
-  if(param.syst_ == AnalyzerParameter::FRAJ60) fr_key = fr_key.ReplaceAll("40","60");
+  if(param.syst_ == AnalyzerParameter::FRAJUp) fr_key = fr_key.ReplaceAll("40","30");
+  if(param.syst_ == AnalyzerParameter::FRAJDown) fr_key = fr_key.ReplaceAll("40","60");
   
   int FRStatSyst = 0;
   if(param.syst_ == AnalyzerParameter::FRUp)   FRStatSyst=1;
@@ -191,8 +194,8 @@ double HNL_LeptonCore::GetFakeWeight(std::vector<Lepton *> leps, AnalyzerParamet
     bool IsMuon    = (leps[0]->LeptonFlavour() != Lepton::ELECTRON);
     TString ID     = (leps[0]->LeptonFlavour() == Lepton::ELECTRON) ?  _param.Electron_Tight_ID : _param.Muon_Tight_ID;
 
-    if(_param.syst_ == AnalyzerParameter::FRAJ30) fr_key = fr_key.ReplaceAll("40","30");
-    if(_param.syst_ == AnalyzerParameter::FRAJ60) fr_key = fr_key.ReplaceAll("40","60");
+    if(_param.syst_ == AnalyzerParameter::FRAJUp) fr_key = fr_key.ReplaceAll("40","30");
+    if(_param.syst_ == AnalyzerParameter::FRAJDown) fr_key = fr_key.ReplaceAll("40","60");
    
     if(!leps[0]->LepIDSet()) {      cout << "Lepton ID not set" << endl;      exit(EXIT_FAILURE);    }
 
@@ -227,10 +230,10 @@ double HNL_LeptonCore::GetFakeWeight(std::vector<Lepton *> leps, AnalyzerParamet
     TString pr_key = (leps[0]->LeptonFlavour() == Lepton::ELECTRON) ?  _param.k.Electron_PR : _param.k.Muon_PR;
 
     /// Apply Syst
-    if(_param.syst_ == AnalyzerParameter::FRAJ30) fr_key1 = fr_key1.ReplaceAll("40","30");
-    if(_param.syst_ == AnalyzerParameter::FRAJ60) fr_key1 = fr_key1.ReplaceAll("40","60");
-    if(_param.syst_ == AnalyzerParameter::FRAJ30) fr_key2 = fr_key2.ReplaceAll("40","30");
-    if(_param.syst_ == AnalyzerParameter::FRAJ60) fr_key2 = fr_key2.ReplaceAll("40","60");
+    if(_param.syst_ == AnalyzerParameter::FRAJUp) fr_key1 = fr_key1.ReplaceAll("40","30");
+    if(_param.syst_ == AnalyzerParameter::FRAJDown) fr_key1 = fr_key1.ReplaceAll("40","60");
+    if(_param.syst_ == AnalyzerParameter::FRAJUp) fr_key2 = fr_key2.ReplaceAll("40","30");
+    if(_param.syst_ == AnalyzerParameter::FRAJDown) fr_key2 = fr_key2.ReplaceAll("40","60");
 
     if(run_Debug){
       if(leps[0]->LeptonFlavour() == Lepton::ELECTRON) cout << "_param.Electron_Tight_ID = " << _param.Electron_Tight_ID <<  " fr_key1 = " << fr_key1 << endl;
@@ -287,8 +290,8 @@ double HNL_LeptonCore::GetFakeWeight(std::vector<Lepton *> leps, AnalyzerParamet
       TString ID     = (lep->LeptonFlavour() == Lepton::ELECTRON) ?  _param.Electron_Tight_ID : _param.Muon_Tight_ID;
       bool IsMuon    = (lep->LeptonFlavour() != Lepton::ELECTRON);
 
-      if(_param.syst_ == AnalyzerParameter::FRAJ30) fr_key = fr_key.ReplaceAll("40","30");
-      if(_param.syst_ == AnalyzerParameter::FRAJ60) fr_key = fr_key.ReplaceAll("40","60");
+      if(_param.syst_ == AnalyzerParameter::FRAJUp) fr_key = fr_key.ReplaceAll("40","30");
+      if(_param.syst_ == AnalyzerParameter::FRAJDown) fr_key = fr_key.ReplaceAll("40","60");
       
       int FRStatSyst = 0;
       if(_param.syst_ == AnalyzerParameter::FRUp)FRStatSyst=1;

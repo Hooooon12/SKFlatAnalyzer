@@ -1099,12 +1099,12 @@ void HNL_Lepton_FakeRate::MakeFakeRatePlots(TString label, TString mutag,Analyze
   if(!truth_match) return;
 
   double AWJPt = -1;
-  vector<AnalyzerParameter::Syst> AJPt = { AnalyzerParameter::FRAJ30,AnalyzerParameter::FRAJ40,AnalyzerParameter::FRAJ60};
+  vector<AnalyzerParameter::Syst> AJPt = { AnalyzerParameter::FRAJUp,AnalyzerParameter::FRAJ40,AnalyzerParameter::FRAJDown};
 
   for(auto isys : AJPt){
-    if(isys == AnalyzerParameter::FRAJ30)  AWJPt = 30;
+    if(isys == AnalyzerParameter::FRAJUp)  AWJPt = 30;
     if(isys == AnalyzerParameter::FRAJ40)  AWJPt = 40;
-    if(isys == AnalyzerParameter::FRAJ60)  AWJPt = 60;
+    if(isys == AnalyzerParameter::FRAJDown)  AWJPt = 60;
 
     param.syst_ =  isys;
 

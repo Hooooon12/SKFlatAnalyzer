@@ -2,7 +2,9 @@
 
 void HNL_LeptonCore::SetupEventMVAReader(TString version, bool ee, bool mm, bool emu){
 
+  cout << "HNL_LeptonCore::SetupEventMVAReader [start]" << endl;
   InitializeTreeVars();
+  cout << "HNL_LeptonCore::SetupEventMVAReader [InitializeTreeVars Done]" << endl;
 
   TString AnalyzerPath=std::getenv("SKFlat_WD");
   TString MVAPath = "/data/Run2UltraLegacy_v3/Run2/BDTClassifier/results_xml/HNL_ULID/"+version+"/";
