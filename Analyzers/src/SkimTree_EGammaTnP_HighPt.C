@@ -319,7 +319,7 @@ void SkimTree_EGammaTnP_HighPt::executeEvent(){
         passingHNLMVAFake =probe.PassID("HNL_ULID_Fake");
         passingHNLMVA     =probe.PassID("HNL_ULID_"+GetYearString());
         passingHNLMVA_TrkIso     =probe.PassID("HNL_ULID_TrkIso");
-        passingHNLHeep     =probe.PassID("HNL_ULID_HEEP");
+        //passingHNLHeep     =probe.PassID("HNL_ULID_HEEP"); // removed
         
         scoreHNLMVACF=probe.HNL_MVA_CF("EDv5");
         scoreHNLMVAConv=probe.HNL_MVA_Conv("EDv5");

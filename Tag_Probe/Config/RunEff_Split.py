@@ -20,10 +20,14 @@ Name_Nevents = "_N"+str(args.Nevents) if args.Nevents > 0 else ""
 NJob=args.NJob
 WorkDir=args.WorkDir
 
-It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','HNL_ULID_Split_8b']
+#It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','HNL_ULID_Split_8b'] #V1
+#It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_7b','HNL_ULID_Split_7c','HNL_ULID_Split_7d','HNL_ULID_Split_7e','HNL_ULID_Split_7f','HNL_ULID_Split_7g','HNL_ULID_Split_7h','HNL_ULID_Split_8','HNL_ULID_Split_8b'] #V3
+It_Probes    = ['MVALoose','HNLMVA','HNLMVA_HighPt','HNLMVA_HighPt_Tight'] #V5
 
 #### IDs applied to probe befrpre PASS/FAIL
-It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8']
+#It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8'] #V1
+#It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8'] #V3
+It_ProbeID   = ['Pass',            'MVALoose','MVALoose','MVALoose'] #V5
 It_IsPasses = ['Pass','Fail']
 It_EtaRegions = ['BB','EC']
 #It_EtaRegions = ['BB']
@@ -47,33 +51,10 @@ luminosity = {
   '2017' : '41.5',
   '2018' : '59.8',
 }
-samples = {
-  '2016' : [
-     "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-     "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
-     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-     "WW_TuneCP5_13TeV-pythia8",
-     "WZ_TuneCP5_13TeV-pythia8",
-     "ZZ_TuneCP5_13TeV-pythia8",
-     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-     "SingleElectron",
-  ],
-  '2016preVFP' : [
-     "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-     "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
-     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-     "WW_TuneCP5_13TeV-pythia8",
-     "WZ_TuneCP5_13TeV-pythia8",
-     "ZZ_TuneCP5_13TeV-pythia8",
-     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-     "SingleElectron",
-  ],
-  '2016postVFP' : [
-    "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+samples = {}
+sample_list = [
+    #"DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8", # NLO
+    "DYJetsToEE", # MiNNLO
     "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
@@ -82,33 +63,12 @@ samples = {
     "ZZ_TuneCP5_13TeV-pythia8",
     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "DYJetsToTauTau", # MiNNLO
     "SingleElectron",
-  ],
-  '2017' : [
-    "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-    "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
-    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "WW_TuneCP5_13TeV-pythia8",
-    "WZ_TuneCP5_13TeV-pythia8",
-    "ZZ_TuneCP5_13TeV-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "SingleElectron",
-  ],
-  '2018' : [
-    "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-    "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
-    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "WW_TuneCP5_13TeV-pythia8",
-    "WZ_TuneCP5_13TeV-pythia8",
-    "ZZ_TuneCP5_13TeV-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "EGamma",
-  ],
-}
+  ]
+for era in ['2016', '2016preVFP', '2016postVFP', '2017', '2018']:
+  samples[era] = sample_list
+
 types = {
   'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : 'MC',
   'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : 'MC',
@@ -277,6 +237,8 @@ triggers = {
             '2018'        : 'passHltEle32WPTightGsf',
 }
 nameFilter = {
+  'DYJetsToEE' : 'DYJetsToEE',
+  'DYJetsToTauTau' : 'DYJetsToTauTau',
   'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : 'DYJets',
   'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : 'WJets',
   'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : 'TTLL',
@@ -329,6 +291,44 @@ def add_overflow(hist):
   hist.SetBinError(last_bin, math.sqrt(last_bin_error ** 2 + over_bin_error ** 2))
 
   return hist
+
+def merge_lastbins(hist):
+  this_name = hist.GetName()
+
+  if 'BB' in this_name:
+    return hist
+
+  #pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 1000], dtype=np.float64)
+  pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 300, 1000], dtype=np.float64)
+
+  nbins_input = hist.GetNbinsX()
+  nbins_new   = len(pt_bins_merged)-1
+  nbins_merge = nbins_input - nbins_new + 1
+  xmin = hist.GetXaxis().GetXmin()
+  xmax = hist.GetXaxis().GetXmax()
+
+  new_hist = TH1D(this_name+"_merged", this_name+"_merged", nbins_new, pt_bins_merged)
+
+  for i in range(nbins_input-nbins_merge):
+    new_hist.SetBinContent(i+1, hist.GetBinContent(i+1))
+    new_hist.SetBinError(i+1, hist.GetBinError(i+1))
+
+  last_bin_sum   = 0
+  last_bin_error = 0
+  for i in range(nbins_merge):
+    last_bin_sum   += hist.GetBinContent(nbins_input-i)
+    last_bin_error += hist.GetBinError(nbins_input-i)**2
+  last_bin_error = last_bin_error**0.5
+
+  #last_bin_sum = hist.GetBinContent(nbins_input) + hist.GetBinContent(nbins_input-1) + hist.GetBinContent(nbins_input-2)
+  #last_bin_error = ((hist.GetBinError(nbins_input)**2 + hist.GetBinError(nbins_input-1)**2 + hist.GetBinError(nbins_input-2)**2) ** 0.5)
+
+  new_hist.SetBinContent(new_hist.GetNbinsX(), last_bin_sum)
+  new_hist.SetBinError(new_hist.GetNbinsX(), last_bin_error)
+
+  new_hist.SetDirectory(0)
+
+  return new_hist
 
 def MakeTurnOn():
   for year, eras in grouped_eras.items():
@@ -522,12 +522,14 @@ def makeDataMCplots(Data_OS, Stack, Bundle, Error, Era, Name, n_job):
   lg = TLegend(0.7, 0.6, 0.9, 0.9)
   lg.AddEntry(Error, "Stat. Uncertainty", "f")
   lg.AddEntry(Data_OS, "Data_OS", "lep")
-  lg.AddEntry(Bundle[0], "DY", "f")
+  #lg.AddEntry(Bundle[0], "DY", "f") # NLO
+  lg.AddEntry(Bundle[0], "DYtoEE", "f") # MiNNLO
   #lg.AddEntry(Bundle[1], "W", "f") # no W
   lg.AddEntry(Bundle[2], "t#bar{t}", "f")
   lg.AddEntry(Bundle[3], "Diboson", "f")
   lg.AddEntry(Bundle[4], "SingleTop", "f")
-  lg.AddEntry(Bundle[5], "Fake", "f")
+  lg.AddEntry(Bundle[5], "DYtoTauTau", "f") # MiNNLO
+  lg.AddEntry(Bundle[-1], "Fake", "f")
   lg.SetBorderSize(0)
   lg.SetTextSize(0.03)
   lg.SetFillStyle(1001)
@@ -741,7 +743,8 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   Data_Eff.GetYaxis().SetTitle("Efficiency")
   Data_Eff.GetYaxis().SetTitleSize(0.075)
   Data_Eff.GetYaxis().SetTitleOffset(0.7)
-  Data_Eff.GetYaxis().SetRangeUser(c_up_min, 1.1)
+  #Data_Eff.GetYaxis().SetRangeUser(c_up_min, 1.1)
+  Data_Eff.GetYaxis().SetRangeUser(0.5, 1.1)
   Data_Eff.SetMarkerStyle(20)
   Data_Eff.SetMarkerColor(kBlack)
   Data_Eff.SetLineColor(kBlack)
@@ -769,19 +772,28 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   txt_lumi.DrawLatex(.95,.96, luminosity[Era]+" fb^{-1} (13 TeV)")
 
   IDnames = {
-
     'HNL_ULID_Split_1'   : 'Trigger Emulation',
     'HNL_ULID_Split_2'   : 'MVA w/o iso Loose',
     'HNL_ULID_Split_3'   : 'IP and SIP',
     'HNL_ULID_Split_4'   : 'MiniIso, NmissHit',
     'HNL_ULID_Split_4b'  : 'TrkIso, NmissHit',
     'HNL_ULID_Split_5'   : 'Medium Charge',
+    'HNL_ULID_Split_5b'  : 'Tight Charge',
     'HNL_ULID_Split_6'   : 'CF MVA',
     'HNL_ULID_Split_7'   : 'Fake MVA',
+    'HNL_ULID_Split_7b'  : '',
+    'HNL_ULID_Split_7c'  : '',
+    'HNL_ULID_Split_7d'  : '',
+    'HNL_ULID_Split_7e'  : '',
+    'HNL_ULID_Split_7f'  : '',
+    'HNL_ULID_Split_7g'  : '',
+    'HNL_ULID_Split_7h'  : '',
     'HNL_ULID_Split_8'   : 'Conv MVA',
     'HNL_ULID_Split_8b'  : 'Conv MVA w/ low pt',
     'HEEP'               : 'HEEP',
     'HNLMVA'             : 'MVA ID',
+    'HNLMVA_HighPt'      : 'MVA ID w/ fix',
+    'HNLMVA_HighPt_Tight': 'MVA ID w/ tighter fix',
     'CutBasedTight94XV2' : 'POG Tight',
     'HNLMVA_TrkIso'      : 'MVA ID w/ TrkIso',
     'HNLHeep'            : 'MVA + HEEP combi.',
@@ -832,7 +844,8 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   Ratio.SetStats(0)
   Ratio.GetXaxis().SetTitle("p_{T} [GeV]")
   Ratio.GetYaxis().SetTitle("#frac{Data}{MC}")
-  Ratio.GetYaxis().SetRangeUser(c_down_min, c_down_max)
+  #Ratio.GetYaxis().SetRangeUser(c_down_min, c_down_max)
+  Ratio.GetYaxis().SetRangeUser(0.9, 1.1)
   Ratio.GetXaxis().SetLabelSize(0.12)
   Ratio.GetYaxis().SetLabelSize(0.08)
   Ratio.GetXaxis().SetTitleSize(0.16)
@@ -1169,7 +1182,10 @@ if __name__ == '__main__':
     # Call necessary files first
     HistFiles = []
     for era in eras:
-      HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/SF_"+era+".root"))
+      #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/SF_"+era+".root"))
+      #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/Version3/SF_"+era+".root")) #V3 NLO
+      #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/Version3_NNLO/SF_"+era+".root")) #V3 MiNNLO
+      HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/Version5_NNLO/SF_"+era+".root")) #V5 MiNNLO
 
     # Merge 2016
     if len(eras) > 1:
@@ -1187,9 +1203,11 @@ if __name__ == '__main__':
         for Probe in It_Probes:
           h_mc[EtaRegion][Charge][Probe] = {}
           for IsPass in It_IsPasses:
-            h_mc[EtaRegion][Charge][Probe][IsPass] = this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass) if "tot" in Charge else [this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass) for sample in samples[year][:-1]]
+            #h_mc[EtaRegion][Charge][Probe][IsPass] = this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass) if "tot" in Charge else [this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass) for sample in samples[year][:-1]]
+            h_mc[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass)) if "tot" in Charge else [merge_lastbins(this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass)) for sample in samples[year][:-1]]
         # All probes
-        h_mc[EtaRegion][Charge]['All'] = this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion) if "tot" in Charge else [this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge) for sample in samples[year][:-1]] 
+        #h_mc[EtaRegion][Charge]['All'] = this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion) if "tot" in Charge else [this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge) for sample in samples[year][:-1]] 
+        h_mc[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion)) if "tot" in Charge else [merge_lastbins(this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge)) for sample in samples[year][:-1]] 
 
     OutFile = TFile.Open(WorkDir+"/Out_SF/SF_"+year+".root","RECREATE")
 
@@ -1208,37 +1226,41 @@ if __name__ == '__main__':
     for EtaRegion in It_EtaRegions:
       for Probe in It_Probes:
         for IsPass in It_IsPasses:
-          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][0].Clone()) # DY
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][0].Clone()) # DY or DYtoEE (MiNNLO)
           h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][1].Clone()) # WJets
-          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][2].Clone()) # ttbar
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][2].Clone()) # TTLL
           h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][4].Clone()) # Diboson
-          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][7].Clone()) # SingleTop
-          h_Bundle[EtaRegion][Probe][IsPass][2].Add(h_mc[EtaRegion]['os'][Probe][IsPass][3])
-          h_Bundle[EtaRegion][Probe][IsPass][3].Add(h_mc[EtaRegion]['os'][Probe][IsPass][5])
-          h_Bundle[EtaRegion][Probe][IsPass][3].Add(h_mc[EtaRegion]['os'][Probe][IsPass][6])
-          h_Bundle[EtaRegion][Probe][IsPass][4].Add(h_mc[EtaRegion]['os'][Probe][IsPass][8])
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][7].Clone()) # tW top
+          h_Bundle[EtaRegion][Probe][IsPass].append(h_mc[EtaRegion]['os'][Probe][IsPass][9].Clone()) # DYtoTauTau (MiNNLO)
+          h_Bundle[EtaRegion][Probe][IsPass][2].Add(h_mc[EtaRegion]['os'][Probe][IsPass][3]) # TTLJ
+          h_Bundle[EtaRegion][Probe][IsPass][3].Add(h_mc[EtaRegion]['os'][Probe][IsPass][5]) # WZ
+          h_Bundle[EtaRegion][Probe][IsPass][3].Add(h_mc[EtaRegion]['os'][Probe][IsPass][6]) # ZZ
+          h_Bundle[EtaRegion][Probe][IsPass][4].Add(h_mc[EtaRegion]['os'][Probe][IsPass][8]) # tW antitop
   
-          h_Bundle[EtaRegion][Probe][IsPass][0].SetFillColor(kSpring+10)
+          h_Bundle[EtaRegion][Probe][IsPass][0].SetFillColor(kSpring+10) # DY or DYtoEE (MiNNLO)
           h_Bundle[EtaRegion][Probe][IsPass][1].SetFillColor(kBlue)
           h_Bundle[EtaRegion][Probe][IsPass][2].SetFillColor(kRed)
           h_Bundle[EtaRegion][Probe][IsPass][3].SetFillColor(kOrange-3)
           h_Bundle[EtaRegion][Probe][IsPass][4].SetFillColor(kViolet)
+          h_Bundle[EtaRegion][Probe][IsPass][5].SetFillColor(kGreen) # DYtoTauTau (MiNNLO)
 
       h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][0].Clone()) # DY
       h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][1].Clone()) # WJets
       h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][2].Clone()) # ttbar
       h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][4].Clone()) # Diboson
       h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][7].Clone()) # SingleTop
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][9].Clone()) # DYtoTauTau
       h_Bundle[EtaRegion]['All'][2].Add(h_mc[EtaRegion]['os']['All'][3])
       h_Bundle[EtaRegion]['All'][3].Add(h_mc[EtaRegion]['os']['All'][5])
       h_Bundle[EtaRegion]['All'][3].Add(h_mc[EtaRegion]['os']['All'][6])
       h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os']['All'][8])
   
-      h_Bundle[EtaRegion]['All'][0].SetFillColor(kSpring+10)
+      h_Bundle[EtaRegion]['All'][0].SetFillColor(kSpring+10) # DY
       h_Bundle[EtaRegion]['All'][1].SetFillColor(kBlue)
       h_Bundle[EtaRegion]['All'][2].SetFillColor(kRed)
       h_Bundle[EtaRegion]['All'][3].SetFillColor(kOrange-3)
       h_Bundle[EtaRegion]['All'][4].SetFillColor(kViolet)
+      h_Bundle[EtaRegion]['All'][5].SetFillColor(kGreen) # DYtoTauTau
   
     # Call h_data
     h_data = {}
@@ -1251,9 +1273,11 @@ if __name__ == '__main__':
         for Probe in It_Probes:
           h_data[EtaRegion][Charge][Probe] = {}
           for IsPass in It_IsPasses:
-            h_data[EtaRegion][Charge][Probe][IsPass] = this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass)
+            #h_data[EtaRegion][Charge][Probe][IsPass] = this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass)
+            h_data[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass))
         # All probes
-        h_data[EtaRegion][Charge]['All'] = this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge)
+        #h_data[EtaRegion][Charge]['All'] = this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge)
+        h_data[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge))
   
     # Now stack OS bundles and get total error
     h_Stack = {}
@@ -1297,7 +1321,7 @@ if __name__ == '__main__':
           # SS data - SS prompt = OS fake
           h_data[EtaRegion]['ss'][Probe][IsPass].Add(h_mc[EtaRegion]['ss_tot'][Probe][IsPass],-1)
           h_Bundle[EtaRegion][Probe][IsPass].append(h_data[EtaRegion]['ss'][Probe][IsPass].Clone()) # Fake
-          h_Bundle[EtaRegion][Probe][IsPass][5].SetFillColor(kAzure+1)
+          h_Bundle[EtaRegion][Probe][IsPass][-1].SetFillColor(kAzure+1)
 
           # Now Sum up all bkgs to estimate combined error, and collect bundles into one stack
           for iBundle in reversed(range(len(h_Bundle[EtaRegion][Probe][IsPass]))):
@@ -1313,7 +1337,7 @@ if __name__ == '__main__':
       # SS data - SS prompt = OS fake
       h_data[EtaRegion]['ss']['All'].Add(h_mc[EtaRegion]['ss_tot']['All'],-1) # This is fake
       h_Bundle[EtaRegion]['All'].append(h_data[EtaRegion]['ss']['All'].Clone()) # Add fake to the bundle
-      h_Bundle[EtaRegion]['All'][5].SetFillColor(kAzure+1)
+      h_Bundle[EtaRegion]['All'][-1].SetFillColor(kAzure+1)
 
       # Now Sum up all bkgs to estimate combined error, and collect bundles into one stack
       #print h_Error[EtaRegion]['All'].GetBinContent(1), h_Error[EtaRegion]['All'].GetBinError(1) # to check h_Error was reset successfully

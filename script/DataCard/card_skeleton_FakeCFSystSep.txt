@@ -1,0 +1,64 @@
+imax *  number of channels
+jmax *  number of backgrounds
+kmax *  number of nuisance parameters (sources of systematical uncertainties)
+------------
+shapes * *  /data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegionPlotter/LimitInputs/test.root $PROCESS $PROCESS_$SYSTEMATIC
+------------
+# we have just one channel, in which we observe 0 events
+bin bin1
+observation -1
+------------
+# now we list the expected events for signal and all backgrounds in that bin
+# the second 'process' line must have a positive number for backgrounds, and 0 for signal
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
+bin                        bin1   bin1   bin1   bin1          bin1   bin1   bin1   bin1           bin1         bin1  
+process                    fake   cf     zg     conv_others   wz     zz     ww     prompt_others  signalDYVBF  signalSSWW
+process                    1      2      3      4             5      6      7      9              -1           0
+rate                       -1     -1     -1     -1            -1     -1     -1     -1             -1           -1
+Lumi                lnN    -      -      1.05   1.05          1.05   1.05   1.05   1.05           1.05         1.05
+BkgNorm             lnN    -      -      -      1.2           -      -      -      1.2            -            -
+FR                  shape  1      -      -      -             -      -      -      -              -            -
+LID                 shape  1      -      -      -             -      -      -      -              -            -
+PSF                 shape  1      -      -      -             -      -      -      -              -            -
+CFRate              shape  -      1      -      -             -      -      -      -              -            -
+CFSF                shape  -      1      -      -             -      -      -      -              -            -
+JetRes              shape  -      -      1      1             1      1      1      1              1            1
+JetEn               shape  -      -      1      1             1      1      1      1              1            1
+#JetMass             shape  -      -      1      1             1      1      1      1              1            1
+#JetMassSmear        shape  -      -      1      1             1      1      1      1              1            1
+#MuonRecoSF          shape  -      -      1      1             1      1      1      1              1            1
+#MuonIDSF            shape  -      -      1      1             1      1      1      1              1            1
+#MuonISOSF           shape  -      -      1      1             1      1      1      1              1            1
+MuonEn              shape  -      -      1      1             1      1      1      1              1            1
+#ElectronRecoSF      shape  -      -      1      1             1      1      1      1              1            1
+#ElectronIDSF        shape  -      -      1      1             1      1      1      1              1            1
+#ElectronTriggerSF   shape  -      -      1      1             1      1      1      1              1            1
+ElectronEn          shape  -      -      1      1             1      1      1      1              1            1
+ElectronRes         shape  -      -      1      1             1      1      1      1              1            1
+BTagSFHTag          shape  -      -      1      1             1      1      1      1              1            1
+BTagSFLTag          shape  -      -      1      1             1      1      1      1              1            1
+METUncl             shape  -      -      1      1             1      1      1      1              1            1
+Prefire             shape  -      -      1      1             1      1      1      1              1            1
+PU                  shape  -      -      1      1             1      1      1      1              1            1
+* autoMCStats 0 0 1
+ZGNorm              rateParam     *     zg     1.0
+WZNorm              rateParam     *     wz     1.0
+ZZNorm              rateParam     *     zz     1.0
+WWNorm              rateParam     *     ww     1.0
+#ZGNorm              rateParam     zg_cr     zg     1.0
+#WZNorm              rateParam     wz_cr     wz     1.0
+#ZZNorm              rateParam     zz_cr     zz     1.0
+#WWNorm              rateParam     ww_cr     ww     1.0
+#ZGNorm              rateParam     sr1     zg     1.0
+#WZNorm              rateParam     sr1     wz     1.0
+#ZZNorm              rateParam     sr1     zz     1.0
+#WWNorm              rateParam     sr1     ww     1.0
+#ZGNorm              rateParam     sr2     zg     1.0
+#WZNorm              rateParam     sr2     wz     1.0
+#ZZNorm              rateParam     sr2     zz     1.0
+#WWNorm              rateParam     sr2     ww     1.0
+#ZGNorm              rateParam     sr3     zg     1.0
+#WZNorm              rateParam     sr3     wz     1.0
+#ZZNorm              rateParam     sr3     zz     1.0
+#WWNorm              rateParam     sr3     ww     1.0

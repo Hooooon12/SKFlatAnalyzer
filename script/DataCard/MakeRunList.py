@@ -1,5 +1,5 @@
 # Place this at CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter
-# python MakeRunList.py <directory> [-e 2017 2018] [-c EMu] [-m 100 200] <--Work or --Limit>
+# python MakeRunList.py <directories> [-e 2017 2018] [-c EMu] [-m 100 200] <--Work or --Limit>
 
 import os, sys
 import commands as cmd
@@ -22,13 +22,13 @@ if not args.Work and not args.Limit:
 input_path = os.getcwd()
 
 # Choose one card name to represent all
-CardRep = "sr3_inv"
-#CardRep = "sr3_InvMET"
+#CardRep = "sr3_inv"
+CardRep = "sr3_InvMET"
 grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one (grepping 'card' for Run2 or 'sr3_inv' for the others)
 
 #tags = ["_sronly"]
-#tags = ["_syst"]
-tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+tags = ["_syst"]
+#tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = [""]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined","_syst"]
 #tags = ["_sr1_syst","_sr2_syst","_sr3_syst","_sr_syst"]

@@ -36,9 +36,10 @@ masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M5
 #masses = ["M100"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M1000"]
 #masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
-channels = ["MuMu","EE","EMu"]
+#channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
 #channels = ["EMu"]
+channels = ["MuMu"]
 HistChannelMap = {'MuMu':'Muon', 'EE':'Electron', 'EMu':'ElectronMuon'}
 ## Ugly region maps ##
 RegionToCRFlagMap = {}
@@ -46,8 +47,8 @@ RegionToChannelMap = {}
 RegionToHistSuffixMap = {}
 
 #tags = ["HNL_ULID","HNTightV2"] # HNLParameter Name
-tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
-#tags = ["HNL_ULID","HighPt"] # HNLParameter Name, used to call the histogram
+#tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
+tags = ["HNL_ULID","HighPt"] # HNLParameter Name, used to call the histogram
 #tags = ["HighPt"] # HNLParameter Name, used to call the histogram
 #outputTag = "240501_1704_" # tag the output directory name as you wish
 #outputTag = "rateParam_" # tag the output directory name as you wish
@@ -62,7 +63,7 @@ tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
 #outputTag = "PR52_TestScan_" # tag the output directory name as you wish
 #outputTag = "PR52_SSWWrescale_" # tag the output directory name as you wish
 #outputTag = "PR85_" # tag the output directory name as you wish
-outputTag = "PR86_" # tag the output directory name as you wish
+outputTag = "PR89_" # tag the output directory name as you wish
 
 if args.CnC:
   outputTag += 'CnC_'
@@ -204,7 +205,8 @@ else:
   ChargeSplit = ""
 
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR52/"
-InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
+InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR89/"
+#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
 
 ##### Start merging #####
 MergeList = {}
@@ -551,7 +553,7 @@ for tag in tags:
           print "##### Initiating",region,mass,channel,"..."
           if not Blinded: h_data        = f_data.Get(input_hist)
           h_fake          = f_fake.Get(input_hist)
-          h_cf            = f_cf.Get(input_hist)
+          h_cf            = f_cf.Get(input_hist) if "Mu" not in channel else ""
           h_zg            = f_zg.Get(input_hist)
           h_conv_others   = f_conv_others.Get(input_hist)
           h_conv_inc      = f_conv_inc.Get(input_hist)
@@ -575,6 +577,11 @@ for tag in tags:
                         [f_path_prompt_others, h_prompt_others, "prompt_others"],
                         [f_path_prompt_inc, h_prompt_inc, "prompt_inc"],
                        ]
+
+          if "Mu" in channel:
+            print "This is",channel,"channel."
+            print "Remove CF item:"
+            print input_list.pop(1)
 
           if args.Scan:
             print "##### Scan initiated. #####"
@@ -601,6 +608,11 @@ for tag in tags:
                         [f_path_conv_inc, h_conv_inc, "conv_inc"],
                        ]
           
+            if "Mu" in channel:
+              print "This is",channel,"channel."
+              print "Remove CF item in bkg list:"
+              print bkg_list.pop(1)
+
             total_number = 0 # to cross check
             total_number += h_prompt_inc.GetEntries()
           
@@ -758,9 +770,13 @@ for tag in tags:
                            "BTagSFLTagUp","BTagSFLTagDown",
                            "METUnclUp","METUnclDown",
                            "PrefireUp","PrefireDown",
-                           "PUUp","PUDown"
-                           #"CFUp","CFDown",
-                           #"FRUp","FRDown",
+                           "PUUp","PUDown",
+                           "CFRateUp","CFRateDown",
+                           "CFSFUp","CFSFDown",
+                           "AJ30","AJ60",
+                           "FRUp","FRDown",
+                           "LIDUp","LIDDown",
+                           "PSFUp","PSFDown",
                           ]
   
               Nproc = len(input_list) # The number of processes = the length of the input list before adding systematics

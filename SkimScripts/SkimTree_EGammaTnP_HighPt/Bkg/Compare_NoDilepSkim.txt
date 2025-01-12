@@ -1,5 +1,3 @@
-DYJets_MG
-WJets_amcatnlo
 QCD_Pt-15to20_EMEnriched
 QCD_Pt-20to30_EMEnriched
 QCD_Pt-30to50_EMEnriched
