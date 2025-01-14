@@ -30,9 +30,9 @@ eras = ["2017"]
 #eras = ["2018"]
 #eras = ["2016preVFP","2016postVFP","2017","2018"]
 #eras = ["2016preVFP","2016postVFP","2018"]
-channels = ["MuMu","EE","EMu"]
+#channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
-#channels = ["MuMu"]
+channels = ["MuMu"]
 #channels = ["EE"]
 #channels = ["EE","EMu"]
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
@@ -54,8 +54,10 @@ masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M5
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR52/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR52/LimitExtraction/"
-SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR75/LimitExtraction/"
-CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR75/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR75/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR75/LimitExtraction/"
+SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR89/LimitExtraction/"
+CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR89/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
 
@@ -76,8 +78,9 @@ CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_
 #InputWPs = ["PR55_HNL_ULID","PR55_HighPt"]
 #InputWPs = ["PR55_HNL_ULID"]
 #InputWPs = ["PR55_NoMinPt_HighPt"]
-InputWPs = ["PR75_HNL_ULID"]
+#InputWPs = ["PR75_HNL_ULID"]
 #InputWPs = ["PR86_HNL_ULID"]
+InputWPs = ["PR89_HNL_ULID","PR89_HighPt"]
 #OutputTag = "_NOsr2inv"
 #OutputTag = "_NOsr2inv_NOzgcr1"
 #OutputTag = "_NOsr2inv_NOcr1Norm_FixCF"
@@ -93,11 +96,12 @@ InputWPs = ["PR75_HNL_ULID"]
 #OutputTag = "_AN"
 #OutputTag = "_SUScomment"
 #OutputTag = "_Singluarity"
-OutputTag = "_CompToPR86"
+#OutputTag = "_CompToPR86"
+OutputTag = "_HighPtIDComp_lnNsyst"
 if args.Decorr: OutputTag+="_Decorr"
 
-#regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
-regions_cr = ["cf_cr","sr1_inv","sr2_inv","sr3_inv","ww_cr","wz_cr","zg_cr","zz_cr"]
+regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
+#regions_cr = ["cf_cr","sr1_inv","sr2_inv","sr3_inv","ww_cr","wz_cr","zg_cr","zz_cr"]
 regions_sr = ["sr1","sr2","sr3"]
 
 
@@ -254,8 +258,10 @@ for InputWP in InputWPs:
         if args.Combine == "CR":
           if "Mu" in channel: regions_cr = [cr for cr in regions_cr if "cf" not in cr]
           if int(mass.strip('M'))<=100:
-            regions_sr = ["sr3"]
-          sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+"_"+sr+systTag+".txt" for sr in regions_sr])
+            regions_sr_filtered = ["sr3"]
+          else:
+            regions_sr_filtered = regions_sr
+          sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+"_"+sr+systTag+".txt" for sr in regions_sr_filtered])
           cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr])
           # merge all SRs
           os.system("combineCards.py "+sr_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+systTag+".txt")

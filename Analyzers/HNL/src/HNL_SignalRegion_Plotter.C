@@ -35,7 +35,8 @@ void HNL_SignalRegion_Plotter::executeEvent(){
   if(_jentry == 0){
     cout << "HNL_SignalRegion_Plotter::IsData = " << IsData << endl;
   }
-  vector<TString> LepIDs = {"HNL_ULID","HNL_ULIDv2"};
+  //vector<TString> LepIDs = {"HNL_ULID","HNL_ULIDv2"};
+  vector<TString> LepIDs = {"HNL_ULID"};
   if(HasFlag("AllID")) LepIDs = {"HNL_ULID","HNTightV2", "POGTight"};
 
   //// Allow ID setting by flag
@@ -54,6 +55,7 @@ void HNL_SignalRegion_Plotter::executeEvent(){
   if(ChannelsToRun.size() == 0) ChannelsToRun = {EE,MuMu,EMu};
 
   if(RunHighPtID) ChannelsToRun = {MuMu};
+  ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
 
 
   for (auto id: LepIDs){

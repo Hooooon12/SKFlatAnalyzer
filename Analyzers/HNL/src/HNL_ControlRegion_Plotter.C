@@ -31,7 +31,8 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   //else run_Debug=false;
   run_Debug=false; //JH
 
-  vector<TString> LepIDs = {"HNL_ULID","HNL_ULIDv2","HNTightV2"};
+  //vector<TString> LepIDs = {"HNL_ULID","HNL_ULIDv2","HNTightV2"};
+  vector<TString> LepIDs = {"HNL_ULID"};
 
   /// Set ID by flag
   if(RunTopID) LepIDs = {"TopHN"};
@@ -52,6 +53,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   if(ChannelsToRun.size() == 0)ChannelsToRun = {EE,MuMu,EMu};
 
   if(RunHighPtID) ChannelsToRun = {MuMu};
+  ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
 
   ///// Run command 
 

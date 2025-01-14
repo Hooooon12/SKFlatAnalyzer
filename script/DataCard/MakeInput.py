@@ -17,6 +17,7 @@ parser.add_argument('--Scan', action='store_true', help='scan the bin content')
 parser.add_argument('--CnC', action='store_true', help='1bin cut and count setting')
 parser.add_argument('--CR', action='store_true', help='Make HNL_ControlRegion_Plotter input (default : HNL_SignalRegion_Plotter)')
 parser.add_argument('--Syst', action='store_true', help='Add systematics')
+parser.add_argument('--SystSep', action='store_true', help='Separate out Fake, CF syst sources')
 parser.add_argument('--Merge', action='store_true', help='hadd the needed histograms')
 args = parser.parse_args()
 
@@ -47,8 +48,8 @@ RegionToChannelMap = {}
 RegionToHistSuffixMap = {}
 
 #tags = ["HNL_ULID","HNTightV2"] # HNLParameter Name
-#tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
-tags = ["HNL_ULID","HighPt"] # HNLParameter Name, used to call the histogram
+tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
+#tags = ["HNL_ULID","HighPt"] # HNLParameter Name, used to call the histogram
 #tags = ["HighPt"] # HNLParameter Name, used to call the histogram
 #outputTag = "240501_1704_" # tag the output directory name as you wish
 #outputTag = "rateParam_" # tag the output directory name as you wish
@@ -63,7 +64,8 @@ tags = ["HNL_ULID","HighPt"] # HNLParameter Name, used to call the histogram
 #outputTag = "PR52_TestScan_" # tag the output directory name as you wish
 #outputTag = "PR52_SSWWrescale_" # tag the output directory name as you wish
 #outputTag = "PR85_" # tag the output directory name as you wish
-outputTag = "PR89_" # tag the output directory name as you wish
+#outputTag = "PR89_" # tag the output directory name as you wish
+outputTag = "PR95_" # tag the output directory name as you wish
 
 if args.CnC:
   outputTag += 'CnC_'
@@ -96,7 +98,6 @@ if args.CR:
   #regions = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","zg_cr","wz_cr","zz_cr"] if not args.Merge else "" # for CRs
   regions = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
   ########### JH: ww_cr is just SR2 but high MET? Then isn't it just InvMET_CR2? #########
-  #regions = "" # Use this when merging only
 
   RegionToCRFlagMap['sr_inv'] = "SS_CR__"
   RegionToCRFlagMap['sr1_inv'] = "SS_CR__"
@@ -180,7 +181,6 @@ else:
 
   regions = ["sr1","sr2","sr3"] if not args.Merge else "" # for SRs
   #regions = ["sr"] # for SRs
-  #regions = "" # Use this when merging only
 
   RegionToCRFlagMap['sr'] = ""
   RegionToCRFlagMap['sr1'] = ""
@@ -205,7 +205,8 @@ else:
   ChargeSplit = ""
 
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR52/"
-InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR89/"
+#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR89/"
+InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR95/"
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
 
 ##### Start merging #####
@@ -747,118 +748,134 @@ for tag in tags:
   
   
           if args.Syst:
-            if args.CR:
-              print "##### This is CR setting."
-              print "##### Skipping systematics ..."
-            else:
-              print "##### Systematics activated."
-              syst_list = [
-                           "JetResUp","JetResDown",
-                           "JetEnUp","JetEnDown",
-                           "JetMassUp","JetMassDown",
-                           "JetMassSmearUp","JetMassSmearDown",
-                           "MuonEnUp","MuonEnDown",
-                           "ElectronEnUp","ElectronEnDown",
-                           "ElectronResUp","ElectronResDown",
-                           #"MuonRecoSFUp","MuonRecoSFDown",
-                           #"MuonIDSFUp","MuonIDSFDown",
-                           #"MuonISOSFUp","MuonISOSFDown",
-                           #"ElectronRecoSFUp","ElectronRecoSFDown",
-                           #"ElectronIDSFUp","ElectronIDSFDown",
-                           #"ElectronTriggerSFUp","ElectronTriggerSFDown",
-                           "BTagSFHTagUp","BTagSFHTagDown",
-                           "BTagSFLTagUp","BTagSFLTagDown",
-                           "METUnclUp","METUnclDown",
-                           "PrefireUp","PrefireDown",
-                           "PUUp","PUDown",
-                           "CFRateUp","CFRateDown",
-                           "CFSFUp","CFSFDown",
-                           "AJ30","AJ60",
-                           "FRUp","FRDown",
-                           "LIDUp","LIDDown",
-                           "PSFUp","PSFDown",
-                          ]
+            print "##### Systematics activated."
+            syst_list = [
+                         "JetResUp","JetResDown",
+                         "JetEnUp","JetEnDown",
+                         #"JetMassUp","JetMassDown",
+                         #"JetMassSmearUp","JetMassSmearDown",
+                         "MuonEnUp","MuonEnDown",
+                         "MuonResUp","MuonResDown",
+                         "ElectronEnUp","ElectronEnDown",
+                         "ElectronResUp","ElectronResDown",
+                         "MuonRecoSFUp","MuonRecoSFDown",
+                         "MuonIDSFUp","MuonIDSFDown",
+                         #"MuonISOSFUp","MuonISOSFDown",
+                         "ElectronRecoSFUp","ElectronRecoSFDown",
+                         "ElectronIDSFUp","ElectronIDSFDown",
+                         #"ElectronTriggerSFUp","ElectronTriggerSFDown",
+                         "BTagSFHTagUp","BTagSFHTagDown",
+                         "BTagSFLTagUp","BTagSFLTagDown",
+                         "METUnclUp","METUnclDown",
+                         "PrefireUp","PrefireDown",
+                         "PUUp","PUDown",
+                         "CFRateUp","CFRateDown",
+                         "CFSFUp","CFSFDown",
+                         "FRUp","FRDown",
+                         "AJUp","AJDown",
+                         "LIDUp","LIDDown",
+                         "PSFUp","PSFDown",
+                        ]
   
-              Nproc = len(input_list) # The number of processes = the length of the input list before adding systematics
+            Nproc = len(input_list) # The number of processes = the length of the input list before adding systematics
   
-              for i in range(Nproc):
-                if args.Scan:
-                  h_scan = TH2D(input_list[i][2],input_list[i][2],h_fake.GetNbinsX(),0,h_fake.GetNbinsX(),len(syst_list),0,len(syst_list))
-                  print "h_scan for",input_list[i][2],"syst created; this should be empty:",h_scan.Integral(0,h_fake.GetNbinsX(),1,1)
-                  if h_scan.Integral(0,h_fake.GetNbinsX(),1,1)!=0.: sys.exit()
-                  h_scan.SetDirectory(0)
+            for i in range(Nproc):
+              if args.Scan:
+                h_scan = TH2D(input_list[i][2],input_list[i][2],h_fake.GetNbinsX(),0,h_fake.GetNbinsX(),len(syst_list),0,len(syst_list))
+                print "h_scan for",input_list[i][2],"syst created; this should be empty:",h_scan.Integral(0,h_fake.GetNbinsX(),1,1)
+                if h_scan.Integral(0,h_fake.GetNbinsX(),1,1)!=0.: sys.exit()
+                h_scan.SetDirectory(0)
 
-                for this_syst in syst_list: # Define new input_hist with each syst name
-                  input_hist = LimitDir+"/Syst_"+this_syst+tag+"/"+channel+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
+              for this_syst in syst_list: # Define new input_hist with each syst name
+                input_hist = LimitDir+"/Syst_"+this_syst+tag+"/"+channel+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
 
-                  if not "fake_data_path" in input_list[i][0]: # There is no file like "fake_data_path" ...
-                    name_syst = input_list[i][2]+"_"+this_syst # Define syst histo name
-                    f_syst = TFile.Open(input_list[i][0]) # Get each process's file
+                if not "fake_data_path" in input_list[i][0]: # There is no file like "fake_data_path" ...
+                  name_syst = input_list[i][2]+"_"+this_syst # Define syst histo name
+
+                  if args.SystSep: # Redefine output syst hist name
+                    if 'sr1' in region or 'cr1' in region:
+                      regionName_SystSep = 'sr1'
+                    elif 'sr2' in region or 'cr2' in region:
+                      regionName_SystSep = 'sr2'
+                    elif 'sr3' in region or 'cr3' in region:
+                      regionName_SystSep = 'sr3'
+                    else:
+                      print "[!!ERROR!!] Region name",region,"does NOT match with --SystSep argument !!"
+                      print "[!!ERROR!!] Exiting ..."
+                      sys.exit()
+
+                    SystSepList = ["CFRate","CFSF","FR","AJ","LID","PSF"]
+                    this_syst_source = this_syst.replace('Up','').replace('Down','')
+                    if this_syst_source in SystSepList: # if this is Fake of CF syst source
+                      this_syst_nameSep = this_syst_source+"_"+regionName_SystSep+this_syst.replace(this_syst_source,'') # AJ_sr1Up
+                      name_syst = input_list[i][2]+"_"+this_syst_nameSep
+
+                  f_syst = TFile.Open(input_list[i][0]) # Get each process's file
+                  try:
+                    h_syst = f_syst.Get(input_hist)
+                  except ReferenceError:
+                    print("[!!WARNING!!] There is no file "+input_list[i][0]+" .")
+                    if args.Scan:
+                      print "##### Making 2D hist for",name_syst,"#####"
+                      FillScan(h_scan,h_syst,name_syst) # out, in, name
+                    if "signal" in input_list[i][2]:
+                      print "Skipping..."
+                    else:
+                      print "Making an empty hist..."
+                      if args.CR:
+                        h_syst = h_prompt_inc.Clone() # I could use data here, but data could have no entry due to stats so just use prompt_inc here.
+                      else:
+                        h_syst = h_data.Clone() # SR --> data = total bkg, lowest possibility of no stats
+                      for j in range(h_syst.GetNbinsX()):
+                        h_syst.SetBinContent(j+1,0)
+                        h_syst.SetBinError(j+1,0)
+                      h_syst.SetBinContent(1,0.001) # to avoid Combine complaining for empty hist.
+                      h_syst.SetBinError(1,0.000001)
+                      h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
+                  else:
+                    if args.Scan:
+                      print "##### Making 2D hist for",name_syst,"#####"
+                      FillScan(h_scan,h_syst,name_syst) # out, in, name
                     try:
-                      h_syst = f_syst.Get(input_hist)
-                    except ReferenceError:
-                      print("[!!WARNING!!] There is no file "+input_list[i][0]+" .")
-                      if args.Scan:
-                        print "##### Making 2D hist for",name_syst,"#####"
-                        FillScan(h_scan,h_syst,name_syst) # out, in, name
+                      h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
+                    except AttributeError:
+                      print("[!!WARNING!!] There is no hist named "+input_hist+" in "+input_list[i][0]+" .")
                       if "signal" in input_list[i][2]:
                         print "Skipping..."
                       else:
                         print "Making an empty hist..."
                         if args.CR:
-                          h_syst = h_prompt_inc.Clone() # I could use data here, but data could have no entry due to stats so just use prompt_inc here.
+                          h_syst = h_prompt_inc.Clone()
                         else:
-                          h_syst = h_data.Clone() # SR --> data = total bkg, lowest possibility of no stats
+                          h_syst = h_data.Clone()
                         for j in range(h_syst.GetNbinsX()):
                           h_syst.SetBinContent(j+1,0)
                           h_syst.SetBinError(j+1,0)
                         h_syst.SetBinContent(1,0.001) # to avoid Combine complaining for empty hist.
                         h_syst.SetBinError(1,0.000001)
                         h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
-                    else:
-                      if args.Scan:
-                        print "##### Making 2D hist for",name_syst,"#####"
-                        FillScan(h_scan,h_syst,name_syst) # out, in, name
-                      try:
-                        h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
-                      except AttributeError:
-                        print("[!!WARNING!!] There is no hist named "+input_hist+" in "+input_list[i][0]+" .")
-                        if "signal" in input_list[i][2]:
-                          print "Skipping..."
-                        else:
-                          print "Making an empty hist..."
-                          if args.CR:
-                            h_syst = h_prompt_inc.Clone()
-                          else:
-                            h_syst = h_data.Clone()
-                          for j in range(h_syst.GetNbinsX()):
-                            h_syst.SetBinContent(j+1,0)
-                            h_syst.SetBinError(j+1,0)
-                          h_syst.SetBinContent(1,0.001) # to avoid Combine complaining for empty hist.
-                          h_syst.SetBinError(1,0.000001)
-                          h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
 
-                    try:
-                      if "DYVBF" in input_list[i][2]: # Scale the syst variated signals
-                        if "PR52" in InputPath and "EMu" in channel: h_syst.Scale(2) #XXX FIXME MY SKFlatOutput EMu signal had a half of events
-                        h_syst.Scale(DYVBFscaler)
-                      elif "SSWW" in input_list[i][2]:
-                        h_syst.Scale(SSWWscaler)
-                    except AttributeError:
-                      print("[!!WARNING!!] There is no hist named "+input_hist+" in "+input_list[i][0]+" .")
-                      if "signal" in input_list[i][2]:
-                        print "Skipping..."
-                        continue
-                    print "Appending "+name_syst+"..."
-                    input_list.append([input_list[i][0], h_syst, name_syst]) # Append each syst histogram while iterating
+                  try:
+                    if "DYVBF" in input_list[i][2]: # Scale the syst variated signals
+                      if "PR52" in InputPath and "EMu" in channel: h_syst.Scale(2) #XXX FIXME MY SKFlatOutput EMu signal had a half of events
+                      h_syst.Scale(DYVBFscaler)
+                    elif "SSWW" in input_list[i][2]:
+                      h_syst.Scale(SSWWscaler)
+                  except AttributeError:
+                    print("[!!WARNING!!] There is no hist named "+input_hist+" in "+input_list[i][0]+" .")
+                    if "signal" in input_list[i][2]:
+                      print "Skipping..."
+                      continue
+                  print "Appending "+name_syst+"..."
+                  input_list.append([input_list[i][0], h_syst, name_syst]) # Append each syst histogram while iterating
   
-                if args.Scan:
-                  #for i in range(h_scan.GetNbinsX()): print h_scan.GetYaxis().GetBinLabel(3), h_scan.GetBinContent(i+1,3)
-                  h_scan.SetDirectory(0)
-                  scan_list.append(h_scan)
-                  #print scan_list
+              if args.Scan:
+                #for i in range(h_scan.GetNbinsX()): print h_scan.GetYaxis().GetBinLabel(3), h_scan.GetBinContent(i+1,3)
+                h_scan.SetDirectory(0)
+                scan_list.append(h_scan)
+                #print scan_list
 
-              print "##### Systematics done."
+            print "##### Systematics done."
   
   
           print "##### Now creating a limit input root file..."

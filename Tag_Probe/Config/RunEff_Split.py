@@ -21,13 +21,13 @@ NJob=args.NJob
 WorkDir=args.WorkDir
 
 #It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','HNL_ULID_Split_8b'] #V1
-#It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_7b','HNL_ULID_Split_7c','HNL_ULID_Split_7d','HNL_ULID_Split_7e','HNL_ULID_Split_7f','HNL_ULID_Split_7g','HNL_ULID_Split_7h','HNL_ULID_Split_8','HNL_ULID_Split_8b'] #V3
-It_Probes    = ['MVALoose','HNLMVA','HNLMVA_HighPt','HNLMVA_HighPt_Tight'] #V5
+It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_7b','HNL_ULID_Split_7c','HNL_ULID_Split_7d','HNL_ULID_Split_7e','HNL_ULID_Split_7f','HNL_ULID_Split_7g','HNL_ULID_Split_7h','HNL_ULID_Split_8','HNL_ULID_Split_8b'] #V3
+#It_Probes    = ['MVALoose','HNLMVA','HNLMVA_HighPt','HNLMVA_HighPt_Tight'] #V5
 
 #### IDs applied to probe befrpre PASS/FAIL
 #It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8'] #V1
-#It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8'] #V3
-It_ProbeID   = ['Pass',            'MVALoose','MVALoose','MVALoose'] #V5
+It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8'] #V3
+#It_ProbeID   = ['Pass',            'MVALoose','MVALoose','MVALoose'] #V5
 It_IsPasses = ['Pass','Fail']
 It_EtaRegions = ['BB','EC']
 #It_EtaRegions = ['BB']
@@ -624,8 +624,6 @@ def makeDataMCplots(Data_OS, Stack, Bundle, Error, Era, Name, n_job):
 
 def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile):
 
-  return 
-
   os.system('mkdir -p '+WorkDir+"/Out_SF/"+Era+"/SF")
 
   OutName = "SF_Pt_"+Era+"_"+EtaRegion+"_"+Probe+Tag
@@ -747,7 +745,8 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   Data_Eff.GetYaxis().SetTitleSize(0.075)
   Data_Eff.GetYaxis().SetTitleOffset(0.7)
   #Data_Eff.GetYaxis().SetRangeUser(c_up_min, 1.1)
-  Data_Eff.GetYaxis().SetRangeUser(0.5, 1.1)
+  Data_Eff.GetYaxis().SetRangeUser(0.8, 1.1) # V3
+  #Data_Eff.GetYaxis().SetRangeUser(0.5, 1.1) # V5
   Data_Eff.SetMarkerStyle(20)
   Data_Eff.SetMarkerColor(kBlack)
   Data_Eff.SetLineColor(kBlack)
@@ -1187,8 +1186,8 @@ if __name__ == '__main__':
     for era in eras:
       #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/SF_"+era+".root"))
       #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/Version3/SF_"+era+".root")) #V3 NLO
-      #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/Version3_NNLO/SF_"+era+".root")) #V3 MiNNLO
-      HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/Version5_NNLO/SF_"+era+".root")) #V5 MiNNLO
+      HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version3_NNLO/SF_"+era+".root")) #V3 MiNNLO
+      #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version5_NNLO/SF_"+era+".root")) #V5 MiNNLO
 
     # Merge 2016
     if len(eras) > 1:
