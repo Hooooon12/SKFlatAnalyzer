@@ -11,16 +11,14 @@ njobs_data=200
 nmax=500
 skim=' '
 
-declare  -a era_list=("2017")
+declare  -a era_list=("2018")
 
-if [[ $1 == "TEST" ]]; then
-
-    declare  -a era_list=("2017")
+if [[ $1 == "DYCR" ]]; then
 
     for i in "${era_list[@]}"
     do
-        #SKFlat.py -a $analyzer  -i WGToLNuG  -n 20  --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags RunConv,LLL_VR  &
-        SKFlat.py -a $analyzer  -l $datapath/${i}_DiLepton.txt      -n 100    --nmax ${nmax}   -e ${i}  --skim SkimTree_DileptonBDT  --userflags LLL_VR  &
+        
+        SKFlat.py -a $analyzer  -i DYJetsToMuMu_MiNNLO   -n 400    --nmax 500   -e ${i}  --skim SkimTree_DileptonBDT  --userflags OS  &
 
     done
 fi

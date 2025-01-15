@@ -10,7 +10,6 @@ declare  -a era_list=("2016postVFP" "2016preVFP" "2017" "2018")
 declare  -a joblist=("CheckProfile"  "RatesMuon" "RatesMuon2" "RatesEl" "RatesEl2" "RatesWR")
 
 
-
 for i in "${era_list[@]}"
 
 do

@@ -59,17 +59,7 @@ class HNL_LeptonCore : public AnalyzerCore {
     MuonSR2,    ElectronSR2,    ElectronMuonSR2,    
     MuonSR3,    ElectronSR3,    ElectronMuonSR3,
     MuonSR3BDT,    ElectronSR3BDT,    ElectronMuonSR3BDT,    
-
-    MuonInvMETCR1,    ElectronInvMETCR1,    ElectronMuonInvMETCR1,
-    MuonInvMETCR2,    ElectronInvMETCR2,    ElectronMuonInvMETCR2,    
-    MuonInvMETCR3,    ElectronInvMETCR3,    ElectronMuonInvMETCR3,
-    MuonInvMETCR3BDT,    ElectronInvMETCR3BDT,    ElectronMuonInvMETCR3BDT,    
-
-    MuonBJetCR1,    ElectronBJetCR1,    ElectronMuonBJetCR1,
-    MuonBJetCR2,    ElectronBJetCR2,    ElectronMuonBJetCR2,
-    MuonBJetCR3,    ElectronBJetCR3,    ElectronMuonBJetCR3,
-    MuonBJetCR3BDT,    ElectronBJetCR3BDT,    ElectronMuonBJetCR3BDT,
-
+    
     MuonCR1,    ElectronCR1,    ElectronMuonCR1,
     MuonCR2,    ElectronCR2,    ElectronMuonCR2,
     MuonCR3,    ElectronCR3,    ElectronMuonCR3,
@@ -81,8 +71,7 @@ class HNL_LeptonCore : public AnalyzerCore {
     MuonCRBDT,    ElectronCRBDT,    ElectronMuonCRBDT, 
 
     SR1,    SR2,    SR3,    SR3BDT,
-    InvMETCR1,   InvMETCR2,  InvMETCR3,    InvMETCR3BDT, 
-    BJetCR1,    BJetCR2,    BJetCR3,   BJetCR3BDT, 
+    CR1,   CR2,  CR3,    CR3BDT, 
 
     MuonSROpt,    ElectronSROpt,    ElectronMuonSROpt,    
     MuonSRBDTOpt,    ElectronSRBDTOpt,    ElectronMuonSRBDTOpt,
@@ -243,6 +232,9 @@ class HNL_LeptonCore : public AnalyzerCore {
 
   double GetPileUpWeight(int N_pileup, int syst);
   double GetZ0Weight(double valx);
+
+  double GetScaleUncertainty(int sys);
+  double GetPDFUncertainty(TString SR, int sys);
 
 
   //  ================= MC weight functions              HNL_LeptonCore_Lepton.C   =================                                                                                                                                          

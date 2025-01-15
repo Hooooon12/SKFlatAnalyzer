@@ -74,13 +74,19 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     param.Name = param.Name  + "/"+channel_string;
 
 
-
     //// Set HT over Pt for use in SR/CR VBF limit inputs
     for(long unsigned int imu =0 ; imu <  muons.size(); imu++) muons[imu].SetHTOverPt(GetHT(AK4_JetCollLoose,AK8_JetColl));
     for(long unsigned int iel =0 ; iel < electrons.size() ; iel++) electrons[iel].SetHTOverPt(GetHT(AK4_JetCollLoose,AK8_JetColl));
 
     std::vector<Lepton *> LepsT       = MakeLeptonPointerVector(muons,     electrons,     param);
     std::vector<Lepton *> LepsV       = MakeLeptonPointerVector(muons_veto,electrons_veto,param);
+
+    if(param.syst_ ==AnalyzerParameter::Central){
+      if(MCSample.Contains("Type"))Fill_RegionPlots(param,"Signal_NoCut" , TauColl,
+						    JetColl, AK8_JetColl, LepsT,
+						    METv, nPV, weight_channel);
+    }
+
    
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));
@@ -118,7 +124,7 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     FillCutflow(CutFlow_Region, weight_channel, "LeptonFlavour",param);
     
 
-    //    PassJetHEMVeto(JetColl,param.Name+"_Jet",weight_channel);
+    PassJetHEMVeto(JetColl,param.Name+"_Jet",weight_channel);
 
     if(LepsT.size() ==2)  FillCutflow(HNL_LeptonCore::ChannelDepDilep, weight_channel, GetChannelString(dilep_channel) +"_Dilep",param);
     
@@ -131,6 +137,15 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
       if(IsData)weight_channel = GetCFWeightElectron(LepsT, param,nElForRunCF,true);
       if(IsData)FillWeightHist(param.Name+"/CFWeight",weight_channel);
 
+    }
+    else if(HasFlag("SSConvSplit")){
+      /// used to test conv with SS cut
+      if(!SameCharge(LepsT)) continue;
+    }
+    else if(RunConv){
+      /// USE SS+OS / 2 using dilepton skim
+      weight_channel*= 0.5;
+      if(LepsT.size() != 2) continue;
     }
     else{
       if(!SameCharge(LepsT)) continue;
@@ -197,45 +212,25 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
   }
   else{    
     
-    if(ev.MET2ST() > 15 && B_JetColl.size() == 0){
-      LimitRegionR1  = HNL_LeptonCore::MuonInvMETCR1;
-      LimitRegionR2  = HNL_LeptonCore::MuonInvMETCR2;
-      LimitRegionR3  = HNL_LeptonCore::MuonInvMETCR3;
-      LimitRegionsBDTR3 = HNL_LeptonCore::MuonInvMETCR3BDT;
-    }
-    if(ev.MET2ST() < 15 && B_JetColl.size() == 1){
-      LimitRegionR1  = HNL_LeptonCore::MuonBJetCR1;
-      LimitRegionR2  = HNL_LeptonCore::MuonBJetCR2;
-      LimitRegionR3  = HNL_LeptonCore::MuonBJetCR3;
-      LimitRegionsBDTR3 = HNL_LeptonCore::MuonBJetCR3BDT;
-    }
+
+    LimitRegionR1  = HNL_LeptonCore::MuonCR1;
+    LimitRegionR2  = HNL_LeptonCore::MuonCR2;
+    LimitRegionR3  = HNL_LeptonCore::MuonCR3;
+    LimitRegionsBDTR3 = HNL_LeptonCore::MuonCR3BDT;
+
     if (channel == EE) {
-      if(ev.MET2ST() > 15 && B_JetColl.size() == 0){
-	LimitRegionR1  = HNL_LeptonCore::ElectronInvMETCR1;
-	LimitRegionR2  = HNL_LeptonCore::ElectronInvMETCR2;
-	LimitRegionR3  = HNL_LeptonCore::ElectronInvMETCR3;
-	LimitRegionsBDTR3 = HNL_LeptonCore::ElectronInvMETCR3BDT;
-      }
-      if(ev.MET2ST() < 15 && B_JetColl.size() == 1){
-	LimitRegionR1  = HNL_LeptonCore::ElectronBJetCR1;
-        LimitRegionR2  = HNL_LeptonCore::ElectronBJetCR2;
-        LimitRegionR3  = HNL_LeptonCore::ElectronBJetCR3;
-        LimitRegionsBDTR3 = HNL_LeptonCore::ElectronBJetCR3BDT;
-      }
+
+      LimitRegionR1  = HNL_LeptonCore::ElectronCR1;
+      LimitRegionR2  = HNL_LeptonCore::ElectronCR2;
+      LimitRegionR3  = HNL_LeptonCore::ElectronCR3;
+      LimitRegionsBDTR3 = HNL_LeptonCore::ElectronCR3BDT;
     }
     if (channel == EMu) {
-      if(ev.MET2ST() > 15 && B_JetColl.size() == 0){
-	LimitRegionR1  = HNL_LeptonCore::ElectronMuonInvMETCR1;
-	LimitRegionR2  = HNL_LeptonCore::ElectronMuonInvMETCR2;
-	LimitRegionR3  = HNL_LeptonCore::ElectronMuonInvMETCR3;
-	LimitRegionsBDTR3 = HNL_LeptonCore::ElectronMuonInvMETCR3BDT;
-      }
-      if(ev.MET2ST() < 15 && B_JetColl.size() == 1){
-	LimitRegionR1  = HNL_LeptonCore::ElectronMuonBJetCR1;
-        LimitRegionR2  = HNL_LeptonCore::ElectronMuonBJetCR2;
-        LimitRegionR3  = HNL_LeptonCore::ElectronMuonBJetCR3;
-        LimitRegionsBDTR3 = HNL_LeptonCore::ElectronMuonBJetCR3BDT;
-      }
+
+      LimitRegionR1  = HNL_LeptonCore::ElectronMuonCR1;
+      LimitRegionR2  = HNL_LeptonCore::ElectronMuonCR2;
+      LimitRegionR3  = HNL_LeptonCore::ElectronMuonCR3;
+      LimitRegionsBDTR3 = HNL_LeptonCore::ElectronMuonCR3BDT;
     }
   }
   
@@ -255,6 +250,10 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
 
       /// Region 1+2+3
       //FillLimitInput(LimitRegions, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
+
+
+      if(param.syst_ == AnalyzerParameter::PDFUp)   weight_reg*=GetPDFUncertainty("SR1",1);
+      if(param.syst_ == AnalyzerParameter::PDFDown) weight_reg*=GetPDFUncertainty("SR1",-1);
 
       if(IsSR) Fill_RegionPlots(param,"AllSR" , TauColl, 
         JetColl, AK8_JetColl, LepsT, 
@@ -280,6 +279,10 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
     
     if(RegionBin != "false") {
      
+
+      if(param.syst_ == AnalyzerParameter::PDFUp)   weight_reg*=GetPDFUncertainty("SR2",1);
+      if(param.syst_ == AnalyzerParameter::PDFDown) weight_reg*=GetPDFUncertainty("SR2",-1);
+
       //if(IsSR) FillCutflow(HNL_LeptonCore::SR, weight_reg, "SR2",param);
  
       if(IsSR) Fill_RegionPlots(param,"AllSR" , TauColl, JetColl, AK8_JetColl, LepsT,  METv, nPV, weight_reg);
@@ -302,6 +305,10 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
     else{
 
       //// Fail VBF Req
+
+      if(param.syst_ == AnalyzerParameter::PDFUp)   weight_reg*=GetPDFUncertainty("SR3",1);
+      if(param.syst_ == AnalyzerParameter::PDFDown) weight_reg*=GetPDFUncertainty("SR3",-1);
+      
       for(auto imapHP :FinalBDTHyperParamMap){
 	TString RegBDT = RunSignalRegionAK4StringBDT(IsSR,imapHP.first , imapHP.second.first, imapHP.second.second, channel,qq, LepsT, JetColl,  B_JetColl, ev, METv ,param,weight_reg);
 
@@ -404,19 +411,11 @@ TString HNL_RegionDefinitions::RunSignalRegionAK8String(bool ApplyForSR,
   double met2_st     = ev.MET2ST(); 
   bool PassHMMet     = ApplyForSR ? (met2_st < met_cut) :  (met2_st > met_cut);
   bool PassBJetMVeto = ApplyForSR ? (B_JetColl.size()==0) : (B_JetColl.size()== 1);
-  bool PassRegionReqSR        = (PassHMMet && PassBJetMVeto);
-  bool PassRegionReqInvMETCR  = (PassHMMet && (B_JetColl.size()==0)) ;
-  bool PassRegionReqBTaggedCR = ((met2_st < 15) && PassBJetMVeto) ;
-  bool PassRegionReq =  ApplyForSR ?  PassRegionReqSR : (PassRegionReqInvMETCR ||PassRegionReqBTaggedCR);
+  bool PassRegionReq = ApplyForSR ? (PassHMMet && PassBJetMVeto) :  (PassHMMet ||  PassBJetMVeto) ;
 
-  TString RegionTag  = "SR1";
-  HNL_LeptonCore::SearchRegion Reg = HNL_LeptonCore::SR1;
-  if(!ApplyForSR){
-    if(PassRegionReqInvMETCR)  Reg =  HNL_LeptonCore::InvMETCR1;
-    if(PassRegionReqBTaggedCR) Reg =  HNL_LeptonCore::BJetCR1;
-    if(PassRegionReqInvMETCR)  RegionTag  =  "InvMETCR1";
-    if(PassRegionReqBTaggedCR) RegionTag  =  "BJetCR1";
-  }
+
+  TString RegionTag                = ApplyForSR ? "SR1" : "CR1";
+  HNL_LeptonCore::SearchRegion Reg = ApplyForSR ? HNL_LeptonCore::SR1 : HNL_LeptonCore::CR1;
 
   FillCutflow(Reg, w, RegionTag+"_Init",param);
 
@@ -444,8 +443,9 @@ TString HNL_RegionDefinitions::RunSignalRegionAK8String(bool ApplyForSR,
   if(ApplyForSR) Fill_RegionPlots(param,"Inclusive"+RegionTag , TauColl, JetColl, AK8_JetColl, leps,  METv, nPV, w);
 
   if(PassHMMet)FillCutflow(Reg, w, RegionTag+"_MET",param);
-  if(!ApplyForSR && PassBJetMVeto) FillCutflow(Reg, w, RegionTag+"_bveto",param);
-  if(PassRegionReqSR&&ApplyForSR) FillCutflow(Reg, w, RegionTag+"_bveto",param);    
+  if(!ApplyForSR&&PassBJetMVeto) FillCutflow(Reg, w, RegionTag+"_bveto",param);
+  
+  if(PassRegionReq&&ApplyForSR) FillCutflow(Reg, w, RegionTag+"_bveto",param);    
 
   if(!PassRegionReq) return "false";
 
@@ -498,22 +498,16 @@ TString HNL_RegionDefinitions::RunSignalRegionWWString(bool ApplyForSR,HNL_Lepto
 
   double met_cut     = 15;
   double met2_st     = ev.MET2ST();
+
+  TString RegionTag                = ApplyForSR ? "SR2" : "CR2";
+  HNL_LeptonCore::SearchRegion Reg = ApplyForSR ? HNL_LeptonCore::SR2 : HNL_LeptonCore::CR2;
+
+
   bool PassHMMet     = ApplyForSR ? (met2_st < met_cut) :  (met2_st > met_cut);
   bool PassBJetMVeto = ApplyForSR ? (B_JetColl.size()==0) : (B_JetColl.size() ==1);
-  bool PassRegionReqSR        = (PassHMMet && PassBJetMVeto);
-  bool PassRegionReqInvMETCR  = (PassHMMet && (B_JetColl.size()==0)) ;
-  bool PassRegionReqBTaggedCR = ((met2_st < 15) && PassBJetMVeto) ;
-  bool PassRegionReq =  ApplyForSR ?  PassRegionReqSR : (PassRegionReqInvMETCR ||PassRegionReqBTaggedCR);
 
+  bool PassRegionReq = ApplyForSR ? (PassHMMet && PassBJetMVeto) :  (PassHMMet ||  PassBJetMVeto) ;
 
-  TString RegionTag  = "SR2";
-  HNL_LeptonCore::SearchRegion Reg = HNL_LeptonCore::SR2;
-  if(!ApplyForSR){
-    if(PassRegionReqInvMETCR)  Reg =  HNL_LeptonCore::InvMETCR2;
-    if(PassRegionReqBTaggedCR) Reg =  HNL_LeptonCore::BJetCR2;
-    if(PassRegionReqInvMETCR)  RegionTag  =  "InvMETCR2";
-    if(PassRegionReqBTaggedCR) RegionTag  =  "BJetCR2";
-  }
 
   if (leps_veto.size() != 2) return "false";
 
@@ -586,93 +580,78 @@ TString HNL_RegionDefinitions::RunSignalRegionWWString(bool ApplyForSR,HNL_Lepto
     
     
     if(!ApplyForSR){
-      if(RegionTag  ==  "InvMETCR2"){
-	if(DataYear == 2016){
-	  if(HTOverPT < 3.) return  RegionTag+"_HTLTbin1";
-	  else if(HTOverPT < 5.) return  RegionTag+"_HTLTbin2";
-	  else return  RegionTag+"_HTLTbin3";
+      if(DataYear == 2016){
+	if(HTOverPT < 3.) return  RegionTag+"_HTLTbin1";
+	else if(HTOverPT < 5.) return  RegionTag+"_HTLTbin2";
+	else return  RegionTag+"_HTLTbin3";
+      }
+      if(DataYear == 2017){
+	if(HTOverPT < 3.) return  RegionTag+"_HTLTbin1";
+	else if(HTOverPT < 5.) return  RegionTag+"_HTLTbin2";
+	else return  RegionTag+"_HTLTbin3";
+      }
+      if(DataYear == 2018){
+	if(HTOverPT < 3.) return  RegionTag+"_HTLTbin1";
+	else if(HTOverPT < 5.) return  RegionTag+"_HTLTbin2";
+	else return  RegionTag+"_HTLTbin3";
+      }
+    }
+    else{
+      if(DataEra== "2016preVFP"){
+	if(ll_dphi > 2.) {
+	  if(HTOverPT < 2.) return RegionTag+"_HTLTbin1";
+	  return RegionTag+"_HTLTbin2";
 	}
-	if(DataYear == 2017){
-          if(HTOverPT < 3.) return  RegionTag+"_HTLTbin1";
-          else if(HTOverPT < 5.) return  RegionTag+"_HTLTbin2";
-          else return  RegionTag+"_HTLTbin3";
-        }
-	if(DataYear == 2018){
-          if(HTOverPT < 3.) return  RegionTag+"_HTLTbin1";
-          else if(HTOverPT < 5.) return  RegionTag+"_HTLTbin2";
-          else return  RegionTag+"_HTLTbin3";
-        }
-      }
-      else{
-	if(DataYear == 2016) return  RegionTag+"_HTLTbin1";
-	if(DataYear == 2017) {
-	  if(HTOverPT < 3.) return  RegionTag+"_HTLTbin1";
-	  else return RegionTag+"_HTLTbin2";
+	else{
+	  if(HTOverPT < 2.)  return RegionTag+"_HTLTbin3";
+	  else if(HTOverPT < 5.)  return RegionTag+"_HTLTbin4";
+	  else return RegionTag+"_HTLTbin5";
 	}
-	if(DataYear == 2018) {
-	  if(HTOverPT < 3.) return  RegionTag+"_HTLTbin1";
-          else return RegionTag+"_HTLTbin2";
-
+      }
+      if(DataEra== "2016postVFP"){
+	
+	if(ll_dphi > 2.) {
+	  if(HTOverPT < 2.) return RegionTag+"_HTLTbin1";
+	  return RegionTag+"_HTLTbin2";
 	}
-      }    
-    }
-    
-    if(DataEra== "2016preVFP"){
-      if(ll_dphi > 2.) {
-        if(HTOverPT < 2.) return RegionTag+"_HTLTbin1";
-	return RegionTag+"_HTLTbin2";
-      }
-      else{
-        if(HTOverPT < 2.)  return RegionTag+"_HTLTbin3";
-        else return RegionTag+"_HTLTbin4";
-      }
-    }
-    if(DataEra== "2016postVFP"){
-
-      if(ll_dphi > 2.) {
-        if(HTOverPT < 2.) return RegionTag+"_HTLTbin1";
-        return RegionTag+"_HTLTbin2";
-      }
-      else{
-        if(HTOverPT < 3.)  return RegionTag+"_HTLTbin3";
-        else return RegionTag+"_HTLTbin4";
-      }
-    }
-    if(DataYear == 2017){
-      if(ll_dphi > 2.) {
-	if(channel == MuMu && HTOverPT < 3.){
-	  if (leps[1]->Pt() > 80.)      return RegionTag+"_HTLTbin1";
-	  else return RegionTag+"_HTLTbin2";
+	else{
+	  if(HTOverPT < 3.)  return RegionTag+"_HTLTbin3";
+	  else if(HTOverPT < 5.)  return RegionTag+"_HTLTbin4";
+	  else return RegionTag+"_HTLTbin5";
 	}
-	else if(HTOverPT < 2.){
-          if (leps[1]->Pt() > 80.)      return RegionTag+"_HTLTbin1";
-          else return RegionTag+"_HTLTbin2";
-        }
-	else if(HTOverPT < 5.) return RegionTag+"_HTLTbin3";
-	else return RegionTag+"_HTLTbin4";
       }
-      else{
-	if(HTOverPT < 2.)  return RegionTag+"_HTLTbin5";
-	else if(HTOverPT < 5.)  return RegionTag+"_HTLTbin6";
-	else return RegionTag+"_HTLTbin7";
+      if(DataYear == 2017){
+	if(ll_dphi > 2.) {
+	  if(channel == MuMu && HTOverPT < 3.){
+	    if (leps[1]->Pt() > 80.)      return RegionTag+"_HTLTbin1";
+	    else return RegionTag+"_HTLTbin2";
+	  }
+	  else if(HTOverPT < 2.){
+	    if (leps[1]->Pt() > 80.)      return RegionTag+"_HTLTbin1";
+	    else return RegionTag+"_HTLTbin2";
+	  }
+	  else return RegionTag+"_HTLTbin3";
+	}
+	else{
+	  if(HTOverPT < 3.)  return RegionTag+"_HTLTbin4";
+	  else return RegionTag+"_HTLTbin5";
+	}
       }
+      if(DataYear== 2018){
+	if(ll_dphi > 2.) {
+	  if(HTOverPT < 2.){
+	    if (leps[1]->Pt() > 80.)      return RegionTag+"_HTLTbin1";
+	    else return RegionTag+"_HTLTbin2";
+	  }
+	  else return RegionTag+"_HTLTbin3";
+	}
+	else{
+	  if(HTOverPT < 3.)  return RegionTag+"_HTLTbin4";
+	  else return RegionTag+"_HTLTbin5";
+	}
+      }
+      
     }
-    if(DataYear== 2018){
-      if(ll_dphi > 2.) {
-        if(HTOverPT < 2.){
-          if (leps[1]->Pt() > 80.)      return RegionTag+"_HTLTbin1";
-          else return RegionTag+"_HTLTbin2";
-        }
-        else if(HTOverPT < 5.) return RegionTag+"_HTLTbin3";
-        else return RegionTag+"_HTLTbin4";
-      }
-      else{
-        if(HTOverPT < 2.)  return RegionTag+"_HTLTbin5";
-        else if(HTOverPT < 5.)  return RegionTag+"_HTLTbin6";
-        else return RegionTag+"_HTLTbin7";
-      }
-    }
-
   }
   return "false";
 }
@@ -700,23 +679,18 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TStr
   double met_cut     = 15; /// Apply buffer between SR and CR MET cuts
   vector<FatJet> AK8_JetColl;
 
+  HNL_LeptonCore::SearchRegion Reg = ApplyForSR ? HNL_LeptonCore::SR3BDT : HNL_LeptonCore::CR3BDT;
+
+
   double met2_st     = ev.MET2ST();
+
   bool PassHMMet     = ApplyForSR ? (met2_st < met_cut) :  (met2_st > met_cut);
   bool PassBJetMVeto = ApplyForSR ? (B_JetColl.size()==0) : (B_JetColl.size() ==1);
+  bool PassRegionReq = ApplyForSR ? (PassHMMet && PassBJetMVeto) :  (PassHMMet ||  PassBJetMVeto) ;
 
-  bool PassRegionReqSR        = (PassHMMet && PassBJetMVeto);
-  bool PassRegionReqInvMETCR  = (PassHMMet && (B_JetColl.size()==0)) ;
-  bool PassRegionReqBTaggedCR = ((met2_st < 15) && PassBJetMVeto) ;
-  bool PassRegionReq =  ApplyForSR ?  PassRegionReqSR : (PassRegionReqInvMETCR ||PassRegionReqBTaggedCR);
+  TString RegionTag                = ApplyForSR ? "SR3BDT" : "CR3BDT";
 
-  TString RegionTag  = "SR3BDT";
-  HNL_LeptonCore::SearchRegion Reg = HNL_LeptonCore::SR3BDT;
-  if(!ApplyForSR){
-    if(PassRegionReqInvMETCR)  Reg =  HNL_LeptonCore::InvMETCR3BDT;
-    if(PassRegionReqBTaggedCR) Reg =  HNL_LeptonCore::BJetCR3BDT;
-    if(PassRegionReqInvMETCR)  RegionTag  =  "InvMETCR3BDT";
-    if(PassRegionReqBTaggedCR) RegionTag  =  "BJetCR3BDT";
-  }
+
 
   if(qq==Plus && LepTColl[0]->Charge() < 0) return "false";
   if(qq==Minus && LepTColl[0]->Charge() > 0) return "false";
@@ -791,8 +765,7 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TStr
     }  
   }
   if(channel == EE){
-    
-    
+        
     for(auto imap : BDTLimitBinsEl){
       if(MVAvalueIncl< imap.second) {
         FillHist( "LimitExtraction/"+param.Name+"/LimitShape_"+RegionTag+"BDT/MVA_"+BDTLabel+"_Binned",  bdtbin,  w, BDTLimitBinsEl.size(), 0, double(BDTLimitBinsEl.size()),  RegionTag);
@@ -823,22 +796,10 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4String(bool ApplyForSR,HNL_Lept
   double met2_st     = ev.MET2ST();
   bool PassHMMet     = ApplyForSR ? (met2_st < met_cut) :  (met2_st > met_cut);
   bool PassBJetMVeto = ApplyForSR ? (B_JetColl.size()==0) : (B_JetColl.size() == 1);
+  bool PassRegionReq = ApplyForSR ? (PassHMMet && PassBJetMVeto) :  (PassHMMet ||  PassBJetMVeto) ;
 
-
-  bool PassRegionReqSR        = (PassHMMet && PassBJetMVeto);
-  bool PassRegionReqInvMETCR  = (PassHMMet && (B_JetColl.size()==0)) ;
-  bool PassRegionReqBTaggedCR = ((met2_st < 15) && PassBJetMVeto) ; //JH : 15 --> met_cut later
-  bool PassRegionReq =  ApplyForSR ?  PassRegionReqSR : (PassRegionReqInvMETCR ||PassRegionReqBTaggedCR);
-
-  TString RegionTag  = "SR3";  
-  HNL_LeptonCore::SearchRegion Reg = HNL_LeptonCore::SR3;
-  if(!ApplyForSR){
-    if(PassRegionReqInvMETCR)  Reg =  HNL_LeptonCore::InvMETCR3;
-    if(PassRegionReqBTaggedCR) Reg =  HNL_LeptonCore::BJetCR3;
-    if(PassRegionReqInvMETCR)  RegionTag  =  "InvMETCR3";
-    if(PassRegionReqBTaggedCR) RegionTag  =  "BJetCR3";
-  }
-
+  TString RegionTag                = ApplyForSR ? "SR3" : "CR3";
+  HNL_LeptonCore::SearchRegion Reg = ApplyForSR ? HNL_LeptonCore::SR3 : HNL_LeptonCore::CR3;
 
   if(qq==Plus  && leps[0]->Charge() < 0) return "false";
   if(qq==Minus && leps[0]->Charge() > 0) return "false";

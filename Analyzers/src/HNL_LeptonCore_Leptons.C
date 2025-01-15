@@ -44,18 +44,19 @@ std::vector<Muon> HNL_LeptonCore::SelectMuons(AnalyzerParameter& param, TString 
   std::vector<Muon> muons ;
 
   //// smeares high pt and sets scale syst
-  //  for(auto i : this_AllMuons) cout << "Pt = " << i.Pt() << endl;
+
   HighPtMuonCorr(this_AllMuons);
-  //for(auto i : this_AllMuons) cout << "high Pt = " << i.Pt() << endl;
 
 
   if(param.syst_ == AnalyzerParameter::MuonEnUp)         muons = ScaleMuons( this_AllMuons, +1 );
   else if(param.syst_ == AnalyzerParameter::MuonEnDown)  muons = ScaleMuons( this_AllMuons, -1 );
   else muons = this_AllMuons;
 
+
+
   //// High Pt have resolution syst 
   if(param.syst_ == AnalyzerParameter::MuonResUp)    SmearHighPtMuonSyst(muons);
-  
+
 
   std::vector<Muon> out;
   for(unsigned int i=0; i<muons.size(); i++){

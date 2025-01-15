@@ -363,7 +363,29 @@ double HNL_LeptonCore::MergeMultiMC(vector<TString> vec, TString Method){
 vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HNL_LeptonCore::Channel channel){
 
   vector<AnalyzerParameter::Syst> SystList = {};
-  
+  if(HasFlag("NoSyst")) return SystList;
+
+  if(SystType=="Theory"){
+    SystList.push_back(AnalyzerParameter::PDFUp);
+    SystList.push_back(AnalyzerParameter::PDFDown);
+    SystList.push_back(AnalyzerParameter::ScaleUp);
+    SystList.push_back(AnalyzerParameter::ScaleDown);
+    return SystList;
+  }
+  if(SystType=="Muon"){
+    SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
+    SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
+    SystList.push_back(AnalyzerParameter::MuonResUp);
+    SystList.push_back(AnalyzerParameter::MuonResDown);
+    SystList.push_back(AnalyzerParameter::MuonEnUp);
+    SystList.push_back(AnalyzerParameter::MuonEnDown);
+    SystList.push_back(AnalyzerParameter::MuonIDSFUp);
+    SystList.push_back(AnalyzerParameter::MuonIDSFDown);
+    SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
+    SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
+    return SystList;
+  }
+
   if(RunCF){
     SystList = {
       AnalyzerParameter::CFRateUp,
@@ -378,22 +400,14 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
     SystList.push_back(AnalyzerParameter::FRDown);
     SystList.push_back(AnalyzerParameter::FRAJUp);
     SystList.push_back(AnalyzerParameter::FRAJDown);
-    SystList.push_back(AnalyzerParameter::FRLooseIDDJUp);
-    SystList.push_back(AnalyzerParameter::FRLooseIDDJDown);
     SystList.push_back(AnalyzerParameter::FRPartonSFUp);
     SystList.push_back(AnalyzerParameter::FRPartonSFDown);
+    SystList.push_back(AnalyzerParameter::FRHighPtUp);
+    SystList.push_back(AnalyzerParameter::FRHighPtDown);
   }
   else{
  
     if(IsData) return {};
-
-    SystList.push_back(AnalyzerParameter::JetResUp);
-    SystList.push_back(AnalyzerParameter::JetResDown);
-    SystList.push_back(AnalyzerParameter::PUUp);
-    SystList.push_back(AnalyzerParameter::PUDown);
-    SystList.push_back(AnalyzerParameter::JetEnUp);
-    SystList.push_back(AnalyzerParameter::JetEnDown);
-      
     if(SystType=="All"){
       
       SystList = {AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
@@ -403,7 +417,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
                   AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown,
                   AnalyzerParameter::PrefireUp,AnalyzerParameter::PrefireDown,
                   AnalyzerParameter::PUUp,AnalyzerParameter::PUDown};
-      
+
       if(channel==MuMu || channel==EMu){
         SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
         SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
@@ -413,8 +427,8 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
         SystList.push_back(AnalyzerParameter::MuonResDown);
         SystList.push_back(AnalyzerParameter::MuonIDSFUp);
         SystList.push_back(AnalyzerParameter::MuonIDSFDown);
-        //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
-        //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
+        SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
+        SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
       }
       if(channel==EE || channel==EMu){
         SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
@@ -425,10 +439,23 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
         SystList.push_back(AnalyzerParameter::ElectronEnDown);
         SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
         SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
-        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
-        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
+        SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
+        SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
       }
     }
+    else    if(RunJetSyst){
+      SystList.push_back(AnalyzerParameter::JetResUp);
+      SystList.push_back(AnalyzerParameter::JetResDown);
+      SystList.push_back(AnalyzerParameter::JetEnUp);
+      SystList.push_back(AnalyzerParameter::JetEnDown);
+    }
+  }
+  
+  if(MCSample.Contains("Type")){
+    SystList.push_back(AnalyzerParameter::PDFUp);
+    SystList.push_back(AnalyzerParameter::PDFDown);
+    SystList.push_back(AnalyzerParameter::ScaleUp);
+    SystList.push_back(AnalyzerParameter::ScaleDown);
   }
   
   return SystList;

@@ -17,23 +17,26 @@ years = ["2016","2017","2018"]
 years = ["Run2"]
 years = ["2016preVFP","2016postVFP","2017","2018","Run2"]
 #years = ["Run2"]
-years = ["2017"]
-#channels = ["MuMu","EE","EMu"]
+#years = ["2017"]
+years = ["2018"]
+channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
 #channels = ["EE"]
-channels = ["MuMu"]
+#channels = ["MuMu"]
 #masses = ["100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000"]
 #masses = ["90","100","150","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["90","100","150","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
-masses = ["90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
+masses = ["125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
+#masses = ["90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["100","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["100","200","300","400","1000","10000"]
 IDs = [""] #["_ID"]
 #tags = ["_sronly_syst"] #["_DYVBF"]
 #tags = ["_sronly"] #["_DYVBF"]
 #tags = ["_syst"] #["_DYVBF"]
-tags = ["_sronly_sr123_syst"] #["_DYVBF"]
+#tags = ["_sronly_sr123_syst"] #["_DYVBF"]
+tags = ["_sronly_sr123"] #["_DYVBF"]
 #tags = [""] #["_DYVBF"]
 #tags = ["_sr_Combined"] #["_DYVBF"]
 #myWPs = ["240422_HNL_ULID"]
@@ -50,7 +53,9 @@ tags = ["_sronly_sr123_syst"] #["_DYVBF"]
 #myWPs = ["PR95_HNL_ULID_Decorr","PR95_HNL_ULID_Decorr_NoMuSyst","PR95_HNL_ULID_MuSystOnly"] # WP of input limit file
 #myWPs = ["PR95_HNL_ULID_MuSystOnly"] # WP of input limit file
 #myWPs = ["PR95_HNL_ULID"] # WP of input limit file
-myWPs = ["PR95_HNL_ULID_NoCR_Decorr"]
+#myWPs = ["PR95_HNL_ULID_NoCR_Decorr"]
+#myWPs = ["PR89_HNL_ULID_HighPtIDComp_lnNsyst_Decorr","PR89_HighPt_HighPtIDComp_lnNsyst_Decorr"]
+myWPs = ["PR97_HNL_ULIDv2_NoCR"]
 
 for WP in myWPs:
   this_workdir = workdir+WP
@@ -72,13 +77,15 @@ for WP in myWPs:
   
           tree_Asym.GetEntry(2) # substitute for obs. limit for now
           #f.write(mass+"\t"+str(round(tree_Asym.limit,3))+"\t")
-          f.write(mass+"\t"+str(round(tree_Asym.limit/1.87,3))+"\t") # FIXME estimating full Run2 from 2017
+          #f.write(mass+"\t"+str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
+          f.write(mass+"\t"+str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
           #f.write(mass+"\t"+str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
   
           for i in range(5): # expected limits
             tree_Asym.GetEntry(i)
             #f.write(str(round(tree_Asym.limit,3))+"\t")
-            f.write(str(round(tree_Asym.limit/1.87,3))+"\t") # FIXME estimating full Run2 from 2017
+            #f.write(str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
+            f.write(str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
             #f.write(str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
           f.write("\n")
           print "done."

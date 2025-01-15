@@ -6,3 +6,5 @@ CFRate          InvPtEta3       NoS         Central         passHEEPID_v1       
 CFRate          InvPtEta3       CS          Central         passHEEPID_v1                         MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root
 CFRate          InvPtEta3       NoS         Central         passHEEPID_v3                         MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root
 CFRate          InvPtEta3       CS          Central         passHEEPID_v3                         MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root
+CFRate          InvPtEta3       NoS         Central        TopHNSST                         MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root
+CFRate          InvPtEta3       CS         Central        TopHNSST                         MainFiles/HNL_CF_Version7_Electron_2016a_Rates.root

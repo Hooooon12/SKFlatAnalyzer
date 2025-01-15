@@ -98,6 +98,7 @@ class AnalyzerParameter{
   enum Syst{
     Central,
     FRAJUp,FRAJ40,FRAJDown,
+    FRHighPtUp,FRHighPtDown,
     FRLooseIDDJUp,FRLooseIDDJDown,
     FRPartonSFUp, FRPartonSFDown,PRApplied,FRAltBinning,
     JetResUp, JetResDown,    JetEnUp, JetEnDown,
@@ -115,6 +116,8 @@ class AnalyzerParameter{
     PrefireUp,PrefireDown,
     PUUp,PUDown,
     JetPUIDUp, JetPUIDDown,
+    PDFUp,PDFDown,
+    ScaleUp,ScaleDown,
     NSyst
   };
 

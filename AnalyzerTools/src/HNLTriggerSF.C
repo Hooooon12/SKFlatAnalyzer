@@ -3,7 +3,12 @@
 float MCCorrection::GetTriggerSF(vector<Electron>& EleColl, vector<Muon>& MuColl, TString SFKey, TString Option){
 
   if(IsDATA) return 1.;
-  if(SFKey=="Default") return 1;
+  if(SFKey=="Default") {
+    //cout << "return 1 SFKey = " << SFKey << " Option = " << Option << endl;
+    return 1;
+  }
+
+  //  cout << "SFKey = " << SFKey << " Option = " << Option << endl;
  
   TString NominalOpt=Option; NominalOpt.ReplaceAll("Syst","");
   bool SystRun=Option.Contains("Syst");
@@ -24,6 +29,9 @@ float MCCorrection::GetTriggerSF(vector<Electron>& EleColl, vector<Muon>& MuColl
   float TriggerScaleFactor = TriggerEff_MC!=0.? TriggerEff_Data/TriggerEff_MC:0.;
   if(TriggerScaleFactor<0) TriggerScaleFactor=0.;
   if(SystRun) TriggerScaleFactor *= (1.+SystDir*TotRelSyst);
+
+  ///  if(SystRun)  cout << "Syst TriggerScaleFactor = " << TriggerScaleFactor << endl;
+  ///  else cout << "TriggerScaleFactor = " << TriggerScaleFactor <<endl;
 
   return TriggerScaleFactor;
 

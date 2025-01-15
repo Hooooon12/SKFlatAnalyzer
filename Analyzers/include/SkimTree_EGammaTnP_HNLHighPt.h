@@ -28,6 +28,7 @@ class SkimTree_EGammaTnP_HNLHighPt : public HNL_LeptonCore {
   float zptweight;
   float z0weight;
   float totWeight;
+  float totWeight_zpt;
   
   float L1ThresholdHLTEle23Ele12CaloIdLTrackIdLIsoVL;
 

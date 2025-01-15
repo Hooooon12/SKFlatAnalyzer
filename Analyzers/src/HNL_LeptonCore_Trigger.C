@@ -469,7 +469,13 @@ void HNL_LeptonCore::EvalTrigWeight(HNL_LeptonCore::Channel channel, vector<Muon
     }
   }
 
-  double this_trigsf =  SFKey_Trig!=""? mcCorr->GetTriggerSF(electrons, muons, SFKey_Trig, ""):1.;
+  TString TriggerSFSyst="";
+  if(p.syst_ == AnalyzerParameter::MuonTriggerSFUp)TriggerSFSyst="SystUp";
+  if(p.syst_ == AnalyzerParameter::MuonTriggerSFDown)TriggerSFSyst="SystDown";
+  if(p.syst_ == AnalyzerParameter::ElectronTriggerSFUp)TriggerSFSyst="SystUp";
+  if(p.syst_ == AnalyzerParameter::ElectronTriggerSFDown)TriggerSFSyst="SystDown";
+
+  double this_trigsf =  SFKey_Trig!=""? mcCorr->GetTriggerSF(electrons, muons, SFKey_Trig, TriggerSFSyst):1.;
   FillWeightHist(p.ChannelDir()+"/Trig_SF", this_trigsf);
 
   w*=(this_trigsf);

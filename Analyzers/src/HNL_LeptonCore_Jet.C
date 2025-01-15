@@ -24,7 +24,11 @@ void  HNL_LeptonCore::EvalJetWeight(std::vector<Jet>    AK4_JetColl, std::vector
  
   if(param.Apply_Weight_BJetSF && param.BTagger != "Default"){
     JetTagging::Parameters param_jets = GetParamJetTagger(param);
-    std::vector<Jet>    BJetColl      = GetHNLJets(param.BJetColl,     param);
+    std::vector<Jet>    BJetColl_Tmp      = GetHNLJets(param.BJetColl,     param);
+    std::vector<Jet>    BJetColl;
+    for(int ij =0 ; ij < BJetColl_Tmp.size(); ij++) {
+      if(fabs(BJetColl_Tmp[ij].Eta()) < 2.4) BJetColl.push_back(BJetColl_Tmp[ij]);
+    }
     double sf_btag                    = GetBJetSF(param, BJetColl, param_jets);
     w*= sf_btag;
 

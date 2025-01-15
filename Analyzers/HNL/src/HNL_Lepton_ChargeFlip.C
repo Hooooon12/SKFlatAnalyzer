@@ -26,7 +26,7 @@ void HNL_Lepton_ChargeFlip::executeEvent(){
 
   if(HasFlag("ClosureTest")) LepIDs = {"HNL_ULID" , "HNL_HighPt_ULID",  "passHEEPID_v1",  "passHEEPID_v3" };
   if(HasFlag("ScaleFactor")) LepIDs = {"HNL_ULID" , "HNL_HighPt_ULID", "passHEEPID_v1","passHEEPID_v3" };
-  if(HasFlag("ScaleFactorTop"))  LepIDs = {"TopHN"};
+  if(HasFlag("ScaleFactorTop"))  LepIDs = {"TopHN","HNL_HighPt_ULID"};
 
   //  if(HasFlag("ShiftEnergyZ")) LepIDs = {"HNL_ULID" , "POGTight","passHEEPID_v3", "TpHN", };
 
@@ -1297,8 +1297,14 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
     if((abs(ElectronColl.at(0).scEta())<1.4442&&abs(ElectronColl.at(1).scEta())>=1.556)||(abs(ElectronColl.at(0).scEta())>=1.556&&abs(ElectronColl.at(1).scEta())<1.4442)) EtaCat ="BE";
     if(abs(ElectronColl.at(0).scEta())>=1.556&&abs(ElectronColl.at(1).scEta())>=1.556) EtaCat = "EE";
     
+
+    TString PtEtaCat1 = ElectronColl.at(0).PtEtaCategoryCFScaleFactor();
+    TString PtEtaCat2 = ElectronColl.at(1).PtEtaCategoryCFScaleFactor();
+
     if(ElectronColl.at(0).Charge()*ElectronColl.at(1).Charge()>0){
       FillHist(param.Name+"/ScaleFactor/"+EtaCat+"_ZMass_SS",                                    ZCand.M(), EvWeight, NBin, MllLeft, MllRight);
+      FillHist(param.Name+"/ScaleFactor/"+PtEtaCat1+"_ZMass_SS",                                    ZCand.M(), EvWeight, NBin, MllLeft, MllRight);
+      FillHist(param.Name+"/ScaleFactor/"+PtEtaCat2+"_ZMass_SS",                                    ZCand.M(), EvWeight, NBin, MllLeft, MllRight);
       FillHist(param.Name+"/ScaleFactor/"+EtaCat+"_ZMass_Mass"+MassRange+"_SS",                  ZCand.M(), EvWeight, NBin, MllLeft, MllRight);
       FillHist(param.Name+"/ScaleFactor/"+EtaCat+"_LepPt_SS_Lep1Pt_Mass_"+MassRange+"_weighted", ElectronColl.at(0).Pt(),        EvWeight, 40, 0, 200);
       FillHist(param.Name+"/ScaleFactor/"+EtaCat+"_LepPt_SS_Lep2Pt_Mass_"+MassRange+"_weighted", ElectronColl.at(1).Pt(),        EvWeight, 40, 0, 200);
@@ -1434,6 +1440,12 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
 	  FillHist(param.Name+"/ScaleFactor/"+EtaCat+"_ZMass_OS_CF_"+shiftstring+"_weighted", ZCand_shifted.M(),           weight_Closure, NBin, MllLeft, MllRight);
 	  FillHist(param.Name+"/ScaleFactor/"+EtaCat+"_ZMass_OS_CF_"+shiftstring+"SF_weighted", ZCand_shifted.M(),         weight_Closure_SF, NBin, MllLeft, MllRight);
 	  
+	  FillHist(param.Name+"/ScaleFactor/"+PtEtaCat1+"_ZMass_OS_CF_"+shiftstring+"_weighted", ZCand_shifted.M(),           weight_Closure, NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/"+PtEtaCat1+"_ZMass_OS_CF_"+shiftstring+"SF_weighted", ZCand_shifted.M(),         weight_Closure_SF, NBin, MllLeft, MllRight);
+
+          FillHist(param.Name+"/ScaleFactor/"+PtEtaCat2+"_ZMass_OS_CF_"+shiftstring+"_weighted", ZCand_shifted.M(),           weight_Closure, NBin, MllLeft, MllRight);
+          FillHist(param.Name+"/ScaleFactor/"+PtEtaCat2+"_ZMass_OS_CF_"+shiftstring+"SF_weighted", ZCand_shifted.M(),         weight_Closure_SF, NBin, MllLeft, MllRight);
+
 	  FillHist(param.Name+"/ScaleFactor/"+EtaCat+"_ZMass_OS_CF_"+shiftstring+"_NoS_weighted", ZCand_shifted.M(),           weight_ClosureNoS, NBin, MllLeft, MllRight);
 	  FillHist(param.Name+"/ScaleFactor/"+EtaCat+"_ZMass_OS_CF_"+shiftstring+"SF_NoS_weighted", ZCand_shifted.M(),         weight_ClosureNoS_SF, NBin, MllLeft, MllRight);
 

@@ -36,7 +36,8 @@ void HNL_SignalRegion_Plotter::executeEvent(){
     cout << "HNL_SignalRegion_Plotter::IsData = " << IsData << endl;
   }
   //vector<TString> LepIDs = {"HNL_ULID","HNL_ULIDv2"};
-  vector<TString> LepIDs = {"HNL_ULID"};
+  //vector<TString> LepIDs = {"HNL_ULID"};
+  vector<TString> LepIDs = {"HNL_ULIDv2"};
   if(HasFlag("AllID")) LepIDs = {"HNL_ULID","HNTightV2", "POGTight"};
 
   //// Allow ID setting by flag
@@ -55,7 +56,7 @@ void HNL_SignalRegion_Plotter::executeEvent(){
   if(ChannelsToRun.size() == 0) ChannelsToRun = {EE,MuMu,EMu};
 
   if(RunHighPtID) ChannelsToRun = {MuMu};
-  ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
+  //ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
 
 
   for (auto id: LepIDs){
@@ -65,11 +66,10 @@ void HNL_SignalRegion_Plotter::executeEvent(){
       AnalyzerParameter param = HNL_LeptonCore::InitialiseHNLParameter(id,channel);
       
       param.PlottingVerbose = 0; //// Draw basic plots
-      if(id == "HNL_ULID")         param.PlottingVerbose = 1; /// Draw more plots
+      if(id.Contains("ULID"))         param.PlottingVerbose = 1; /// Draw more plots
       if(id.Contains("HEEP"))      param.PlottingVerbose = 1;
-
-      param.PlottingVerbose = 3; //// TEMP FOR LIMIT BIN STUDY
-
+      
+      
       if(HasFlag("HighPtTrigger")) param.TriggerSelection     = "HighPt";          
       if(HasFlag("HighPtTrigger")) param.Apply_Weight_TriggerSF = false;
 
@@ -77,7 +77,8 @@ void HNL_SignalRegion_Plotter::executeEvent(){
 
       TString param_name = param.Name;
 
-      for(auto isyst : GetSystList("All",channel)){ //JH
+      //for(auto isyst : GetSystList("All",channel)){ //JH
+      for(auto isyst : GetSystList("",channel)){ //JH
         bool runJob = UpdateParamBySyst(id,param,AnalyzerParameter::Syst(isyst),param_name);
         if(runJob) RunULAnalysis(param);
       }
@@ -101,6 +102,9 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
   
   TString el_ID = SetLeptonID("Electron",param);
   TString mu_ID = SetLeptonID("Muon", param);
+  
+  if(param.syst_ == AnalyzerParameter::ScaleUp) weight *= GetScaleUncertainty(1);
+  if(param.syst_ == AnalyzerParameter::ScaleDown) weight *= GetScaleUncertainty(-1);
 
 
   double Min_FakeMuon_Pt      =  5;

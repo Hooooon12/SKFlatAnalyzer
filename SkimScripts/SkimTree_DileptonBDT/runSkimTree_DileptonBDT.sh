@@ -11,7 +11,7 @@ if [[ $1 == "All" ]]; then
 
     for i in "${era_list[@]}"
     do
-        SKFlat.py -a $analyzer  -i DYJetsToTauTau_MiNNLO     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim SkimTree_Dilepton &
+        SKFlat.py -a $analyzer  -l ${mcpath}/ConvEventDilep.txt    -n ${njobs_data}  --nmax ${nmax}   -e ${i}  &
 
     done
 fi

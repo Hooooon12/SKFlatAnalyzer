@@ -12,7 +12,7 @@ TString ENV_PLOT_PATH = getenv("PLOT_PATH");
 TString filepath = ENV_FILE_PATH+dataset+"/Limits/ReadLimits/Shape/out/";
 TString plotpath = ENV_FILE_PATH+dataset+"/src/LimitPlotter/out/";
 
-void DrawLimits(TString year="", TString channel="", bool CompareLimits=true, bool Logy=true){
+void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, bool IsXsecLimit=false, bool Logy=true){
 
   bool DrawObserved = false;
 
@@ -21,9 +21,11 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=true, bo
   //gStyle->SetOptStat(0);
 
   //TString WP_nom = "PR48_rateParam_HNL_ULID"; // nominal working point
-  TString WP_nom = "PR86_HNL_ULID_Decorr"; // nominal working point
+  //TString WP_nom = "PR86_HNL_ULID_Decorr"; // nominal working point
+  TString WP_nom = "PR97_HNL_ULIDv2_NoCR"; // nominal working point
   //TString tag_nom = "_syst"; // nominal tag
-  TString tag_nom = "_syst_Run2Scaled"; // nominal tag
+  //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
+  TString tag_nom = "_sronly_sr123"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
 
@@ -48,7 +50,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=true, bo
   //vector<TString> tags = {"_sronly_Run2Scaled"};
   //vector<TString> WPs = {"rateParam_HNL_ULID_PR46"};
   //vector<TString> WPs = {"PR55_HighPt","PR55_NoMinPt_HighPt"};
-  vector<TString> WPs = {"PR48_rateParam_HNL_ULID"};
+  vector<TString> WPs = {"PR48_rateParam_HNL_ULID"}; // WPs to compare
   vector<TString> tags = {"_syst_Run2Scaled"};
   //vector<TString> tags = {"_sr_Combined"};
   for(int i=0; i<WPs.size(); i++){
@@ -89,7 +91,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=true, bo
       if (is >> this_twosig_right) twosig_right.push_back(this_twosig_right);
 
       double scale = scales.at(i);
-      if(i==0&&this_mass>3000.) scale *= 10; //FIXME PR86 has mass-dependent scaler.. why? to see SSWW pull with narrower range
+      if(i==0&&this_mass>3000.) scale *= 10; //NOTE SSWW-only region has mass-dependent scaler.. why? to see SSWW pull with narrower range
       //double scale=1.;
       //if(mass[dummyint]<=100) scale *= 0.001; // 0.001 only for low mass (https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844)
       //else scale *= 0.01; // input signal scaled as V^2 = 0.01 by default
@@ -100,6 +102,21 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=true, bo
       onesig_right[dummyint] *= scale;
       twosig_left[dummyint] *= scale;
       twosig_right[dummyint] *= scale;
+      // Now limits have been obtained. These are r, or |V|^2.
+
+      //if(IsXsecLimit){
+
+      //  this_DYxsec = GetDYxsec(this_mass);
+      //  this_DYxsec = GetVBFxsec(this_mass);
+      //  this_DYxsec = GetSSWWxsec(this_mass);
+      //  obs[dummyint]          *= scale;
+      //  limit[dummyint]        *= scale;
+      //  onesig_left[dummyint]  *= scale;
+      //  onesig_right[dummyint] *= scale;
+      //  twosig_left[dummyint]  *= scale;
+      //  twosig_right[dummyint] *= scale;
+
+      //} TODO
 
       onesig_left[dummyint] = limit[dummyint]-onesig_left[dummyint];
       onesig_right[dummyint] = onesig_right[dummyint] - limit[dummyint];
@@ -1214,3 +1231,47 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=true, bo
 
   return;
 }
+
+double GetDYxsec(int mass){
+
+  if(mass==85) return 43.62;
+  if(mass==90) return 41.725;
+  if(mass==95) return 36.515;
+  if(mass==100) return 29.265;
+  if(mass==150) return 20.67;
+  if(mass==200) return 11.635;
+  if(mass==300) return 7.475;
+  if(mass==400) return 3.917;
+  if(mass==500) return 1.4315;
+
+}
+
+double GetVBFxsec(int mass){
+
+  if(mass==300) return 43.62;
+  if(mass==400) return 41.725;
+  if(mass==500) return 36.515;
+  if(mass==600) return 29.265;
+  if(mass==700) return 20.67;
+  if(mass==800) return 11.635;
+  if(mass==900) return 7.475;
+  if(mass==1000) return 3.917;
+  if(mass==1100) return 1.4315;
+
+}
+
+double GetSSWWxsec(int mass){
+
+  if(mass==15) return 43.62;
+  if(mass==20) return 41.725;
+  if(mass==30) return 36.515;
+  if(mass==40) return 29.265;
+  if(mass==50) return 20.67;
+  if(mass==60) return 11.635;
+  if(mass==65) return 7.475;
+  if(mass==70) return 3.917;
+  if(mass==75) return 1.4315;
+
+}
+
+

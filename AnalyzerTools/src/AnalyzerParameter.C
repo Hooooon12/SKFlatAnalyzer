@@ -575,6 +575,8 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::FRLooseIDDJDown)   return "LIDDown";
   else if(syst_==Syst::FRPartonSFUp)   return "PSFUp"; 
   else if(syst_==Syst::FRPartonSFDown) return "PSFDown";
+  else if(syst_==Syst::FRHighPtUp) return "FRHighPtUp";
+  else if(syst_==Syst::FRHighPtDown) return "FRHighPtDown";
   else if(syst_==Syst::FRAltBinning) return "AltBinning";
   else if(syst_==Syst::PRApplied) return "PRApplied";
   else if(syst_==Syst::JetResUp) return "JetResUp";
@@ -621,6 +623,10 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::CFSFDown)   return "CFSFDown";
   else if(syst_==Syst::FRUp)   return "FRUp";
   else if(syst_==Syst::FRDown)   return "FRDown";
+  else if(syst_==Syst::PDFUp)   return "PDFUp";
+  else if(syst_==Syst::PDFDown)   return "PDFDown";
+  else if(syst_==Syst::ScaleUp)   return "ScaleUp";
+  else if(syst_==Syst::ScaleDown)   return "ScaleDown";
   
   else{
     cout << "[AnalyzerParameter::GetSystType] Wrong Syst" << endl;

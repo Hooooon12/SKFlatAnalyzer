@@ -243,7 +243,8 @@ void HNL_Signal_Studies::PlotBDTVariablesMuon(AnalyzerParameter param){
   TString channel_string = GetChannelString(dilep_channel) ;
   vector<TString>  IDList = {"HNTightV2",
                              "MVAID",
-                             "HNL_ULID_2017"};
+                             "HNL_ULID_2017"
+  };
 
 
   if(SameCharge(MuonCollProbe)) {
@@ -321,6 +322,7 @@ void HNL_Signal_Studies::PlotBDTVariablesElectron(AnalyzerParameter param){
 
   vector<TString>  IDList = {"HNTightV2",
                              "MVAID",
+			     "HNL_HighPt_ULID_2017",
                              "HNL_ULID_2017"};
   
   

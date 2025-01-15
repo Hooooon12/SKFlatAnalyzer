@@ -30,3 +30,11 @@ CFRate          InvPtEta3        PBSExtrap  MSigma       passHEEPID_v3          
 CFRate          InvPtEta3        PBSExtrap  PSigma       passHEEPID_v3                   MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
 CFRate          InvPtEta3        CS  	    MSigma       passHEEPID_v3                   MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
 CFRate          InvPtEta3        CS  	    PSigma       passHEEPID_v3                   MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
+CFRate          InvPtEta3        PBSExtrap  SystDown     TopHNSST                 MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
+CFRate          InvPtEta3        PBSExtrap  SystUp       TopHNSST                 MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
+CFRate          InvPtEta3        CS         SystDown     TopHNSST                 MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
+CFRate          InvPtEta3        CS         SystUp       TopHNSST                 MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
+CFRate          InvPtEta3        PBSExtrap  MSigma       TopHNSST                   MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
+CFRate          InvPtEta3        PBSExtrap  PSigma       TopHNSST                   MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
+CFRate          InvPtEta3        CS         PSigma       TopHNSST                   MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root
+CFRate          InvPtEta3        CS         MSigma       TopHNSST                   MainFiles/HNL_CF_Version7_Electron_2016b_Rates.root

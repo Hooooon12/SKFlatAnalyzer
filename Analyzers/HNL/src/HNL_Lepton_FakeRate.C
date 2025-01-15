@@ -205,12 +205,15 @@ void HNL_Lepton_FakeRate::executeEvent(){
   if(HasFlag("RunPromptRates")){
     /// Measure FR in Data                                                                                                                                                                                                                                                   
     VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,MuMu,HNL_LeptonCore::NormTo1Invpb,{"PR"},"HNL_ULID_"+GetYearString()   , "HNL_ULID_"+GetYearString(),    "HNL_ULID_FO"));
+    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,MuMu,HNL_LeptonCore::NormTo1Invpb,{"PR"},"HNTightV2"     , "HNTightV2", "HNLooseV1"));
 
     goto RunJobs;
   }
   if(HasFlag("RunPromptRatesEE")){
     /// Measure FR in Data                                                                                                                                                                                                                                                   
-    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,HNL_LeptonCore::NormTo1Invpb,{"PR"},"HNL_ULID_"+GetYearString()   , "HNL_ULID_"+GetYearString(),    "HNL_ULID_FO"));
+    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,HNL_LeptonCore::NormTo1Invpb,{"PR"},"HNL_ULID_"+GetYearString()   , "HNL_ULID_"+GetYearString(),           "HNL_ULID_FO"));
+    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,HNL_LeptonCore::NormTo1Invpb,{"PR"},"HNL_HighPt_ULID_"+GetYearString()   , "HNL_HighPt_ULID_"+GetYearString(),    "HNL_HighPt_ULID_FO"));
+    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,HNL_LeptonCore::NormTo1Invpb,{"PR"},"HNTightV2"   ,  "HNTightV2", "HNLooseV4"));
 
     goto RunJobs;
   }
@@ -262,12 +265,10 @@ void HNL_Lepton_FakeRate::executeEvent(){
   }
 
   if(HasFlag("RunRatesFullEEID")){
-    /// Measure FR in Data                                                                                                                                                                                                                    
-    
+    /// Measure FR in Data                                                                                                                                                                                                                        
     VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,HNL_LeptonCore::NormTo1Invpb,{"FR"},"Peking"        , "Peking",    "Peking_FO"));
-    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,HNL_LeptonCore::NormTo1Invpb,{"FR"},"HNTightV2"     , "HNTightV2", "HNLooseV1"));
+    VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,HNL_LeptonCore::NormTo1Invpb,{"FR"},"HNTightV2"     , "HNTightV2", "HNLooseV4"));
     VParameters.push_back(SetupFakeParameter(AnalyzerParameter::Central,EE,HNL_LeptonCore::NormTo1Invpb,{"FR"},"HNL_ULID_"+GetYearString()   , "HNL_ULID_"+GetYearString(),    "HNL_ULID_FO"));
-    
 
     goto RunJobs;
   }
@@ -978,10 +979,16 @@ void HNL_Lepton_FakeRate::MakePromptRatePlots(TString label, TString tag,Analyze
   Event ev = GetEvent();
 
   if(leps.size() != 2) return;
+  if(!IsData) {
+    if(leps[0]->Charge() == leps[1]->Charge())  return;
+    if(! (leps[0]->IsPrompt() && leps[1]->IsPrompt())) return;
+  }
+  
+  else{
+    if(leps[0]->Charge() == leps[1]->Charge()) event_weight = -1;
+  }
 
   Particle Z = (*leps[0]) + (*leps[1]);
-  if(leps[0]->Charge() == leps[1]->Charge()) event_weight = -1;
-
   if(fabs(M_Z - Z.M()) > 10.) return;
 
   TString L_prefix = "PrompRate/Prompt_Loose"+tag ;

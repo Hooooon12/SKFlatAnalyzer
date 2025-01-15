@@ -32,7 +32,9 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   run_Debug=false; //JH
 
   //vector<TString> LepIDs = {"HNL_ULID","HNL_ULIDv2","HNTightV2"};
-  vector<TString> LepIDs = {"HNL_ULID"};
+  //vector<TString> LepIDs = {"HNL_ULID"};
+  //vector<TString> LepIDs = {"HNL_ULID","HNL_ULIDv2"};
+  vector<TString> LepIDs = {"HNL_ULIDv2"};
 
   /// Set ID by flag
   if(RunTopID) LepIDs = {"TopHN"};
@@ -53,7 +55,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   if(ChannelsToRun.size() == 0)ChannelsToRun = {EE,MuMu,EMu};
 
   if(RunHighPtID) ChannelsToRun = {MuMu};
-  ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
+  //ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
 
   ///// Run command 
 
@@ -84,7 +86,8 @@ void HNL_ControlRegion_Plotter::executeEvent(){
         RunControlRegions(param_signal , {iCR} );
 
         TString param_name = param_signal.Name;
-        for(auto isyst : GetSystList("All",channel)){ //JH
+        //for(auto isyst : GetSystList("All",channel)){ //JH
+        for(auto isyst : GetSystList("",channel)){ //JH
           bool runJob = UpdateParamBySyst(id,param_signal,AnalyzerParameter::Syst(isyst),param_name);
           if(runJob)         RunControlRegions(param_signal , {iCR} );
         }

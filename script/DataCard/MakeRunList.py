@@ -24,7 +24,8 @@ input_path = os.getcwd()
 # Choose one card name to represent all
 #CardRep = "sr3_inv"
 #CardRep = "sr3_InvMET" # new CR where Bjet and InvMET split
-CardRep = "sronly_sr3_syst" # no CR and Syst
+#CardRep = "sronly_sr3_syst" # no CR and Syst
+CardRep = "sronly_sr3" # no CR and NoSyst
 grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one (grepping 'card' for Run2 or 'sr3_inv' for the others)
 
 #tags = ["_sronly"]
@@ -46,7 +47,8 @@ grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep '+CardRep # Whe
 ## SR only
 #tags = ["_sronly_sr1","_sronly_sr2","_sronly_sr3","_sronly_sr123","_sronly_sr","_sronly_sr1_syst","_sronly_sr2_syst","_sronly_sr3_syst","_sronly_sr123_syst","_sronly_sr_syst"]
 #tags = ["_sronly_sr123_syst"] # no CR, sr1, 2, 3 generated and then combined into one.
-tags = ["_sronly_sr1_syst","_sronly_sr2_syst","_sronly_sr3_syst"] # no CR, sr1, 2, 3 separate run
+tags = ["_sronly_sr123"] # no CR, no Syst
+#tags = ["_sronly_sr1_syst","_sronly_sr2_syst","_sronly_sr3_syst"] # no CR, sr1, 2, 3 separate run
 
 isRun2 = ""
 if "Run2" in args.eras:

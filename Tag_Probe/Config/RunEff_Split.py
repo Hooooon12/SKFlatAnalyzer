@@ -21,13 +21,15 @@ NJob=args.NJob
 WorkDir=args.WorkDir
 
 #It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','HNL_ULID_Split_8b'] #V1
-It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_7b','HNL_ULID_Split_7c','HNL_ULID_Split_7d','HNL_ULID_Split_7e','HNL_ULID_Split_7f','HNL_ULID_Split_7g','HNL_ULID_Split_7h','HNL_ULID_Split_8','HNL_ULID_Split_8b'] #V3
+It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_7b','HNL_ULID_Split_7c','HNL_ULID_Split_7d','HNL_ULID_Split_7e','HNL_ULID_Split_7f','HNL_ULID_Split_7g','HNL_ULID_Split_7h','HNL_ULID_Split_8','HNL_ULID_Split_8b'] #V3, V7
 #It_Probes    = ['MVALoose','HNLMVA','HNLMVA_HighPt','HNLMVA_HighPt_Tight'] #V5
+#It_Probes    = ['MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt'] #V6 MVABaseline = MVALoose + MediumCharge
 
 #### IDs applied to probe befrpre PASS/FAIL
 #It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8'] #V1
-It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8'] #V3
-#It_ProbeID   = ['Pass',            'MVALoose','MVALoose','MVALoose'] #V5
+It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8'] #V3, V7
+#It_ProbeID   = ['Pass', 'MVALoose','MVALoose','MVALoose'] #V5
+#It_ProbeID   = ['Pass', 'Pass','MVABaseline','MVABaseline'] #V6
 It_IsPasses = ['Pass','Fail']
 It_EtaRegions = ['BB','EC']
 #It_EtaRegions = ['BB']
@@ -299,7 +301,8 @@ def merge_lastbins(hist):
     return hist
 
   #pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 1000], dtype=np.float64)
-  pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 300, 1000], dtype=np.float64)
+  pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 300, 1000], dtype=np.float64) # up to V5 and V7
+  #pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150, 200, 300, 1000], dtype=np.float64) # V6
 
   nbins_input = hist.GetNbinsX()
   nbins_new   = len(pt_bins_merged)-1
@@ -745,8 +748,8 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   Data_Eff.GetYaxis().SetTitleSize(0.075)
   Data_Eff.GetYaxis().SetTitleOffset(0.7)
   #Data_Eff.GetYaxis().SetRangeUser(c_up_min, 1.1)
-  Data_Eff.GetYaxis().SetRangeUser(0.8, 1.1) # V3
-  #Data_Eff.GetYaxis().SetRangeUser(0.5, 1.1) # V5
+  Data_Eff.GetYaxis().SetRangeUser(0.8, 1.1) # V3, V7
+  #Data_Eff.GetYaxis().SetRangeUser(0.5, 1.1) # V5, V6
   Data_Eff.SetMarkerStyle(20)
   Data_Eff.SetMarkerColor(kBlack)
   Data_Eff.SetLineColor(kBlack)
@@ -803,6 +806,7 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
     'HNLMVACF'           : 'MVA CF',
     'HNLMVAConv'         : 'MVA Conv',
     'MVALoose'           : 'Basic sel. for MVA',
+    'MVABaseline'        : 'Sel. before MVA',
   }
   txt_id = TLatex()
   txt_id.SetNDC()
@@ -1186,8 +1190,10 @@ if __name__ == '__main__':
     for era in eras:
       #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/SF_"+era+".root"))
       #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/Version3/SF_"+era+".root")) #V3 NLO
-      HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version3_NNLO/SF_"+era+".root")) #V3 MiNNLO
-      #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version5_NNLO/SF_"+era+".root")) #V5 MiNNLO
+      #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version3_NNLO/SF_"+era+".root")) #V3 MiNNLO : Step by step split
+      #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version5_NNLO/SF_"+era+".root")) #V5 MiNNLO : MVALoose, IDs on top of MVALoose
+      #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version6_NNLO/SF_"+era+".root")) #V6 MiNNLO : same but pt 100 to 150, 150 to 200
+      HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version7_split_NNLO/SF_"+era+".root")) #V7 MiNNLO : applied RECO, CF SF
 
     # Merge 2016
     if len(eras) > 1:

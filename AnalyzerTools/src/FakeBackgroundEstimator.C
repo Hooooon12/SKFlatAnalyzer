@@ -116,16 +116,36 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
 
   double ApplyHighPtCorr=1;
   if(ID.Contains("HNL_HighPt")) {
-    //// Initial Corr                                                                                                                                                                                                                       
-    if(fabs(eta) < 1.5){
-      if(pt > 200)  ApplyHighPtCorr=2;
-      else if(pt > 150)  ApplyHighPtCorr=1.5;
+    //// Initial Corr                                                                                                                                
+    if(ID.Contains("2016")){
+      if(fabs(eta) < 1.5){
+	if(pt > 200)  ApplyHighPtCorr=1.5;
+	else if(pt > 150)  ApplyHighPtCorr=1.2;
+      }
+      else{
+	if(pt > 250)   ApplyHighPtCorr=0.5;
+      }
     }
-    else{
-      if(pt > 200)  ApplyHighPtCorr=1.4;
-      else if(pt > 150)  ApplyHighPtCorr=1.2;
+    else  if(ID.Contains("2017")){
+      if(fabs(eta) < 1.5){
+        if(pt > 200)  ApplyHighPtCorr=1.4;
+        else if(pt > 150)  ApplyHighPtCorr=1.2;
+      }
+      else{
+	if(pt > 250)   ApplyHighPtCorr=0.5;
+      } 
+    }
+    else   if(ID.Contains("2018")){
+      if(fabs(eta) < 1.5){
+	if(pt > 200)  ApplyHighPtCorr=1.2;
+	else if(pt > 150)  ApplyHighPtCorr=1.2;
+      }
+      else{
+	if(pt > 250)   ApplyHighPtCorr=0.5;
+      } 
     }
   }
+  
 
   if(ID.Contains("HighPt")) ID=ID.ReplaceAll("_HighPt","");
 
