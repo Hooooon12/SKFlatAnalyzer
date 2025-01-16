@@ -21,10 +21,10 @@ NJob=args.NJob
 Era = args.Era
 WorkDir=args.WorkDir
 
-It_Probes    = ['HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_7b','HNL_ULID_Split_7c','HNL_ULID_Split_7d','HNL_ULID_Split_7e','HNL_ULID_Split_7f','HNL_ULID_Split_7g','HNL_ULID_Split_7h','HNL_ULID_Split_8','HNL_ULID_Split_8b']
+It_Probes    = [ 'MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt', 'HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','passingHNLMVA_NoCF','passingHNLMVA_NoConv','passingHNLMVA_NoFake']
 
 #### IDs applied to probe befrpre PASS/FAIL
-It_ProbeID   = ['Pass',            'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'HNL_ULID_Probe_Split_8']
+It_ProbeID   = ['Pass',     'Pass', 'Pass', 'Pass','Pass',       'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'MVABaseline','MVABaseline','MVABaseline']
 It_IsPasses = ['Pass','Fail']
 It_EtaRegions = ['BB','EC']
 #It_EtaRegions = ['BB']
@@ -60,68 +60,149 @@ luminosity = {
 }
 samples = {
   '2016' : [
-      "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-      "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-     "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
-     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-     "WW_TuneCP5_13TeV-pythia8",
-     "WZ_TuneCP5_13TeV-pythia8",
-     "ZZ_TuneCP5_13TeV-pythia8",
-     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-     "SingleElectron",
+    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
+    
+    "SingleElectron",
   ],
   '2016preVFP' : [
-      "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-      "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-     "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
-     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-     "WW_TuneCP5_13TeV-pythia8",
-     "WZ_TuneCP5_13TeV-pythia8",
-     "ZZ_TuneCP5_13TeV-pythia8",
-     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
      "SingleElectron",
   ],
   '2016postVFP' : [
-      "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-      "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "WW_TuneCP5_13TeV-pythia8",
-    "WZ_TuneCP5_13TeV-pythia8",
-    "ZZ_TuneCP5_13TeV-pythia8",
     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
     "SingleElectron",
   ],
   '2017' : [
     "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "WW_TuneCP5_13TeV-pythia8",
-    "WZ_TuneCP5_13TeV-pythia8",
-    "ZZ_TuneCP5_13TeV-pythia8",
     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
     "SingleElectron",
   ],
   '2018' : [
- "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-      "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
     "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "WW_TuneCP5_13TeV-pythia8",
-    "WZ_TuneCP5_13TeV-pythia8",
-    "ZZ_TuneCP5_13TeV-pythia8",
     "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
     "EGamma",
   ],
 }
@@ -129,58 +210,67 @@ types = {
   'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  : 'MC',
   'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : 'MC',
   'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : 'MC',
-  'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : 'MC',
   'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : 'MC',
   'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : 'MC',
   'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : 'MC',
   'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : 'MC',
-  'WW_TuneCP5_13TeV-pythia8' : 'MC',
-  'WZ_TuneCP5_13TeV-pythia8' : 'MC',
-  'ZZ_TuneCP5_13TeV-pythia8' : 'MC',
+  'WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8': 'MC',
+  'ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8': 'MC',
+  'TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': 'MC',
+  'TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8': 'MC',
+  'WZG_TuneCP5_13TeV-amcatnlo-pythia8': 'MC',
+  'WWG_TuneCP5_13TeV-amcatnlo-pythia8': 'MC',
+  'ZZTo4L_TuneCP5_13TeV_powheg_pythia8': 'MC',
+  'WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8': 'MC',
+  'WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8': 'MC',
+  'WZZ_TuneCP5_13TeV-amcatnlo-pythia8': 'MC',
+  'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8': 'MC',
+  'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8': 'MC',
+  'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8': 'MC',
+  'GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8': 'MC',
+  'GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8': 'MC',
+  'GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8': 'MC',
+  'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8': 'MC',
+  'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': 'MC',
+  'WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8': 'MC',
+  'WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8': 'MC',
   'SingleElectron' : 'DATA',
   'EGamma' : 'DATA',
 }
+
+# Dates are dummy, codde now reads dir from /gv0/
 dates = {
   '2016preVFP':
     {
-
-      'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-       'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-
-     'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-     'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-     'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'WW_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'WZ_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'ZZ_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
+      'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {'' : '2024_12_03_013251',},
+      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' {'' : '2024_12_03_013251',},
+      'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZG_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWG_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZZTo4L_TuneCP5_13TeV_powheg_pythia8': {     '' : '2024_12_03_013251',  },
+      'WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZZ_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8': {     '' : '2024_12_03_013251',  },
+      'WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8': {     '' : '2024_12_03_013251',  },
+    },
      'SingleElectron' : {
                          'periodB_ver2' : '2024_11_26_102156',
                          'periodC'      : '2024_11_26_102156',
@@ -192,93 +282,73 @@ dates = {
   '2016postVFP':
     {
 
-      'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-       'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-
-
-
-     'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-     'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-     'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'WW_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'WZ_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'ZZ_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_03_013251',
-     },
-     'SingleElectron' : {
-                         'periodF' : '2024_11_26_102156',
-                         'periodG' : '2024_11_26_102156',
-                         'periodH' : '2024_11_26_102156',
-                        },
+      'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8'  {'' : '2024_12_03_013251',},
+      'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' {'' : '2024_12_03_013251',},
+      'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' {'' : '2024_12_03_013251',},
+      'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZG_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWG_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZZTo4L_TuneCP5_13TeV_powheg_pythia8': {     '' : '2024_12_03_013251',  },
+      'WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZZ_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8': {     '' : '2024_12_03_013251',  },
+      'WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8': {     '' : '2024_12_03_013251',  },
+      'SingleElectron' : {
+        'periodF' : '2024_11_26_102156',
+        'periodG' : '2024_11_26_102156',
+        'periodH' : '2024_11_26_102156',
+      },
     },
   '2017':
     {
 
-      'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-       'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-
-
-     'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : {
-                                                             '' : '2024_12_13_185927',
-                                                            },
-     'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : {
-                                                             '' : '2024_12_13_185927',
-                                                            },
-     'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'WW_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'WZ_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'ZZ_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'SingleElectron' : {
+      'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' {'' : '2024_12_03_013251',},
+      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8'  {'' : '2024_12_03_013251',},
+      'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZG_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWG_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZZTo4L_TuneCP5_13TeV_powheg_pythia8': {     '' : '2024_12_03_013251',  },
+      'WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZZ_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8': {     '' : '2024_12_03_013251',  },
+      'WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8': {     '' : '2024_12_03_013251',  },
+      
+      'SingleElectron' : {
                          'periodB' : '2024_12_13_185927',
                          'periodC' : '2024_12_13_185927',
                          'periodD' : '2024_12_13_185927',
@@ -289,42 +359,35 @@ dates = {
   '2018':
     {
 
-      'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-       'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : {
-                                                             '' : '2024_12_03_013251',
-                                                            },
-     'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : {
-                                                             '' : '2024_12_13_185927',
-                                                            },
-     'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : {
-                                                             '' : '2024_12_13_185927',
-                                                            },
-     'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'WW_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'WZ_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
-     'ZZ_TuneCP5_13TeV-pythia8' : {
-     '' : '2024_12_13_185927',
-     },
+      'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' {'' : '2024_12_03_013251',},
+      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  {'' : '2024_12_03_013251',},
+      'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8'  {'' : '2024_12_03_013251',},
+      'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8'  {'' : '2024_12_03_013251',},
+      'WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZG_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWG_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZZTo4L_TuneCP5_13TeV_powheg_pythia8': {     '' : '2024_12_03_013251',  },
+      'WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8': {     '' : '2024_12_03_013251',  },
+      'WZZ_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8': {     '' : '2024_12_03_013251',  },
+      'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': {     '' : '2024_12_03_013251',  },
+      'WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8': {     '' : '2024_12_03_013251',  },
+      'WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8': {     '' : '2024_12_03_013251',  },
+
      'EGamma' : {
                  'periodA' : '2024_12_13_185927',
                  'periodB' : '2024_12_13_185927',
@@ -346,14 +409,29 @@ nameFilter = {
   'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : 'DYJetsToTauTau',
   'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : 'DYJetsToTauTau',
   'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : 'DYJets',
-  'WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8' : 'WJets',
   'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : 'TTLL',
   'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : 'TTLJ',
   'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : 'tW_top',
   'ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : 'tw_antitop',
-  'WW_TuneCP5_13TeV-pythia8' : 'WW',
-  'WZ_TuneCP5_13TeV-pythia8' : 'WZ',
-  'ZZ_TuneCP5_13TeV-pythia8' : 'ZZ',
+  'WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8': 'WG',
+  'ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8': 'ZG',
+  'TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': 'TTG',
+  'TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8': 'TG',
+  'WZG_TuneCP5_13TeV-amcatnlo-pythia8': 'WZG',
+  'WWG_TuneCP5_13TeV-amcatnlo-pythia8': 'WWG',
+  'ZZTo4L_TuneCP5_13TeV_powheg_pythia8': 'ZZ',
+  'WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8': 'WW',
+  'WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8': 'WZ',
+  'WZZ_TuneCP5_13TeV-amcatnlo-pythia8': 'WZZ',
+  'ZZZ_TuneCP5_13TeV-amcatnlo-pythia8': 'ZZZ',
+  'WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8': 'WWZ',
+  'WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8': 'WWW',
+  'GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8': 'GGZZ4e',
+  'GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8': 'GGZZ2e2mu',
+  'TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8': 'TTZ',
+  'TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8': 'TTW',
+  'WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8': 'WpWpQCD',
+  'WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8': 'WpWpEWK',
   'SingleElectron' : 'data',
   'EGamma' : 'data',
 }
@@ -504,7 +582,7 @@ def TurnOn():
 
 def classify_hist(this_year, this_chain):
 
-  if not this_chain.mcTrue:
+  if not this_chain.mcTrue and not this_chain.mcConv:
     return None
 
   # EtaRegion
@@ -945,7 +1023,7 @@ def SplitChain(_era,_type,_sample,nj):
   
 def makeKinComparison(NthJob):
 
-  pt_bins = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 300, 400, 1000], dtype=np.float64)
+  pt_bins = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150,200, 300, 400, 1000], dtype=np.float64)
   nBins = len(pt_bins)-1
 
   HEEP_eta_bins = np.array([0, 1.4442, 1.566, 2.5], dtype='d')
@@ -1171,7 +1249,7 @@ def makeKinComparison(NthJob):
     nProbe_data=0
     for Probe in It_Probes:
       ProbeID_data=It_ProbeID[nProbe_data]
-      if nProbe_data == 0:
+      if nProbe_data < 5:
         this_cuts[Probe] = {
           'Pass':"(passing"+Probe+"==1)",
           'Fail':"(passing"+Probe+"==0)",

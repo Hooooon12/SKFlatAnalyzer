@@ -43,8 +43,6 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   if(RunHighPtID) LepIDs = {"HNL_ULID","HighPt"};
   if(RunPekingID) LepIDs = {"Peking"};
 
-  //// If Full syst only run Main ID
-  if(RunFullSyst) LepIDs = {"HNL_ULID"};
 
   //  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULID","POGTight","TopHN","HNTightV2","MVAPOG"};//,"HNTightV2","POGTight","TopHN","HighPt"};                                
 
@@ -68,8 +66,6 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   else if(HasFlag("SSMultiLep")) CRToRun = {"SS_CR","VBF_CR","LLL_VR"};
 
   for (auto id: LepIDs){
-    /// For non HNL_ULID run no syst
-    RunJetSyst= (id == "HNL_ULID") ? false : true;
 
     for(auto channel : ChannelsToRun){
       if(channel != MuMu  && id =="TopHN") continue;
@@ -79,7 +75,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
       if(channel == EMu) param_signal.CFMethod   = "MC";
 
       param_signal.PlottingVerbose = 0;
-      if(id == "HNL_ULID")        param_signal.PlottingVerbose = 1;
+      if(id == "HNL_ULIDv2")      param_signal.PlottingVerbose = 1;
       if(id.Contains("HEEP"))     param_signal.PlottingVerbose = 1;
 
       for(auto iCR : CRToRun) {
@@ -116,14 +112,6 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param, vecto
   /// IF ruunning fake then use FR_ID not Tight
   TString Electron_ID = SetLeptonID("Electron",param);
   TString Muon_ID     = SetLeptonID("Muon", param);
-
-  if(RunFakeTF){
-    // Muon_ID = "HNL_ULID_SB_"+GetYearString();
-    // Electron_ID = "HNL_ULID_SB_"+GetYearString();
-
-    Muon_ID = "HNL_ULID_FO"; 
-    Electron_ID = "HNL_ULID_Def_FO_"+GetYearString();
-  }
 
   double Min_FakeMuon_Pt     =  5;
   double Min_FakeElectron_Pt =  10 ;

@@ -1,92 +1,23 @@
 #include "HNL_LeptonCore.h"
 
 
-double HNL_LeptonCore::GetPDFUncertainty(TString SRBin, int sys){
+TString HNL_LeptonCore::GetPDFUncertainty(int iw, double& ev_weight ){
 
-  if(!MCSample.Contains("Type")) return 1;
-  if(sys==0) return 1;
+  if(!MCSample.Contains("Type")) return "";
 
-  int SignalRange=0;
-  if(MCSample.Contains("M500_")) SignalRange=0;
-  if(MCSample.Contains("M600_")) SignalRange=0;
-  if(MCSample.Contains("M700_")) SignalRange=0;
-  if(MCSample.Contains("M800_")) SignalRange=0;
-  if(MCSample.Contains("M900_")) SignalRange=0;
-  if(MCSample.Contains("M1000_")) SignalRange=1;
-  if(MCSample.Contains("M1100_")) SignalRange=1;
-  if(MCSample.Contains("M1200_")) SignalRange=1;
-  if(MCSample.Contains("M1300_")) SignalRange=1;
-  if(MCSample.Contains("M1400_")) SignalRange=1;
-  else SignalRange=2;
+  float NormNom = h_SumW_Scale->GetBinContent(1);
 
-  /// Initial numbers from Jihoon 
-  if(MCSample.Contains("DY")){
+  float Norm, weight_pdf;
+  if (iw<weight_PDF->size()) {
+    Norm = h_SumW_PDF->GetBinContent(iw+1);
+    ev_weight = weight_PDF->at(iw)*(NormNom/Norm);
     
-    if(SRBin.Contains("SR1")) return (1. + double(sys)* 1.07);
-    if(SRBin.Contains("SR2")) return (1. + double(sys)* 1.01);
-    if(SRBin.Contains("SR3")) return (1. + double(sys)* 1.025);
-
-    return (1. + double(sys)* 1.02);
-
+    return "_Syst_PDF"+TString::Itoa(iw,10);
   }
-  if(MCSample.Contains("VBF")){
-    
-    if(SRBin.Contains("SR2")) return (1. + double(sys)* 1.05);
-    if(SRBin.Contains("SR3")) return (1. + double(sys)* 1.04);
-    
-    if(SignalRange==1){
-      if(SRBin=="SR1_MNbin1") return(1. + double(sys)* 1.018);
-      if(SRBin=="SR1_MNbin2") return(1. + double(sys)* 1.01);
-      if(SRBin=="SR1_MNbin3") return(1. + double(sys)* 1.002);
-      if(SRBin=="SR1_MNbin4") return(1. + double(sys)* 1.018);
-      if(SRBin=="SR1_MNbin5") return(1. + double(sys)* 1.025);
-      if(SRBin=="SR1_MNbin6") return(1. + double(sys)* 1.01);
-      return(1. + double(sys)* 1.02);
-    }
-    if(SignalRange==2){
-      if(SRBin=="SR1_MNbin1") return(1. + double(sys)* 1.1);
-      if(SRBin=="SR1_MNbin2") return(1. + double(sys)* 1.03);
-      if(SRBin=="SR1_MNbin3") return(1. + double(sys)* 1.03);
-      if(SRBin=="SR1_MNbin4") return(1. + double(sys)* 1.03);
-      if(SRBin=="SR1_MNbin5") return(1. + double(sys)* 1.03);
-      if(SRBin=="SR1_MNbin6") return(1. + double(sys)* 1.01);
-      
-      if(SRBin=="SR3_MNbin8") return(1. + double(sys)* 1.06);
-      if(SRBin=="SR3_MNbin10") return(1. + double(sys)* 1.06);
+  
+  ev_weight=1;
+  return "";
 
-      return(1. + double(sys)* 1.02);
-    }
-
-    if(SignalRange==3){
-      if(SRBin=="SR1_MNbin1") return(1. + double(sys)* 1.29);
-      if(SRBin=="SR1_MNbin2") return(1. + double(sys)* 1.12);
-      if(SRBin=="SR1_MNbin3") return(1. + double(sys)* 1.05);
-      if(SRBin=="SR1_MNbin4") return(1. + double(sys)* 1.05);
-      if(SRBin=="SR1_MNbin5") return(1. + double(sys)* 1.05);
-      if(SRBin=="SR1_MNbin6") return(1. + double(sys)* 1.01);
-      return(1. + double(sys)* 1.02);
-    }
-    return(1. + double(sys)* 1.02);
-  }
-  if(MCSample.Contains("SSWW")){
-
-    if(SRBin.Contains("SR1")) return (1. + double(sys)* 1.02);
-    if(SignalRange==1){
-      if(SRBin=="SR2_HTLTbin1") return(1. + double(sys)* 1.01);
-      if(SRBin=="SR2_HTLTbin7") return(1. + double(sys)* 1.07);
-      return(1. + double(sys)* 1.03);
-    }
-    if(SignalRange==2){
-      if(SRBin=="SR2_HTLTbin1") return(1. + double(sys)* 1.01);
-      if(SRBin=="SR2_HTLTbin7") return(1. + double(sys)* 1.012);
-      return(1. + double(sys)* 1.04);
-    }
-    if(SRBin.Contains("SR2")) return (1. + double(sys)* 1.05);
-    if(SRBin.Contains("SR3")) return (1. + double(sys)* 1.04);
-
-  }
-
-  return(1. + double(sys)* 1.02);
 
 }
 

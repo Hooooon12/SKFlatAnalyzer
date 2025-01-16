@@ -103,6 +103,7 @@ class AnalyzerParameter{
     FRPartonSFUp, FRPartonSFDown,PRApplied,FRAltBinning,
     JetResUp, JetResDown,    JetEnUp, JetEnDown,
     JetMassUp,JetMassDown,    JetMassSmearUp,JetMassSmearDown,
+    JetPNETDown,JetPNETUp,
     MuonRecoSFUp,MuonRecoSFDown,    MuonEnUp,MuonEnDown,    MuonIDSFUp,MuonIDSFDown,    MuonISOSFUp,MuonISOSFDown,
     MuonResUp,MuonResDown,
     MuonTriggerSFUp,MuonTriggerSFDown,    ElectronRecoSFUp,ElectronRecoSFDown,
@@ -116,7 +117,7 @@ class AnalyzerParameter{
     PrefireUp,PrefireDown,
     PUUp,PUDown,
     JetPUIDUp, JetPUIDDown,
-    PDFUp,PDFDown,
+    PDF,
     ScaleUp,ScaleDown,
     NSyst
   };

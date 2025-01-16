@@ -3,8 +3,3 @@ SingleElectron:C
 SingleElectron:D
 SingleElectron:E
 SingleElectron:F
-SingleMuon:B
-SingleMuon:C
-SingleMuon:D
-SingleMuon:E
-SingleMuon:F

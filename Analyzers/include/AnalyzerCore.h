@@ -86,6 +86,13 @@ public:
   inline static bool PtComparing(const Particle& p1, const Particle& p2){ return (p1.Pt() > p2.Pt()); }
   inline static bool PtComparingPtr(Particle* p1, Particle* p2){ return (p1->Pt() > p2->Pt()); }
 
+  inline double VarUpperLimit(double var, double limitup) const { 
+    
+    if(var  > limitup)  return limitup - 0.0001;
+    return var ;
+  }
+
+
   vector<Jet>      All_Jets;
   vector<FatJet>   All_FatJets;
   vector<Muon>     All_Muons;

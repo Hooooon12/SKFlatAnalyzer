@@ -1,2 +1,15 @@
+DYJetsToTauTau_MiNNLO
+DYJetsToEE_MiNNLO
+TTLL_powheg
+TTLJ_powheg
 SingleTop_tW_antitop_NoFullyHad
 SingleTop_tW_top_NoFullyHad
+WZTo3LNu_mllmin4p0_powheg
+WWTo2L2Nu_powheg
+ZZTo4L_powheg
+WWG
+WZG
+TG
+TTG
+ZGToLLG
+WGToLNuG_MG

@@ -21,10 +21,10 @@ NJob=args.NJob
 Era = args.Era
 WorkDir=args.WorkDir
 
-It_Probes    = ['MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt']
+It_Probes    = [ 'MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt', 'HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','passingHNLMVA_NoCF','passingHNLMVA_NoConv','passingHNLMVA_NoFake']
 
 #### IDs applied to probe befrpre PASS/FAIL
-It_ProbeID   = ['Pass', 'Pass',  'MVABaseline','MVABaseline','MVABaseline']
+It_ProbeID   = ['Pass',     'Pass', 'Pass', 'Pass','Pass',       'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'MVABaseline','MVABaseline','MVABaseline']
 It_IsPasses = ['Pass','Fail']
 It_EtaRegions = ['BB','EC']
 #It_EtaRegions = ['BB']
@@ -945,7 +945,7 @@ def SplitChain(_era,_type,_sample,nj):
   
 def makeKinComparison(NthJob):
 
-  pt_bins = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150, 200, 300, 400, 1000], dtype=np.float64)
+  pt_bins = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150,200, 300, 400, 1000], dtype=np.float64)
   nBins = len(pt_bins)-1
 
   HEEP_eta_bins = np.array([0, 1.4442, 1.566, 2.5], dtype='d')
@@ -1171,7 +1171,7 @@ def makeKinComparison(NthJob):
     nProbe_data=0
     for Probe in It_Probes:
       ProbeID_data=It_ProbeID[nProbe_data]
-      if nProbe_data < 2:
+      if nProbe_data < 5:
         this_cuts[Probe] = {
           'Pass':"(passing"+Probe+"==1)",
           'Fail':"(passing"+Probe+"==0)",

@@ -39,7 +39,12 @@ void  HNL_LeptonCore::EvalJetWeight(std::vector<Jet>    AK4_JetColl, std::vector
   /// PNET SF
   if(param.Apply_Weight_PNETSF){
     double AK8PNETSF(1.);
-    for(auto iJ : AK8_JetColl) AK8PNETSF*= iJ.GetTaggerSF(JetTagging::particleNet_WvsQCD, DataEra, 0);
+    
+    double PNETSyst = 0;
+    if(param.syst_ == AnalyzerParameter::JetPNETUp) PNETSyst = 1;
+    if(param.syst_ == AnalyzerParameter::JetPNETDown) PNETSyst = -1;
+    
+    for(auto iJ : AK8_JetColl) AK8PNETSF*= iJ.GetTaggerSF(JetTagging::particleNet_WvsQCD, DataEra, PNETSyst);
     w*= AK8PNETSF;
     param.w.PNETSF=AK8PNETSF;
 

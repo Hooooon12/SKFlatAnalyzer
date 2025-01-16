@@ -75,15 +75,7 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
   newtree->Branch("passingHNL_ULID_Split_5b",&passingHNL_ULID_Split_5b);
   newtree->Branch("passingHNL_ULID_Split_6",&passingHNL_ULID_Split_6);
   newtree->Branch("passingHNL_ULID_Split_7",&passingHNL_ULID_Split_7);
-  newtree->Branch("passingHNL_ULID_Split_7b",&passingHNL_ULID_Split_7b);
-  newtree->Branch("passingHNL_ULID_Split_7c",&passingHNL_ULID_Split_7c);
-  newtree->Branch("passingHNL_ULID_Split_7d",&passingHNL_ULID_Split_7d);
-  newtree->Branch("passingHNL_ULID_Split_7e",&passingHNL_ULID_Split_7e);
-  newtree->Branch("passingHNL_ULID_Split_7f",&passingHNL_ULID_Split_7f);
-  newtree->Branch("passingHNL_ULID_Split_7g",&passingHNL_ULID_Split_7g);
-  newtree->Branch("passingHNL_ULID_Split_7h",&passingHNL_ULID_Split_7h);
   newtree->Branch("passingHNL_ULID_Split_8",&passingHNL_ULID_Split_8);
-  newtree->Branch("passingHNL_ULID_Split_8b",&passingHNL_ULID_Split_8b);
   
   newtree->Branch("passingHNL_ULID_Probe_Split_2",&passingHNL_ULID_Probe_Split_2);
   newtree->Branch("passingHNL_ULID_Probe_Split_3",&passingHNL_ULID_Probe_Split_3);
@@ -171,6 +163,7 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
 
   if(!IsDATA){
     newtree->Branch("mcTrue",&mcTrue);
+    newtree->Branch("mcConv",&mcConv);
   }
   
 }
@@ -372,15 +365,8 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
 	passingHNL_ULID_Split_5b = probe.PassID("HNL_ULID_Split_5b"); 
 	passingHNL_ULID_Split_6 = probe.PassID("HNL_ULID_Split_6"); 
 	passingHNL_ULID_Split_7 = probe.PassID("HNL_ULID_Split_7"); 
-	passingHNL_ULID_Split_7b = probe.PassID("HNL_ULID_Split_7b"); 
-	passingHNL_ULID_Split_7c = probe.PassID("HNL_ULID_Split_7c"); 
-	passingHNL_ULID_Split_7d = probe.PassID("HNL_ULID_Split_7d"); 
-	passingHNL_ULID_Split_7e = probe.PassID("HNL_ULID_Split_7e"); 
-	passingHNL_ULID_Split_7f = probe.PassID("HNL_ULID_Split_7f"); 
-	passingHNL_ULID_Split_7g = probe.PassID("HNL_ULID_Split_7g"); 
-	passingHNL_ULID_Split_7h = probe.PassID("HNL_ULID_Split_7h"); 
 	passingHNL_ULID_Split_8 = probe.PassID("HNL_ULID_Split_8"); 
-	passingHNL_ULID_Split_8b = probe.PassID("HNL_ULID_Split_8b"); 
+
 
 	//// Split IDs                                                                                                                                           
         passingHNL_ULID_Probe_Split_2 = passingHNL_ULID_Split_1;//probe.PassID("HNL_ULID_Probe_Split_2");
@@ -463,9 +449,9 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
         pair_mass_cor=pair_cor.M();
         pair_pt=pair.Pt();
         pair_pt_cor=pair_cor.Pt();
-        
+	
         if(!IsDATA){
-          
+	  
           if(tag.IsPrompt()&&probe.IsPrompt()){
 	    totWeight=totWeight* mcCorr->ElectronReco_SF("RECO_SF",tag.defEta(),tag.Pt(),0);
 	    totWeight=totWeight* mcCorr->ElectronReco_SF("RECO_SF",probe.defEta(),probe.Pt(),0);
@@ -491,8 +477,6 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
 	      }
 	      totWeight=totWeight*CFSF;
               totWeight_zpt=totWeight_zpt*CFSF;
-
-
 	    }
 	    if(probe.LeptonIsCF()){
 	      
@@ -516,9 +500,13 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
             }
 
             mcTrue=true;
-          }else{
+          } 
+	  else{
             mcTrue=false;
           }
+
+          if(tag.IsConv()||probe.IsConv()) mcConv=true;
+	  else mcConv=false;
 
           if(tag.IsFake()) tag_IsFake=true;
 					else tag_IsFake=false;
