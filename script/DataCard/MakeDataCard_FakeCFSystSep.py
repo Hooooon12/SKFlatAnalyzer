@@ -9,8 +9,13 @@
 import os, sys, argparse
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('--NoMuSyst', action='store_true', help='No MuonEn, MuonRes to check the effect')
-parser.add_argument('--MuSystOnly', action='store_true', help='No MuonEn, MuonRes to check the effect')
+parser.add_argument('--NoFR', action='store_true', help='No FR syst to check the over-constraint issue')
+parser.add_argument('--NoAJ', action='store_true', help='No AJ syst to check the over-constraint issue')
+parser.add_argument('--NoLID', action='store_true', help='No LID syst to check the over-constraint issue')
+parser.add_argument('--NoPSF', action='store_true', help='No PSF syst to check the over-constraint issue')
+parser.add_argument('--NoMuSyst', action='store_true', help='No muon-related systs to check the effect')
+parser.add_argument('--MuSystOnly', action='store_true', help='Only muon-related systs to check the effect')
+parser.add_argument('--CnC', action='store_true', help='Cut and count limit')
 parser.add_argument('--Decorr', action='store_true', help='Decorrelate fake, CF, norm')
 parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
 parser.add_argument('--Syst', action='store_true', help='Add systematics into the datacards')
@@ -28,13 +33,13 @@ pwd = os.getcwd()
 #####################################################
 
 #eras = ["2016","2017","2018"]
-#eras = ["2017"]
-eras = ["2018"]
+eras = ["2017"]
+#eras = ["2018"]
 #eras = ["2016preVFP","2016postVFP","2017","2018"]
 #eras = ["2016preVFP","2016postVFP","2018"]
-channels = ["MuMu","EE","EMu"]
+#channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
-#channels = ["MuMu"]
+channels = ["MuMu"]
 #channels = ["EE"]
 #channels = ["EE","EMu"]
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
@@ -42,12 +47,17 @@ channels = ["MuMu","EE","EMu"]
 #masses = ["M500","M1000","M5000"]
 #masses = ["M3000"]
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M85","M90","M95","M100"]#"M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M500","M1000","M3000","M10000"]
 #masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100"]
 #masses = ["M20000"]
+
+## Full mass ranges
+#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
+#masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR43/LimitInputs/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitInputs/"
@@ -58,10 +68,12 @@ masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M5
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR52/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR89/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR89/LimitExtraction/"
-#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR95/LimitExtraction/"
-#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR95/LimitExtraction/"
-SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
-CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
+SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR95/LimitExtraction/"
+CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR95/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR97/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR97/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
 
 #InputWPs = ["240422_HNL_ULID"]
 #InputWPs = ["240501_1704_HNL_ULID","240501_1704_HNTightV2"]
@@ -82,8 +94,11 @@ CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_
 #InputWPs = ["PR55_NoMinPt_HighPt"]
 #InputWPs = ["PR86_HNL_ULID"]
 #InputWPs = ["PR89_HNL_ULID","PR89_HighPt"]
-#InputWPs = ["PR95_HNL_ULID"]
-InputWPs = ["PR97_HNL_ULIDv2"]
+InputWPs = ["PR95_HNL_ULID"]
+#InputWPs = ["PR97_HNL_ULIDv2"]
+if args.Decorr:
+  InputWPs = [WP+"_Decorr" for WP in InputWPs]
+
 #OutputTag = "_NOsr2inv"
 #OutputTag = "_NOsr2inv_NOzgcr1"
 #OutputTag = "_NOsr2inv_NOcr1Norm_FixCF"
@@ -102,11 +117,17 @@ InputWPs = ["PR97_HNL_ULIDv2"]
 #OutputTag = "_CompToPR86"
 #OutputTag = "_FakeCFSystSep"
 OutputTag = ""
+
 if args.Combine is None and not args.CR: OutputTag+="_NoCR" # SR only
-elif args.Combine is not None and args.Combine not in ["CR","Era"]: OutputTag+="_NoCR" # Combine but not CR included
-if args.Decorr: OutputTag+="_Decorr"
-if args.NoMuSyst: OutputTag+="_NoMuSyst"
-if args.MuSystOnly: OutputTag+="_MuSystOnly"
+elif args.Combine is not None and args.Combine not in ["CR","Era"]: OutputTag+="_NoCR" # Combine SR only
+if not args.Syst: OutputTag+="_NoSyst"  # NoSyst
+else:
+  if args.NoMuSyst: OutputTag+="_NoMuSyst"
+  if args.MuSystOnly: OutputTag+="_MuSystOnly"
+  if args.NoFR: OutputTag+="_NoFR"
+  if args.NoAJ: OutputTag+="_NoAJ"
+  if args.NoLID: OutputTag+="_NoLID"
+  if args.NoPSF: OutputTag+="_NoPSF"
 
 regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
 #regions_cr = ["cf_cr","sr1_inv","sr2_inv","sr3_inv","ww_cr","wz_cr","zg_cr","zz_cr"]
@@ -147,6 +168,14 @@ def CardSetting(isCR, WP, era, channel, mass):
           this_lines_cr[i] = ""
         for i in range(35,45):
           this_lines_cr[i] = "" # remove all but muon systs
+      if args.NoFR:
+        this_lines_cr[20] = "" # remove FR
+      if args.NoAJ:
+        this_lines_cr[21] = "" # remove AJ
+      if args.NoLID:
+        this_lines_cr[22] = "" # remove LID
+      if args.NoPSF:
+        this_lines_cr[23] = "" # remove PSF
     else:
       for i in range(18,45):
         this_lines_cr[i] = "" # remove unnecessary syst sources.
@@ -163,6 +192,10 @@ def CardSetting(isCR, WP, era, channel, mass):
       if "sr_" in region: pass # all sr_inv
       elif "sr" in region: # sr1_bjet etc.
         for i in range(20,26):
+          if args.NoFR and i==20: continue
+          if args.NoAJ and i==21: continue
+          if args.NoLID and i==22: continue
+          if args.NoPSF and i==23: continue
           this_syst = this_lines_cr[i].split(' ')[0]
           this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_'+region.split('_')[0]) # FR to FR_sr1
       elif "cr1" in region or "cr2" in region or "cr3" in region: # wz_cr2 etc.
@@ -173,10 +206,18 @@ def CardSetting(isCR, WP, era, channel, mass):
         elif 'sr3' in region or 'cr3' in region:
           regionName_SystSep = 'sr3'
         for i in range(20,26):
+          if args.NoFR and i==20: continue
+          if args.NoAJ and i==21: continue
+          if args.NoLID and i==22: continue
+          if args.NoPSF and i==23: continue
           this_syst = this_lines_cr[i].split(' ')[0]
           this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_'+regionName_SystSep) # FR to FR_sr2
       else: # cf_cr etc.
         for i in range(20,26):
+          if args.NoFR and i==20: continue
+          if args.NoAJ and i==21: continue
+          if args.NoLID and i==22: continue
+          if args.NoPSF and i==23: continue
           this_syst = this_lines_cr[i].split(' ')[0]
           this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_sr1')+this_lines_cr[i].replace(this_syst,this_syst+'_sr2')+this_lines_cr[i].replace(this_syst,this_syst+'_sr3') # FR_sr1\n FR_sr2\n FR_sr3\
 
@@ -219,6 +260,14 @@ def CardSetting(isCR, WP, era, channel, mass):
           this_lines_sr[i] = ""
         for i in range(35,45):
           this_lines_sr[i] = "" # remove all but muon systs
+      if args.NoFR:
+        this_lines_sr[20] = "" # remove FR
+      if args.NoAJ:
+        this_lines_sr[21] = "" # remove AJ
+      if args.NoLID:
+        this_lines_sr[22] = "" # remove LID
+      if args.NoPSF:
+        this_lines_sr[23] = "" # remove LID
     else:
       for i in range(18,45):
         this_lines_sr[i] = "" # remove unnecessary syst sources.
@@ -235,6 +284,10 @@ def CardSetting(isCR, WP, era, channel, mass):
       if region=="sr": pass
       else:
         for i in range(20,26):
+          if args.NoFR and i==20: continue
+          if args.NoAJ and i==21: continue
+          if args.NoLID and i==22: continue
+          if args.NoPSF and i==22: continue
           this_syst = this_lines_sr[i].split(' ')[0]
           this_lines_sr[i] = this_lines_sr[i].replace(this_syst,this_syst+'_'+region.split('_')[0]) # FR to FR_sr1
 
@@ -269,7 +322,7 @@ for InputWP in InputWPs:
     os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/MakeWorkspace.py "+OutputWP)
     os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/CheckNuisance.py "+OutputWP)
 
-    for era, channel, mass in [(era, channel, mass) for era in eras for channel in channels for mass in masses]:
+    for era, channel, mass in [(era, channel, mass) for era in eras for channel in channels for mass in (masses if channel!="EMu" else masses_EMu)]:
       this_card = CardSetting(args.CR, InputWP, era, channel, mass)
       if args.CR:
         for region in this_card[0].keys():
@@ -292,21 +345,29 @@ for InputWP in InputWPs:
     os.system('pwd')
     if args.Syst:
       os.system('echo \'Systematics have been added.\'')
-    for channel, mass in [(channel, mass) for channel in channels for mass in masses]:
+    for channel, mass in [(channel, mass) for channel in channels for mass in (masses if channel!="EMu" else masses_EMu)]:
       for era in eras:
 
         if args.Combine == "CR":
           if "Mu" in channel: regions_cr = [cr for cr in regions_cr if "cf" not in cr]
           if int(mass.strip('M'))<=100:
             regions_sr_filtered = ["sr3"]
+            regions_cr_filtered = [cr for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr]
           else:
             regions_sr_filtered = regions_sr
+            regions_cr_filtered = regions_cr
           sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+"_"+sr+systTag+".txt" for sr in regions_sr_filtered])
-          cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr])
+          cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr_filtered])
           # merge all SRs
           os.system("combineCards.py "+sr_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+systTag+".txt")
+
+          # Now make limit from each SRs
+          ## make SR3 first which always exist regardless of mass
+          sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+".txt"
+          cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
+          os.system("combineCards.py "+sr3_combine+" "+cr3_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+"_Combined.txt")
           if int(mass.strip('M'))>100:
-            # limit from each SRs
+            # SR1, SR2 exists only for M(N) > 100 GeV
             sr1_combine = "sr1=card_"+era+"_"+channel+"_"+mass+"_sr1"+systTag+".txt"
             cr1_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr2' not in cr and 'sr3' not in cr and 'cr2' not in cr and 'cr3' not in cr])
             #print regions_cr
@@ -315,16 +376,18 @@ for InputWP in InputWPs:
             sr2_combine = "sr2=card_"+era+"_"+channel+"_"+mass+"_sr2"+systTag+".txt"
             cr2_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr3' not in cr and 'cr1' not in cr and 'cr3' not in cr])
             os.system("combineCards.py "+sr2_combine+" "+cr2_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr2"+systTag+"_Combined.txt")
-            sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+".txt"
-            cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
-            os.system("combineCards.py "+sr3_combine+" "+cr3_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+"_Combined.txt")
 
         elif args.Combine == "SR": # Combine SR1 only, SR2 only, SR3 only (no rateParam)
-          os.system("combineCards.py \
-                                     sr1=card_"+era+"_"+channel+"_"+mass+"_sronly_sr1"+systTag+".txt \
-                                     sr2=card_"+era+"_"+channel+"_"+mass+"_sronly_sr2"+systTag+".txt \
-                                     sr3=card_"+era+"_"+channel+"_"+mass+"_sronly_sr3"+systTag+".txt \
-                                     > card_"+era+"_"+channel+"_"+mass+"_sronly_sr123"+systTag+".txt")
+          if int(mass.strip('M'))<=100:
+            os.system("combineCards.py \
+                                       sr3=card_"+era+"_"+channel+"_"+mass+"_sronly_sr3"+systTag+".txt \
+                                       > card_"+era+"_"+channel+"_"+mass+"_sronly_sr123"+systTag+".txt")
+          else:
+            os.system("combineCards.py \
+                                       sr1=card_"+era+"_"+channel+"_"+mass+"_sronly_sr1"+systTag+".txt \
+                                       sr2=card_"+era+"_"+channel+"_"+mass+"_sronly_sr2"+systTag+".txt \
+                                       sr3=card_"+era+"_"+channel+"_"+mass+"_sronly_sr3"+systTag+".txt \
+                                       > card_"+era+"_"+channel+"_"+mass+"_sronly_sr123"+systTag+".txt")
       if args.Combine == "Era": # This will combine all era datacards with CR setup
         os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+systTag+".txt year17=card_2017_"+channel+"_"+mass+systTag+".txt year18=card_2018_"+channel+"_"+mass+systTag+".txt > card_Run2_"+channel+"_"+mass+systTag+".txt")
     os.system('echo \'Done.\'')

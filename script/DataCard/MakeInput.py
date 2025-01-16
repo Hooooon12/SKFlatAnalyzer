@@ -17,7 +17,7 @@ parser.add_argument('--Scan', action='store_true', help='scan the bin content')
 parser.add_argument('--CnC', action='store_true', help='1bin cut and count setting')
 parser.add_argument('--CR', action='store_true', help='Make HNL_ControlRegion_Plotter input (default : HNL_SignalRegion_Plotter)')
 parser.add_argument('--Syst', action='store_true', help='Add systematics')
-parser.add_argument('--SystSep', action='store_true', help='Separate out Fake, CF syst sources')
+parser.add_argument('--Decorr', action='store_true', help='Decorrelate Fake, CF syst sources')
 parser.add_argument('--Flag', nargs='+', help='Your private flag names')
 parser.add_argument('--Merge', action='store_true', help='hadd the needed histograms')
 args = parser.parse_args()
@@ -31,22 +31,22 @@ else:
 #eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
 #eras = ["2016preVFP"]
 #eras = ["2016postVFP"]
-#eras = ["2017"]
-eras = ["2018"]
+eras = ["2017"]
+#eras = ["2018"]
 #eras = ["Run2"] # Let's merge Run2 after running all eras first
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M1000","M10000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
 masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250"]
 #masses = ["M1000"]
 #masses = ["M100"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M1000"]
 #masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
-channels = ["MuMu","EE","EMu"]
+#channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
 #channels = ["EMu"]
-#channels = ["MuMu"]
+channels = ["MuMu"]
 HistChannelMap = {'MuMu':'Muon', 'EE':'Electron', 'EMu':'ElectronMuon'}
 ## Ugly region maps ##
 RegionToCRFlagMap = {}
@@ -54,46 +54,50 @@ RegionToChannelMap = {}
 RegionToHistSuffixMap = {}
 
 #tags = ["HNL_ULID","HNTightV2"] # HNLParameter Name
-#tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
-tags = ["HNL_ULIDv2"] # HNLParameter Name, used to call the histogram
+tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
+#tags = ["HNL_ULIDv2"] # HNLParameter Name, used to call the histogram
 #tags = ["HNL_ULID","HighPt"] # HNLParameter Name, used to call the histogram
 #tags = ["HighPt"] # HNLParameter Name, used to call the histogram
-#outputTag = "240501_1704_" # tag the output directory name as you wish
-#outputTag = "rateParam_" # tag the output directory name as you wish
-#outputTag = "PR48_rateParam_" # tag the output directory name as you wish
-#outputTag = "PR51_" # tag the output directory name as you wish
-#outputTag = "PR51_rescale_" # tag the output directory name as you wish
-#outputTag = "PR52_" # tag the output directory name as you wish
-#outputTag = "PR52_New" # tag the output directory name as you wish
-#outputTag = "PR52_10TeVrescale_" # tag the output directory name as you wish
-#outputTag = "PR55_" # tag the output directory name as you wish
-#outputTag = "PR55_NoMinPt_" # tag the output directory name as you wish
-#outputTag = "PR52_TestScan_" # tag the output directory name as you wish
-#outputTag = "PR52_SSWWrescale_" # tag the output directory name as you wish
-#outputTag = "PR85_" # tag the output directory name as you wish
-#outputTag = "PR89_" # tag the output directory name as you wish
-outputTag = "PR97_" # tag the output directory name as you wish
+#outputTagPrefix = "240501_1704_" # tag the output directory name as you wish
+#outputTagPrefix = "rateParam_" # tag the output directory name as you wish
+#outputTagPrefix = "PR48_rateParam_" # tag the output directory name as you wish
+#outputTagPrefix = "PR51_" # tag the output directory name as you wish
+#outputTagPrefix = "PR51_rescale_" # tag the output directory name as you wish
+#outputTagPrefix = "PR52_" # tag the output directory name as you wish
+#outputTagPrefix = "PR52_New" # tag the output directory name as you wish
+#outputTagPrefix = "PR52_10TeVrescale_" # tag the output directory name as you wish
+#outputTagPrefix = "PR55_" # tag the output directory name as you wish
+#outputTagPrefix = "PR55_NoMinPt_" # tag the output directory name as you wish
+#outputTagPrefix = "PR52_TestScan_" # tag the output directory name as you wish
+#outputTagPrefix = "PR52_SSWWrescale_" # tag the output directory name as you wish
+#outputTagPrefix = "PR85_" # tag the output directory name as you wish
+#outputTagPrefix = "PR89_" # tag the output directory name as you wish
+outputTagPrefix = "PR95_" # tag the output directory name as you wish
+#outputTagPrefix = "PR97_" # tag the output directory name as you wish
 
+outputTagSuffix = ""
 if args.CnC:
-  outputTag += 'CnC_'
+  outputTagSuffix += '_CnC'
+if args.Decorr:
+  outputTagSuffix += '_Decorr'
 
 # Skim
 DataSkim = "_SkimTree_HNMultiLepBDT_"
 FakeSkim = "_SkimTree_HNMultiLepBDT_"
 #CFSkim = "_SkimTree_HNMultiLepBDT_" #FIXME MC CF
 CFSkim = "_SkimTree_DileptonBDT_" #FIXME Data CF
-#ConvSkim = "_SkimTree_HNMultiLepBDT_"
-ConvSkim = "_SkimTree_DileptonBDT_" # From PR97
+ConvSkim = "_SkimTree_HNMultiLepBDT_"
+#ConvSkim = "_SkimTree_DileptonBDT_" # From PR97
 MCSkim = "_SkimTree_HNMultiLepBDT_"
 SignalSkim = "_SkimTree_HNMultiLepBDT_"
 
 # This will do necessary hadd for you.
-MergeData   = False if args.Merge else False
-MergeFake   = False if args.Merge else False  # RunFake
-MergeCF     = False if args.Merge else False  # RunCF
+MergeData   = True if args.Merge else False
+MergeFake   = True if args.Merge else False  # RunFake
+MergeCF     = True if args.Merge else False  # RunCF
 MergeConv   = True if args.Merge else False  # RunConv
-MergeMC     = False if args.Merge else False  # RunPrompt
-MergeSignal = False if args.Merge else False
+MergeMC     = True if args.Merge else False  # RunPrompt
+MergeSignal = True if args.Merge else False
 #MergeDYVBF = True if args.Merge else False
 #MergeSSWW  = True if args.Merge else False
 
@@ -214,8 +218,9 @@ else:
 
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR52/"
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR89/"
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR95/"
-InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
+InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR95/"
+#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR97/"
+#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
 
 ##### Start merging #####
 MergeList = {}
@@ -495,7 +500,7 @@ for tag in tags:
   for era in eras:
     for region in regions: # ...and even each region to control!!
       print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region
-      OutputPath = InputPath+'/LimitExtraction/'+outputTag+tag+'/'
+      OutputPath = InputPath+'/LimitExtraction/'+outputTagPrefix+tag+outputTagSuffix+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
   
       f_path_data          = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + FlagName + "/DATA/"+Analyzer+DataSkim+"DATA.root"
@@ -799,22 +804,22 @@ for tag in tags:
                 if not "fake_data_path" in input_list[i][0]: # There is no file like "fake_data_path" ...
                   name_syst = input_list[i][2]+"_"+this_syst # Define syst histo name
 
-                  if args.SystSep: # Redefine output syst hist name
+                  if args.Decorr: # Redefine output syst hist name
                     if 'sr1' in region or 'cr1' in region:
-                      regionName_SystSep = 'sr1'
+                      regionName_Decorr = 'sr1'
                     elif 'sr2' in region or 'cr2' in region:
-                      regionName_SystSep = 'sr2'
+                      regionName_Decorr = 'sr2'
                     elif 'sr3' in region or 'cr3' in region:
-                      regionName_SystSep = 'sr3'
+                      regionName_Decorr = 'sr3'
                     else:
-                      print "[!!ERROR!!] Region name",region,"does NOT match with --SystSep argument !!"
+                      print "[!!ERROR!!] Region name",region,"does NOT match with --Decorr argument !!"
                       print "[!!ERROR!!] Exiting ..."
                       sys.exit()
 
-                    SystSepList = ["CFRate","CFSF","FR","AJ","LID","PSF"]
+                    DecorrList = ["CFRate","CFSF","FR","AJ","LID","PSF"]
                     this_syst_source = this_syst.replace('Up','').replace('Down','')
-                    if this_syst_source in SystSepList: # if this is Fake of CF syst source
-                      this_syst_nameSep = this_syst_source+"_"+regionName_SystSep+this_syst.replace(this_syst_source,'') # AJ_sr1Up
+                    if this_syst_source in DecorrList: # if this is Fake of CF syst source
+                      this_syst_nameSep = this_syst_source+"_"+regionName_Decorr+this_syst.replace(this_syst_source,'') # AJ_sr1Up
                       name_syst = input_list[i][2]+"_"+this_syst_nameSep
 
                   f_syst = TFile.Open(input_list[i][0]) # Get each process's file

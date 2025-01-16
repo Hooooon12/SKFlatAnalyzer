@@ -22,10 +22,10 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
   //TString WP_nom = "PR48_rateParam_HNL_ULID"; // nominal working point
   //TString WP_nom = "PR86_HNL_ULID_Decorr"; // nominal working point
-  TString WP_nom = "PR97_HNL_ULIDv2_NoCR"; // nominal working point
+  TString WP_nom = "PR97_HNL_ULIDv2_NoCR_NoSyst"; // nominal working point
   //TString tag_nom = "_syst"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
-  TString tag_nom = "_sronly_sr123"; // nominal tag
+  TString tag_nom = "_sronly_sr123_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
 
@@ -106,9 +106,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
       //if(IsXsecLimit){
 
-      //  this_DYxsec = GetDYxsec(this_mass);
-      //  this_DYxsec = GetVBFxsec(this_mass);
-      //  this_DYxsec = GetSSWWxsec(this_mass);
+      //  this_DYxsec = GetDYxsec(this_mass, channel);
+      //  this_VBFxsec = GetVBFxsec(this_mass, channel);
+      //  this_SSWWxsec = GetSSWWxsec(this_mass, channel);
       //  obs[dummyint]          *= scale;
       //  limit[dummyint]        *= scale;
       //  onesig_left[dummyint]  *= scale;
@@ -191,8 +191,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
 
   //=== EXO-17-028 overlay
-  const int nm_17028 = 20;
+  const int nm_17028 = 22;
   double mass_17028[nm_17028] = {
+    85, 90,
     100, 125, 150,200,
     250, 300, 400, 500,
     600, 700, 800, 900,
@@ -203,7 +204,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   double obs_17028[nm_17028], exp_17028[nm_17028];
   vector<double> tempvec_obs_17028, tempvec_exp_17028;
   vector<double> scales_17028;
-  if(channel=="MuMu"){
+  if(channel=="MuMu"){ // https://github.com/jedori0228/HiggsAnalysis-CombinedLimit/blob/2016Data_HNDilepton_Limit/data/2016_HNDiLepton/Outputs_Tool/MuMu_Combined/result_VBF.txt
     //tempvec_exp_17028 = {
     //  175.333, 21.5041, 32.925, 56.3397,
     //  70.8081, 99.3095, 20.4264, 42.5126,
@@ -212,6 +213,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //  247.709, 340.424, 1340.34
     //}; // these are the DYTypeI results
     tempvec_exp_17028 = {
+      357.479, 279.381,
       175.333, 21.5041, 32.925, 56.3397,
       70.8081, 95.0624, 18.8665, 38.4947,
       42.8618, 74.4406, 8.4652, 12.594,
@@ -219,6 +221,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       61.6472, 74.073,  135.185, 304.058
     }; // DY+VBF TypeI results
     scales_17028 = {
+      0.001, 0.001,
       0.001, 0.01, 0.01,0.01,
       0.01,0.01,0.1, 0.1,
       0.1,0.1,1,1,
@@ -233,6 +236,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //  365.037, 516.2, 1408.5
     //}; // these are the DYTypeI results
     tempvec_obs_17028 = {
+      415.315, 291.969,
       215.218, 23.0424, 41.8101, 49.4399,
       57.1134, 81.2452, 36.7668, 40.1455,
       56.0452, 122.926, 8.8852,  21.2021,
@@ -249,7 +253,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //  72.0759, 117.305, 183.214, 285.811,
     //  434.08, 644.258, 2506.94
     //}; // these are the DYTypeI only results;
-    tempvec_exp_17028 = {
+    tempvec_exp_17028 = { // https://github.com/jedori0228/HiggsAnalysis-CombinedLimit/blob/2016Data_HNDilepton_Limit/data/2016_HNDiLepton/Outputs_Tool/ElEl_Combined/result_VBF.txt
+      1015.18, 1030.84,
       467.448, 65.4099, 90.4068, 159.838,
       216.957, 268.406, 53.8654, 78.1765, 
       76.2341, 118.242, 17.2123, 24.2464,
@@ -257,6 +262,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       115.964, 147.772, 279.822, 632.318
     }; // DY+VBF TypeI results;
     scales_17028 = {
+      0.001, 0.001,
       0.001, 0.01, 0.01,0.01,0.01,0.01,0.1, 0.1,0.1,0.1,1,1,1,1,1,1,1,1,1,1
     };
     //tempvec_obs_17028 = {
@@ -267,6 +273,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //  419.316, 631.767, 2486.31
     //}; // these are the DYTypeI only results;
     tempvec_obs_17028 = {
+      1058.35, 937.444,
       368.924, 63.3389, 61.9159, 151.2,
       206.654, 235.791, 63.261,  79.9909, 
       91.403,  174.955, 14.6124, 23.4109,
@@ -274,9 +281,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       112.79,  143.465, 276.02,  626.971
     }; // DY+VBF TypeI results
   }
-  else   if(channel=="EMu"){
-    //https://github.com/jedori0228/HiggsAnalysis-CombinedLimit/blob/2016Data_HNDilepton_Limit/data/2016_HNDiLepton/Outputs_Tool/ElEl_Combined/result.txt
+  else   if(channel=="EMu"){ // https://github.com/jedori0228/HiggsAnalysis-CombinedLimit/blob/2016Data_HNDilepton_Limit/data/2016_HNDiLepton/Outputs_Tool/MuEl_Combined/result_VBF.txt
     tempvec_exp_17028 = {
+      913.101, 614.114,
       410.683, 55.9408, 82.975,  136.932,
       178.214, 218.714, 39.6317, 46.813, 
       88.4598, 123.904, 14.4261, 17.8333,
@@ -284,9 +291,11 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       82.8097, 124.842, 257.358, 512.365
     }; // DY+VBF
     scales_17028 = {
+      0.001, 0.001,
       0.001, 0.01, 0.01,0.01,0.01,0.01,0.1, 0.1,0.1,0.1,1,1,1,1,1,1,1,1,1,1
     };
     tempvec_obs_17028 = {
+      742.394, 368.479,
       290.008, 33.6466, 62.3902, 187.344,
       168.976, 257.416, 51.8467, 45.2587, 
       90.0862, 134.809, 22.2963, 18.1025,
@@ -868,7 +877,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   TLegend *lg_Alt = new TLegend(0.65, 0.15, 0.93, 0.48);
   lg_Alt->SetBorderSize(0);
   lg_Alt->SetFillStyle(0);
-  //lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l");
+  lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l");
   if(channel=="MuMu"){
     //lg_Alt->AddEntry(gr_DELPHILimit, "DELPHI prompt", "l");
     //lg_Alt->AddEntry(gr_L3Limit, "L3", "l");
@@ -950,19 +959,29 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
   TH1D *dummy = new TH1D("hist", "", 100000, 0., 100000.);
   hist_axis(dummy);
-  dummy->GetYaxis()->SetTitleSize(0.06);
-  dummy->GetYaxis()->SetLabelSize(0.05);
+  if(CompareLimits){
+    dummy->GetYaxis()->SetTitleSize(0.06);
+    dummy->GetYaxis()->SetLabelSize(0.05);
+  }
+  else{
+    dummy->GetYaxis()->SetTitleSize(0.05);
+    dummy->GetYaxis()->SetLabelSize(0.04);
+  }
   if(channel=="EE") dummy->GetYaxis()->SetTitle("#||{V_{eN}}^{2}");
   if(channel=="MuMu") dummy->GetYaxis()->SetTitle("#||{V_{#muN}}^{2}");
   if(channel=="EMu"){
     dummy->GetYaxis()->SetTitle("#scale[0.8]{#frac{#||{ V_{eN}V_{#muN}^{*}}^{2}}{#||{ V_{eN} }^{2} + #||{ V_{#muN} }^{2}}}");
     dummy->GetYaxis()->SetTitleOffset(1.6);
-    dummy->GetYaxis()->SetTitleSize(0.04);
     dummy->GetYaxis()->SetLabelSize(0.04);
+    if(!CompareLimits){
+      dummy->GetYaxis()->SetTitleSize(0.04);
+      dummy->GetYaxis()->SetLabelSize(0.03);
+    }
   }
   dummy->GetXaxis()->SetTitle("m_{N} (GeV)");
   if(CompareLimits) dummy->GetXaxis()->SetLabelSize(0);
-  dummy->GetXaxis()->SetRangeUser(80., 25000); //FIXME
+  if(channel=="EMu") dummy->GetXaxis()->SetRangeUser(80., 60000); //FIXME
+  else dummy->GetXaxis()->SetRangeUser(80., 30000); //FIXME
   dummy->GetYaxis()->SetRangeUser(5e-5, 1.); //FIXME
   dummy->SetTitle("");
   dummy->Draw("hist");
@@ -971,7 +990,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   gr_band_2sigma_0->Draw("3same");
   gr_band_1sigma_0->Draw("3same");
   gr_exp_0->Draw("lsame");
-  //gr_17028_exp->Draw("lsame");
+  gr_17028_exp->Draw("lsame");
   //gr_17028_obs->Draw("lsame");
   //gr_8and13TeV_obs->Draw("lsame");
   if(channel=="MuMu"){
@@ -1034,8 +1053,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   }
   else{
     latex_CMSPreliminary.DrawLatex(0.16, 0.96, "#scale[0.8]{CMS #bf{#it{Preliminary}}}");
-    if(year.Contains("Run2")) latex_Lumi.DrawLatex(0.69, 0.96, lumi+" fb^{-1} (13 TeV)"); // Run2
-		else latex_Lumi.DrawLatex(0.736, 0.96, lumi+" fb^{-1} (13 TeV)");
+    if(year.Contains("Run2")||tag_nom.Contains("Run2")) latex_Lumi.DrawLatex(0.69, 0.96, lumi+" fb^{-1} (13 TeV)"); // Run2
+    else latex_Lumi.DrawLatex(0.736, 0.96, lumi+" fb^{-1} (13 TeV)");
     latex_title.DrawLatex(0.25, 0.84, "#font[41]{95% CL upper limit}");
     latex_title.SetTextSize(0.05);
     latex_title.DrawLatex(0.25, 0.88, "#font[62]{CMS}");
@@ -1232,46 +1251,116 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   return;
 }
 
-double GetDYxsec(int mass){
+double GetDYxsec(int mass){ // /data9/Users/jihkim_public/Type1/Type1_xsecs/DYTypeI_NLO_XsecEE_BRmultiplied_SS.txt * 10000 (scale to V=1); xsec in pb
 
-  if(mass==85) return 43.62;
-  if(mass==90) return 41.725;
-  if(mass==95) return 36.515;
-  if(mass==100) return 29.265;
-  if(mass==150) return 20.67;
-  if(mass==200) return 11.635;
-  if(mass==300) return 7.475;
-  if(mass==400) return 3.917;
-  if(mass==500) return 1.4315;
+  double this_xsec;
+  if(mass==15)    this_xsec = 10000*0.4644284577;
+  if(mass==20)    this_xsec = 10000*0.4451020715;
+  if(mass==30)    this_xsec = 10000*0.3878409444;
+  if(mass==40)    this_xsec = 10000*0.3106031805;
+  if(mass==50)    this_xsec = 10000*0.21907503667;
+  if(mass==60)    this_xsec = 10000*0.12336928471;
+  if(mass==70)    this_xsec = 10000*0.0420040158;
+  if(mass==75)    this_xsec = 10000*0.01526706468;
+  if(mass==85)    this_xsec = 10000*0.0024159997584;
+  if(mass==90)    this_xsec = 10000*0.001643333169;
+  if(mass==95)    this_xsec = 10000*0.00116134864166;
+  if(mass==100)   this_xsec = 10000*0.000826350052365;
+  if(mass==125)   this_xsec = 10000*0.000259371513063;
+  if(mass==150)   this_xsec = 10000*0.000116597780507;
+  if(mass==200)   this_xsec = 10000*3.57786272755e-05;
+  if(mass==250)   this_xsec = 10000*1.49950878991e-05;
+  if(mass==300)   this_xsec = 10000*7.43681976965e-06;
+  if(mass==400)   this_xsec = 10000*2.45309287603e-06;
+  if(mass==500)   this_xsec = 10000*1.01479289272e-06;
+  if(mass==600)   this_xsec = 10000*4.83348624065e-07;
+  if(mass==700)   this_xsec = 10000*2.52158749717e-07;
+  if(mass==800)   this_xsec = 10000*1.40763360024e-07;
+  if(mass==900)   this_xsec = 10000*8.25462040455e-08;
+  if(mass==1000)  this_xsec = 10000*5.04281513305e-08;
+  if(mass==1100)  this_xsec = 10000*3.16719142728e-08;
+  if(mass==1200)  this_xsec = 10000*2.04280405905e-08;
+  if(mass==1300)  this_xsec = 10000*1.34709703562e-08;
+  if(mass==1400)  this_xsec = 10000*9.0345813159e-09;
+  if(mass==1500)  this_xsec = 10000*6.153183296e-09;
+  if(mass==1600)  this_xsec = 10000*4.25307743069e-09;
+  if(mass==1700)  this_xsec = 10000*2.96975882769e-09;
+  if(mass==1800)  this_xsec = 10000*2.09509353849e-09;
+  if(mass==1900)  this_xsec = 10000*1.49392749967e-09;
+  if(mass==2000)  this_xsec = 10000*1.07244692035e-09;
+  if(mass==2500)  this_xsec = 10000*2.2953977199999996e-10;
+  if(mass==3000)  this_xsec = 10000*5.7583824586666664e-11;
+
+  if(channel=="EE"||channel=="MuMu") return this_xsec;
+  else if(channel=="EMu") return this_xsec*2;
 
 }
 
-double GetVBFxsec(int mass){
+double GetVBFxsec(int mass){ // /data6/Users/jihkim/SKFlatAnalyzer/data/Run2UltraLegacy_v3/2018/Sample/CommonSampleInfo/VBFTypeI_DF_M400_private.txt divided by 8; /data9/Users/jihkim_public/Type1/Type1_xsecs/VBFTypeI_NLO_XsecEE_BRmultiplied_SS.txt * 10000; xsec in pb
 
-  if(mass==300) return 43.62;
-  if(mass==400) return 41.725;
-  if(mass==500) return 36.515;
-  if(mass==600) return 29.265;
-  if(mass==700) return 20.67;
-  if(mass==800) return 11.635;
-  if(mass==900) return 7.475;
-  if(mass==1000) return 3.917;
-  if(mass==1100) return 1.4315;
+  double this_xsec;
+  if(mass==300)   this_xsec = 0.0089875;
+  if(mass==400)   this_xsec = 0.006085;
+  if(mass==500)   this_xsec = 10000*2.91733616626e-07;
+  if(mass==600)   this_xsec = 10000*2.07271062539e-07;
+  if(mass==700)   this_xsec = 10000*1.51244445515e-07;
+  if(mass==800)   this_xsec = 10000*1.13025739998e-07;
+  if(mass==900)   this_xsec = 10000*8.5171526743e-08;
+  if(mass==1000)  this_xsec = 10000*6.5193755934e-08;
+  if(mass==1100)  this_xsec = 10000*5.06951932905e-08;
+  if(mass==1200)  this_xsec = 10000*3.93646163636e-08;
+  if(mass==1300)  this_xsec = 10000*3.09606267106e-08;
+  if(mass==1400)  this_xsec = 10000*2.44815567052e-08;
+  if(mass==1500)  this_xsec = 10000*1.95349771398e-08;
+  if(mass==1600)  this_xsec = 10000*1.55611811025e-08;
+  if(mass==1700)  this_xsec = 10000*1.24673049266e-08;
+  if(mass==1800)  this_xsec = 10000*1.00778343095e-08;
+  if(mass==1900)  this_xsec = 10000*8.12941093575e-09;
+  if(mass==2000)  this_xsec = 10000*6.59633344035e-09;
+  if(mass==2500)  this_xsec = 10000*2.36798936e-09;
+  if(mass==3000)  this_xsec = 10000*8.757678999999999e-10;
+
+  if(channel=="EE"||channel=="MuMu") return this_xsec;
+  else if(channel=="EMu") return this_xsec*2;
 
 }
 
-double GetSSWWxsec(int mass){
+double GetSSWWxsec(int mass, TString channel){ // /data9/Users/jihkim_public/Type1/Type1_xsecs/SSWWTypeI_NLO_Xsec_EMu.txt; xsec in pb
 
-  if(mass==15) return 43.62;
-  if(mass==20) return 41.725;
-  if(mass==30) return 36.515;
-  if(mass==40) return 29.265;
-  if(mass==50) return 20.67;
-  if(mass==60) return 11.635;
-  if(mass==65) return 7.475;
-  if(mass==70) return 3.917;
-  if(mass==75) return 1.4315;
+  double this_xsec;
+  if(mass==500)     this_xsec = 0.03605;
+  if(mass==600)     this_xsec = 0.03391;
+  if(mass==700)     this_xsec = 0.03193;
+  if(mass==750)     this_xsec = 0.03084;
+  if(mass==800)     this_xsec = 0.02989;
+  if(mass==900)     this_xsec = 0.02791;
+  if(mass==1000)    this_xsec = 0.02587;
+  if(mass==1100)    this_xsec = 0.02398;
+  if(mass==1200)    this_xsec = 0.02239;
+  if(mass==1250)    this_xsec = 0.02151;
+  if(mass==1300)    this_xsec = 0.02087;
+  if(mass==1500)    this_xsec = 0.01811;
+  if(mass==1700)    this_xsec = 0.01591;
+  if(mass==1750)    this_xsec = 0.01524;
+  if(mass==2000)    this_xsec = 0.01306;
+  if(mass==2500)    this_xsec = 0.009716;
+  if(mass==3000)    this_xsec = 0.00745;
+  if(mass==5000)    this_xsec = 0.003251;
+  if(mass==7500)    this_xsec = 0.00156;
+  if(mass==10000)   this_xsec = 0.000914;
+  if(mass==15000)   this_xsec = 0.0004146;
+  if(mass==20000)   this_xsec = 0.0002345;
+  if(mass==25000)   this_xsec = 0.000152;
+  if(mass==30000)   this_xsec = 0.0001051;
+  if(mass==40000)   this_xsec = 5.897e-05;
+  if(mass==50000)   this_xsec = 3.788e-05;
+  if(mass==60000)   this_xsec = 2.613e-05;
+  if(mass==70000)   this_xsec = 1.938e-05;
+  if(mass==80000)   this_xsec = 1.485e-05;
+  if(mass==90000)   this_xsec = 1.168e-05;
+  if(mass==100000)  this_xsec = 9.495e-06;
+
+  if(channel=="EE"||channel=="MuMu") return this_xsec/2.;
+  else if(channel=="EMu") return this_xsec;
 
 }
-
-
