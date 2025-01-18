@@ -43,8 +43,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   if(RunHighPtID) LepIDs = {"HNL_ULID","HighPt"};
   if(RunPekingID) LepIDs = {"Peking"};
 
-
-  //  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULID","POGTight","TopHN","HNTightV2","MVAPOG"};//,"HNTightV2","POGTight","TopHN","HighPt"};                                
+  //  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULID","POGTight","TopHN","HNTightV2","MVAPOG"};//,"HNTightV2","POGTight","TopHN","HighPt"};                               
 
   vector<HNL_LeptonCore::Channel> ChannelsToRun = {};
   if(RunEE)   ChannelsToRun.push_back(EE);
@@ -75,8 +74,6 @@ void HNL_ControlRegion_Plotter::executeEvent(){
       if(channel == EMu) param_signal.CFMethod   = "MC";
 
       param_signal.PlottingVerbose = 0;
-      if(id == "HNL_ULIDv2")      param_signal.PlottingVerbose = 1;
-      if(id.Contains("HEEP"))     param_signal.PlottingVerbose = 1;
 
       for(auto iCR : CRToRun) {
         RunControlRegions(param_signal , {iCR} );
@@ -130,8 +127,6 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param, vecto
   //std::vector<Electron>   ElectronTightColl  =  GetLepCollByRunType    (ElectronTightCollInit,param);
 
 
-  Particle METv = GetvMET("PuppiT1xyULCorr",param); // returns MET with systematic correction                                                                      
-
   std::vector<FatJet> AK8_JetColl                 = GetHNLAK8Jets(param.AK8JetColl,param);
   std::vector<Jet>    AK4_JetColl                 = GetHNLJets(param.AK4JetColl,     param);
   std::vector<Jet>    AK4_VBF_JetColl             = GetHNLJets(param.AK4VBFJetColl,  param);
@@ -141,21 +136,10 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param, vecto
   
   EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
 
+  Particle METv = GetvMET("PuppiT1xyULCorr", param, AK4_VBF_JetColl, AK8_JetColl, MuonTightColl,ElectronTightColl);
+
   if(CRs.size() == 0) return;
   
-
-  if(_jentry < 2 ){
-    if(RunFake){
-      cout << "Running Fakes: Initial check for process name " + param.Name << endl;
-      cout << "Muon ID = " << param.Muon_Tight_ID  << " run ID  = " << Muon_ID << endl;
-      for(auto ilep : MuonTightColl)cout << "Muon isT=" << ilep.PassID(param.Muon_Tight_ID) << endl;
-      
-      cout << "Electron ID = " << param.Electron_Tight_ID  << " run ID  = " << Electron_ID << endl;
-      for(auto ilep : ElectronTightColl)cout << "Electron isT=" << ilep.PassID(param.Electron_Tight_ID) << endl;
-    }
-  }
-
-
   vector<int> RunEl ;
   if(RunCF) RunEl =  {0,1} ;
   else RunEl = {-1};

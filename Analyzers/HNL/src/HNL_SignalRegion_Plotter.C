@@ -111,6 +111,10 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
   std::vector<Muon>       MuonTightColl_Init     = SelectMuons    ( param,mu_ID,     Min_FakeMuon_Pt,     2.4,weight);
   std::vector<Electron>   ElectronTightColl_Init = SelectElectrons( param,el_ID, Min_FakeElectron_Pt, 2.5,weight);
 
+  if(HasFlag("CompareTuneP")){
+    MuonTightColl_Init = GetHighPtMuons("TuneP_POG",mu_ID, Min_FakeMuon_Pt,     2.4);
+  }
+
   //// Apply Full Pt cut after pt corrected in fakes                                                                            
   double Min_Muon_Pt     =  10.;
   double Min_Electron_Pt =  15;

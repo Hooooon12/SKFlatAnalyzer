@@ -45,6 +45,23 @@ fi
 
 
 
+
+if [[ $1 == "TunePSIG" ]]; then
+
+    declare  -a era_list=("2018")
+    for i in "${era_list[@]}"
+    do
+        SKFlat.py -a $analyzer  -l $sigpath/Private/HM_SSWW.txt  -n $njobs_sig  --nmax ${nmax}  -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  CompareTuneP &
+        SKFlat.py -a $analyzer  -l $sigpath/Private/HM_DY.txt    -n $njobs_sig  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags  CompareTuneP & 
+        SKFlat.py -a $analyzer  -l $sigpath/Private/HM_VBF.txt   -n $njobs_sig  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags  CompareTuneP & 
+	SKFlat.py -a $analyzer  -l $sigpath/Private/HM_SSWW.txt  -n $njobs_sig  --nmax ${nmax}  -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  NoTuneP &
+        SKFlat.py -a $analyzer  -l $sigpath/Private/HM_DY.txt    -n $njobs_sig  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags  NoTuneP &
+        SKFlat.py -a $analyzer  -l $sigpath/Private/HM_VBF.txt   -n $njobs_sig  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT --userflags  NoTuneP &
+
+    done
+fi
+
+
 if [[ $1 == "SIG" ]]; then
 
     declare  -a era_list=("2018")

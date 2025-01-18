@@ -184,24 +184,27 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
 
   TString TheoryPath = "/data9/Users/jalmond_public/PDFSyst/"+GetEra()+"/Theory/GetEffLumi_SkimTree_HNMultiLepBDT_"+MCSample+".root";
   std::ifstream infile(TheoryPath);
-  if(MCSample.Contains("Type")){
-    if(infile.good()){
-      
-      TDirectory* origDir = gDirectory;
-      cout << "Acessing file " << TheoryPath << endl;
-      TFile* GenNormFile= new TFile(TheoryPath );
-      TheoryDir->cd();
-      h_SumW_PDF = ((TH1D*) GenNormFile->Get("sumW_PDF")->Clone());
-      h_SumW_Scale = ((TH1D*) GenNormFile->Get("sumW_Scale")->Clone());
-      h_SumW_AlphaS = ((TH1D*) GenNormFile->Get("sumW_AlphaS")->Clone());    
-      
-      GenNormFile->Close();
+  
+  if(HasFlag("RunSyst")){
+    if(MCSample.Contains("Type")){
+      if(infile.good()){
+	
+	TDirectory* origDir = gDirectory;
+	cout << "Acessing file " << TheoryPath << endl;
+	TFile* GenNormFile= new TFile(TheoryPath );
+	TheoryDir->cd();
+	h_SumW_PDF = ((TH1D*) GenNormFile->Get("sumW_PDF")->Clone());
+	h_SumW_Scale = ((TH1D*) GenNormFile->Get("sumW_Scale")->Clone());
+	h_SumW_AlphaS = ((TH1D*) GenNormFile->Get("sumW_AlphaS")->Clone());    
+	
+	GenNormFile->Close();
       delete GenNormFile;
       origDir->cd();
-    }
-    else {
-      cout << "[HNL_LeptonCore::AccessPathName ] Theory file " << TheoryPath << " not found.." << endl;
-      exit(EXIT_FAILURE);
+      }
+      else {
+	cout << "[HNL_LeptonCore::AccessPathName ] Theory file " << TheoryPath << " not found.." << endl;
+	exit(EXIT_FAILURE);
+      }
     }
   }
 
@@ -389,7 +392,9 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
   if(HasFlag("NoSyst")) return SystList;
 
   if(SystType=="Theory"){
-    SystList.push_back(AnalyzerParameter::PDF);
+    SystList.push_back(AnalyzerParameter::PDFUp);
+    SystList.push_back(AnalyzerParameter::PDFDown);
+    //SystList.push_back(AnalyzerParameter::PDF);
     SystList.push_back(AnalyzerParameter::ScaleUp);
     SystList.push_back(AnalyzerParameter::ScaleDown);
     return SystList;
@@ -477,7 +482,9 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
   }
   
   if(MCSample.Contains("Type")){
-    SystList.push_back(AnalyzerParameter::PDF);
+    //    SystList.push_back(AnalyzerParameter::PDF);
+    SystList.push_back(AnalyzerParameter::PDFUp);
+    SystList.push_back(AnalyzerParameter::PDFDown);
     SystList.push_back(AnalyzerParameter::ScaleUp);
     SystList.push_back(AnalyzerParameter::ScaleDown);
   }
@@ -967,12 +974,13 @@ HNL_LeptonCore::~HNL_LeptonCore(){
  
   delete rand_;
   
-  if(MCSample.Contains("Type")){
-    if(h_SumW_PDF) delete h_SumW_PDF;
-    if(h_SumW_Scale) delete h_SumW_Scale;
-    if(h_SumW_AlphaS) delete h_SumW_AlphaS;
+  if(HasFlag("RunSyst")){
+    if(MCSample.Contains("Type")){
+      if(h_SumW_PDF) delete h_SumW_PDF;
+      if(h_SumW_Scale) delete h_SumW_Scale;
+      if(h_SumW_AlphaS) delete h_SumW_AlphaS;
+    }
   }
-
   DeleteZptWeight();
 
 }

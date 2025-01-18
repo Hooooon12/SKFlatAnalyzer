@@ -25,15 +25,18 @@ void HNL_HighPtMuon_Studies::executeEvent(){
   //// v2) rochester corr for pt < 200 ; GE corrected for pt > 200
   ////
 
-  std::vector<Muon>       Muons_HNL_v1     = GetHighPtMuons("PF_Nom",param.Muon_Tight_ID,     10.,  2.4);
+  std::vector<Muon>       Muons_HNL_v1     = GetHighPtMuons("PF_Nom", param.Muon_Tight_ID,     10.,  2.4);
   std::vector<Muon>       Muons_HNL_v2     = GetHighPtMuons("PF_Roch",param.Muon_Tight_ID,    10.,  2.4);
-  std::vector<Muon>       Muons_HNL_v3     = GetHighPtMuons("PF_GE",param.Muon_Tight_ID,      10.,  2.4);
-  std::vector<Muon>       Muons_HNL_v4     = GetHighPtMuons("PF_POG",param.Muon_Tight_ID,     10.,  2.4);
+  std::vector<Muon>       Muons_HNL_v3     = GetHighPtMuons("PF_GE",  param.Muon_Tight_ID,      10.,  2.4);
+  std::vector<Muon>       Muons_HNL_v4     = GetHighPtMuons("PF_POG", param.Muon_Tight_ID,     10.,  2.4);
   
   std::vector<Muon>       Muons_HNL_v5     = GetHighPtMuons("TuneP_Nom",param.Muon_Tight_ID,     10.,  2.4);
   std::vector<Muon>       Muons_HNL_v6     = GetHighPtMuons("TuneP_Roch",param.Muon_Tight_ID,    10.,  2.4);
   std::vector<Muon>       Muons_HNL_v7     = GetHighPtMuons("TuneP_GE",param.Muon_Tight_ID,      10.,  2.4);
   std::vector<Muon>       Muons_HNL_v8     = GetHighPtMuons("TuneP_POG",param.Muon_Tight_ID,     10.,  2.4);
+
+  std::vector<Muon> Muons_HNL_Tune_GEUp = ScaleMuons(Muons_HNL_v7,1);
+  std::vector<Muon> Muons_HNL_Tune_GEDown = ScaleMuons(Muons_HNL_v7,-1);
 
   std::vector<Muon>       Muons_HPT_v1     = GetHighPtMuons("PF_Nom","POGHighPtTightWithIP",     10.,  2.4);
   std::vector<Muon>       Muons_HPT_v2     = GetHighPtMuons("PF_Roch","POGHighPtTightWithIP",    10.,  2.4);
@@ -95,6 +98,9 @@ void HNL_HighPtMuon_Studies::executeEvent(){
   DrawMuonPlotsHighPt(Muons_HPT_v7, ev,"Muon_HighPt_v7", Electrons,param);
   DrawMuonPlotsHighPt(Muons_HPT_v8, ev,"Muon_HighPt_v8", Electrons,param);
 
+  DrawMuonPlotsHighPt(Muons_HNL_Tune_GEUp, ev, "Muon_HighPt_Tune_GEUp",Electrons,param);
+  DrawMuonPlotsHighPt(Muons_HNL_Tune_GEDown, ev, "Muon_HighPt_Tune_GEDown",Electrons,param);
+
   DrawMuonPlotsHighPt(Muons_HNL_C1, ev,"Muon_ULID_Nm1_C1",   Electrons,param);
   DrawMuonPlotsHighPt(Muons_HNL_C2, ev,"Muon_ULID_Nm1_C2",   Electrons,param);
   DrawMuonPlotsHighPt(Muons_HNL_C3, ev,"Muon_ULID_Nm1_C3",   Electrons,param);
@@ -120,20 +126,21 @@ void HNL_HighPtMuon_Studies::executeEvent(){
   Particle LL_TuneP;
   bool MisMatch=false;
   double R=0;
+  double MisMatchedPt=0;
   for(unsigned int imu = 0; imu < Muons_HNL_v1.size(); imu++){
     if(Muons_HNL_v1[imu].PassID(param.Muon_Tight_ID)){
       LL=LL+Muons_HNL_v1[imu];
       LL_TuneP=LL_TuneP+Muons_HNL_v1[imu].TuneP4();
 
       FillHist("Inclusive_DiLep_N", ((Muons_HNL_v1[imu].TuneP4().Pt()-Muons_HNL_v1[imu].Pt())/ Muons_HNL_v1[imu].TuneP4().Pt()) ,  1, 200, -1, 1 );
-      
       if(ComparePtTune(Muons_HNL_v1[imu], 0.3)) {
-	cout << " " << endl;
-	cout << "Event " << event << " lumi = " << lumi << " run number = " << run <<  endl;
-	cout << "Muon pt mismatch pt = " << Muons_HNL_v1[imu].Pt() << " tune pt = "  << Muons_HNL_v1[imu].TuneP4().Pt() << " ratio = " <<  Muons_HNL_v1[imu].TuneP4().Pt()/ Muons_HNL_v1[imu].Pt()  << endl;
-	cout << "Muon Eta = " << Muons_HNL_v1[imu].Eta() << "   Muon Phi = " << Muons_HNL_v1[imu].Phi() <<  " charge = " << Muons_HNL_v1[imu].Charge() << endl;
+	//cout << " " << endl;
+	//cout << "Event " << event << " lumi = " << lumi << " run number = " << run <<  endl;
+	//cout << "Muon pt mismatch pt = " << Muons_HNL_v1[imu].Pt() << " tune pt = "  << Muons_HNL_v1[imu].TuneP4().Pt() << " ratio = " <<  Muons_HNL_v1[imu].TuneP4().Pt()/ Muons_HNL_v1[imu].Pt()  << endl;
+	//cout << "Muon Eta = " << Muons_HNL_v1[imu].Eta() << "   Muon Phi = " << Muons_HNL_v1[imu].Phi() <<  " charge = " << Muons_HNL_v1[imu].Charge() << endl;
 	if(!MisMatch) {
 	  R= (Muons_HNL_v1[imu].TuneP4().Pt()-Muons_HNL_v1[imu].Pt())/ Muons_HNL_v1[imu].TuneP4().Pt();
+	  MisMatchedPt=Muons_HNL_v1[imu].Pt();
 	} 
 	MisMatch=true;
       }
@@ -143,34 +150,54 @@ void HNL_HighPtMuon_Studies::executeEvent(){
   if(Muons_HNL_v1.size() != 2) return;
   Particle LL2 = Muons_HNL_v1[0] + Muons_HNL_v1[1];
   if(LL2.M() < 20) return;
+  if(MET2ST > 10)  return;
+  if(Muons_HNL_v1.at(1).Pt()  < 20) return;
+
+
+  int nPtbins=12;
+  double Pt1bins[nPtbins+1] = { 20.,25., 30., 40., 50., 70., 100.,  150.,  200.,400.,600,1000,2000};
 
   if(MisMatch){
     
     if(SameCharge(LepsT)) {
-      FillHist("Mismatched_SS_N", R ,  1, 200, -1, 1 );
-      if(MET2ST < 10) {
-	FillHist("Mismatched_SS_MET_N", R ,  1, 200, -1, 1 );
-	if(AK8_JetColl.size() > 0)         FillHist("Mismatched_SS_SR1_N", R ,  1, 200, -1, 1 );
-	else if(PassVBF(AK4_VBF_JetColl,LepsT,750))  FillHist("Mismatched_SS_SR2_N", R ,  1, 200, -1, 1 );
-	else  FillHist("Mismatched_SS_SR3_N", R ,  1, 200, -1, 1 );
-      }
-      
+
+      FillHist("Mismatched_SS_N",    R ,  1, 200, -1, 1 );
+      FillHist("Mismatched_SS_R_Pt", MisMatchedPt,R ,  1,  nPtbins, Pt1bins, 200, -1, 1 );
+
+      if(AK8_JetColl.size() > 0)         FillHist("Mismatched_SS_SR1_N", R ,  1, 200, -1, 1 );
+      else if(PassVBF(AK4_VBF_JetColl,LepsT,750))  FillHist("Mismatched_SS_SR2_N", R ,  1, 200, -1, 1 );
+      else  FillHist("Mismatched_SS_SR3_N", R ,  1, 200, -1, 1 );
     }
     else {
       FillHist("Mismatched_OS_N", R ,  1, 200, -1, 1 );
-      if(MET2ST < 10) {
-	FillHist("Mismatched_OS_MET_N", R ,  1, 200, -1, 1 );
-	if(AK8_JetColl.size() > 0)         FillHist("Mismatched_OS_SR1_N", R ,  1, 200, -1, 1 );
-        else if(PassVBF(AK4_VBF_JetColl,LepsT,750))  FillHist("Mismatched_OS_SR2_N", R ,  1, 200, -1, 1 );
-	else if(AK4_JetColl.size() < 2 && LepsT[0]->Pt() > 200) FillHist("Mismatched_OS_SR3_N", R ,  1, 200, -1, 1 );
-	else if(AK4_JetColl.size() > 1)  FillHist("Mismatched_OS_SR3_N", R ,  1, 200, -1, 1 );
+      if(AK8_JetColl.size() > 0)         FillHist("Mismatched_OS_SR1_N", R ,  1, 200, -1, 1 );
+      else if(PassVBF(AK4_VBF_JetColl,LepsT,750))  FillHist("Mismatched_OS_SR2_N", R ,  1, 200, -1, 1 );
+      else if(AK4_JetColl.size() < 2 && LepsT[0]->Pt() > 200) FillHist("Mismatched_OS_SR3_N", R ,  1, 200, -1, 1 );
+      else if(AK4_JetColl.size() > 1)  FillHist("Mismatched_OS_SR3_N", R ,  1, 200, -1, 1 );
+    }
+  }
+  
+  if(SameCharge(LepsT)) {
+    
+    for(unsigned int imu = 0; imu < Muons_HNL_v1.size(); imu++){
+      if(Muons_HNL_v1[imu].PassID(param.Muon_Tight_ID)){
+	FillHist("SS_AllR_N", ((Muons_HNL_v1[imu].TuneP4().Pt()-Muons_HNL_v1[imu].Pt())/ Muons_HNL_v1[imu].TuneP4().Pt()) ,  1, 200, -1, 1 );
       }
-      
     }
 
+    FillHist("R_SS_N", R ,  1, 200, -1, 1 );
+    if(AK8_JetColl.size() > 0)         FillHist("R_SS_SR1_N", R ,  1, 200, -1, 1 );
+    else if(PassVBF(AK4_VBF_JetColl,LepsT,750))  FillHist("R_SS_SR2_N", R ,  1, 200, -1, 1 );
+    else  FillHist("R_SS_SR3_N", R ,  1, 200, -1, 1 );
   }
+  else {
+    FillHist("R_OS_N", R ,  1, 200, -1, 1 );
+    if(AK8_JetColl.size() > 0)         FillHist("R_OS_SR1_N", R ,  1, 200, -1, 1 );
+    else if(PassVBF(AK4_VBF_JetColl,LepsT,750))  FillHist("R_OS_SR2_N", R ,  1, 200, -1, 1 );
+    else if(AK4_JetColl.size() < 2 && LepsT[0]->Pt() > 200) FillHist("R_OS_SR3_N", R ,  1, 200, -1, 1 );
+    else if(AK4_JetColl.size() > 1)  FillHist("R_OS_SR3_N", R ,  1, 200, -1, 1 );
 
-
+  }
 
   return;
   FillTimer("END_Run");
@@ -186,9 +213,7 @@ void HNL_HighPtMuon_Studies::DrawMuonPlotsHighPt(vector<Muon> muons, Event ev,TS
 
 
   if(muons.size() == 0) return;
-
   
-
   FillHist("Inclusive/Muon1_Pt_"+label, muons[0].Pt() ,  1, 10,ptbins );
   FillHist("Inclusive/Muon1_Default_Pt_"+label, muons[0].MiniAODPt()   ,  1, 10,ptbins );
 

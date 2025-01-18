@@ -7,96 +7,156 @@ import random
 import subprocess
 
 
-samples = {
-  '2016' : [
-    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
-    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
-    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
-    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
-    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
-    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
-    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
-    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
-    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
-    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
-    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
-    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
-    
-    "SingleElectron",
-  ],
-  '2016preVFP' : [
-    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
-    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
-    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
-    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
-    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
-    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
-    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
-    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
-    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
-    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
-    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
-    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
-     "SingleElectron",
-  ],
-  '2016postVFP' : [
-    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
-    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
-    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
-    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
-    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
-    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
-    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
-    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
-    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
-    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
-    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
-    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
-    "SingleElectron",
-  ],
-  '2017' : [
+#samples = {
+#  '2016' : [
+#    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+#    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+#    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+#    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+#    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+#    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+#    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    
+#    "SingleElectron",
+#  ],
+#  '2016preVFP' : [
+#    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+#    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+#    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+#    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+#    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+#    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+#    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
+#     "SingleElectron",
+#  ],
+#  '2016postVFP' : [
+#    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+#    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+#    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+#    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+#    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+#    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+#    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    "SingleElectron",
+#  ],
+#  '2017' : [
+#    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+#    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+#    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+#    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+#    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+#    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+#    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    "SingleElectron",
+#  ],
+#  '2018' : [
+#    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
+#    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
+#    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
+#    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+#    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
+#    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
+#    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
+#    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
+#    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
+#    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
+#    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
+#    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
+#    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
+#    "EGamma",
+#  ],
+#}
+samples = {}
+sample_list = [
     "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
@@ -123,38 +183,11 @@ samples = {
     "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
     "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
     "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
-    "SingleElectron",
-  ],
-  '2018' : [
-    "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
-    "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
-    "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-    "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-    "TGJets_TuneCP5_13TeV-amcatnlo-madspin-pythia8",
-    "WZG_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWG_TuneCP5_13TeV-amcatnlo-pythia8",
-    "ZZTo4L_TuneCP5_13TeV_powheg_pythia8",
-    "WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "WZTo3LNu_mllmin4p0_TuneCP5_13TeV-powheg-pythia8",
-    "WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-    "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8",
-    "WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8",
-    "GluGluToContinToZZTo4e_TuneCP5_13TeV-mcfm701-pythia8",
-    "GluGluToContinToZZTo2e2mu_TuneCP5_13TeV-mcfm701-pythia8",
-    "GluGluToContinToZZTo2e2tau_TuneCP5_13TeV-mcfm701-pythia8",
-    "TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
-    "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-    "WpWpJJ_QCDnotop_TuneCP5_13TeV-madgraph-pythia8",
-    "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
-    "EGamma",
-  ],
-}
+  ]
+for era in ['2016', '2016preVFP', '2016postVFP', '2017', '2018']:
+  this_sample_list = sample_list[:]
+  this_sample_list.append("SingleElectron") if era is not '2018' else this_sample_list.append("EGamma")
+  samples[era] = this_sample_list
 
 types = {
   'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  : 'MC',
@@ -221,9 +254,10 @@ def CheckList(input_samples, types_sample,NJobs,Era,SkimName):
 
         if types_sample[x] == "MC":
             datedir = [f for f in listdir(path_to_files) if isdir(join(path_to_files, f))]
-            if len(datedir ) > 1:
-                exit
-            new_path_to_files = path_to_files + "/"+datedir[0]
+            datedir = sorted(datedir)
+
+            print "Use the last item of:",datedir
+            new_path_to_files = path_to_files + "/"+datedir[-1]
             infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
             NFiles[x] = len(infiles)
             #if len(infiles) < NFewestFiles:
@@ -231,16 +265,14 @@ def CheckList(input_samples, types_sample,NJobs,Era,SkimName):
             #MakeInputFiles(types_sample[x],Era,x, new_path_to_files,infiles,NJobs)
         else:
             perioddir = [f for f in listdir(path_to_files) if isdir(join(path_to_files, f))]
-            if len(perioddir ) > 1:
-                exit
 
             for period in perioddir:
                 period_path_to_files  = path_to_files + "/"+period
                 datedir = [f for f in listdir(period_path_to_files) if isdir(join(period_path_to_files, f))]
-                if len(datedir ) > 1:
-                    exit
+                datedir = sorted(datedir)
 
-                new_path_to_files = period_path_to_files + "/"+datedir[0]
+                print "Use the last item of:",datedir
+                new_path_to_files = period_path_to_files + "/"+datedir[-1]
                 infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
                 NFiles[x] = len(infiles)
                 #if len(infiles) < NFewestFiles:
@@ -263,23 +295,22 @@ def MakeInputList(input_samples, types_sample, NJobsToRun,Era,SkimName):
 
         if types_sample[x] == "MC":
             datedir = [f for f in listdir(path_to_files) if isdir(join(path_to_files, f))]
-            if len(datedir ) > 1:
-                exit
-            new_path_to_files = path_to_files + "/"+datedir[0]
+            datedir = sorted(datedir)
+
+            print "Use the last item of:",datedir
+            new_path_to_files = path_to_files + "/"+datedir[-1]
             infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
 
             MakeInputFiles(types_sample[x],Era,x, new_path_to_files,infiles,NJobsToRun[x])
         else:
             perioddir = [f for f in listdir(path_to_files) if isdir(join(path_to_files, f))]
-            if len(perioddir ) > 1:
-                exit
 
             for period in perioddir:
                 period_path_to_files  = path_to_files + "/"+period
                 datedir = [f for f in listdir(period_path_to_files) if isdir(join(period_path_to_files, f))]
-                if len(datedir ) > 1:
-                    exit
+                datedir = sorted(datedir)
 
+                print "Use the last item of:",datedir
                 new_path_to_files = period_path_to_files + "/"+datedir[0]
                 infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
                 MakeInputFiles(types_sample[x],Era,x+"_"+period, new_path_to_files,infiles,NJobsToRun[x])

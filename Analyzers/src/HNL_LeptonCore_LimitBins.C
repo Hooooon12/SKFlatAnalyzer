@@ -9,7 +9,7 @@ void HNL_LeptonCore::DefineLimitBins(){
   vector<double> sr1bins_em;
 
   //// Define CR1 binning      
-  vector<double> cr1bins = { 0.,400,  2000.};
+  vector<double> cr1bins = { 0.,400, 600,   2000.};
 
   if(DataEra == "2016preVFP") {
     sr1bins_mm = { 0., 450,  2000.};
@@ -71,7 +71,7 @@ void HNL_LeptonCore::DefineLimitBins(){
   map_bins_labels ["SR3_EE"]   = EE_SR3;
   map_bins_labels ["SR3_EMu"]  = EMu_SR3;
 
-  std::vector<TString> CR3 = {"CR3_bin1","CR3_bin2","CR3_bin3","CR3_bin4","CR3_bin5","CR3_bin6","CR3_bin7","CR3_bin8", "CR3_bin9","CR3_bin10"};
+  std::vector<TString> CR3 = {"CR3_bin1","CR3_bin2","CR3_bin3","CR3_bin4","CR3_bin5","CR3_bin6","CR3_bin7","CR3_bin8"};
   map_bins_labels ["CR3"]    = CR3;
  
 
@@ -121,23 +121,22 @@ TString HNL_LeptonCore::GetSR3StringBin(TString RegionTag, TString channel, bool
     if(LowJet){
       if(ll_dphi > 2.5){
 	if(LT<= 150)       return RegionTag+"_bin1";
-	else if(LT<= 250)  return RegionTag+"_bin2";
-	else               return RegionTag+"_bin3";
+	else               return RegionTag+"_bin2";
       }
       else{
-	if(LT<= 150)      return RegionTag+"_bin4";
-	else              return RegionTag+"_bin5";
+	if(LT<= 150)      return RegionTag+"_bin3";
+	else              return RegionTag+"_bin4";
       }
     }
     else{
-      if(LT < 150)       return RegionTag+"_bin6";
-      else if(LT < 200)  return RegionTag+"_bin7";
-      else if(LT < 300)  return RegionTag+"_bin8";
-      else if(LT < 450)  return RegionTag+"_bin9";
-      else               return RegionTag+"_bin10";
+      if(LT < 150)       return RegionTag+"_bin5";
+      else if(LT < 200)  return RegionTag+"_bin6";
+      else if(LT < 300)  return RegionTag+"_bin7";
+      else               return RegionTag+"_bin8";
     }
     return "";
   }
+
 
   if(channel == "MuMu"){
     
@@ -178,7 +177,7 @@ TString HNL_LeptonCore::GetSR3StringBin(TString RegionTag, TString channel, bool
         else{
           if(LT < 150)  return RegionTag+"_bin17";
           else if(LT < 200)  return RegionTag+"_bin18";
-          else if(LT < 300)  return RegionTag+"_bin19";
+          else if(LT < 250)  return RegionTag+"_bin19";
           else  return RegionTag+"_bin20";
         }/// MET            
       }
@@ -598,6 +597,18 @@ double HNL_LeptonCore::GetLimitBin(TString region, vector<Lepton*> leps, vector<
   }
 
 
+  if((region == ("CR_SR1_WZ")) || (region ==  "CR_SR1_ZZ")){
+    
+    Particle l1J =  *leps[0] +  AK8_JetColl[0];
+    if(l1J.M() < 750) Binvalue= 0.5;
+    else Binvalue= 1.5;
+    //// 3 bins                                                                                                                                                             
+    nbins_reg=2;
+    return Binvalue;
+  }
+
+
+
   if(region.Contains("CR_SR1")){
 
     Particle l1J =  *leps[0] +  AK8_JetColl[0];
@@ -609,6 +620,26 @@ double HNL_LeptonCore::GetLimitBin(TString region, vector<Lepton*> leps, vector<
     return Binvalue; 
   }
 
+  if(region == "CR_SR2_WZ"){
+    double SR2BinValue = leps[0]->HTOverPt();
+    if(SR2BinValue < 2) Binvalue = 0.5;
+    else   if(SR2BinValue < 4) Binvalue = 1.5;
+    else   Binvalue = 2.5;
+
+    nbins_reg=3;
+    return Binvalue;
+
+  }
+
+  if((region =="CR_SR2_WZB") || (region =="CR_SR2_ZZ") ){
+    double SR2BinValue = leps[0]->HTOverPt();
+    if(SR2BinValue < 3) Binvalue = 0.5;
+    else   Binvalue = 1.5;
+
+    nbins_reg=2;
+    return Binvalue;
+
+  }
   if(region.Contains("CR_SR2")){
 
     double SR2BinValue = leps[0]->HTOverPt();
@@ -620,14 +651,30 @@ double HNL_LeptonCore::GetLimitBin(TString region, vector<Lepton*> leps, vector<
     return Binvalue;
 
   }
-
-  if(region.Contains("CR_SR3")){
-    if((AK4Jets.size()<2) && (leps[1]->Pt()  < 50)) Binvalue=0.5;
-    else   if((AK4Jets.size()<2) && (leps[1]->Pt()  < 150)) Binvalue=1.5;
+  
+  if(region == "ZG_CR_SR3"){
+    if((AK4Jets.size()<2) && (leps[1]->Pt()  < 25)) Binvalue=0.5;
+    else   if((AK4Jets.size()<2) && (leps[1]->Pt()  < 40)) Binvalue=1.5;
     else   if((AK4Jets.size()<2)) Binvalue=2.5;
     else   {
       Particle llJJ =  *leps[0] + *leps[1]+AK4Jets[0]+AK4Jets[1];
-      if(llJJ.M() < 200) Binvalue= 3.5;
+      if(llJJ.M() < 175) Binvalue= 3.5;
+      else     if(llJJ.M() < 300) Binvalue= 4.5;
+      else Binvalue= 5.5;
+    }
+    nbins_reg=6;
+    return Binvalue;
+
+  }
+
+
+  if(region.Contains("CR_SR3")){
+    if((AK4Jets.size()<2) && (leps[1]->Pt()  < 50)) Binvalue=0.5;
+    else   if((AK4Jets.size()<2) && (leps[1]->Pt()  < 125)) Binvalue=1.5;
+    else   if((AK4Jets.size()<2)) Binvalue=2.5;
+    else   {
+      Particle llJJ =  *leps[0] + *leps[1]+AK4Jets[0]+AK4Jets[1];
+      if(llJJ.M() < 175) Binvalue= 3.5;
       else     if(llJJ.M() < 400) Binvalue= 4.5;
       else Binvalue= 5.5;
     }
@@ -640,10 +687,9 @@ double HNL_LeptonCore::GetLimitBin(TString region, vector<Lepton*> leps, vector<
 
     Particle l1JJ =  *leps[0] + AK8_JetColl[0];
 
-    if(l1JJ.M() < 200) Binvalue= 0.5;
-    else     if(l1JJ.M() < 750) Binvalue= 1.5;
-    else Binvalue= 2.5;
-    nbins_reg=3;
+    if(l1JJ.M() < 750) Binvalue= 0.5;
+    else Binvalue= 1.5;
+    nbins_reg=2;
     return Binvalue;
     
   }
@@ -672,11 +718,10 @@ double HNL_LeptonCore::GetLimitBin(TString region, vector<Lepton*> leps, vector<
 
   if(region.Contains("CR_WW_SR2")){
     double VBFBinValue = leps[0]->HTOverPt();
-    if(VBFBinValue < 1) Binvalue= 0.5;
-    else     if(VBFBinValue < 2) Binvalue= 1.5;
-    else     if(VBFBinValue < 5) Binvalue= 2.5;
-    else Binvalue= 3.5;
-    nbins_reg=4;
+    if(VBFBinValue < 2) Binvalue= 0.5;
+    else     if(VBFBinValue < 5) Binvalue= 1.5;
+    else Binvalue= 2.5;
+    nbins_reg=3;
 
     return Binvalue;
   }

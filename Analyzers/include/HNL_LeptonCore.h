@@ -235,7 +235,7 @@ class HNL_LeptonCore : public AnalyzerCore {
 
   double GetScaleUncertainty(int sys);
   TString GetPDFUncertainty(int iw, double& ev_weight );
-
+  double GetPDFUncertainty(TString SRBin, int sys);
 
   //  ================= MC weight functions              HNL_LeptonCore_Lepton.C   =================                                                                                                                                          
 

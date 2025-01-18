@@ -233,8 +233,9 @@ sample_list = [
     "WpWpJJ_EWKnotop_TuneCP5_13TeV-madgraph-pythia8",
   ]
 for era in ['2016', '2016preVFP', '2016postVFP', '2017', '2018']:
-  sample_list.append("SingleElectron") if era is not '2018' else sample_list.append("EGamma")
-  samples[era] = sample_list
+  this_sample_list = sample_list[:]
+  this_sample_list.append("SingleElectron") if era is not '2018' else this_sample_list.append("EGamma")
+  samples[era] = this_sample_list
 
 types = {
   'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  : 'MC',
@@ -513,11 +514,13 @@ def merge_lastbins(hist):
     return hist
 
   #pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 1000], dtype=np.float64)
-  pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 300, 1000], dtype=np.float64) # up to V5 and V7
-  #pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150, 200, 300, 1000], dtype=np.float64) # V6
+  #pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 300, 1000], dtype=np.float64) # up to V5 and V7
+  pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150, 200, 300, 1000], dtype=np.float64) # V6, V8
 
   nbins_input = hist.GetNbinsX()
-  nbins_new   = len(pt_bins_merged)-1
+  nbins_new   = len(pt_bins_merged) - 1
+  if nbins_input == nbins_new:
+    return hist
   nbins_merge = nbins_input - nbins_new + 1
   xmin = hist.GetXaxis().GetXmin()
   xmax = hist.GetXaxis().GetXmax()
@@ -708,7 +711,11 @@ def classify_hist(this_year, this_sample, this_chain):
 
   return EtaRegion, Charges, Probes
 
-def makeCompPlots(Data_OS, Stack, Bundle, Error, Era, Name,n_job):
+def makeCompPlots(Data_OS, Stack, Bundle, Error, Era, Name, n_job):
+
+  for i in range(Bundle[-1].GetNbinsX()):
+    if Bundle[-1].GetBinContent(i+1) <= 0:
+      print "[ERROR] In",Name," bin",i+1,":",Bundle[-1].GetBinContent(i+1)
 
   os.system('mkdir -p '+WorkDir+"/Out_SF/"+Era+"/Comp")
 
@@ -878,14 +885,14 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
 
   # handling exceptions
   Data_Eff_exc1 = []
-  print "Checking Data eff bins ..."
+  #print "Checking Data eff bins ..."
   for i in range(Data_Eff.GetNbinsX()):
-    print i+1, "th bin num:", Data_Eff.GetBinContent(i+1), "den:", Data_Tot.GetBinContent(i+1)
+    #print i+1, "th bin num:", Data_Eff.GetBinContent(i+1), "den:", Data_Tot.GetBinContent(i+1)
     if Data_Eff.GetBinContent(i+1) <= 0:
       Data_Eff.SetBinContent(i+1, 1)
       Data_Tot.SetBinContent(i+1, 0.01) # eff = 100 so out of range
     if Data_Eff.GetBinContent(i+1) > Data_Tot.GetBinContent(i+1): # den is less than num, due to negative weight
-      print ">>>>>>>>>>>>>>","bin",i+1,": Eff exceeds 1 !!!! <<<<<<<<<<<<<<<<<"
+      #print ">>>>>>>>>>>>>>","bin",i+1,": Eff exceeds 1 !!!! <<<<<<<<<<<<<<<<<"
       Data_Eff_exc1.append([i+1,(Data_Eff.GetBinContent(i+1)-Data_Tot.GetBinContent(i+1))/Data_Tot.GetBinContent(i+1)]) # store errors
       Data_Tot.SetBinContent(i+1, Data_Eff.GetBinContent(i+1)) # make SF = 1
   Data_Eff.Divide(Data_Eff,Data_Tot,1,1,"B")
@@ -904,13 +911,13 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   # Get the combined SF
   combined_sf = combined_data_eff/combined_mc_eff
 
-  print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  print "Running", OutName, "..."
-  print "Combined data efficiency:", combined_data_eff
-  print "Combined mc efficiency:", combined_mc_eff
-  print "Combined scale factor:", combined_sf # FIXME add error later
-  print "Saving into", OutFile.GetName(), "..." # FIXME add error later
-  print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  #print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  #print "Running", OutName, "..."
+  #print "Combined data efficiency:", combined_data_eff
+  #print "Combined mc efficiency:", combined_mc_eff
+  #print "Combined scale factor:", combined_sf # FIXME add error later
+  #print "Saving into", OutFile.GetName(), "..." # FIXME add error later
+  #print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
   # Fill Gap
   Save['Data_Eff'].SetBinContent(2, 0)
@@ -929,14 +936,14 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
 
   # handling exceptions
   MC_Eff_exc1 = []
-  print "Checking MC eff bins ..."
+  #print "Checking MC eff bins ..."
   for i in range(MC_Eff.GetNbinsX()):
-    print i+1, "th bin num:", MC_Eff.GetBinContent(i+1), "den:", MC_Tot.GetBinContent(i+1)
+    #print i+1, "th bin num:", MC_Eff.GetBinContent(i+1), "den:", MC_Tot.GetBinContent(i+1)
     if MC_Eff.GetBinContent(i+1) <= 0:
       MC_Eff.SetBinContent(i+1, 1)
       MC_Tot.SetBinContent(i+1, 0.1) # eff = 10 so out of range
     if MC_Eff.GetBinContent(i+1) > MC_Tot.GetBinContent(i+1): # den is less than num, due to negative weight
-      print ">>>>>>>>>>>>>>","bin",i+1,": Eff exceeds 1 !!!! <<<<<<<<<<<<<<<<<"
+      #print ">>>>>>>>>>>>>>","bin",i+1,": Eff exceeds 1 !!!! <<<<<<<<<<<<<<<<<"
       MC_Eff_exc1.append([i+1,(MC_Eff.GetBinContent(i+1)-MC_Tot.GetBinContent(i+1))/MC_Tot.GetBinContent(i+1)]) # store errors
       MC_Tot.SetBinContent(i+1, MC_Eff.GetBinContent(i+1)) # make SF = 1
   MC_Eff.Divide(MC_Eff,MC_Tot,1,1,"B")
@@ -976,6 +983,8 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   #Data_Eff.GetYaxis().SetRangeUser(c_up_min, 1.1)
   Data_Eff.GetYaxis().SetRangeUser(0.8, 1.1) # V3, V7
   #Data_Eff.GetYaxis().SetRangeUser(0.5, 1.1) # V5, V6
+  if Probe=="HNLMVA_HighPt" or Probe=="HNLMVA": Data_Eff.GetYaxis().SetRangeUser(0.55, 1.1)
+  elif "HNLMVA" in Probe and "No" in Probe:     Data_Eff.GetYaxis().SetRangeUser(0.7, 1.1)
   Data_Eff.SetMarkerStyle(20)
   Data_Eff.SetMarkerColor(kBlack)
   Data_Eff.SetLineColor(kBlack)
@@ -1067,9 +1076,9 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   Ratio = Data_Eff.Clone()
   Ratio.Divide(MC_Eff)
 
-  print "Checking SF bins ..."
-  for i in range(Ratio.GetNbinsX()):
-    print i+1,"th bin:",Ratio.GetBinContent(i+1)
+  #print "Checking SF bins ..."
+  #for i in range(Ratio.GetNbinsX()):
+  #  print i+1,"th bin:",Ratio.GetBinContent(i+1)
 
   c_down_min, c_down_max = GetMinMax(Ratio)
   c_down_min = max(0.9, c_down_min*0.95)
@@ -1081,6 +1090,7 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   Ratio.GetYaxis().SetTitle("#frac{Data}{MC}")
   #Ratio.GetYaxis().SetRangeUser(c_down_min, c_down_max)
   Ratio.GetYaxis().SetRangeUser(0.9, 1.1)
+  if Probe=="HNLMVA_HighPt" or Probe=="HNLMVA": Ratio.GetYaxis().SetRangeUser(0.75, 1.1)
   Ratio.GetXaxis().SetLabelSize(0.12)
   Ratio.GetYaxis().SetLabelSize(0.08)
   Ratio.GetXaxis().SetTitleSize(0.16)
@@ -1498,33 +1508,33 @@ def makeResults():
           h_Bundle[EtaRegion][Probe][IsPass][7].SetFillColor(kYellow)
           h_Bundle[EtaRegion][Probe][IsPass][8].SetFillColor(kPink)
 
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][0].Clone()) 
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][1].Clone()) 
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][2].Clone()) 
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][4].Clone()) 
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][6].Clone()) 
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][12].Clone())
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][15].Clone())
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][19].Clone())
-      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os'][Probe][IsPass][24].Clone())
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][0].Clone()) 
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][1].Clone()) 
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][2].Clone()) 
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][4].Clone()) 
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][6].Clone()) 
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][12].Clone())
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][15].Clone())
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][19].Clone())
+      h_Bundle[EtaRegion]['All'].append(h_mc[EtaRegion]['os']['All'][24].Clone())
 
-      h_Bundle[EtaRegion]['All'][2].Add(h_mc[EtaRegion]['os'][Probe][IsPass][3]) # TTLJ
-      h_Bundle[EtaRegion]['All'][3].Add(h_mc[EtaRegion]['os'][Probe][IsPass][5]) # tW antitop
-      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os'][Probe][IsPass][7]) # ZG
-      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os'][Probe][IsPass][8]) # TTG
-      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os'][Probe][IsPass][9]) # TG
-      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os'][Probe][IsPass][10]) # WZG
-      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os'][Probe][IsPass][11]) # WWG
-      h_Bundle[EtaRegion]['All'][5].Add(h_mc[EtaRegion]['os'][Probe][IsPass][13]) # WW
-      h_Bundle[EtaRegion]['All'][5].Add(h_mc[EtaRegion]['os'][Probe][IsPass][14]) # WZ
-      h_Bundle[EtaRegion]['All'][6].Add(h_mc[EtaRegion]['os'][Probe][IsPass][16]) # ZZZ
-      h_Bundle[EtaRegion]['All'][6].Add(h_mc[EtaRegion]['os'][Probe][IsPass][17]) # WWZ
-      h_Bundle[EtaRegion]['All'][6].Add(h_mc[EtaRegion]['os'][Probe][IsPass][18]) # WWW
-      h_Bundle[EtaRegion]['All'][7].Add(h_mc[EtaRegion]['os'][Probe][IsPass][20]) # 
-      h_Bundle[EtaRegion]['All'][7].Add(h_mc[EtaRegion]['os'][Probe][IsPass][21]) # 
-      h_Bundle[EtaRegion]['All'][7].Add(h_mc[EtaRegion]['os'][Probe][IsPass][22]) # 
-      h_Bundle[EtaRegion]['All'][7].Add(h_mc[EtaRegion]['os'][Probe][IsPass][23]) # 
-      h_Bundle[EtaRegion]['All'][8].Add(h_mc[EtaRegion]['os'][Probe][IsPass][25]) # WpWpEWK
+      h_Bundle[EtaRegion]['All'][2].Add(h_mc[EtaRegion]['os']['All'][3]) # TTLJ
+      h_Bundle[EtaRegion]['All'][3].Add(h_mc[EtaRegion]['os']['All'][5]) # tW antitop
+      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os']['All'][7]) # ZG
+      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os']['All'][8]) # TTG
+      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os']['All'][9]) # TG
+      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os']['All'][10]) # WZG
+      h_Bundle[EtaRegion]['All'][4].Add(h_mc[EtaRegion]['os']['All'][11]) # WWG
+      h_Bundle[EtaRegion]['All'][5].Add(h_mc[EtaRegion]['os']['All'][13]) # WW
+      h_Bundle[EtaRegion]['All'][5].Add(h_mc[EtaRegion]['os']['All'][14]) # WZ
+      h_Bundle[EtaRegion]['All'][6].Add(h_mc[EtaRegion]['os']['All'][16]) # ZZZ
+      h_Bundle[EtaRegion]['All'][6].Add(h_mc[EtaRegion]['os']['All'][17]) # WWZ
+      h_Bundle[EtaRegion]['All'][6].Add(h_mc[EtaRegion]['os']['All'][18]) # WWW
+      h_Bundle[EtaRegion]['All'][7].Add(h_mc[EtaRegion]['os']['All'][20]) # 
+      h_Bundle[EtaRegion]['All'][7].Add(h_mc[EtaRegion]['os']['All'][21]) # 
+      h_Bundle[EtaRegion]['All'][7].Add(h_mc[EtaRegion]['os']['All'][22]) # 
+      h_Bundle[EtaRegion]['All'][7].Add(h_mc[EtaRegion]['os']['All'][23]) # 
+      h_Bundle[EtaRegion]['All'][8].Add(h_mc[EtaRegion]['os']['All'][25]) # WpWpEWK
   
       h_Bundle[EtaRegion]['All'][0].SetFillColor(kSpring+10) # DY or DYtoEE (MiNNLO)
       h_Bundle[EtaRegion]['All'][1].SetFillColor(kGreen) # DYToTauTau (MiNNLO)
@@ -1638,7 +1648,7 @@ def makeResults():
 if __name__ == '__main__':
   beginTime = datetime.now()
   #makeTurnOn()
-  #CreateHists(NJob)
-  makeResults()
+  CreateHists(NJob) # Jobs to be splitted
+  #makeResults()
   endTime = datetime.now()
   print "["+endTime.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Total done in",endTime-beginTime,"."

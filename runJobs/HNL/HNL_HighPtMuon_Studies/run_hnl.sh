@@ -6,7 +6,7 @@ njobs_data=20
 nmax=400
 skim=' '
 
-declare  -a era_list=( "2017" "2018")
+declare  -a era_list=( "2018")
 
 if [[ $1 == "DATA" ]]; then
 
@@ -24,10 +24,10 @@ if [[ $1 == "SIG" ]]; then
     for i in "${era_list[@]}"
     do
         #SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/SampleSig.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
-	SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/Weinberg.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
-	SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/DY.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
-	SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/VBF.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
-	SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/SSWW.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
+	#SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/Weinberg.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
+	SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/HM_DY.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
+	SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/HM_VBF.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
+	SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Signals/Private/HM_SSWW.txt  -n 300  --nmax 300  -e ${i} --skim SkimTree_HNMultiLepBDT&     
     done
 fi
 

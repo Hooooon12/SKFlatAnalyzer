@@ -339,7 +339,7 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter param, TString region,  T
   double ST = GetST(leps, jets, fatjets, met);
   double met2_st = pow(met.Pt(),2.)/ ST;
 
-  FillHist( plot_dir+ region+ "/SKEvent/Ev_MET2_ST", met2_st  , w, 100, 0., 100.,"MET2/ST GeV");
+  FillHist( plot_dir+ region+ "/MainPlots/Ev_MET2_ST", met2_st  , w, 100, 0., 100.,"MET2/ST GeV");
 
 
 
@@ -351,7 +351,7 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter param, TString region,  T
     double mljbins[nSRbins] = { 0., 500,625., 750., 1000., 2000.};
     double MN1 = (N1Cand.M() > 2000.) ? 1999. : N1Cand.M();
 
-    FillHist( plot_dir+ region+ "/Master/M1J",          MN1,          w, nSRbins-1, mljbins, "M_{Jl_{1}} GeV" );
+    FillHist( plot_dir+ region+ "/MainPlots/M1J",          MN1,          w, nSRbins-1, mljbins, "M_{Jl_{1}} GeV" );
     
     return;
   }
@@ -359,7 +359,7 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter param, TString region,  T
     
     int nSRbins = 5;
     double mhtptins[nSRbins] = { 0.,1,2,5,10};
-    FillHist( plot_dir+ region+ "/Master/HT_PT1",     leps[0]->HTOverPt(),     w, nSRbins-1, mhtptins, "H_{T}/p_{T}");
+    FillHist( plot_dir+ region+ "/MainPlots/HT_PT1",     leps[0]->HTOverPt(),     w, nSRbins-1, mhtptins, "H_{T}/p_{T}");
     
     
     int nPtbins=12;
@@ -368,9 +368,10 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter param, TString region,  T
     double PTLep1  = (leps[0]->Pt() > 2000.) ? 1999. : leps[0]->Pt();
     double PTLep2  = (leps[1]->Pt() > 1000.) ? 999. : leps[1]->Pt();
     
-    FillHist( plot_dir+ region+ "/Master/Lep1_pt", PTLep1  ,  w, nPtbins, Pt1bins,"l_{1} p_{T} GeV");
-    FillHist( plot_dir+ region+ "/Master/Lep2_pt", PTLep2  ,  w, nPtbins, Pt2bins,"l_{2} p_{T} GeV");
-    
+    FillHist( plot_dir+ region+ "/MainPlots/Lep1_pt", PTLep1  ,  w, nPtbins, Pt1bins,"l_{1} p_{T} GeV");
+    FillHist( plot_dir+ region+ "/MainPlots/Lep2_pt", PTLep2  ,  w, nPtbins, Pt2bins,"l_{2} p_{T} GeV");
+    FillHist( plot_dir+ region+ "/MainPlots/LT", VarUpperLimit(PTLep2+PTLep1,2000)  ,  w, nPtbins, Pt1bins,"l_{T} p_{T} GeV");
+
     return;
   }
   

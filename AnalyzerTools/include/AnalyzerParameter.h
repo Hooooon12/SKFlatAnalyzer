@@ -117,7 +117,7 @@ class AnalyzerParameter{
     PrefireUp,PrefireDown,
     PUUp,PUDown,
     JetPUIDUp, JetPUIDDown,
-    PDF,
+    PDF,PDFUp,PDFDown,
     ScaleUp,ScaleDown,
     NSyst
   };
@@ -137,6 +137,11 @@ class AnalyzerParameter{
 
   double EventWeight();
   double Weight(TString wkey);
+  
+  inline bool IsCentral() {
+    if (syst_ == AnalyzerParameter::Central) return true;
+    return false;
+  }
 
   inline TString FakeRateName() {
     return FakeRateMethod + "_"+FakeRateParam;
