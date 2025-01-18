@@ -21,7 +21,7 @@ NJob=args.NJob
 Era = args.Era
 WorkDir=args.WorkDir
 
-It_Probes    = [ 'MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt', 'HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','passingHNLMVA_NoCF','passingHNLMVA_NoConv','passingHNLMVA_NoFake']
+It_Probes    = [ 'MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt', 'HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','HNLMVA_NoCF','HNLMVA_NoConv','HNLMVA_NoFake']
 
 #### IDs applied to probe befrpre PASS/FAIL
 It_ProbeID   = ['Pass',     'Pass', 'Pass', 'Pass','Pass',       'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'MVABaseline','MVABaseline','MVABaseline']
@@ -326,10 +326,14 @@ dates = {
      '' : '2024_12_13_185927',
      },
      'EGamma' : {
-                 'periodA' : '2024_12_13_185927',
-                 'periodB' : '2024_12_13_185927',
-                 'periodC' : '2024_12_13_185927',
-                 'periodD' : '2024_12_13_185927',
+                 #'periodA' : '2024_12_13_185927',
+                 #'periodB' : '2024_12_13_185927',
+                 #'periodC' : '2024_12_13_185927',
+                 #'periodD' : '2024_12_13_185927',
+                 'periodA' : '2025_01_16_183812',
+                 'periodB' : '2025_01_16_183812',
+                 'periodC' : '2025_01_16_183812',
+                 'periodD' : '2025_01_16_183812',
                 },
     },
 }

@@ -213,7 +213,7 @@ def MakeInputFiles(_type, _era,_sample,_path,_list,NJOBS):
 def CheckList(input_samples, types_sample,NJobs,Era,SkimName):
     from os import listdir
     from os.path import isfile, isdir,join
-    NFewestFiles=1000000
+    NFiles={}
 
     for x in input_samples[Era]:
         path_to_files="/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+Era+"/"+types_sample[x]+"_"+SkimName+"/" + x
@@ -225,9 +225,10 @@ def CheckList(input_samples, types_sample,NJobs,Era,SkimName):
                 exit
             new_path_to_files = path_to_files + "/"+datedir[0]
             infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
-            if len(infiles) < NFewestFiles:
-                NFewestFiles = len(infiles)
-            MakeInputFiles(types_sample[x],Era,x, new_path_to_files,infiles,NJobs)
+            NFiles[x] = len(infiles)
+            #if len(infiles) < NFewestFiles:
+            #    NFewestFiles = len(infiles)
+            #MakeInputFiles(types_sample[x],Era,x, new_path_to_files,infiles,NJobs)
         else:
             perioddir = [f for f in listdir(path_to_files) if isdir(join(path_to_files, f))]
             if len(perioddir ) > 1:
@@ -241,14 +242,15 @@ def CheckList(input_samples, types_sample,NJobs,Era,SkimName):
 
                 new_path_to_files = period_path_to_files + "/"+datedir[0]
                 infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
-                if len(infiles) < NFewestFiles:
-                    NFewestFiles = len(infiles)
-                MakeInputFiles(types_sample[x],Era,x+"_"+period, new_path_to_files,infiles,NJobs)
+                NFiles[x] = len(infiles)
+                #if len(infiles) < NFewestFiles:
+                #    NFewestFiles = len(infiles)
+                #MakeInputFiles(types_sample[x],Era,x+"_"+period, new_path_to_files,infiles,NJobs)
 
-    return NFewestFiles
+    return NFiles
 
 
-def MakeInputList(input_samples, types_sample, NJobs,Era,SkimName):
+def MakeInputList(input_samples, types_sample, NJobsToRun,Era,SkimName):
 
     from os import listdir
     from os.path import isfile, isdir,join
@@ -266,7 +268,7 @@ def MakeInputList(input_samples, types_sample, NJobs,Era,SkimName):
             new_path_to_files = path_to_files + "/"+datedir[0]
             infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
 
-            MakeInputFiles(types_sample[x],Era,x, new_path_to_files,infiles,NJobs)
+            MakeInputFiles(types_sample[x],Era,x, new_path_to_files,infiles,NJobsToRun[x])
         else:
             perioddir = [f for f in listdir(path_to_files) if isdir(join(path_to_files, f))]
             if len(perioddir ) > 1:
@@ -280,7 +282,7 @@ def MakeInputList(input_samples, types_sample, NJobs,Era,SkimName):
 
                 new_path_to_files = period_path_to_files + "/"+datedir[0]
                 infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
-                MakeInputFiles(types_sample[x],Era,x+"_"+period, new_path_to_files,infiles,NJobs)
+                MakeInputFiles(types_sample[x],Era,x+"_"+period, new_path_to_files,infiles,NJobsToRun[x])
 
 
 
@@ -319,13 +321,16 @@ SkimName="SkimTree_EGammaTnP_HNLHighPt"
 
 
 
-NMaxAllowed=CheckList(samples,types,NJobs,Era,SkimName)
+NJobsToRun=CheckList(samples,types,NJobs,Era,SkimName)
 
-if NJobs > NMaxAllowed:
-  NJobs=NMaxAllowed
-  print("Updating Njobs since some input has fewer files: NJobs --> " + str(NJobs))
+#print NJobsToRun
+for k, v in NJobsToRun.items():
+  if NJobs < NJobsToRun[k]:
+    NJobsToRun[k] = NJobs
+  else:
+    print("Updating Njobs to run since "+k+" has fewer files: NJobs --> " + str(NJobsToRun[k]))
 
-MakeInputList(samples,types,NJobs,Era,SkimName)
+MakeInputList(samples,types,NJobsToRun,Era,SkimName)
 
 ## Add Abosolute path for outputdir
 

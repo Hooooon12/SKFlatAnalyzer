@@ -12,6 +12,10 @@ TString ENV_PLOT_PATH = getenv("PLOT_PATH");
 TString filepath = ENV_FILE_PATH+dataset+"/Limits/ReadLimits/Shape/out/";
 TString plotpath = ENV_FILE_PATH+dataset+"/src/LimitPlotter/out/";
 
+double GetDYxsec(int mass, TString channel);
+double GetVBFxsec(int mass, TString channel);
+double GetSSWWxsec(int mass, TString channel);
+
 void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, bool IsXsecLimit=false, bool Logy=true){
 
   bool DrawObserved = false;
@@ -28,6 +32,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   TString tag_nom = "_sronly_sr123_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
+  TString Name_IsXsecLimit = "";
+  if(IsXsecLimit) Name_IsXsecLimit = "_xsec";
 
   TString this_plotpath = plotpath+WP_nom;
   if( !gSystem->mkdir(plotpath+WP_nom, kTRUE) ){
@@ -50,9 +56,11 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //vector<TString> tags = {"_sronly_Run2Scaled"};
   //vector<TString> WPs = {"rateParam_HNL_ULID_PR46"};
   //vector<TString> WPs = {"PR55_HighPt","PR55_NoMinPt_HighPt"};
-  vector<TString> WPs = {"PR48_rateParam_HNL_ULID"}; // WPs to compare
-  vector<TString> tags = {"_syst_Run2Scaled"};
+  //vector<TString> WPs = {"PR48_rateParam_HNL_ULID"}; // WPs to compare
+  vector<TString> WPs = {}; // WPs to compare
+  //vector<TString> tags = {"_syst_Run2Scaled"};
   //vector<TString> tags = {"_sr_Combined"};
+  vector<TString> tags = {};
   for(int i=0; i<WPs.size(); i++){
     for(int j=0; j<tags.size(); j++){
       //files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
@@ -102,21 +110,31 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       onesig_right[dummyint] *= scale;
       twosig_left[dummyint] *= scale;
       twosig_right[dummyint] *= scale;
-      // Now limits have been obtained. These are r, or |V|^2.
+      // Now limits have been obtained. These are r, or |V|^2 or |V|^2/2.
 
-      //if(IsXsecLimit){
+      if(IsXsecLimit){
 
-      //  this_DYxsec = GetDYxsec(this_mass, channel);
-      //  this_VBFxsec = GetVBFxsec(this_mass, channel);
-      //  this_SSWWxsec = GetSSWWxsec(this_mass, channel);
-      //  obs[dummyint]          *= scale;
-      //  limit[dummyint]        *= scale;
-      //  onesig_left[dummyint]  *= scale;
-      //  onesig_right[dummyint] *= scale;
-      //  twosig_left[dummyint]  *= scale;
-      //  twosig_right[dummyint] *= scale;
+        double this_DYxsec = GetDYxsec(this_mass, channel);
+        double this_VBFxsec = GetVBFxsec(this_mass, channel);
+        double this_SSWWxsec = GetSSWWxsec(this_mass, channel);
+        if(channel=="EMu"){
+          obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) + 4*obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
+          limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) + 4*limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
+          onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + 4*onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
+          onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) + 4*onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
+          twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + 4*twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
+          twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) + 4*twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
+        }
+        else{
+          obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) + obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
+          limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) + limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
+          onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
+          onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) + onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
+          twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
+          twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) + twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
+        }
 
-      //} TODO
+      }
 
       onesig_left[dummyint] = limit[dummyint]-onesig_left[dummyint];
       onesig_right[dummyint] = onesig_right[dummyint] - limit[dummyint];
@@ -862,7 +880,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
   //=== Legend
   cout << "Drawing Dilepton "+year+" limit ..." << endl;
-  TLegend *lg = new TLegend(0.48, 0.15, 0.66, 0.45);
+  TLegend *lg = 0;
+  if(IsXsecLimit) lg = new TLegend(0.58, 0.45, 0.76, 0.75);
+  else lg = new TLegend(0.48, 0.15, 0.66, 0.45);
   lg->SetBorderSize(0);
   lg->SetFillStyle(0);
   TH1D *hist_emptylegend = new TH1D("hist_emptylegend","",1,0.,1.);
@@ -877,7 +897,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   TLegend *lg_Alt = new TLegend(0.65, 0.15, 0.93, 0.48);
   lg_Alt->SetBorderSize(0);
   lg_Alt->SetFillStyle(0);
-  lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l");
+  if(!IsXsecLimit) lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l");
   if(channel=="MuMu"){
     //lg_Alt->AddEntry(gr_DELPHILimit, "DELPHI prompt", "l");
     //lg_Alt->AddEntry(gr_L3Limit, "L3", "l");
@@ -890,7 +910,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID 2017 Scaled (exp)", "l");
     //lg_Alt->AddEntry(gr_exp_2, "PR44 HNL_ULID (exp)", "l");
     if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
-    lg_Alt->AddEntry(gr_21003_exp, "EXO-21-003 Run2 (exp)", "l");
+    if(!IsXsecLimit) lg_Alt->AddEntry(gr_21003_exp, "EXO-21-003 Run2 (exp)", "l");
     //lg_Alt->AddEntry(gr_17028_obs, "CMS 13 TeV dilepton", "l");
     //lg_Alt->AddEntry(gr_trilepLimit, "CMS 13 TeV trilepton", "l");
     //lg_Alt->AddEntry(gr_21003_obs, "CMS 13 TeV SSWW", "l");
@@ -978,11 +998,19 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       dummy->GetYaxis()->SetLabelSize(0.03);
     }
   }
+  if(IsXsecLimit){
+    dummy->GetYaxis()->SetTitle("Xsec (pb)");
+    dummy->GetYaxis()->SetTitleSize(0.05);
+    dummy->GetYaxis()->SetTitleOffset(1.4);
+    dummy->GetYaxis()->SetLabelSize(0.04);
+    dummy->GetXaxis()->SetLabelSize(0.04);
+  }
   dummy->GetXaxis()->SetTitle("m_{N} (GeV)");
   if(CompareLimits) dummy->GetXaxis()->SetLabelSize(0);
   if(channel=="EMu") dummy->GetXaxis()->SetRangeUser(80., 60000); //FIXME
   else dummy->GetXaxis()->SetRangeUser(80., 30000); //FIXME
-  dummy->GetYaxis()->SetRangeUser(5e-5, 1.); //FIXME
+  if(IsXsecLimit) dummy->GetYaxis()->SetRangeUser(1e-5, 0.1); //FIXME
+  else dummy->GetYaxis()->SetRangeUser(5e-5, 1.); //FIXME
   dummy->SetTitle("");
   dummy->Draw("hist");
 
@@ -990,13 +1018,13 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   gr_band_2sigma_0->Draw("3same");
   gr_band_1sigma_0->Draw("3same");
   gr_exp_0->Draw("lsame");
-  gr_17028_exp->Draw("lsame");
+  if(!IsXsecLimit) gr_17028_exp->Draw("lsame");
   //gr_17028_obs->Draw("lsame");
   //gr_8and13TeV_obs->Draw("lsame");
   if(channel=="MuMu"){
     //gr_L3Limit->Draw("lsame");
     //gr_DELPHILimit->Draw("lsame");
-    gr_21003_exp->Draw("lsame");
+    if(!IsXsecLimit) gr_21003_exp->Draw("lsame");
     if(CompareLimits) gr_exp_1->Draw("lsame");
     //gr_exp_2->Draw("lsame");
     //gr_21003_obs->Draw("lsame");
@@ -1047,17 +1075,24 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   if(CompareLimits){
     latex_CMSPreliminary.DrawLatex(0.14, 0.93, "#scale[0.8]{CMS #bf{#it{Preliminary}}}");
     latex_Lumi.DrawLatex(0.77, 0.93, lumi+" fb^{-1} (13 TeV)");
-    latex_title.DrawLatex(0.21, 0.79, "#font[41]{95% CL upper limit}");
-    latex_title.SetTextSize(0.05);
     latex_title.DrawLatex(0.21, 0.83, "#font[62]{CMS}");
+    latex_title.DrawLatex(0.21, 0.79, "#font[41]{95% CL upper limit}");
+    //latex_title.SetTextSize(0.05);
+    //latex_title.DrawLatex(0.21, 0.83, "#font[62]{CMS}");
   }
   else{
     latex_CMSPreliminary.DrawLatex(0.16, 0.96, "#scale[0.8]{CMS #bf{#it{Preliminary}}}");
     if(year.Contains("Run2")||tag_nom.Contains("Run2")) latex_Lumi.DrawLatex(0.69, 0.96, lumi+" fb^{-1} (13 TeV)"); // Run2
     else latex_Lumi.DrawLatex(0.736, 0.96, lumi+" fb^{-1} (13 TeV)");
-    latex_title.DrawLatex(0.25, 0.84, "#font[41]{95% CL upper limit}");
-    latex_title.SetTextSize(0.05);
     latex_title.DrawLatex(0.25, 0.88, "#font[62]{CMS}");
+    latex_title.DrawLatex(0.25, 0.84, "#font[41]{95% CL upper limit}");
+    if(IsXsecLimit){
+      if(channel=="MuMu") latex_title.DrawLatex(0.25, 0.80, "#font[62]{#mu#mu}");
+      if(channel=="EE")   latex_title.DrawLatex(0.25, 0.80, "#font[62]{ee}");
+      if(channel=="EMu")  latex_title.DrawLatex(0.25, 0.80, "#font[62]{e#mu}");
+    }
+    //latex_title.SetTextSize(0.05);
+    //latex_title.DrawLatex(0.25, 0.88, "#font[62]{CMS}");
   }
   //if(tag_nom.Contains("Run23")) latex_Lumi.DrawLatex(0.734, 0.96, lumi+" fb^{-1} (13.6 TeV)");
 
@@ -1244,14 +1279,14 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+"_comp.png");
   }
   else{
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+"_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+".png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+Name_IsXsecLimit+".png");
   }
 
   return;
 }
 
-double GetDYxsec(int mass){ // /data9/Users/jihkim_public/Type1/Type1_xsecs/DYTypeI_NLO_XsecEE_BRmultiplied_SS.txt * 10000 (scale to V=1); xsec in pb
+double GetDYxsec(int mass, TString channel){ // /data9/Users/jihkim_public/Type1/Type1_xsecs/DYTypeI_NLO_XsecEE_BRmultiplied_SS.txt * 10000 (scale to V=1); xsec in pb
 
   double this_xsec;
   if(mass==15)    this_xsec = 10000*0.4644284577;
@@ -1290,15 +1325,38 @@ double GetDYxsec(int mass){ // /data9/Users/jihkim_public/Type1/Type1_xsecs/DYTy
   if(mass==2000)  this_xsec = 10000*1.07244692035e-09;
   if(mass==2500)  this_xsec = 10000*2.2953977199999996e-10;
   if(mass==3000)  this_xsec = 10000*5.7583824586666664e-11;
+  if(mass==5000)  this_xsec = 0.;
+  if(mass==7500)  this_xsec = 0.;
+  if(mass==10000) this_xsec = 0.;
+  if(mass==15000) this_xsec = 0.;
+  if(mass==20000) this_xsec = 0.;
+  if(mass==25000) this_xsec = 0.;
+  if(mass==30000) this_xsec = 0.;
+  if(mass==40000) this_xsec = 0.;
+  if(mass==50000) this_xsec = 0.;
+  if(mass==60000) this_xsec = 0.;
+  if(mass==70000) this_xsec = 0.;
+  if(mass==80000) this_xsec = 0.;
+  if(mass==90000) this_xsec = 0.;
+  if(mass==100000)this_xsec = 0.;
 
   if(channel=="EE"||channel=="MuMu") return this_xsec;
   else if(channel=="EMu") return this_xsec*2;
+  return 0;
 
 }
 
-double GetVBFxsec(int mass){ // /data6/Users/jihkim/SKFlatAnalyzer/data/Run2UltraLegacy_v3/2018/Sample/CommonSampleInfo/VBFTypeI_DF_M400_private.txt divided by 8; /data9/Users/jihkim_public/Type1/Type1_xsecs/VBFTypeI_NLO_XsecEE_BRmultiplied_SS.txt * 10000; xsec in pb
+double GetVBFxsec(int mass, TString channel){ // /data6/Users/jihkim/SKFlatAnalyzer/data/Run2UltraLegacy_v3/2018/Sample/CommonSampleInfo/VBFTypeI_DF_M400_private.txt divided by 8; /data9/Users/jihkim_public/Type1/Type1_xsecs/VBFTypeI_NLO_XsecEE_BRmultiplied_SS.txt * 10000; xsec in pb
 
   double this_xsec;
+  if(mass==85)    this_xsec = 0.;
+  if(mass==90)    this_xsec = 0.;
+  if(mass==95)    this_xsec = 0.;
+  if(mass==100)   this_xsec = 0.;
+  if(mass==125)   this_xsec = 0.;
+  if(mass==150)   this_xsec = 0.;
+  if(mass==200)   this_xsec = 0.;
+  if(mass==250)   this_xsec = 0.;
   if(mass==300)   this_xsec = 0.0089875;
   if(mass==400)   this_xsec = 0.006085;
   if(mass==500)   this_xsec = 10000*2.91733616626e-07;
@@ -1319,15 +1377,40 @@ double GetVBFxsec(int mass){ // /data6/Users/jihkim/SKFlatAnalyzer/data/Run2Ultr
   if(mass==2000)  this_xsec = 10000*6.59633344035e-09;
   if(mass==2500)  this_xsec = 10000*2.36798936e-09;
   if(mass==3000)  this_xsec = 10000*8.757678999999999e-10;
+  if(mass==5000)  this_xsec = 0.;
+  if(mass==7500)  this_xsec = 0.;
+  if(mass==10000) this_xsec = 0.;
+  if(mass==15000) this_xsec = 0.;
+  if(mass==20000) this_xsec = 0.;
+  if(mass==25000) this_xsec = 0.;
+  if(mass==30000) this_xsec = 0.;
+  if(mass==40000) this_xsec = 0.;
+  if(mass==50000) this_xsec = 0.;
+  if(mass==60000) this_xsec = 0.;
+  if(mass==70000) this_xsec = 0.;
+  if(mass==80000) this_xsec = 0.;
+  if(mass==90000) this_xsec = 0.;
+  if(mass==100000)this_xsec = 0.;
 
   if(channel=="EE"||channel=="MuMu") return this_xsec;
   else if(channel=="EMu") return this_xsec*2;
+  return 0;
 
 }
 
 double GetSSWWxsec(int mass, TString channel){ // /data9/Users/jihkim_public/Type1/Type1_xsecs/SSWWTypeI_NLO_Xsec_EMu.txt; xsec in pb
 
   double this_xsec;
+  if(mass==85)      this_xsec = 0.;
+  if(mass==90)      this_xsec = 0.;
+  if(mass==95)      this_xsec = 0.;
+  if(mass==100)     this_xsec = 0.;
+  if(mass==125)     this_xsec = 0.;
+  if(mass==150)     this_xsec = 0.;
+  if(mass==200)     this_xsec = 0.;
+  if(mass==250)     this_xsec = 0.;
+  if(mass==300)     this_xsec = 0.;
+  if(mass==400)     this_xsec = 0.;
   if(mass==500)     this_xsec = 0.03605;
   if(mass==600)     this_xsec = 0.03391;
   if(mass==700)     this_xsec = 0.03193;
@@ -1362,5 +1445,6 @@ double GetSSWWxsec(int mass, TString channel){ // /data9/Users/jihkim_public/Typ
 
   if(channel=="EE"||channel=="MuMu") return this_xsec/2.;
   else if(channel=="EMu") return this_xsec;
+  return 0;
 
 }
