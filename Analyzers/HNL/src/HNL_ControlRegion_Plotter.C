@@ -74,13 +74,14 @@ void HNL_ControlRegion_Plotter::executeEvent(){
       if(channel == EMu) param_signal.CFMethod   = "MC";
 
       param_signal.PlottingVerbose = 0;
+      if(HasFlag("LimitOnly")) param_signal.PlottingVerbose = -1;
 
       for(auto iCR : CRToRun) {
         RunControlRegions(param_signal , {iCR} );
 
         TString param_name = param_signal.Name;
-        //for(auto isyst : GetSystList("All",channel)){ //JH
-        for(auto isyst : GetSystList("",channel)){ //JH
+        for(auto isyst : GetSystList("All",channel)){ //JH
+        //for(auto isyst : GetSystList("",channel)){ //JH
           bool runJob = UpdateParamBySyst(id,param_signal,AnalyzerParameter::Syst(isyst),param_name);
           if(runJob)         RunControlRegions(param_signal , {iCR} );
         }

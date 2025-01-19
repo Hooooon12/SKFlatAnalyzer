@@ -240,12 +240,16 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter param, TString region, TStr
 
 void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter param, TString plot_dir,   std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w, int DrawConfig){
 
+  if(param.PlottingVerbose == -1) return;
+
   vector<Tau> NullTaus;
   Fill_RegionPlots(param, plot_dir, NullTaus,jets,fatjets, leps, met, nvtx, w,DrawConfig);
 }
 
 
 void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter param, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w, int DrawConfig){
+
+  if(param.PlottingVerbose == -1) return;
 
   TString region ="/"+param.Name + param.hprefix;
   TString regionL = "/"+param.NameInclusive_Channel + param.hprefix;
@@ -1248,9 +1252,26 @@ double HNL_LeptonCore::FillWeightHist(TString label, double _weight){
   return _weight;
 }
 
+double HNL_LeptonCore::FillWeightHist(TString label,  AnalyzerParameter param, double _weight){
+
+  if(param.PlottingVerbose == -1) return 0.;
+
+  int szst = 50 - std::string(label).size();
+  TString empty_st = "";
+  for(int i = 0 ; i < szst; i++) empty_st+= " ";
+  if(run_Debug) cout << "HNL_LeptonCore::FillWeightHist ["+label+"] " <<  empty_st<< "  correction =" <<   _weight << endl;
+
+  double max_x_range = 5.;
+  if(label.Contains("Lumi")) max_x_range = 100000; 
+
+  if(!label.Contains("Syst_"))   FillHist( "weights/"+ label , _weight ,1., 200, -1.*max_x_range, max_x_range,"ev weight");
+
+  return _weight;
+}
 
 double HNL_LeptonCore::FillFakeWeightHist(TString label, vector<Lepton *> Leps,AnalyzerParameter param,  double _weight){
 
+  if(param.PlottingVerbose == -1) return 0.;
 
   if(run_Debug) cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
   if(run_Debug) {

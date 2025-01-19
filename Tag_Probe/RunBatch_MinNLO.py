@@ -313,7 +313,7 @@ def MakeInputList(input_samples, types_sample, NJobsToRun,Era,SkimName):
                 datedir = sorted(datedir)
 
                 print "Use the last item of:",datedir
-                new_path_to_files = period_path_to_files + "/"+datedir[0]
+                new_path_to_files = period_path_to_files + "/"+datedir[-1]
                 infiles = [f for f in listdir(new_path_to_files) if isfile(join(new_path_to_files, f))]
                 MakeInputFiles(types_sample[x],Era,x+"_"+period, new_path_to_files,infiles,NJobsToRun[x])
 

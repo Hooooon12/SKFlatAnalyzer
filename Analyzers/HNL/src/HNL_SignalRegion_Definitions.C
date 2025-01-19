@@ -137,7 +137,7 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
       if(!IsData && !SameCharge(LepsT)) continue;
       
       if(IsData)weight_channel = GetCFWeightElectron(LepsT, param,nElForRunCF,true);
-      if(IsData)FillWeightHist(param.Name+"/CFWeight",weight_channel);
+      if(IsData)FillWeightHist(param.Name+"/CFWeight", param, weight_channel);
 
     }
     else if(HasFlag("SSConvSplit")){

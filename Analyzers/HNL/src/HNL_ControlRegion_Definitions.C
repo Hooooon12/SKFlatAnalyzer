@@ -306,7 +306,7 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
           if(IsData && SameCharge(LepsT)) continue;
           if(IsData){
             weight_channel = GetCFWeightElectron(LepsT, param,nElRun_ForCF, true);
-            FillWeightHist(param.ChannelDir()+"/CFWeight",weight_channel);
+            FillWeightHist(param.ChannelDir()+"/CFWeight", param, weight_channel);
           }
           if(!IsData && !SameCharge(LepsT)) continue;
         }
@@ -431,6 +431,8 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
 
 bool HNL_RegionDefinitions::FillTopCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector< Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector< Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   /// OS Top CR
   
   HNL_LeptonCore::SearchRegion Reg = TopCR;
@@ -479,7 +481,9 @@ bool HNL_RegionDefinitions::FillTopCRPlots(HNL_LeptonCore::Channel channel, std:
 
 
 bool HNL_RegionDefinitions::FillTopCR2Plots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector< Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector< Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
-  
+ 
+  if(param.PlottingVerbose == -1) return 0;
+
   /// OS Top CR
 
   HNL_LeptonCore::SearchRegion Reg = TopNPCR2;
@@ -530,6 +534,8 @@ bool HNL_RegionDefinitions::FillTopCR2Plots(HNL_LeptonCore::Channel channel, std
 
 bool HNL_RegionDefinitions::FillTopAK8CRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector< Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector< Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = TopAK8NPCR;
   FillCutflow(Reg, w, "Step0",param);
 
@@ -573,6 +579,7 @@ bool HNL_RegionDefinitions::FillTopAK8CRPlots(HNL_LeptonCore::Channel channel, s
 
 bool HNL_RegionDefinitions::FillTopNPCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = TopNPCR;
   FillCutflow(Reg, w, "Step0",param);
@@ -611,6 +618,8 @@ bool HNL_RegionDefinitions::FillTopNPCRPlots(HNL_LeptonCore::Channel channel, st
 
 
 bool HNL_RegionDefinitions::FillZ_MuonNPCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
+
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = ZNPMuCR;
   FillCutflow(Reg, w, "Step0",param);
@@ -654,6 +663,7 @@ bool HNL_RegionDefinitions::FillZ_MuonNPCRPlots(HNL_LeptonCore::Channel channel,
 
 bool HNL_RegionDefinitions::FillZ_ElNPCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = ZNPElCR;
   FillCutflow(Reg, w, "Step0",param);
@@ -698,6 +708,8 @@ bool HNL_RegionDefinitions::FillZ_ElNPCRPlots(HNL_LeptonCore::Channel channel, s
 
 bool HNL_RegionDefinitions::FillZCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl,  std::vector< Jet> B_JetColl,Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = ZCR;
   FillCutflow(Reg, w, "Step0",param);
 
@@ -737,6 +749,8 @@ bool HNL_RegionDefinitions::FillZCRPlots(HNL_LeptonCore::Channel channel, std::v
 
 
 bool HNL_RegionDefinitions::FillZAK8CRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl,  std::vector< Jet> B_JetColl,Event ev, Particle METv, AnalyzerParameter param, float w){
+
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = ZAK8CR;
   FillCutflow(Reg, w, "Step0",param);
@@ -779,7 +793,9 @@ bool HNL_RegionDefinitions::FillZAK8CRPlots(HNL_LeptonCore::Channel channel, std
 
 
 bool HNL_RegionDefinitions::FillWWCR1Plots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   ,  std::vector<Jet> jets_eta5, std::vector<FatJet> AK8_JetColl,  std::vector< Jet> B_JetColl,Event ev, Particle METv, AnalyzerParameter param, float w){
-  
+ 
+  if(param.PlottingVerbose == -1) return 0;
+
   // This CRis same as AN2021_008 Table 10
   // Same as SR but Inverse DPhi cut
   
@@ -857,6 +873,7 @@ bool HNL_RegionDefinitions::FillWWCR1Plots(HNL_LeptonCore::Channel channel, std:
 
 bool HNL_RegionDefinitions::FillWWCR2Plots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> jets_eta5, std::vector<FatJet> AK8_JetColl,  std::vector< Jet> B_JetColl,Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = WWCR2;
   FillCutflow(Reg, w, "Step0",param);
@@ -933,6 +950,8 @@ bool HNL_RegionDefinitions::FillWWCR2Plots(HNL_LeptonCore::Channel channel, std:
 
 bool HNL_RegionDefinitions::FillWWCRNPPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> jets_eta5, std::vector<FatJet> AK8_JetColl,std::vector< Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   // This is the same as AN2019_089 Table 11 Nonprompt
 
   HNL_LeptonCore::SearchRegion Reg = WWNP1CR;
@@ -1003,6 +1022,7 @@ bool HNL_RegionDefinitions::FillWWCRNPPlots(HNL_LeptonCore::Channel channel, std
 
 bool HNL_RegionDefinitions::FillWWCRNP2Plots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> jets_eta5, std::vector<FatJet> AK8_JetColl,std::vector< Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = WWNP2CR;
   FillCutflow(Reg, w, "Step0",param);
@@ -1064,6 +1084,8 @@ bool HNL_RegionDefinitions::FillWWCRNP2Plots(HNL_LeptonCore::Channel channel, st
 
 bool HNL_RegionDefinitions::FillWWCRNP3Plots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> jets_eta5, std::vector<FatJet> AK8_JetColl,std::vector< Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = WWNP3CR;
   FillCutflow(Reg, w, "Step0",param);
 
@@ -1124,6 +1146,7 @@ bool HNL_RegionDefinitions::FillWWCRNP3Plots(HNL_LeptonCore::Channel channel, st
 
 bool HNL_RegionDefinitions::FillSSPreselectionPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = Presel;
   FillCutflow(Reg, w, "Step0",param);
@@ -1160,6 +1183,8 @@ bool HNL_RegionDefinitions::RunCR(TString CRName , vector<TString> CRs) {
 
 bool HNL_RegionDefinitions::FillSSVBFPreselectionPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto , std::vector<Jet> VBF_JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = PreselVBF;
   FillCutflow(Reg, w, "Step0",param);
   if(!CheckLeptonFlavourForChannel(channel, leps)) return false;
@@ -1185,6 +1210,8 @@ bool HNL_RegionDefinitions::FillSSVBFPreselectionPlots(HNL_LeptonCore::Channel c
 }
 
 bool HNL_RegionDefinitions::FillHighMassSR1CRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
+
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = HMCR1;
   FillCutflow(Reg, w, "Step0",param);
@@ -1268,7 +1295,9 @@ bool HNL_RegionDefinitions::FillHighMassSR1CRPlots(HNL_LeptonCore::Channel chann
 }
 
 bool HNL_RegionDefinitions::FillSSZPeakCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl,  std::vector<Jet> VBF_JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
-  
+ 
+  if(param.PlottingVerbose == -1) return 0;
+
   if(!CheckLeptonFlavourForChannel(channel, leps)) return false;
   if (leps_veto.size() != 2) return false;
   
@@ -1325,6 +1354,7 @@ bool HNL_RegionDefinitions::FillSSZPeakCRPlots(HNL_LeptonCore::Channel channel, 
 
 bool HNL_RegionDefinitions::FillHighMass1JetCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = HM1JCR;
   FillCutflow(Reg, w, "Step0",param);
@@ -1355,6 +1385,8 @@ bool HNL_RegionDefinitions::FillHighMass1JetCRPlots(HNL_LeptonCore::Channel chan
 
 
 bool HNL_RegionDefinitions::FillHighMassBJetCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
+
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = HMBCR;
   FillCutflow(Reg, w, "Step0",param);
@@ -1397,6 +1429,8 @@ bool HNL_RegionDefinitions::FillHighMassBJetCRPlots(HNL_LeptonCore::Channel chan
 
 bool HNL_RegionDefinitions::FillHighMassNPCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = HMNPCR;
   FillCutflow(Reg, w, "Step0",param);
 
@@ -1431,6 +1465,8 @@ bool HNL_RegionDefinitions::FillHighMassNPCRPlots(HNL_LeptonCore::Channel channe
 }
 
 bool HNL_RegionDefinitions::FillHighMassSR3CRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
+
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = HMCR3;
   FillCutflow(Reg, w, "Step0",param);
@@ -1486,6 +1522,7 @@ bool HNL_RegionDefinitions::FillHighMassSR3CRPlots(HNL_LeptonCore::Channel chann
 
 bool HNL_RegionDefinitions::FillHighMassSR2CRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = HMCR2;
   FillCutflow(Reg, w, "Step0",param);
@@ -1533,6 +1570,8 @@ bool HNL_RegionDefinitions::FillHighMassSR2CRPlots(HNL_LeptonCore::Channel chann
 
 
 bool HNL_RegionDefinitions::FillWZVBFCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> jets_eta5, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
+
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = WZVBFCR;
   FillCutflow(Reg, w, "Step0",param);
@@ -1603,6 +1642,8 @@ bool HNL_RegionDefinitions::FillWZVBFCRPlots(HNL_LeptonCore::Channel channel, st
 
 bool HNL_RegionDefinitions::FillWZVBF2CRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> jets_eta5, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = WZVBFCR2;
   FillCutflow(Reg, w, "Step0",param);
 
@@ -1670,6 +1711,7 @@ bool HNL_RegionDefinitions::FillWZVBF2CRPlots(HNL_LeptonCore::Channel channel, s
 
 bool HNL_RegionDefinitions::FillWZBCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto   , std::vector<Jet> jets_eta5, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = WZBCR;
   FillCutflow(Reg, w, "Step0",param);
@@ -1756,6 +1798,8 @@ bool HNL_RegionDefinitions::FillWZBCRPlots(HNL_LeptonCore::Channel channel, std:
 
 bool HNL_RegionDefinitions::FillZZCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto, std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = ZZCR;
   FillCutflow(Reg, w, "Step0",param);
 
@@ -1825,6 +1869,8 @@ bool HNL_RegionDefinitions::FillZZCRPlots(HNL_LeptonCore::Channel channel, std::
 
 bool HNL_RegionDefinitions::FillZZ2CRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto, std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = ZZCR2;
   FillCutflow(Reg, w, "Step0",param);
 
@@ -1883,6 +1929,8 @@ bool HNL_RegionDefinitions::FillZZ2CRPlots(HNL_LeptonCore::Channel channel, std:
 
 
 bool HNL_RegionDefinitions::FillZZVBFCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto, std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
+
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = ZZVBFCR;
   FillCutflow(Reg, w, "Step0",param);
@@ -1969,6 +2017,8 @@ bool HNL_RegionDefinitions::FillZZVBFCRPlots(HNL_LeptonCore::Channel channel, st
 
 bool HNL_RegionDefinitions::FillZGCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto, std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
 
+  if(param.PlottingVerbose == -1) return 0;
+
   HNL_LeptonCore::SearchRegion Reg = ZGCR;
 
   //if(MCSample.Contains("DY")) return false;
@@ -2036,7 +2086,9 @@ bool HNL_RegionDefinitions::FillZGCRPlots(HNL_LeptonCore::Channel channel, std::
 
 
 bool HNL_RegionDefinitions::FillWGCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto, std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
-  
+ 
+  if(param.PlottingVerbose == -1) return 0;
+
   bool DEBUGWG=false;
   if(DEBUGWG)cout << "FillWGCRPlots " << param.Name<< endl;
   if(DEBUGWG)PrintGen(All_Gens);
@@ -2105,6 +2157,8 @@ bool HNL_RegionDefinitions::FillWGCRPlots(HNL_LeptonCore::Channel channel, std::
 
 
 bool HNL_RegionDefinitions::FillWZCRPlots(HNL_LeptonCore::Channel channel, std::vector<Lepton *> leps, std::vector<Lepton *> leps_veto, std::vector<Jet> JetColl, std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, float w){
+
+  if(param.PlottingVerbose == -1) return 0;
 
   HNL_LeptonCore::SearchRegion Reg = WZCR;
   

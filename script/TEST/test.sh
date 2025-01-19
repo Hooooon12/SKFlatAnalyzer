@@ -22,7 +22,8 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",false,\"DYJets\",\"HNMultiLepBDT\",\"RunCF\");" | root -l 2>&1 | tee "DYJets_RunCF".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"DileptonBDT\",\"RunCF\");" | root -l 2>&1 | tee "DoubleEG_RunCF".log
 #echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000".log
-echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"NoSyst,RemoveHEMJet\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_NoSyst_RemoveHEMJet".log # TEST RemoveHEMJet
+echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"LimitOnly\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_LimitOnly".log
+#echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"NoSyst,RemoveHEMJet\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_NoSyst_RemoveHEMJet".log # TEST RemoveHEMJet
 #echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"RunHighPt,MuMu\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"VBFTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "VBFTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_DF_M1000".log

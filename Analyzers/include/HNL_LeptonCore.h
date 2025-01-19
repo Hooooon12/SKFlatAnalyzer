@@ -347,6 +347,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   void FillJetPlots   (AnalyzerParameter param,std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight);
  
   double FillWeightHist(TString label, double _weight);
+  double FillWeightHist(TString label, AnalyzerParameter param, double _weight);
   double FillFakeWeightHist(TString label, vector<Lepton *> Leps,AnalyzerParameter param,  double _weight);
   void FillFakeHistograms(AnalyzerParameter param, TString Label, vector<Lepton* > Leptons, vector<Jet> JetColl, vector<FatJet> FatJetColl,vector<Jet> BJetColl, Particle MET, double w);
 

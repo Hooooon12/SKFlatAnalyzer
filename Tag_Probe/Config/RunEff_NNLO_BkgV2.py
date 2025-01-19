@@ -1431,7 +1431,8 @@ def makeResults():
       #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version5_NNLO/SF_"+era+".root")) #V5 MiNNLO : MVALoose, IDs on top of MVALoose
       #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version6_NNLO/SF_"+era+".root")) #V6 MiNNLO : same but pt 100 to 150, 150 to 200
       if "Version7" in WorkDir: HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version7_split_NNLO/SF_"+era+".root")) #V7 MiNNLO : applied RECO, CF SF
-      elif "Version8" in WorkDir: HistFiles.append(TFile.Open("/data6/Users/jihkim/TandPRunlog/Version8_NNLO/2018/TS_2025_01_17_091438__321797____tamsa1/Out_Eff/SF_"+era+".root")) #V8 MiNNLO : change Diboson MC set, add minor MCs, store mcConv
+      elif "Version8" in WorkDir: HistFiles.append(TFile.Open("/data6/Users/jihkim/TandPRunlog/Version8_NNLO/2018/TS_2025_01_17_091438__321797____tamsa1/Out_Eff/SF_"+era+".root")) #V8 MiNNLO : change Diboson MC set, add minor MCs, store mcConv, And MVALoose, MVABaseline, HNLMVA* are on top of all RECO (250116 inputs)
+      elif "Version9" in WorkDir: HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/Version9_split_NNLO/SF_"+era+".root")) #V9: same but 2016, 2017 added and 2018 rerun (250117 inputs)
 
     # Merge 2016
     if len(eras) > 1:
@@ -1650,7 +1651,7 @@ def makeResults():
 if __name__ == '__main__':
   beginTime = datetime.now()
   #makeTurnOn()
-  CreateHists(NJob) # Jobs to be splitted with condor
-  #makeResults()
+  #CreateHists(NJob) # Jobs to be splitted with condor
+  makeResults()
   endTime = datetime.now()
   print "["+endTime.now().strftime("%Y-%m-%d %H:%M:%S")+"]","Total done in",endTime-beginTime,"."

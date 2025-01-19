@@ -72,12 +72,14 @@ void HNL_SignalRegion_Plotter::executeEvent(){
       if(HasFlag("HighPtTrigger")) param.TriggerSelection     = "HighPt";          
       if(HasFlag("HighPtTrigger")) param.Apply_Weight_TriggerSF = false;
 
+      if(HasFlag("LimitOnly")) param.PlottingVerbose = -1;
+
       RunULAnalysis(param);
 
       TString param_name = param.Name;
 
-      //for(auto isyst : GetSystList("All",channel)){ //JH
-      for(auto isyst : GetSystList("",channel)){ //JH
+      for(auto isyst : GetSystList("All",channel)){ //JH
+      //for(auto isyst : GetSystList("",channel)){ //JH
         bool runJob = UpdateParamBySyst(id,param,AnalyzerParameter::Syst(isyst),param_name);
         if(runJob) RunULAnalysis(param);
       }
