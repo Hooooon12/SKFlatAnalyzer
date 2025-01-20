@@ -636,7 +636,7 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
 
   /// If not HNL_ULID setting return 
   
-  if(JobID != "HNL_ULID") return false;
+  if((JobID != "HNL_ULID")&&(JobID != "HNL_ULIDv2")) return false;
 
   //// Setup FR ID
   if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){

@@ -22,7 +22,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",false,\"DYJets\",\"HNMultiLepBDT\",\"RunCF\");" | root -l 2>&1 | tee "DYJets_RunCF".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"DileptonBDT\",\"RunCF\");" | root -l 2>&1 | tee "DoubleEG_RunCF".log
 #echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000".log
-echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"LimitOnly\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_LimitOnly".log
+#echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"LimitOnly\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_LimitOnly".log
 #echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"NoSyst,RemoveHEMJet\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_NoSyst_RemoveHEMJet".log # TEST RemoveHEMJet
 #echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"RunHighPt,MuMu\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"VBFTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "VBFTypeI_DF_M1000".log
@@ -47,6 +47,7 @@ echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",
 #echo -e ".L test.C\n test(\"2017\",false,\"ZZ\",\"HNMultiLepBDT\",\"LLL_VR\");" | root -l 2>&1 | tee "ZZ_LLL_VR".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR\");" | root -l 2>&1 | tee "DoubleEG_SS_CR".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake".log
+echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake,LimitOnly\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake_LimitOnly".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR,RunConv,SaveIntConv\");" | root -l 2>&1 | tee "2018_ZG_SS_CR_RunConv_SaveIntConv".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"DileptonBDT\",\"SS_CR,RunConv\");" | root -l 2>&1 | tee "2018_ZG_SS_CR_RunConv".log # RunConv uses Dilepton skim from PR97
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR,SaveIntConv\");" | root -l 2>&1 |         tee "2018_ZG_SS_CR_SaveIntConv".log

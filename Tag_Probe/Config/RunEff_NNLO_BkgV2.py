@@ -1607,6 +1607,11 @@ def makeResults():
 
           # SS data - SS prompt = OS fake
           h_data[EtaRegion]['ss'][Probe][IsPass].Add(h_mc[EtaRegion]['ss_tot'][Probe][IsPass],-1)
+          if "NonNeg" in WorkDir:
+            for iBin in range(h_data[EtaRegion]['ss'][Probe][IsPass].GetNbinsX()):
+              if h_data[EtaRegion]['ss'][Probe][IsPass].GetBinContent(iBin+1) < 0:
+                h_data[EtaRegion]['ss'][Probe][IsPass].SetBinContent(iBin+1,0)
+                h_data[EtaRegion]['ss'][Probe][IsPass].SetBinError(iBin+1,0)
           h_Bundle[EtaRegion][Probe][IsPass].append(h_data[EtaRegion]['ss'][Probe][IsPass].Clone()) # Fake
           h_Bundle[EtaRegion][Probe][IsPass][-1].SetFillColor(kAzure+1)
 
@@ -1623,6 +1628,11 @@ def makeResults():
 
       # SS data - SS prompt = OS fake
       h_data[EtaRegion]['ss']['All'].Add(h_mc[EtaRegion]['ss_tot']['All'],-1) # This is fake
+      if "NonNeg" in WorkDir:
+        for iBin in range(h_data[EtaRegion]['ss']['All'].GetNbinsX()):
+          if h_data[EtaRegion]['ss']['All'].GetBinContent(iBin+1) < 0:
+            h_data[EtaRegion]['ss']['All'].SetBinContent(iBin+1,0)
+            h_data[EtaRegion]['ss']['All'].SetBinError(iBin+1,0)
       h_Bundle[EtaRegion]['All'].append(h_data[EtaRegion]['ss']['All'].Clone()) # Add fake to the bundle
       h_Bundle[EtaRegion]['All'][-1].SetFillColor(kAzure+1)
 
