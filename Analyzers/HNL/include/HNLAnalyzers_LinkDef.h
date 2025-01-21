@@ -27,5 +27,6 @@
 #pragma link C++ class HNL_Signal_Studies+;
 #pragma link C++ class HNL_GenericObject_Studies+;
 #pragma link C++ class HNL_Validation+;
+#pragma link C++ class HNL_TriggerEfficiency+;
 
 #endif

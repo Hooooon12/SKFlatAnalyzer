@@ -1486,7 +1486,7 @@ bool HNL_RegionDefinitions::FillHighMassSR3CRPlots(HNL_LeptonCore::Channel chann
   FillCutflow(Reg, w, "Step3",param);
 
   double met2_st = ev.MET2ST(); //  double met2_st = GetMET2ST(leps, JetColl, AK8_JetColl, METv);
-  bool PassHMMet = (met2_st < 17);
+  bool PassHMMet = (met2_st < 15);
 
   if(PassHMMet && NB_JetColl==0) return false;
   if(NB_JetColl >1) return false;
@@ -1544,7 +1544,7 @@ bool HNL_RegionDefinitions::FillHighMassSR2CRPlots(HNL_LeptonCore::Channel chann
   FillCutflow(Reg, w, "Step3",param);
 
   double met2_st = ev.MET2ST();//  double met2_st = GetMET2ST(leps, JetColl, AK8_JetColl, METv);
-  bool PassHMMet = (met2_st < 12);   ///// USe SR MET + 2 GeV
+  bool PassHMMet = (met2_st < 15);   ///// USe SR MET + 2 GeV
 
   if(PassHMMet && NB_JetColl==0) return false;
   if(NB_JetColl >1) return false;

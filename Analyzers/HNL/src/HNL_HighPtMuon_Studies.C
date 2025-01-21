@@ -151,7 +151,7 @@ void HNL_HighPtMuon_Studies::executeEvent(){
   Particle LL2 = Muons_HNL_v1[0] + Muons_HNL_v1[1];
   if(LL2.M() < 20) return;
   if(MET2ST > 10)  return;
-  if(Muons_HNL_v1.at(1).Pt()  < 20) return;
+  if(Muons_HNL_v1.at(1).Pt()  < 100) return;
 
 
   int nPtbins=12;

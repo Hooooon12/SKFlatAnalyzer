@@ -1,10 +1,10 @@
-#include "SkimTree_EGammaTnP_HNLHighPt.h"
+#include "SkimTree_EGammaTnP_HNLHighPtV3.h"
 
-SkimTree_EGammaTnP_HNLHighPt::SkimTree_EGammaTnP_HNLHighPt(){
+SkimTree_EGammaTnP_HNLHighPtV3::SkimTree_EGammaTnP_HNLHighPtV3(){
 }
-SkimTree_EGammaTnP_HNLHighPt::~SkimTree_EGammaTnP_HNLHighPt(){
+SkimTree_EGammaTnP_HNLHighPtV3::~SkimTree_EGammaTnP_HNLHighPtV3(){
 }
-void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
+void SkimTree_EGammaTnP_HNLHighPtV3::initializeAnalyzer(){
   
   HNL_LeptonCore::initializeAnalyzer(); 
   outfile->cd();
@@ -22,6 +22,7 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
     weight_tree->Branch("zptweight",&zptweight);
     weight_tree->Branch("z0weight",&z0weight);
     weight_tree->Branch("totWeight",&totWeight);
+    weight_tree->Branch("totWeight_uncorr",&totWeight_uncorr);
   }
 
 
@@ -41,6 +42,7 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
     newtree->Branch("zptweight",&zptweight);
     newtree->Branch("z0weight",&z0weight);
     newtree->Branch("totWeight",&totWeight);
+    newtree->Branch("totWeight_uncorr",&totWeight_uncorr);
   }
   newtree->Branch("event_met_pfmet",&pfMET_Type1_pt);
   newtree->Branch("event_met_pfphi",&pfMET_Type1_phi);
@@ -82,8 +84,6 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
   newtree->Branch("passingHNL_ULID_Probe_Split_6",&passingHNL_ULID_Probe_Split_6);
   newtree->Branch("passingHNL_ULID_Probe_Split_7",&passingHNL_ULID_Probe_Split_7);
   newtree->Branch("passingHNL_ULID_Probe_Split_8",&passingHNL_ULID_Probe_Split_8);
-
-
 
   newtree->Branch("scoreHNLMVACF",&scoreHNLMVACF);
   newtree->Branch("scoreHNLMVAConv",&scoreHNLMVAConv);
@@ -166,20 +166,24 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
   
 }
 
-bool SkimTree_EGammaTnP_HNLHighPt::IsGoodTagProbe(Electron el_tag, Electron el_probe){
+bool SkimTree_EGammaTnP_HNLHighPtV3::IsGoodTagProbe(Electron el_tag, Electron el_probe){
   
   // https://indico.cern.ch/event/1255216/contributions/5273071/attachments/2594851/4478919/HEEP%20ID%202016UL%20for%20EGamma.pdf
   //if(el_probe.Pt() < 35) return false;
   if(fabs(el_probe.scEta()) >2.5) return false;
   if(el_probe.etaRegion()==Electron::GAP) return false;
 
-  if((el_tag+el_probe).M()<70) return false;
-  if((el_tag+el_probe).M()>110) return false;
+  if((el_tag+el_probe).M()<120) return false;
+
   //if((el_tag.Charge() + el_probe.Charge()) != 0)  return false;
+
+  //  if(RunFake){
+  //    if((el_tag.Charge() + el_probe.Charge()) == 0)  return false;       
+  //  }
   return true;
 }
 
-bool SkimTree_EGammaTnP_HNLHighPt::IsTag(Electron el_tag){
+bool SkimTree_EGammaTnP_HNLHighPtV3::IsTag(Electron el_tag){
   // https://indico.cern.ch/event/1255216/contributions/5273071/attachments/2594851/4478919/HEEP%20ID%202016UL%20for%20EGamma.pdf
 
   // Within barrel
@@ -210,7 +214,7 @@ bool SkimTree_EGammaTnP_HNLHighPt::IsTag(Electron el_tag){
 }
 
 
-void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
+void SkimTree_EGammaTnP_HNLHighPtV3::executeEvent(){
 
   if(!IsDATA||DataStream.Contains("SingleElectron")||DataStream.Contains("EGamma")){
 
@@ -254,6 +258,7 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
       z0weight=p.w.z0weight;
       //      totWeight=p.w.lumiweight*p.w.PUweight*p.w.prefireweight*p.w.zptweight*p.w.z0weight;
       EvWeight=p.w.lumiweight*p.w.PUweight*p.w.prefireweight;
+      totWeight_uncorr=p.w.lumiweight*p.w.PUweight*p.w.prefireweight;
     }
     L1ThresholdHLTEle23Ele12CaloIdLTrackIdLIsoVL=GetL1Threshold();
     
@@ -275,6 +280,9 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
     /// Fill matched_pair_electrons with T&P pairs
     vector<pair<Electron,Electron> > matched_pair_electrons;
     /// if nTags == 1 then use High Pt probe 
+
+    if(nTagPair!=1) return;
+    
 
     if(nTagPair==0) return;
     else if(nTagPair==1){
@@ -336,12 +344,19 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
       totWeight = EvWeight;
 
       if(!IsDATA) totWeight = totWeight * mcCorr->ElectronID_SF("HEEP",tag.scEta(), tag.Pt(), 0);
-      
+
       for(Electron& probe:vProbe){
         
         if(&tag==&probe) continue;
         if(!IsGoodTagProbe(tag,probe)) continue;
         
+	bool SSFake=false;
+	if(tag.Charge() == probe.Charge()) {
+	  SSFake=true;
+	  if(!IsData) continue;
+	}
+	
+
         passingCutBasedMedium94XV2=probe.passMediumID();
         passingCutBasedTight94XV2=probe.passTightID();
         
@@ -356,6 +371,14 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
         passingHNLMVAFake =probe.PassID("HNL_ULID_Fake");
         passingHNLMVA     =probe.PassID("HNL_ULID_"+GetYearString());
         passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_"+GetYearString());
+	if(SSFake)  {
+	  passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_FO");
+	  double FR=fakeEst->GetElectronFakeRate("HNL_HighPt_ULID_"+GetYearString(), "HNL_ULID_FO_v9_a_AJ40_El12", "Standard", "PtParton", fabs(probe.Eta()), probe.Pt(), probe.LeptonFakeTagger() );
+	  if(probe.PassID("HNL_HighPt_ULID_"+GetYearString())) totWeight = 0;
+	  else totWeight = FR/(1-FR);
+	}
+	else  passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_"+GetYearString());
+
         passingHNLMVA_TrkIso =probe.PassID("HNL_ULID_TrkIso");
 	passingHNLMVA_NoFake = probe.PassID("HNL_ULID_Defv3_FO");
 	passingHNLMVA_NoConv = probe.PassID("HNL_ULID_NoConv");
@@ -463,6 +486,9 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
 	    totWeight=totWeight* mcCorr->ElectronReco_SF("RECO_SF",tag.defEta(),tag.Pt(),0);
 	    totWeight=totWeight* mcCorr->ElectronReco_SF("RECO_SF",probe.defEta(),probe.Pt(),0);
 	    
+	    totWeight_uncorr=totWeight_uncorr* mcCorr->ElectronReco_SF("RECO_SF",tag.defEta(),tag.Pt(),0);
+            totWeight_uncorr=totWeight_uncorr* mcCorr->ElectronReco_SF("RECO_SF",probe.defEta(),probe.Pt(),0);
+
 	    if(tag.LeptonIsCF()){
 	      
 	      double CFSF = 1.;
@@ -502,7 +528,7 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
             }
 
             mcTrue=true;
-          } 
+	  }
 	  else{
             mcTrue=false;
           }
@@ -542,7 +568,7 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
   } /// Electron Stream 
 }
 
-void SkimTree_EGammaTnP_HNLHighPt::WriteHist(){
+void SkimTree_EGammaTnP_HNLHighPtV3::WriteHist(){
 
   /// Write 
   outfile->cd();
@@ -556,7 +582,7 @@ void SkimTree_EGammaTnP_HNLHighPt::WriteHist(){
   outfile->cd();
 }
 
-double SkimTree_EGammaTnP_HNLHighPt::GetL1Threshold(){
+double SkimTree_EGammaTnP_HNLHighPtV3::GetL1Threshold(){
   double rt=1000.;
   if(IsDATA){
     auto it=map_L1Threshold.find(run);
@@ -566,7 +592,7 @@ double SkimTree_EGammaTnP_HNLHighPt::GetL1Threshold(){
         else break;
       }
     }else{
-      cout<<"[SkimTree_EGammaTnP_HNLHighPt::GetL1Threshold] unknown run "<<run<<endl;
+      cout<<"[SkimTree_EGammaTnP_HNLHighPtV3::GetL1Threshold] unknown run "<<run<<endl;
       exit(EXIT_FAILURE);
     }
   }else{
@@ -577,7 +603,7 @@ double SkimTree_EGammaTnP_HNLHighPt::GetL1Threshold(){
   return rt;
 }
 
-map<int,vector<pair<int,double>>> SkimTree_EGammaTnP_HNLHighPt::map_L1Threshold={
+map<int,vector<pair<int,double>>> SkimTree_EGammaTnP_HNLHighPtV3::map_L1Threshold={
   { 272023, {make_pair(1,1000.0)} },
   { 272612, {make_pair(1,1000.0)} },
   { 272617, {make_pair(1,1000.0)} },

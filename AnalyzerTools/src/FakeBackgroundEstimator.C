@@ -110,20 +110,52 @@ double FakeBackgroundEstimator::GetFakeRate(bool IsMuon,TString ID, TString key,
 
 }
  
-double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TString BinningMethod, TString BinningParam,double eta, double pt, TString FakeTagger, int sys){
-
-  bool IsMC = false;
+double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, int sys){
 
   double ApplyHighPtCorr=1;
-  if(ID.Contains("HNL_HighPt")) {
-    //// Initial Corr                                                                                                                                
+
+  /// Function uses MC to correct high pt Fake rates
+  if(sys==-1)    return 1;
+
+  if(sys==0){
     if(ID.Contains("2016")){
+      
       if(fabs(eta) < 1.5){
-	if(pt > 200)  ApplyHighPtCorr=1.5;
-	else if(pt > 150)  ApplyHighPtCorr=1.2;
+	if(pt > 200)  ApplyHighPtCorr=1.25;
+	else if(pt > 150)  ApplyHighPtCorr=1.1;
       }
       else{
-	if(pt > 250)   ApplyHighPtCorr=0.5;
+	if(pt > 250)   ApplyHighPtCorr=0.75;
+      }
+    }
+    else  if(ID.Contains("2017")){
+      if(fabs(eta) < 1.5){
+	if(pt > 200)  ApplyHighPtCorr=1.2;
+	else if(pt > 150)  ApplyHighPtCorr=1.1;
+      }
+      else{
+	if(pt > 250)   ApplyHighPtCorr=0.75;
+      }
+    }
+    else   if(ID.Contains("2018")){
+      if(fabs(eta) < 1.5){
+	if(pt > 200)  ApplyHighPtCorr=1.1;
+	else if(pt > 150)  ApplyHighPtCorr=1.1;
+      }
+      else{
+	if(pt > 250)   ApplyHighPtCorr=0.75;
+      }
+    }
+  }
+  if(sys==1){
+    if(ID.Contains("2016")){
+      
+      if(fabs(eta) < 1.5){
+        if(pt > 200)  ApplyHighPtCorr=1.5;
+        else if(pt > 150)  ApplyHighPtCorr=1.2;
+      }
+      else{
+        if(pt > 250)   ApplyHighPtCorr=0.5;
       }
     }
     else  if(ID.Contains("2017")){
@@ -132,19 +164,36 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
         else if(pt > 150)  ApplyHighPtCorr=1.2;
       }
       else{
-	if(pt > 250)   ApplyHighPtCorr=0.5;
-      } 
+        if(pt > 250)   ApplyHighPtCorr=0.5;
+      }
     }
     else   if(ID.Contains("2018")){
       if(fabs(eta) < 1.5){
-	if(pt > 200)  ApplyHighPtCorr=1.2;
-	else if(pt > 150)  ApplyHighPtCorr=1.2;
+        if(pt > 200)  ApplyHighPtCorr=1.2;
+        else if(pt > 150)  ApplyHighPtCorr=1.2;
       }
       else{
-	if(pt > 250)   ApplyHighPtCorr=0.5;
-      } 
+        if(pt > 250)   ApplyHighPtCorr=0.5;
+      }
     }
   }
+
+
+  return ApplyHighPtCorr;
+
+}
+
+double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TString BinningMethod, TString BinningParam,double eta, double pt, TString FakeTagger, int sys){
+
+  bool IsMC = false;
+
+  double ApplyHighPtCorr=1;
+
+  int HighPtSys=0;
+  if(sys==10) HighPtSys=1;
+  if(sys==-10) HighPtSys=-1;
+  
+  if(ID.Contains("HNL_HighPt"))    ApplyHighPtCorr = HighPtCorr(ID,eta,pt,HighPtSys);
   
 
   if(ID.Contains("HighPt")) ID=ID.ReplaceAll("_HighPt","");

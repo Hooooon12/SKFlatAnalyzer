@@ -86,7 +86,7 @@ double HNL_LeptonCore::GetPDFUncertainty(TString SRBin, int sys){
 
   }
 
-  return(1. + double(sys)* 1.02);
+  return(1. + double(sys)* 0.02);
 }
 
 TString HNL_LeptonCore::GetPDFUncertainty(int iw, double& ev_weight ){

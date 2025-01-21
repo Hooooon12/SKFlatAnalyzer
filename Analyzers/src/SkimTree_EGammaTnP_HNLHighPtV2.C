@@ -1,10 +1,10 @@
-#include "SkimTree_EGammaTnP_HNLHighPt.h"
+#include "SkimTree_EGammaTnP_HNLHighPtV2.h"
 
-SkimTree_EGammaTnP_HNLHighPt::SkimTree_EGammaTnP_HNLHighPt(){
+SkimTree_EGammaTnP_HNLHighPtV2::SkimTree_EGammaTnP_HNLHighPtV2(){
 }
-SkimTree_EGammaTnP_HNLHighPt::~SkimTree_EGammaTnP_HNLHighPt(){
+SkimTree_EGammaTnP_HNLHighPtV2::~SkimTree_EGammaTnP_HNLHighPtV2(){
 }
-void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
+void SkimTree_EGammaTnP_HNLHighPtV2::initializeAnalyzer(){
   
   HNL_LeptonCore::initializeAnalyzer(); 
   outfile->cd();
@@ -22,6 +22,9 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
     weight_tree->Branch("zptweight",&zptweight);
     weight_tree->Branch("z0weight",&z0weight);
     weight_tree->Branch("totWeight",&totWeight);
+    weight_tree->Branch("totWeight_Up",&totWeight_Up);
+    weight_tree->Branch("totWeight_Down",&totWeight_Down);
+
   }
 
 
@@ -41,6 +44,9 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
     newtree->Branch("zptweight",&zptweight);
     newtree->Branch("z0weight",&z0weight);
     newtree->Branch("totWeight",&totWeight);
+    newtree->Branch("totWeight_Up",&totWeight_Up);
+    newtree->Branch("totWeight_Down",&totWeight_Down);
+
   }
   newtree->Branch("event_met_pfmet",&pfMET_Type1_pt);
   newtree->Branch("event_met_pfphi",&pfMET_Type1_phi);
@@ -82,8 +88,6 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
   newtree->Branch("passingHNL_ULID_Probe_Split_6",&passingHNL_ULID_Probe_Split_6);
   newtree->Branch("passingHNL_ULID_Probe_Split_7",&passingHNL_ULID_Probe_Split_7);
   newtree->Branch("passingHNL_ULID_Probe_Split_8",&passingHNL_ULID_Probe_Split_8);
-
-
 
   newtree->Branch("scoreHNLMVACF",&scoreHNLMVACF);
   newtree->Branch("scoreHNLMVAConv",&scoreHNLMVAConv);
@@ -166,7 +170,7 @@ void SkimTree_EGammaTnP_HNLHighPt::initializeAnalyzer(){
   
 }
 
-bool SkimTree_EGammaTnP_HNLHighPt::IsGoodTagProbe(Electron el_tag, Electron el_probe){
+bool SkimTree_EGammaTnP_HNLHighPtV2::IsGoodTagProbe(Electron el_tag, Electron el_probe){
   
   // https://indico.cern.ch/event/1255216/contributions/5273071/attachments/2594851/4478919/HEEP%20ID%202016UL%20for%20EGamma.pdf
   //if(el_probe.Pt() < 35) return false;
@@ -175,11 +179,16 @@ bool SkimTree_EGammaTnP_HNLHighPt::IsGoodTagProbe(Electron el_tag, Electron el_p
 
   if((el_tag+el_probe).M()<70) return false;
   if((el_tag+el_probe).M()>110) return false;
+
   //if((el_tag.Charge() + el_probe.Charge()) != 0)  return false;
+
+  //  if(RunFake){
+  //    if((el_tag.Charge() + el_probe.Charge()) == 0)  return false;       
+  //  }
   return true;
 }
 
-bool SkimTree_EGammaTnP_HNLHighPt::IsTag(Electron el_tag){
+bool SkimTree_EGammaTnP_HNLHighPtV2::IsTag(Electron el_tag){
   // https://indico.cern.ch/event/1255216/contributions/5273071/attachments/2594851/4478919/HEEP%20ID%202016UL%20for%20EGamma.pdf
 
   // Within barrel
@@ -191,7 +200,6 @@ bool SkimTree_EGammaTnP_HNLHighPt::IsTag(Electron el_tag){
   else{
     if(!el_tag.passHEEPID()) return false;
   }
-  if(!el_tag.IsGsfCtfChargeConsistent())  return false;
   
   // Match trigger in data
   if(IsDATA){
@@ -210,14 +218,13 @@ bool SkimTree_EGammaTnP_HNLHighPt::IsTag(Electron el_tag){
 }
 
 
-void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
+void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
 
   if(!IsDATA||DataStream.Contains("SingleElectron")||DataStream.Contains("EGamma")){
 
     Event ev = GetEvent();
 
     vector<Electron> electrons= GetAllElectrons();
-   
     
     AnalyzerParameter p = HNL_LeptonCore::InitialiseHNLParameter("Basic");
 
@@ -238,6 +245,8 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
     // }
     
     double EvWeight=1.;
+    double EvWeight_Up=1.;
+    double EvWeight_Down=1.;
     if(!PassMETFilter()) return;
     
     if(!IsDATA){
@@ -254,6 +263,13 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
       z0weight=p.w.z0weight;
       //      totWeight=p.w.lumiweight*p.w.PUweight*p.w.prefireweight*p.w.zptweight*p.w.z0weight;
       EvWeight=p.w.lumiweight*p.w.PUweight*p.w.prefireweight;
+      EvWeight_Up=p.w.lumiweight*p.w.PUweight*p.w.prefireweight;
+      EvWeight_Down=p.w.lumiweight*p.w.PUweight*p.w.prefireweight;
+    }
+    else{
+      EvWeight=1;
+      EvWeight_Up=1;
+      EvWeight_Down=1;
     }
     L1ThresholdHLTEle23Ele12CaloIdLTrackIdLIsoVL=GetL1Threshold();
     
@@ -334,14 +350,23 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
       Electron tag = t_p_pair.first;
       if(!IsTag(tag)) continue;
       totWeight = EvWeight;
+      totWeight_Up = EvWeight_Up;
+      totWeight_Down = EvWeight_Down;
 
       if(!IsDATA) totWeight = totWeight * mcCorr->ElectronID_SF("HEEP",tag.scEta(), tag.Pt(), 0);
+      if(_jentry < 1000) cout << "HEEP SF = " << mcCorr->ElectronID_SF("HEEP",tag.scEta(), tag.Pt(), 0) << endl;
       
       for(Electron& probe:vProbe){
         
         if(&tag==&probe) continue;
         if(!IsGoodTagProbe(tag,probe)) continue;
         
+	bool SSFake=false;
+	if(tag.Charge() == probe.Charge()) {
+	  SSFake=true;
+	  if(!IsData) continue;
+	}
+	
         passingCutBasedMedium94XV2=probe.passMediumID();
         passingCutBasedTight94XV2=probe.passTightID();
         
@@ -356,6 +381,19 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
         passingHNLMVAFake =probe.PassID("HNL_ULID_Fake");
         passingHNLMVA     =probe.PassID("HNL_ULID_"+GetYearString());
         passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_"+GetYearString());
+	if(SSFake)  {
+	  passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_FO");
+	  double FR=fakeEst->GetElectronFakeRate("HNL_HighPt_ULID_"+GetYearString(), "HNL_ULID_FO_v9_a_AJ40_El12", "Standard", "PtParton", fabs(probe.Eta()), probe.Pt(), probe.LeptonFakeTagger() );
+	  if(probe.PassID("HNL_HighPt_ULID_"+GetYearString())) {
+	    totWeight = 0;
+	    totWeight_Up = 0;
+	    totWeight_Down = 0;
+	    continue;
+	  }
+	  else totWeight = FR/(1-FR);
+	}
+	else  passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_"+GetYearString());
+
         passingHNLMVA_TrkIso =probe.PassID("HNL_ULID_TrkIso");
 	passingHNLMVA_NoFake = probe.PassID("HNL_ULID_Defv3_FO");
 	passingHNLMVA_NoConv = probe.PassID("HNL_ULID_NoConv");
@@ -463,6 +501,7 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
 	    totWeight=totWeight* mcCorr->ElectronReco_SF("RECO_SF",tag.defEta(),tag.Pt(),0);
 	    totWeight=totWeight* mcCorr->ElectronReco_SF("RECO_SF",probe.defEta(),probe.Pt(),0);
 	    
+	    /*
 	    if(tag.LeptonIsCF()){
 	      
 	      double CFSF = 1.;
@@ -500,9 +539,9 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
               totWeight=totWeight*CFSF;
 
             }
-
+	    */
             mcTrue=true;
-          } 
+	  }
 	  else{
             mcTrue=false;
           }
@@ -532,8 +571,9 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
           if(probe.IsPrompt()) el_IsPrompt=true;
 					else el_IsPrompt=false;
 
+	  totWeight_Up=totWeight_Up*1.5;
+	  totWeight_Down=totWeight_Down*0.5;
         }
-        
         newtree->Fill();
         weight_tree->Fill();
   
@@ -542,7 +582,7 @@ void SkimTree_EGammaTnP_HNLHighPt::executeEvent(){
   } /// Electron Stream 
 }
 
-void SkimTree_EGammaTnP_HNLHighPt::WriteHist(){
+void SkimTree_EGammaTnP_HNLHighPtV2::WriteHist(){
 
   /// Write 
   outfile->cd();
@@ -556,7 +596,7 @@ void SkimTree_EGammaTnP_HNLHighPt::WriteHist(){
   outfile->cd();
 }
 
-double SkimTree_EGammaTnP_HNLHighPt::GetL1Threshold(){
+double SkimTree_EGammaTnP_HNLHighPtV2::GetL1Threshold(){
   double rt=1000.;
   if(IsDATA){
     auto it=map_L1Threshold.find(run);
@@ -566,7 +606,7 @@ double SkimTree_EGammaTnP_HNLHighPt::GetL1Threshold(){
         else break;
       }
     }else{
-      cout<<"[SkimTree_EGammaTnP_HNLHighPt::GetL1Threshold] unknown run "<<run<<endl;
+      cout<<"[SkimTree_EGammaTnP_HNLHighPtV2::GetL1Threshold] unknown run "<<run<<endl;
       exit(EXIT_FAILURE);
     }
   }else{
@@ -577,7 +617,7 @@ double SkimTree_EGammaTnP_HNLHighPt::GetL1Threshold(){
   return rt;
 }
 
-map<int,vector<pair<int,double>>> SkimTree_EGammaTnP_HNLHighPt::map_L1Threshold={
+map<int,vector<pair<int,double>>> SkimTree_EGammaTnP_HNLHighPtV2::map_L1Threshold={
   { 272023, {make_pair(1,1000.0)} },
   { 272612, {make_pair(1,1000.0)} },
   { 272617, {make_pair(1,1000.0)} },

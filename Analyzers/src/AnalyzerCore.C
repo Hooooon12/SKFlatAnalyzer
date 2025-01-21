@@ -2103,6 +2103,21 @@ bool AnalyzerCore::IsFinalPhotonSt23_Public(const std::vector<Gen>& TruthColl){
 }
 
 
+bool AnalyzerCore::RunBDT(){
+  
+  if(!MCSample.Contains("Type")) return true;
+  
+  vector<TString> BDTMasses = {"M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500"};
+
+  for (auto it : BDTMasses){
+    TString postfix = it+"_private";
+    if(MCSample.Contains(postfix)) return true;
+  }
+  return false;
+
+}
+
+
 bool AnalyzerCore::IsSignalPID(int pid){
 
   pid = abs(pid);

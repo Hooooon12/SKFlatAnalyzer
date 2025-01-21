@@ -251,6 +251,12 @@ double HNL_LeptonCore::GetFakeWeight(std::vector<Lepton *> leps, AnalyzerParamet
     if(_param.syst_ == AnalyzerParameter::FRUp)FRStatSyst=1;
     if(_param.syst_ == AnalyzerParameter::FRDown) FRStatSyst=-1;
 
+    /// Use FRStatSyst to set for High Pt syst
+    if(_param.syst_ ==AnalyzerParameter::FRHighPtUp)  FRStatSyst=10;
+
+    if(_param.syst_ ==AnalyzerParameter::FRHighPtDown)    FRStatSyst=-10;
+
+
     double this_fr1 =  fakeEst->GetFakeRate(IsMuon1, ID1,  fr_key1, _param.FakeRateMethod, _param.FakeRateParam, leps[0]->fEta(), leps[0]->Pt(),leps[0]->LeptonFakeTagger(),FRStatSyst);
     double this_fr2 =  fakeEst->GetFakeRate(IsMuon2, ID2,  fr_key2, _param.FakeRateMethod, _param.FakeRateParam, leps[1]->fEta(), leps[1]->Pt(),leps[1]->LeptonFakeTagger(),FRStatSyst);
 
@@ -263,23 +269,6 @@ double HNL_LeptonCore::GetFakeWeight(std::vector<Lepton *> leps, AnalyzerParamet
     //}
     this_weight = fakeEst->CalculateDilepWeight(this_pr1,this_fr1, this_pr2, this_fr2, leps[0]->PassLepID(),leps[1]->PassLepID(),0);
     
-    if(_param.syst_ ==AnalyzerParameter::FRHighPtUp) {
-      if(!IsMuon2) {
-	if(leps[0]->PassLepID() && !leps[1]->PassLepID() && leps[1]->Pt() > 200 && (fabs(leps[1]->Eta()) < 1.5)) this_weight*= 1/1.5;
-      }
-      if(!IsMuon1) {
-	if(leps[1]->PassLepID() && !leps[0]->PassLepID() && leps[0]->Pt() > 200 && (fabs(leps[1]->Eta()) < 1.5)) this_weight*= 1/1.5;
-      }
-    }
-    
-    if(_param.syst_ ==AnalyzerParameter::FRHighPtDown) {
-      if(!IsMuon2) {
-        if(leps[0]->PassLepID() && !leps[1]->PassLepID() && leps[1]->Pt() > 250&& (fabs(leps[1]->Eta()) > 1.5)) this_weight*= 1/1.5;
-      } 
-      if(!IsMuon1) {
-        if(leps[1]->PassLepID() && !leps[0]->PassLepID() && leps[0]->Pt() > 250&& (fabs(leps[1]->Eta()) > 1.5)) this_weight*= 1/1.5;
-      } 
-    }
 
     if(isnan(this_weight)) {
       cout << "Dilepton Fake rate is NaN"<< endl;

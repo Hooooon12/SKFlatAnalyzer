@@ -81,7 +81,8 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
   else if(RunPromptTLRemoval)   fakeEst->ReadHistograms(true,Analyzer=="HNL_ControlRegion"); /// For now when checking                                                                                                                    
   else if(Analyzer.Contains("HNL_Lepton_FakeRate") && !Analyzer.Contains("SkimTree") ) fakeEst->ReadHistograms(IsDATA,false); ///
   else if(Analyzer.Contains("Fake") && !Analyzer.Contains("SkimTree") ) fakeEst->ReadHistograms(IsDATA,true); ///
-  
+  else if(Analyzer.Contains("SkimTree_EGammaTnP_HNLHighPt") && IsDATA) fakeEst->ReadHistograms(true,false); 
+
   //==== CFBackgroundEstimator                                                                                                                                              
   cfEst->SetEra(GetEra());
   cfEst->SetFittedBins();
@@ -424,18 +425,18 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
     SystList = {
       AnalyzerParameter::CFRateUp,
       AnalyzerParameter::CFRateDown,
-      AnalyzerParameter::CFSFUp,
-      AnalyzerParameter::CFSFDown
+      //AnalyzerParameter::CFSFUp,
+      //AnalyzerParameter::CFSFDown
     };
   }
   
   else if(RunFake){
-    SystList.push_back(AnalyzerParameter::FRUp);
+    SystList.push_back(AnalyzerParameter::FRUp); //// Add 
     SystList.push_back(AnalyzerParameter::FRDown);
-    SystList.push_back(AnalyzerParameter::FRAJUp);
-    SystList.push_back(AnalyzerParameter::FRAJDown);
-    SystList.push_back(AnalyzerParameter::FRPartonSFUp);
-    SystList.push_back(AnalyzerParameter::FRPartonSFDown);
+    //SystList.push_back(AnalyzerParameter::FRAJUp); /// Apply 15% in DataCard
+    //SystList.push_back(AnalyzerParameter::FRAJDown); 
+    //SystList.push_back(AnalyzerParameter::FRPartonSFUp); /// Apply 10% in DataCard
+    //SystList.push_back(AnalyzerParameter::FRPartonSFDown);
     SystList.push_back(AnalyzerParameter::FRHighPtUp);
     SystList.push_back(AnalyzerParameter::FRHighPtDown);
   }
@@ -461,22 +462,22 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
         SystList.push_back(AnalyzerParameter::MuonEnDown);
         SystList.push_back(AnalyzerParameter::MuonResUp);
         SystList.push_back(AnalyzerParameter::MuonResDown);
-        SystList.push_back(AnalyzerParameter::MuonIDSFUp);
-        SystList.push_back(AnalyzerParameter::MuonIDSFDown);
-        SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
-        SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
+        //SystList.push_back(AnalyzerParameter::MuonIDSFUp);
+        //SystList.push_back(AnalyzerParameter::MuonIDSFDown);
+        //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
+        //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
       }
       if(channel==EE || channel==EMu){
-        SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
-        SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
+        //SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
+        //SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
         SystList.push_back(AnalyzerParameter::ElectronResUp);
         SystList.push_back(AnalyzerParameter::ElectronResDown);
         SystList.push_back(AnalyzerParameter::ElectronEnUp);
         SystList.push_back(AnalyzerParameter::ElectronEnDown);
-        SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
-        SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
-        SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
-        SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
+        //SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
+        //SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
+        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
+        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
       }
     }
   }

@@ -1,9 +1,9 @@
-#ifndef SkimTree_EGammaTnP_HNLHighPt_h
-#define SkimTree_EGammaTnP_HNLHighPt_h
+#ifndef SkimTree_EGammaTnP_HNLHighPtV2_h
+#define SkimTree_EGammaTnP_HNLHighPtV2_h
 
 #include "HNL_LeptonCore.h"
 
-class SkimTree_EGammaTnP_HNLHighPt : public HNL_LeptonCore {
+class SkimTree_EGammaTnP_HNLHighPtV2 : public HNL_LeptonCore {
 
  public:
 
@@ -17,8 +17,8 @@ class SkimTree_EGammaTnP_HNLHighPt : public HNL_LeptonCore {
   static map<int,vector<pair<int,double>>> map_L1Threshold;
   double GetL1Threshold();
 
-  SkimTree_EGammaTnP_HNLHighPt();
-  ~SkimTree_EGammaTnP_HNLHighPt();
+  SkimTree_EGammaTnP_HNLHighPtV2();
+  ~SkimTree_EGammaTnP_HNLHighPtV2();
 
   TTree *newtree;
   TTree *weight_tree;

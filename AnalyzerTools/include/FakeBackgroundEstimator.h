@@ -48,6 +48,8 @@ public:
   double GetMuonFakeRate    (TString ID, TString key, TString BinningMethod,TString BinningParam,    double eta, double pt, TString FakeTagger, int sys=0);
 
 
+  double HighPtCorr(TString ID,double eta, double pt, int sys);
+
   double GetPromptRate(bool ApplyR,bool isMuon, TString ID, TString key, double eta, double pt, int sys=0);
   double GetElectronPromptRate(TString ID, TString key, double eta, double pt, int sys=0);
   double GetMuonPromptRate(TString ID, TString key, double eta, double pt, int sys=0);
