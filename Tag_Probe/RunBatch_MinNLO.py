@@ -252,7 +252,11 @@ def CheckList(input_samples, types_sample,NJobs,Era,SkimName):
 
     for x in input_samples[Era]:
         path_to_files="/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+Era+"/"+types_sample[x]+"_"+SkimName+"/" + x
-        print path_to_files
+        if isdir(path_to_files):
+          print path_to_files
+        else:
+          print path_to_files, "doesn't exist. skipping..."
+          continue
 
         if types_sample[x] == "MC":
             datedir = [f for f in listdir(path_to_files) if isdir(join(path_to_files, f))]
@@ -293,7 +297,11 @@ def MakeInputList(input_samples, types_sample, NJobsToRun,Era,SkimName):
 
     for x in input_samples[Era]:
         path_to_files="/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+Era+"/"+types_sample[x]+"_"+SkimName+"/" + x
-        print path_to_files
+        if isdir(path_to_files):
+          print path_to_files
+        else:
+          print path_to_files, "doesn't exist. skipping..."
+          continue
 
         if types_sample[x] == "MC":
             datedir = [f for f in listdir(path_to_files) if isdir(join(path_to_files, f))]

@@ -14,6 +14,7 @@ parser.add_argument('-nj', dest='NJob', type=int, default=0, help='Number of job
 #parser.add_argument('-e' , dest='Era', default ='2017')
 parser.add_argument('-e' , dest='Eras', default=[], nargs='+')
 parser.add_argument('-wd' , dest='WorkDir', default ='./')
+parser.add_argument('-syst' , dest='Syst', default =[], nargs='+', help='DY or QCD')
 
 args = parser.parse_args()
 
@@ -238,6 +239,12 @@ samples = {
 #  this_sample_list = sample_list[:]
 #  this_sample_list.append("SingleElectron") if era is not '2018' else this_sample_list.append("EGamma")
 #  samples[era] = this_sample_list
+
+if "DY" in args.Syst:
+  for era in ['2016', '2016preVFP', '2016postVFP', '2017', '2018']:
+    samples[era].pop(0)
+    samples[era].pop(0)
+    samples[era].insert(0,"DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8")
 
 types = {
   'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  : 'MC',
@@ -553,7 +560,9 @@ def merge_lastbins(hist):
 def makeTurnOn():
   for year, eras in grouped_eras.items():
 
-    OutFile = TFile.Open(WorkDir+"/Out_TurnOn/TurnOn_"+year+".root","RECREATE")
+    #OutFile = TFile.Open(WorkDir+"/Out_TurnOn/TurnOn_"+year+".root","RECREATE")
+    os.system('mkdir -p '+WorkDir+"/Out_TurnOn_Version10/")
+    OutFile = TFile.Open(WorkDir+"/Out_TurnOn_Version10/TurnOn_"+year+".root","RECREATE")
 
     for sample in samples[year]:
 
@@ -564,7 +573,8 @@ def makeTurnOn():
 
       for era in eras:
         for period in dates[era][sample]:
-          path_to_add.append("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root")
+          #path_to_add.append("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root")
+          path_to_add.append("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/"+era+"/"+types[sample]+"_SkimTree_EGammaTnP_HNLHighPt/"+sample+"/"+period+"/"+dates[era][sample][period]+"/*.root")
         
       for path in path_to_add:
         print "Adding",path,"..."
@@ -713,13 +723,13 @@ def classify_hist(this_year, this_sample, this_chain):
 
   return EtaRegion, Charges, Probes
 
-def makeCompPlots(Data_OS, Stack, Bundle, Error, Era, Name, n_job):
+def makeCompPlots(Data_OS, Stack, Bundle, Error, Era, Name, n_job, SystName):
 
   for i in range(Bundle[-1].GetNbinsX()):
     if Bundle[-1].GetBinContent(i+1) <= 0:
       print "[ERROR] In",Name," bin",i+1,":",Bundle[-1].GetBinContent(i+1)
 
-  os.system('mkdir -p '+WorkDir+"/Out_SF/"+Era+"/Comp")
+  os.system('mkdir -p '+WorkDir+"/Out_SF/"+Era+"/Comp"+SystName)
 
   TS=Era+Name+"_"+ str(n_job) if n_job >=0 else Era+Name
 
@@ -857,16 +867,16 @@ def makeCompPlots(Data_OS, Stack, Bundle, Error, Era, Name, n_job):
   line.SetLineColor(2)
   line.Draw()
 
-  c1.SaveAs(WorkDir+"/Out_SF/"+Era+"/Comp/Pt_"+TS+".png")
+  c1.SaveAs(WorkDir+"/Out_SF/"+Era+"/Comp"+SystName+"/Pt_"+TS+SystName+".png")
   del c1
 
   return
 
-def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile):
+def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile, SystName):
 
-  os.system('mkdir -p '+WorkDir+"/Out_SF/"+Era+"/SF")
+  os.system('mkdir -p '+WorkDir+"/Out_SF/"+Era+"/SF"+SystName)
 
-  OutName = "SF_Pt_"+Era+"_"+EtaRegion+"_"+Probe+Tag
+  OutName = "SF_Pt_"+Era+"_"+EtaRegion+"_"+Probe+Tag+SystName
 
   this_nBins = Data_OS['Pass'].GetNbinsX()
   this_Bins = Data_OS['Pass'].GetXaxis().GetXbins().GetArray()
@@ -1120,7 +1130,7 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, Tag, Save, n_job, OutFile
   line.SetLineColor(2)
   line.Draw()
 
-  c1.SaveAs(WorkDir+"/Out_SF/"+Era+"/SF/"+TS+".png")
+  c1.SaveAs(WorkDir+"/Out_SF/"+Era+"/SF/"+TS+SystName".png")
   del c1
 
   return
@@ -1431,8 +1441,9 @@ def makeResults():
       #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version5_NNLO/SF_"+era+".root")) #V5 MiNNLO : MVALoose, IDs on top of MVALoose
       #HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version6_NNLO/SF_"+era+".root")) #V6 MiNNLO : same but pt 100 to 150, 150 to 200
       if "Version7" in WorkDir: HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version7_split_NNLO/SF_"+era+".root")) #V7 MiNNLO : applied RECO, CF SF
-      elif "Version8" in WorkDir: HistFiles.append(TFile.Open("/data6/Users/jihkim/TandPRunlog/Version8_NNLO/2018/TS_2025_01_17_091438__321797____tamsa1/Out_Eff/SF_"+era+".root")) #V8 MiNNLO : change Diboson MC set, add minor MCs, store mcConv, And MVALoose, MVABaseline, HNLMVA* are on top of all RECO (250116 inputs)
+      elif "Version8" in WorkDir: HistFiles.append(TFile.Open("/data6/Users/jihkim/TandPRunlog/Version8_NNLO/2018/TS_2025_01_17_091438__321797____tamsa1/Out_Eff/SF_"+era+".root")) #V8 MiNNLO : change Diboson MC set, add minor MCs, store mcConv, add RECO SF, CF SF, ID SF to tag, And MVALoose, MVABaseline, HNLMVA* are on top of all RECO (250116 inputs)
       elif "Version9" in WorkDir: HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/Version9_split_NNLO/SF_"+era+".root")) #V9: same but 2016, 2017 added and 2018 rerun (250117 inputs)
+      elif "Version10" in WorkDir: HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/Version10_split_NNLO/SF_"+era+".root")) #V10: fix CFSF and RECO SF duplication issue, tag is now HEEP+medium charge (but HEEP SF still), remove probe pt cut in the skim, remove ev.PassTrigger for MC events
 
     # Merge 2016
     if len(eras) > 1:

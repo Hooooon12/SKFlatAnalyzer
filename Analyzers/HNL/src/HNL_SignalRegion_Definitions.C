@@ -30,7 +30,6 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
             Event ev,   Particle METv, AnalyzerParameter param, int nElForRunCF,   float weight_ll){
 
 
-
   std::vector<Electron> electrons;
   if(RunCF) {
     /// Add code to smear individual electron for CF Bkg                                                                                                                                                                                                                                   

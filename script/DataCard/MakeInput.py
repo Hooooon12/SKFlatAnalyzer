@@ -31,22 +31,22 @@ else:
 #eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
 #eras = ["2016preVFP"]
 #eras = ["2016postVFP"]
-eras = ["2017"]
-#eras = ["2018"]
+#eras = ["2017"]
+eras = ["2018"]
 #eras = ["Run2"] # Let's merge Run2 after running all eras first
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M1000","M10000"]
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250"]
-#masses = ["M1000"]
+masses = ["M1000"]
 #masses = ["M100"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M1000"]
 #masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
-#channels = ["MuMu","EE","EMu"]
+channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
 #channels = ["EMu"]
-channels = ["MuMu"]
+#channels = ["MuMu"]
 HistChannelMap = {'MuMu':'Muon', 'EE':'Electron', 'EMu':'ElectronMuon'}
 ## Ugly region maps ##
 RegionToCRFlagMap = {}
@@ -54,8 +54,8 @@ RegionToChannelMap = {}
 RegionToHistSuffixMap = {}
 
 #tags = ["HNL_ULID","HNTightV2"] # HNLParameter Name
-tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
-#tags = ["HNL_ULIDv2"] # HNLParameter Name, used to call the histogram
+#tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
+tags = ["HNL_ULIDv2"] # HNLParameter Name, used to call the histogram
 #tags = ["HNL_ULID","HighPt"] # HNLParameter Name, used to call the histogram
 #tags = ["HighPt"] # HNLParameter Name, used to call the histogram
 #outputTagPrefix = "240501_1704_" # tag the output directory name as you wish
@@ -72,8 +72,9 @@ tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
 #outputTagPrefix = "PR52_SSWWrescale_" # tag the output directory name as you wish
 #outputTagPrefix = "PR85_" # tag the output directory name as you wish
 #outputTagPrefix = "PR89_" # tag the output directory name as you wish
-outputTagPrefix = "PR95_" # tag the output directory name as you wish
+#outputTagPrefix = "PR95_" # tag the output directory name as you wish
 #outputTagPrefix = "PR97_" # tag the output directory name as you wish
+outputTagPrefix = "PR101_" # tag the output directory name as you wish
 
 outputTagSuffix = ""
 if args.CnC:
@@ -218,8 +219,9 @@ else:
 
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR52/"
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR89/"
-InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR95/"
+#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR95/"
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR97/"
+InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR101/"
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
 
 ##### Start merging #####
