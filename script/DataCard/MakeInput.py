@@ -36,11 +36,12 @@ eras = ["2018"]
 #eras = ["Run2"] # Let's merge Run2 after running all eras first
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M1000","M10000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250"]
-masses = ["M1000"]
-#masses = ["M100"]
+#masses = ["M1000"]
+#masses = ["M100","M500","1000","M10000"]
+#masses = ["M85","M90","M95","M125","M150","M200","M250","M300","M400","M600","M700","M800","M900","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M15000","M20000"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M1000"]
 #masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
 channels = ["MuMu","EE","EMu"]
@@ -74,7 +75,8 @@ tags = ["HNL_ULIDv2"] # HNLParameter Name, used to call the histogram
 #outputTagPrefix = "PR89_" # tag the output directory name as you wish
 #outputTagPrefix = "PR95_" # tag the output directory name as you wish
 #outputTagPrefix = "PR97_" # tag the output directory name as you wish
-outputTagPrefix = "PR101_" # tag the output directory name as you wish
+#outputTagPrefix = "PR101_" # tag the output directory name as you wish
+outputTagPrefix = "ANv3_" # tag the output directory name as you wish
 
 outputTagSuffix = ""
 if args.CnC:
@@ -87,8 +89,8 @@ DataSkim = "_SkimTree_HNMultiLepBDT_"
 FakeSkim = "_SkimTree_HNMultiLepBDT_"
 #CFSkim = "_SkimTree_HNMultiLepBDT_" #FIXME MC CF
 CFSkim = "_SkimTree_DileptonBDT_" #FIXME Data CF
-ConvSkim = "_SkimTree_HNMultiLepBDT_"
-#ConvSkim = "_SkimTree_DileptonBDT_" # From PR97
+#ConvSkim = "_SkimTree_HNMultiLepBDT_"
+ConvSkim = "_SkimTree_DileptonBDT_" # From PR97 to PR101
 MCSkim = "_SkimTree_HNMultiLepBDT_"
 SignalSkim = "_SkimTree_HNMultiLepBDT_"
 
@@ -209,6 +211,116 @@ else:
   RegionToHistSuffixMap['sr1'] = {'MuMu':'LimitBins/MuonSR1', 'EE':'LimitBins/ElectronSR1', 'EMu':'LimitBins/ElectronMuonSR1'}
   RegionToHistSuffixMap['sr2'] = {'MuMu':'LimitBins/MuonSR2', 'EE':'LimitBins/ElectronSR2', 'EMu':'LimitBins/ElectronMuonSR2'}
   RegionToHistSuffixMap['sr3'] = {'MuMu':'LimitBins/MuonSR3', 'EE':'LimitBins/ElectronSR3', 'EMu':'LimitBins/ElectronMuonSR3'}
+
+SystList = [
+            "JetResUp","JetResDown",
+            "JetEnUp","JetEnDown",
+            "JetPUIDUp","JetPUIDDown",
+            "JetPNETUp","JetPNETDown",
+            #"JetMassUp","JetMassDown",
+            #"JetMassSmearUp","JetMassSmearDown",
+            "MuonEnUp","MuonEnDown",
+            "MuonResUp","MuonResDown",
+            "ElectronEnUp","ElectronEnDown",
+            "ElectronResUp","ElectronResDown",
+            "MuonRecoSFUp","MuonRecoSFDown",
+            #"MuonIDSFUp","MuonIDSFDown",
+            #"MuonISOSFUp","MuonISOSFDown",
+            #"ElectronRecoSFUp","ElectronRecoSFDown",
+            #"ElectronIDSFUp","ElectronIDSFDown",
+            #"ElectronTriggerSFUp","ElectronTriggerSFDown",
+            "BTagSFHTagUp","BTagSFHTagDown",
+            "BTagSFLTagUp","BTagSFLTagDown",
+            "METUnclUp","METUnclDown",
+            "PrefireUp","PrefireDown",
+            "PUUp","PUDown",
+            "CFRateUp","CFRateDown",
+            #"CFSFUp","CFSFDown",
+            "FRUp","FRDown",
+            "FRHighPtUp","FRHighPtDown",
+            #"AJUp","AJDown",
+            #"LIDUp","LIDDown",
+            #"PSFUp","PSFDown",
+            "PDFUp","PDFDown",
+            "ScaleUp","ScaleDown",
+           ]
+
+SystNameMap = {}
+for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
+  SystNameMap[era] = {}
+  SystNameMap[era]["JetResUp"]            = "CMS_res_j_"+era+"Up"
+  SystNameMap[era]["JetEnUp"]             = "CMS_scale_j_"+era+"Up"
+  SystNameMap[era]["JetPUIDUp"]           = "CMS_eff_j_PUJET_id_"+era+"Up"
+  SystNameMap[era]["JetPNETUp"]           = "CMS_eff_j_PNET_"+era+"Up"
+  SystNameMap[era]["MuonEnUp"]            = "CMS_scale_m_"+era+"Up"
+  SystNameMap[era]["MuonResUp"]           = "CMS_res_m_"+era+"Up"
+  SystNameMap[era]["MuonRecoSFUp"]        = "CMS_eff_m_reco_"+era+"Up"
+  SystNameMap[era]["MuonIDSFUp"]          = "CMS_eff_m_id_"+era+"Up"
+  SystNameMap[era]["MuonTriggerSFUp"]     = "CMS_eff_m_trigger_"+era+"Up"
+  SystNameMap[era]["ElectronEnUp"]        = "CMS_scale_e_"+era+"Up"
+  SystNameMap[era]["ElectronResUp"]       = "CMS_res_e_"+era+"Up"
+  SystNameMap[era]["ElectronRecoSFUp"]    = "CMS_eff_e_reco_"+era+"Up"
+  SystNameMap[era]["ElectronIDSFUp"]      = "CMS_eff_e_id_"+era+"Up"
+  SystNameMap[era]["ElectronTriggerSFUp"] = "CMS_eff_e_trigger_"+era+"Up"
+  SystNameMap[era]["BTagSFHTagUp"]        = "CMS_btag_hf_"+era+"Up"
+  SystNameMap[era]["BTagSFLTagUp"]        = "CMS_btag_lf_"+era+"Up"
+  SystNameMap[era]["METUnclUp"]           = "CMS_scale_met_"+era+"Up"
+  SystNameMap[era]["PrefireUp"]           = "CMS_l1_ecal_prefiring_"+era+"Up"
+  SystNameMap[era]["PUUp"]                = "CMS_pileup_13TeV"+"Up" # full correlation
+  SystNameMap[era]["CFRateUp"]            = "CMS_cf_stat_"+era+"Up"
+  SystNameMap[era]["FRUp"]                = "CMS_fake_stat_"+era+"Up"
+  SystNameMap[era]["FRHighPtUp"]          = "CMS_fake_highpt_"+era+"Up"
+  SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation
+  SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation
+  SystNameMap[era]["JetResDown"]            = "CMS_res_j_"+era+"Down"
+  SystNameMap[era]["JetEnDown"]             = "CMS_scale_j_"+era+"Down"
+  SystNameMap[era]["JetPUIDDown"]           = "CMS_eff_j_PUJET_id_"+era+"Down"
+  SystNameMap[era]["JetPNETDown"]           = "CMS_eff_j_PNET_"+era+"Down"
+  SystNameMap[era]["MuonEnDown"]            = "CMS_scale_m_"+era+"Down"
+  SystNameMap[era]["MuonResDown"]           = "CMS_res_m_"+era+"Down"
+  SystNameMap[era]["MuonRecoSFDown"]        = "CMS_eff_m_reco_"+era+"Down"
+  SystNameMap[era]["MuonIDSFDown"]          = "CMS_eff_m_id_"+era+"Down"
+  SystNameMap[era]["MuonTriggerSFDown"]     = "CMS_eff_m_trigger_"+era+"Down"
+  SystNameMap[era]["ElectronEnDown"]        = "CMS_scale_e_"+era+"Down"
+  SystNameMap[era]["ElectronResDown"]       = "CMS_res_e_"+era+"Down"
+  SystNameMap[era]["ElectronRecoSFDown"]    = "CMS_eff_e_reco_"+era+"Down"
+  SystNameMap[era]["ElectronIDSFDown"]      = "CMS_eff_e_id_"+era+"Down"
+  SystNameMap[era]["ElectronTriggerSFDown"] = "CMS_eff_e_trigger_"+era+"Down"
+  SystNameMap[era]["BTagSFHTagDown"]        = "CMS_btag_hf_"+era+"Down"
+  SystNameMap[era]["BTagSFLTagDown"]        = "CMS_btag_lf_"+era+"Down"
+  SystNameMap[era]["METUnclDown"]           = "CMS_scale_met_"+era+"Down"
+  SystNameMap[era]["PrefireDown"]           = "CMS_l1_ecal_prefiring_"+era+"Down"
+  SystNameMap[era]["PUDown"]                = "CMS_pileup_13TeV"+"Down" # full correlation
+  SystNameMap[era]["CFRateDown"]            = "CMS_cf_stat_"+era+"Down"
+  SystNameMap[era]["FRDown"]                = "CMS_fake_stat_"+era+"Down"
+  SystNameMap[era]["FRHighPtDown"]          = "CMS_fake_highpt_"+era+"Down"
+  SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation
+  SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation
+  SystNameMap[era]["JetRes"]            = "CMS_res_j_"+era
+  SystNameMap[era]["JetEn"]             = "CMS_scale_j_"+era
+  SystNameMap[era]["JetPUID"]           = "CMS_eff_j_PUJET_id_"+era
+  SystNameMap[era]["JetPNET"]           = "CMS_eff_j_PNET_"+era
+  SystNameMap[era]["MuonEn"]            = "CMS_scale_m_"+era
+  SystNameMap[era]["MuonRes"]           = "CMS_res_m_"+era
+  SystNameMap[era]["MuonRecoSF"]        = "CMS_eff_m_reco_"+era
+  SystNameMap[era]["MuonIDSF"]          = "CMS_eff_m_id_"+era
+  SystNameMap[era]["MuonTriggerSF"]     = "CMS_eff_m_trigger_"+era
+  SystNameMap[era]["ElectronEn"]        = "CMS_scale_e_"+era
+  SystNameMap[era]["ElectronRes"]       = "CMS_res_e_"+era
+  SystNameMap[era]["ElectronRecoSF"]    = "CMS_eff_e_reco_"+era
+  SystNameMap[era]["ElectronIDSF"]      = "CMS_eff_e_id_"+era
+  SystNameMap[era]["ElectronTriggerSF"] = "CMS_eff_e_trigger_"+era
+  SystNameMap[era]["BTagSFHTag"]        = "CMS_btag_hf_"+era
+  SystNameMap[era]["BTagSFLTag"]        = "CMS_btag_lf_"+era
+  SystNameMap[era]["METUncl"]           = "CMS_scale_met_"+era
+  SystNameMap[era]["Prefire"]           = "CMS_l1_ecal_prefiring_"+era
+  SystNameMap[era]["PU"]                = "CMS_pileup_13TeV" # full correlation
+  SystNameMap[era]["CFRate"]            = "CMS_cf_stat_"+era
+  SystNameMap[era]["FR"]                = "CMS_fake_stat_"+era
+  SystNameMap[era]["FRHighPt"]          = "CMS_fake_highpt_"+era
+  SystNameMap[era]["PDF"]               = "pdf"
+  SystNameMap[era]["Scale"]             = "QCDscale" # full correlation
+
 
 ## ChargeSplit has been deprecated due to insignificant improvement. Just legacy ##
 ChargeSplit = False
@@ -501,7 +613,7 @@ def FillScan(outScan, inScan, procName):
 for tag in tags:
   for era in eras:
     for region in regions: # ...and even each region to control!!
-      print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region
+      print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       OutputPath = InputPath+'/LimitExtraction/'+outputTagPrefix+tag+outputTagSuffix+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
   
@@ -592,6 +704,13 @@ for tag in tags:
                         [f_path_prompt_others, h_prompt_others, "prompt_others"],
                         [f_path_prompt_inc, h_prompt_inc, "prompt_inc"],
                        ]
+
+          #### Treat 0 fakes: see v) of https://hypernews.cern.ch/HyperNews/CMS/get/EXO-21-002/25
+          for i in range(h_fake.GetNbinsX()):
+            if h_fake.GetBinContent(i+1) <= 0.:
+              print "!!!!!! zero fakes detected in fake bin",i+1,":",h_fake.GetBinContent(i+1)
+              h_fake.SetBinContent(i+1,0.15*0.645)
+              h_fake.SetBinError(i+1,0.15*0.645)
 
           if "Mu" in channel:
             print "This is",channel,"channel."
@@ -763,48 +882,32 @@ for tag in tags:
   
           if args.Syst:
             print "##### Systematics activated."
-            syst_list = [
-                         "JetResUp","JetResDown",
-                         "JetEnUp","JetEnDown",
-                         #"JetMassUp","JetMassDown",
-                         #"JetMassSmearUp","JetMassSmearDown",
-                         "MuonEnUp","MuonEnDown",
-                         "MuonResUp","MuonResDown",
-                         "ElectronEnUp","ElectronEnDown",
-                         "ElectronResUp","ElectronResDown",
-                         "MuonRecoSFUp","MuonRecoSFDown",
-                         "MuonIDSFUp","MuonIDSFDown",
-                         #"MuonISOSFUp","MuonISOSFDown",
-                         "ElectronRecoSFUp","ElectronRecoSFDown",
-                         "ElectronIDSFUp","ElectronIDSFDown",
-                         #"ElectronTriggerSFUp","ElectronTriggerSFDown",
-                         "BTagSFHTagUp","BTagSFHTagDown",
-                         "BTagSFLTagUp","BTagSFLTagDown",
-                         "METUnclUp","METUnclDown",
-                         "PrefireUp","PrefireDown",
-                         "PUUp","PUDown",
-                         "CFRateUp","CFRateDown",
-                         "CFSFUp","CFSFDown",
-                         "FRUp","FRDown",
-                         "AJUp","AJDown",
-                         "LIDUp","LIDDown",
-                         "PSFUp","PSFDown",
-                        ]
   
             Nproc = len(input_list) # The number of processes = the length of the input list before adding systematics
   
             for i in range(Nproc):
               if args.Scan:
-                h_scan = TH2D(input_list[i][2],input_list[i][2],h_fake.GetNbinsX(),0,h_fake.GetNbinsX(),len(syst_list),0,len(syst_list))
+                h_scan = TH2D(input_list[i][2],input_list[i][2],h_fake.GetNbinsX(),0,h_fake.GetNbinsX(),len(SystList),0,len(SystList))
                 print "h_scan for",input_list[i][2],"syst created; this should be empty:",h_scan.Integral(0,h_fake.GetNbinsX(),1,1)
                 if h_scan.Integral(0,h_fake.GetNbinsX(),1,1)!=0.: sys.exit()
                 h_scan.SetDirectory(0)
 
-              for this_syst in syst_list: # Define new input_hist with each syst name
-                input_hist = LimitDir+"/Syst_"+this_syst+tag+"/"+channel+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
+              f_syst = TFile.Open(input_list[i][0]) # Get each process's file
 
-                if not "fake_data_path" in input_list[i][0]: # There is no file like "fake_data_path" ...
-                  name_syst = input_list[i][2]+"_"+this_syst # Define syst histo name
+              for this_syst in SystList: # Define new input_hist with each syst name
+
+                if not "fake_data_path" in input_list[i][0]: # There is no file like "fake_data_path" so pass this in the iteration
+                  input_hist = LimitDir+"/Syst_"+this_syst+tag+"/"+channel+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
+
+                  this_name_syst = SystNameMap[era][this_syst]
+                  if 'PDF' in this_syst or 'Scale' in this_syst:
+                    if 'signal' not in input_list[i][2]: continue
+                    else:
+                      if "DYVBF" in input_list[i][2]:
+                        this_name_syst = this_name_syst.replace('pdf','pdf_DYVBF').replace('scale','scale_DYVBF')
+                      elif "SSWW" in input_list[i][2]:
+                        this_name_syst = this_name_syst.replace('pdf','pdf_SSWW').replace('scale','scale_SSWW')
+                  name_syst = input_list[i][2]+"_"+this_name_syst # new output syst hist name
 
                   if args.Decorr: # Redefine output syst hist name
                     if 'sr1' in region or 'cr1' in region:
@@ -818,15 +921,23 @@ for tag in tags:
                       print "[!!ERROR!!] Exiting ..."
                       sys.exit()
 
-                    DecorrList = ["CFRate","CFSF","FR","AJ","LID","PSF"]
+                    DecorrList = ["CFRate","FR","FRHighPt"]
                     this_syst_source = this_syst.replace('Up','').replace('Down','')
                     if this_syst_source in DecorrList: # if this is Fake of CF syst source
-                      this_syst_nameSep = this_syst_source+"_"+regionName_Decorr+this_syst.replace(this_syst_source,'') # AJ_sr1Up
+                      this_syst_nameSep = SystNameMap[era][this_syst_source]+"_"+regionName_Decorr+this_syst.replace(this_syst_source,'') # AJ_sr1Up
                       name_syst = input_list[i][2]+"_"+this_syst_nameSep
 
-                  f_syst = TFile.Open(input_list[i][0]) # Get each process's file
                   try:
                     h_syst = f_syst.Get(input_hist)
+                    #### Treat 0 fakes: see v) of https://hypernews.cern.ch/HyperNews/CMS/get/EXO-21-002/25
+                    if input_list[i][2] == "fake" and "FR" in this_syst and "CFRate" not in this_syst:
+                      print name_syst
+                      for j in range(h_syst.GetNbinsX()):
+                        if h_syst.GetBinContent(j+1) <= 0.:
+                          print "!!!!!! zero fakes detected in fake",name_syst," bin",j+1,":",h_syst.GetBinContent(j+1)
+                          h_syst.SetBinContent(j+1,0.15*0.645)
+                          h_syst.SetBinError(j+1,0.15*0.645)
+
                   except ReferenceError:
                     print("[!!WARNING!!] There is no file "+input_list[i][0]+" .")
                     if args.Scan:

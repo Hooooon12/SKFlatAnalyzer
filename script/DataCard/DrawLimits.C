@@ -26,11 +26,13 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
   //TString WP_nom = "PR48_rateParam_HNL_ULID"; // nominal working point
   //TString WP_nom = "PR86_HNL_ULID_Decorr"; // nominal working point
-  TString WP_nom = "PR97_HNL_ULIDv2_NoCR_NoSyst"; // nominal working point
+  //TString WP_nom = "PR97_HNL_ULIDv2_NoCR_NoSyst"; // nominal working point
+  TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_NoCR"; // nominal working point
   //TString tag_nom = "_syst"; // nominal tag
-  //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
-  TString tag_nom = "_sronly_sr123_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
+  //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
+  //TString tag_nom = "_sronly_sr123_Run2Scaled"; // nominal tag
+  TString tag_nom = "_sronly_sr123_syst_Run2Scaled"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
   TString Name_IsXsecLimit = "";
   if(IsXsecLimit) Name_IsXsecLimit = "_xsec";
@@ -193,10 +195,10 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   gr_band_2sigma_0->SetMarkerColor(kOrange);
 
   // Use when there are more than two input limits to compare
-  TGraph *gr_exp_1 = new TGraph(n_centrals[1],&masses[1][0],&limits[1][0]);
-  gr_exp_1->SetLineWidth(3);
-  //gr_exp_1->SetLineColor(kViolet);
-  gr_exp_1->SetLineColor(kRed);
+  //TGraph *gr_exp_1 = new TGraph(n_centrals[1],&masses[1][0],&limits[1][0]);
+  //gr_exp_1->SetLineWidth(3);
+  ////gr_exp_1->SetLineColor(kViolet);
+  //gr_exp_1->SetLineColor(kRed);
 
   //TGraph *gr_exp_2 = new TGraph(n_centrals[2],&masses[2][0],&limits[2][0]);
   //gr_exp_2->SetLineWidth(3);
@@ -909,7 +911,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID 2017 Scaled (exp)", "l");
     //lg_Alt->AddEntry(gr_exp_2, "PR44 HNL_ULID (exp)", "l");
-    if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
+    //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
     if(!IsXsecLimit) lg_Alt->AddEntry(gr_21003_exp, "EXO-21-003 Run2 (exp)", "l");
     //lg_Alt->AddEntry(gr_17028_obs, "CMS 13 TeV dilepton", "l");
     //lg_Alt->AddEntry(gr_trilepLimit, "CMS 13 TeV trilepton", "l");
@@ -929,7 +931,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //lg_Alt->AddEntry(gr_exp_1, "PR45 HNTightV2 (exp)", "l");
     //lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID 2017 Scaled (exp)", "l");
-    if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
+    //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "HEEP (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_2, "HEEP w/o pTcut (exp)", "l");
     //lg_Alt->AddEntry(gr_exp_2, "PR44 HNL_ULID (exp)", "l");
@@ -949,7 +951,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //lg_Alt->AddEntry(gr_exp_1, "PR45 HNTightV2 (exp)", "l");
     //lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID 2017 Scaled (exp)", "l");
-    if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
+    //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
     //lg_Alt->AddEntry(gr_exp_2, "PR44 HNL_ULID (exp)", "l");
     //lg_Alt->AddEntry(gr_17028_obs, "CMS 13 TeV dilepton", "l");
   }
@@ -1007,8 +1009,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   }
   dummy->GetXaxis()->SetTitle("m_{N} (GeV)");
   if(CompareLimits) dummy->GetXaxis()->SetLabelSize(0);
-  if(channel=="EMu") dummy->GetXaxis()->SetRangeUser(80., 60000); //FIXME
-  else dummy->GetXaxis()->SetRangeUser(80., 30000); //FIXME
+  //if(channel=="EMu") dummy->GetXaxis()->SetRangeUser(80., 60000); //FIXME
+  //else dummy->GetXaxis()->SetRangeUser(80., 30000); //FIXME
+  dummy->GetXaxis()->SetRangeUser(80., 25000); //FIXME
   if(IsXsecLimit) dummy->GetYaxis()->SetRangeUser(1e-5, 0.1); //FIXME
   else dummy->GetYaxis()->SetRangeUser(5e-5, 1.); //FIXME
   dummy->SetTitle("");
@@ -1025,7 +1028,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //gr_L3Limit->Draw("lsame");
     //gr_DELPHILimit->Draw("lsame");
     if(!IsXsecLimit) gr_21003_exp->Draw("lsame");
-    if(CompareLimits) gr_exp_1->Draw("lsame");
+    //if(CompareLimits) gr_exp_1->Draw("lsame");
     //gr_exp_2->Draw("lsame");
     //gr_21003_obs->Draw("lsame");
     //gr_trilepLimit->Draw("lsame");
@@ -1033,7 +1036,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //gr_ATLAS_MuMu->Draw("lsame");
   }
   else if(channel=="EE"){
-    if(CompareLimits) gr_exp_1->Draw("lsame");
+    //if(CompareLimits) gr_exp_1->Draw("lsame");
     //if(CompareLimits) gr_exp_2->Draw("lsame");
     //gr_exp_2->Draw("lsame");
     //gr_L3_2Limit->Draw("lsame");
@@ -1044,7 +1047,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //gr_ATLAS_EE->Draw("lsame");
   }
   else if(channel=="EMu"){
-    if(CompareLimits) gr_exp_1->Draw("lsame");
+    //if(CompareLimits) gr_exp_1->Draw("lsame");
     //gr_exp_2->Draw("lsame");
   }
 
@@ -1114,8 +1117,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     ////////// Now set the comparison points manually... (fix needed) ///////////
 
     // ratio with the target1 // use this when the target and nominal share the same mass points
-    double ratio_target1[n_centrals[0]];
-    for(int i=0; i<n_centrals[0]; i++) ratio_target1[i] = limits[1][i]/limits[0][i];
+    //double ratio_target1[n_centrals[0]];
+    //for(int i=0; i<n_centrals[0]; i++) ratio_target1[i] = limits[1][i]/limits[0][i];
 
     //double ratio_target2[n_centrals[0]];
     //for(int i=0; i<n_centrals[0]; i++) ratio_target2[i] = limits[2][i]/limits[0][i];
@@ -1160,7 +1163,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     int index_comp_PR48_PR86[25] = {3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28};
     double ratio_PR48[25];
     //for(int i=0; i<25; i++) cout << limits[1][index_comp_PR46_PR48[i]] << " vs " << limits[0][i] << endl;
-    for(int i=0; i<25; i++) ratio_PR48[i] = limits[1][i]/limits[0][index_comp_PR48_PR86[i]];
+    //for(int i=0; i<25; i++) ratio_PR48[i] = limits[1][i]/limits[0][index_comp_PR48_PR86[i]];
     //for(int i=0; i<25; i++) cout << ratio_PR46[i] << endl;
 
     // ratio with EXO-17-028 expected //FIXME this is mass dependent.

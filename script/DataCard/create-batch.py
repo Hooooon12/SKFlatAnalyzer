@@ -181,7 +181,7 @@ for RunList in args.RunLists:
         submitfile.write("transfer_output_remaps = \"higgsCombineTest.AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic.root\"\n")
         submitfile.write("queue\n")
       os.chdir('Batch/'+WP+'/Asymptotic/'+shortcard)
-      os.system('condor_submit submit_Asymptotic.sh -batch-name '+shortcard+'_'+WP+'_Asymptotic')
+      os.system('condor_submit -a "priority = -15" submit_Asymptotic.sh -batch-name '+shortcard+'_'+WP+'_Asymptotic')
       os.chdir(pwd)
 
     if args.Work:
@@ -206,7 +206,7 @@ for RunList in args.RunLists:
         #submitfile.write("error = "+shortcard+"_Workspace.err\n")
         submitfile.write("queue\n")
       os.chdir(WP+"/"+shortcard)
-      os.system('condor_submit submit_Workspace.sh -batch-name '+shortcard+'_'+WP+'_Workspace')
+      os.system('condor_submit -a "priority = -15" submit_Workspace.sh -batch-name '+shortcard+'_'+WP+'_Workspace')
       os.chdir(pwd)
 
     if args.Nuis:
@@ -258,5 +258,5 @@ for RunList in args.RunLists:
         #submitfile.write("error = "+shortcard+"_CheckNuisance.err\n")
         submitfile.write("queue\n")
       os.chdir(WP+"/"+shortcard)
-      os.system('condor_submit submit_Nuisance.sh -batch-name '+shortcard+'_'+WP+'_Nuisance')
+      os.system('condor_submit -a "priority = -15" submit_Nuisance.sh -batch-name '+shortcard+'_'+WP+'_Nuisance')
       os.chdir(pwd)
