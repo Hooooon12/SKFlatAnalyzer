@@ -48,12 +48,12 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",false,\"ZZ\",\"HNMultiLepBDT\",\"LLL_VR\");" | root -l 2>&1 | tee "ZZ_LLL_VR".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR\");" | root -l 2>&1 | tee "DoubleEG_SS_CR".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake".log
-echo -e ".L test_CR.C\n test_CR(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake,LimitOnly\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake_LimitOnly".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR,RunConv,SaveIntConv\");" | root -l 2>&1 | tee "2018_ZG_SS_CR_RunConv_SaveIntConv".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"DileptonBDT\",\"SS_CR,RunConv\");" | root -l 2>&1 | tee "2018_ZG_SS_CR_RunConv".log # RunConv uses Dilepton skim from PR97
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR,SaveIntConv\");" | root -l 2>&1 |         tee "2018_ZG_SS_CR_SaveIntConv".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR\");" | root -l 2>&1 |                     tee "2018_ZG_SS_CR".log
+echo -e ".L test.C\n test(\"2018\",false,\"ZZ\",\"HNMultiLepBDT\",\"SS_CR,RunPrompt\");" | root -l 2>&1 | tee "2018_ZZ_SS_CR_RunPrompt".log # RunConv uses Dilepton skim from PR97
 
 # SkimTree_EGammaTnP_HighPt
 #echo -e ".L test.C\n test(\"2017\",false,\"ZZ_pythia\",\"DileptonBDT\",\"\");" | root -l 2>&1 | tee "2017_ZZ_pythia".log
