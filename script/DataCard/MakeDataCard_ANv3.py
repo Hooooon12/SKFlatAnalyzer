@@ -1,0 +1,338 @@
+# Make Datacards
+# Place this at CombineTool/CMSSW_10_2_13/src/<your working directory>
+# You need to place card_skeletons already
+# python MakeDataCard_ANv3.py --CR --Syst [--Decorr]; python MakeDataCard_ANv3.py --Combine CR --Syst [--Decorr] <-- add rateParam
+# python MakeDataCard_ANv3.py --Combine Era --Syst
+# python MakeDataCard_ANv3.py --Syst; python MakeDataCard_ANv3.py --Combine SR --Syst <-- without rateParam ("sronly" setting)
+
+
+import os, sys, argparse
+
+parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('--CnC', action='store_true', help='Cut and count limit')
+parser.add_argument('--Decorr', action='store_true', help='Decorrelate fake, CF, norm')
+parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
+parser.add_argument('--Syst', action='store_true', help='Add systematics into the datacards')
+parser.add_argument('--Combine', choices=['CR','SR','Era'], help='CR --> Merge CR and SR datacards in one era,\nEra --> Merge pre-processed (CR+SR) over the Run2,\nSR --> Merge SR only datacards over the Run2')
+args = parser.parse_args()
+
+pwd = os.getcwd()
+
+#####################################################
+#
+# args.CR --> sr, sr_inv connected via rateParam
+# else --> sr only, bkg norm uncert. treated by lnN
+# args.syst --> postpone
+#
+#####################################################
+
+#eras = ["2016","2017","2018"]
+#eras = ["2017"]
+eras = ["2018"]
+#eras = ["2016preVFP","2016postVFP","2017","2018"]
+#eras = ["2016preVFP","2016postVFP","2018"]
+channels = ["MuMu","EE","EMu"]
+#channels = ["MuMu","EE"]
+#channels = ["MuMu"]
+#channels = ["EE"]
+#channels = ["EE","EMu"]
+#masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M100","M1000","M10000"]
+#masses = ["M500","M1000","M5000"]
+#masses = ["M3000"]
+#masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M85","M90","M95","M100"]#"M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M100","M500","M1000","M3000","M10000"]
+#masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M100"]
+#masses = ["M20000"]
+
+## Full mass ranges
+#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
+#masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR43/LimitInputs/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitInputs/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitInputs/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR52/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR52/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR89/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR89/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR95/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR95/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR97/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR97/LimitExtraction/"
+SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR101/LimitExtraction/"
+CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR108/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
+
+#InputWPs = ["240422_HNL_ULID"]
+#InputWPs = ["240501_1704_HNL_ULID","240501_1704_HNTightV2"]
+#InputWPs = ["240504_PR44_HNL_ULID"]
+#InputWPs = ["240505_PR45_HNL_ULID"]
+#InputWPs = ["240505_PR46_HNL_ULID","240505_PR46_HNTightV2"]
+#InputWPs = ["rateParam_HNL_ULID_PR46"]
+#InputWPs = ["PR48_rateParam_HNL_ULID"]
+#InputWPs = ["PR51_HNL_ULID"]
+#InputWPs = ["PR51_rescale_HNL_ULID"]
+#InputWPs = ["PR52_HNL_ULID"]
+#InputWPs = ["PR52_SSWWrescale_HNL_ULID"]
+#InputWPs = ["PR52_CnC_HNL_ULID"]
+#InputWPs = ["PR52_NewCnC_HNL_ULID"]
+#InputWPs = ["PR52_10TeVrescale_HNL_ULID"]
+#InputWPs = ["PR55_HNL_ULID","PR55_HighPt"]
+#InputWPs = ["PR55_HNL_ULID"]
+#InputWPs = ["PR55_NoMinPt_HighPt"]
+#InputWPs = ["PR86_HNL_ULID"]
+#InputWPs = ["PR89_HNL_ULID","PR89_HighPt"]
+#InputWPs = ["PR95_HNL_ULID"]
+#InputWPs = ["PR97_HNL_ULIDv2"]
+InputWPs = ["ANv3_HNL_ULIDv2"]
+if args.Decorr:
+  InputWPs = [WP+"_Decorr" for WP in InputWPs]
+
+#OutputTag = "_NOsr2inv"
+#OutputTag = "_NOsr2inv_NOzgcr1"
+#OutputTag = "_NOsr2inv_NOcr1Norm_FixCF"
+#OutputTag = "_NOsr2inv_IncNorm"
+#OutputTag = "_AltStat"
+#OutputTag = "_FakeCF0p1"
+#OutputTag = "_FakeCF0p1_toy"
+#OutputTag = "_SSWWonly"
+#OutputTag = "_DYVBFonly"
+#OutputTag = "_defMod_SSWWonly"
+#OutputTag = "_Fake0p3CF0p2_PR991"
+#OutputTag = "_Fake0p3CF0p2_PR991_TestModel"
+#OutputTag = "_AN"
+#OutputTag = "_SUScomment"
+#OutputTag = "_Singluarity"
+#OutputTag = "_CompToPR86"
+#OutputTag = "_FakeCFSystSep"
+OutputTag = ""
+
+if args.Combine is None and not args.CR: OutputTag+="_NoCR" # SR only
+elif args.Combine is not None and args.Combine not in ["CR","Era"]: OutputTag+="_NoCR" # Combine SR only
+if not args.Syst: OutputTag+="_NoSyst"  # NoSyst
+
+regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
+#regions_cr = ["cf_cr","sr1_inv","sr2_inv","sr3_inv","ww_cr","wz_cr","zg_cr","zz_cr"]
+regions_sr = ["sr1","sr2","sr3"]
+
+
+################################################################################################################################################
+
+def CardSetting(isCR, WP, era, channel, mass):
+
+  with open("card_skeleton_ANv3.txt",'r') as f: # your workspace
+    lines = f.readlines()
+
+  lines_cr = {}
+  # cr norm setting
+  for region in regions_cr:
+    this_lines_cr = lines[:]
+    this_lines_cr[4] = "shapes * *  "+CRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
+    if ("cf_cr" in region and "Mu" in channel): continue
+    if "Mu" in channel: this_lines_cr[17] = "rate                       -1     0      -1     -1            -1     -1     -1     -1             0            0\n"  # no cf, signal
+    else: this_lines_cr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             0            0\n"  # no signal
+
+    for i in range(len(this_lines_cr)):
+      this_lines_cr[i] = this_lines_cr[i].replace('bin1',region)
+
+    if args.Syst: #FIXME THIS IS REALLY BAD..
+      for i in range(18,46):
+        this_syst = this_lines_cr[i].split(' ')[0]
+        if "xsec" in this_syst or "13TeV" in this_syst or "QCDscale" in this_syst or "pdf" in this_syst: pass # full correlation
+        else: this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_'+era) # FR to FR_2018
+      if channel=="MuMu":
+        for i in range(32,37):
+          this_lines_cr[i] = "" # remove electron systs
+      elif channel=="EE":
+        for i in range(27,32):
+          this_lines_cr[i] = "" # remove muon systs
+    else:
+      for i in range(18,46):
+        this_lines_cr[i] = "" # remove unnecessary syst sources.
+
+    # handle norm constraints
+    for i in range(47,67):
+      if "Norm" in this_lines_cr[i]:
+        this_lines_cr[i] = this_lines_cr[i].replace('Norm','Norm'+era) # era dependent norm constraint
+
+    # finally do the decorrelation
+    if args.Decorr:
+      if "sr_" in region: pass # all sr_inv
+      elif "sr" in region: # sr1_bjet etc.
+        for i in range(20,25):
+          this_syst = this_lines_cr[i].split(' ')[0]
+          this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_'+region.split('_')[0]) # FR to FR_sr1
+      elif "cr1" in region or "cr2" in region or "cr3" in region: # wz_cr2 etc.
+        if 'sr1' in region or 'cr1' in region:
+          regionName_SystSep = 'sr1'
+        elif 'sr2' in region or 'cr2' in region:
+          regionName_SystSep = 'sr2'
+        elif 'sr3' in region or 'cr3' in region:
+          regionName_SystSep = 'sr3'
+        for i in range(20,25):
+          this_syst = this_lines_cr[i].split(' ')[0]
+          this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_'+regionName_SystSep) # FR to FR_sr2
+      else: # cf_cr etc.
+        for i in range(20,25):
+          this_syst = this_lines_cr[i].split(' ')[0]
+          this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_sr1')+this_lines_cr[i].replace(this_syst,this_syst+'_sr2')+this_lines_cr[i].replace(this_syst,this_syst+'_sr3') # FR_sr1\n FR_sr2\n FR_sr3\
+
+    lines_cr[region] = this_lines_cr
+
+  # sr setting
+  lines_sr = {}
+  lines_sronly = {}
+
+  for region in regions_sr:
+    this_lines_sr = lines[:]
+    this_lines_sr[4] = "shapes * *  "+SRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
+    if int(mass.replace("M","")) < 500:
+      if "Mu" in channel: this_lines_sr[17] = "rate                       -1     0      -1     -1            -1     -1     -1     -1             -1           0\n"  # no cf, SSWW
+      else: this_lines_sr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             -1           0\n"  # no SSWW
+    if 500 <= int(mass.replace("M","")) and int(mass.replace("M","")) <= 3000:
+      if "Mu" in channel: this_lines_sr[17] = "rate                       -1     0      -1     -1            -1     -1     -1     -1             -1           -1\n" # no cf
+      else: this_lines_sr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             -1           -1\n"
+    elif 3000 < int(mass.replace("M","")):
+      if "Mu" in channel: this_lines_sr[17] = "rate                       -1     0      -1     -1            -1     -1     -1     -1             0            -1\n" # no cf, DYVBF
+      else: this_lines_sr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             0            -1\n" # no DYVBF
+
+    for i in range(len(this_lines_sr)):
+      this_lines_sr[i] = this_lines_sr[i].replace('bin1',region)
+
+    if args.Syst: #FIXME THIS IS REALLY BAD..
+      for i in range(18,46):
+        this_syst = this_lines_sr[i].split(' ')[0]
+        if "xsec" in this_syst or "13TeV" in this_syst or "QCDscale" in this_syst or "pdf" in this_syst: pass # full correlation
+        else: this_lines_sr[i] = this_lines_sr[i].replace(this_syst,this_syst+'_'+era) # FR to FR_2018
+      if channel=="MuMu":
+        for i in range(32,37):
+          this_lines_sr[i] = "" # remove electron systs
+      elif channel=="EE":
+        for i in range(27,32):
+          this_lines_sr[i] = "" # remove muon systs
+    else:
+      for i in range(18,46):
+        this_lines_sr[i] = "" # remove unnecessary syst sources.
+
+    # handle norm constraints
+    for i in range(47,67):
+      if "Norm" in this_lines_sr[i]:
+        this_lines_sr[i] = this_lines_sr[i].replace('Norm','Norm'+era) # era dependent norm constraint
+
+    # finally do the decorrelation
+    if args.Decorr:
+      if region=="sr": pass
+      else:
+        for i in range(20,25):
+          this_syst = this_lines_sr[i].split(' ')[0]
+          this_lines_sr[i] = this_lines_sr[i].replace(this_syst,this_syst+'_'+region.split('_')[0]) # FR to FR_sr1
+
+    lines_sr[region] = this_lines_sr
+
+    this_lines_sronly = this_lines_sr[:] # no rateParam option
+    for i in range(47,67):
+      this_lines_sronly[i] = "" # remove all rateParams
+    lines_sronly[region] = this_lines_sronly
+
+  if isCR:
+    return (lines_sr, lines_cr)
+  else:
+    return lines_sronly
+  
+#########################################
+#
+# MAIN
+#
+#########################################
+
+if args.Syst:
+  systTag = "_syst"
+else:
+  systTag = ""
+
+for InputWP in InputWPs:
+  OutputWP = InputWP+OutputTag
+
+  if not args.Combine:
+    os.system("mkdir -p "+OutputWP)
+    os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/MakeWorkspace.py "+OutputWP)
+    os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/CheckNuisance.py "+OutputWP)
+
+    for era, channel, mass in [(era, channel, mass) for era in eras for channel in channels for mass in (masses if channel!="EMu" else masses_EMu)]:
+      this_card = CardSetting(args.CR, InputWP, era, channel, mass)
+      if args.CR:
+        for region in this_card[0].keys():
+          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+"_"+region+systTag+".txt",'w') as f:
+            for line in this_card[0][region]:
+              f.write(line)
+        for region in this_card[1].keys():
+          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+"_"+region+".txt",'w') as f:
+            for line in this_card[1][region]:
+              f.write(line)
+      else:
+        for region in this_card.keys():
+          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+"_sronly_"+region+systTag+".txt",'w') as f:
+            for line in this_card[region]:
+              f.write(line)
+
+  else:
+    os.chdir(OutputWP)
+    os.system('echo \'Currently combining cards at...\'')
+    os.system('pwd')
+    if args.Syst:
+      os.system('echo \'Systematics have been added.\'')
+    for channel, mass in [(channel, mass) for channel in channels for mass in (masses if channel!="EMu" else masses_EMu)]:
+      for era in eras:
+
+        if args.Combine == "CR":
+          if "Mu" in channel: regions_cr = [cr for cr in regions_cr if "cf" not in cr]
+          if int(mass.strip('M'))<=100:
+            regions_sr_filtered = ["sr3"]
+            regions_cr_filtered = [cr for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr]
+          else:
+            regions_sr_filtered = regions_sr
+            regions_cr_filtered = regions_cr
+          sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+"_"+sr+systTag+".txt" for sr in regions_sr_filtered])
+          cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr_filtered])
+          # merge all SRs
+          os.system("combineCards.py "+sr_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+systTag+".txt")
+
+          # Now make limit from each SRs
+          ## make SR3 first which always exist regardless of mass
+          sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+".txt"
+          cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
+          os.system("combineCards.py "+sr3_combine+" "+cr3_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+"_Combined.txt")
+          if int(mass.strip('M'))>100:
+            # SR1, SR2 exists only for M(N) > 100 GeV
+            sr1_combine = "sr1=card_"+era+"_"+channel+"_"+mass+"_sr1"+systTag+".txt"
+            cr1_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr2' not in cr and 'sr3' not in cr and 'cr2' not in cr and 'cr3' not in cr])
+            #print regions_cr
+            #print cr1_combine
+            os.system("combineCards.py "+sr1_combine+" "+cr1_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr1"+systTag+"_Combined.txt")
+            sr2_combine = "sr2=card_"+era+"_"+channel+"_"+mass+"_sr2"+systTag+".txt"
+            cr2_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr3' not in cr and 'cr1' not in cr and 'cr3' not in cr])
+            os.system("combineCards.py "+sr2_combine+" "+cr2_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr2"+systTag+"_Combined.txt")
+
+        elif args.Combine == "SR": # Combine SR1 only, SR2 only, SR3 only (no rateParam)
+          if int(mass.strip('M'))<=100:
+            os.system("combineCards.py \
+                                       sr3=card_"+era+"_"+channel+"_"+mass+"_sronly_sr3"+systTag+".txt \
+                                       > card_"+era+"_"+channel+"_"+mass+"_sronly_sr123"+systTag+".txt")
+          else:
+            os.system("combineCards.py \
+                                       sr1=card_"+era+"_"+channel+"_"+mass+"_sronly_sr1"+systTag+".txt \
+                                       sr2=card_"+era+"_"+channel+"_"+mass+"_sronly_sr2"+systTag+".txt \
+                                       sr3=card_"+era+"_"+channel+"_"+mass+"_sronly_sr3"+systTag+".txt \
+                                       > card_"+era+"_"+channel+"_"+mass+"_sronly_sr123"+systTag+".txt")
+      if args.Combine == "Era": # This will combine all era datacards with CR setup
+        os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+systTag+".txt year17=card_2017_"+channel+"_"+mass+systTag+".txt year18=card_2018_"+channel+"_"+mass+systTag+".txt > card_Run2_"+channel+"_"+mass+systTag+".txt")
+    os.system('echo \'Done.\'')
+    os.chdir(pwd)
