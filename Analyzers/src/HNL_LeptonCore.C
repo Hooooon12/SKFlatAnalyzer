@@ -386,7 +386,6 @@ double HNL_LeptonCore::MergeMultiMC(vector<TString> vec, TString Method){
 }
 
 
-
 vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HNL_LeptonCore::Channel channel){
 
   vector<AnalyzerParameter::Syst> SystList = {};
@@ -437,8 +436,10 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
     //SystList.push_back(AnalyzerParameter::FRAJDown); 
     //SystList.push_back(AnalyzerParameter::FRPartonSFUp); /// Apply 10% in DataCard
     //SystList.push_back(AnalyzerParameter::FRPartonSFDown);
-    SystList.push_back(AnalyzerParameter::FRHighPtUp);
-    SystList.push_back(AnalyzerParameter::FRHighPtDown);
+    if(channel!=MuMu){
+      SystList.push_back(AnalyzerParameter::FRHighPtUp);
+      SystList.push_back(AnalyzerParameter::FRHighPtDown);
+    }
   }
   else{
  

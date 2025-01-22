@@ -6,15 +6,21 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
 
   HNL_LeptonCore::initializeAnalyzer();
   
-  bool run_ee_bdt=false;
-  bool run_mm_bdt=false;
-  bool run_em_bdt=false;
-  
-  if(HasFlag("EE") || HasFlag("MuMu") || HasFlag("EMu")){
-    run_ee_bdt=HasFlag("EE");
-    run_mm_bdt=HasFlag("MuMu");
-    run_em_bdt=HasFlag("EMu");
+
+  if(IsData){
+    bool run_ee_bdt=false;
+    bool run_mm_bdt=false;
+    bool run_em_bdt=false;
+    
+    if (this->DataStream == "DoubleMuon") run_mm_bdt=true;
+    if (this->DataStream == "SingleMuon") run_mm_bdt=true;
+    if (this->DataStream == "DoubleEG") run_ee_bdt=true;
+    if (this->DataStream == "SingleElectron") run_ee_bdt=true;
+    if (this->DataStream == "EGamma") run_ee_bdt=true;
+    if (this->DataStream == "MuonEG") run_em_bdt=true;
+    
     SetupEventMVAReader("V2",run_ee_bdt,run_mm_bdt,run_em_bdt);
+    
   }
   else SetupEventMVAReader("V2");
 
@@ -57,6 +63,16 @@ void HNL_SignalRegion_Plotter::executeEvent(){
 
   if(RunHighPtID) ChannelsToRun = {MuMu};
   //ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
+
+
+  if(IsData){
+    if (this->DataStream == "DoubleMuon") ChannelsToRun = {MuMu};
+    if (this->DataStream == "SingleMuon") ChannelsToRun = {MuMu};
+    if (this->DataStream == "DoubleEG") ChannelsToRun = {EE};
+    if (this->DataStream == "SingleElectron") ChannelsToRun = {EE};
+    if (this->DataStream == "EGamma") ChannelsToRun = {EE};
+    if (this->DataStream == "MuonEG") ChannelsToRun = {EMu};
+  }
 
 
   for (auto id: LepIDs){

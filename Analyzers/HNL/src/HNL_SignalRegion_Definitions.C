@@ -89,11 +89,67 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
    
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));
+    
+    if(param.IsCentral()){
+      double weight_Cutflow    = weight_channel;
+      
+      bool CFRun = (RunCF && dilep_channel == EE && IsData && !SameCharge(LepsT));
+      bool OSRun = (HasFlag("RunOS") && IsData && !SameCharge(LepsT));
+      
+      if(CFRun)  weight_Cutflow = GetCFWeightElectron(LepsT, param,nElForRunCF,true);
+      if(OSRun)  weight_Cutflow = 1;
+      
+      bool FakeRun = (RunFake&& IsData);
+      if(FakeRun) weight_Cutflow = GetFakeWeight(LepsT, param);
+      
+      bool RunCutFlow=true;
+      if(RunCF && !CFRun) RunCutFlow=false;
+      if(RunFake && !FakeRun) RunCutFlow=false;
+      if(HasFlag("RunOS") && !OSRun) RunCutFlow=false;
 
-    FillCutflow(CutFlow_Region, weight_ll, "NoCut", param);
+      if(RunCutFlow){
+	
+	FillCutflow(CutFlow_Region, weight_ll, "NoCut", param);
+	if (PassTriggerSelection(dilep_channel, ev, LepsT,param.TriggerSelection)){
+	  FillCutflow(CutFlow_Region, weight_channel, "Trigger",param);
+	  
+	  if(PassGenMatchFilter(LepsT,param)){
+	    if(ConversionSplitting(LepsT,RunConv,2,param)){
+	      FillCutflow(CutFlow_Region, weight_ll, "GENMatched",param);
+	      if(PassHEMVeto(LepsV,weight_channel)) {
+		FillCutflow(CutFlow_Region, weight_ll, "HEMVeto", param);
+		if(PassMETFilter()) {
+		  FillCutflow(CutFlow_Region, weight_ll, "METFilter",param);
+		  if(CheckLeptonFlavourForChannel(dilep_channel, LepsT)) {
+		    if(LepsT.size()==2){
+		      FillCutflow(CutFlow_Region, weight_channel, "LeptonFlavour",param);
+		      if(SameCharge(LepsT)){
+			
+			FillCutflow(CutFlow_Region, weight_channel, "SSLepton",param);
+			if(LepsV.size()==2) {
+			  
+			  FillCutflow(CutFlow_Region, weight_channel, "LepVeto",param);
+			  Particle ll =  (*LepsT[0]) + (*LepsT[1]);
+			  if(ll.M() > 20){
+			    FillCutflow(CutFlow_Region, weight_channel, "DiLepMass",param);
+			    if(B_JetColl.size()==0)     FillCutflow(CutFlow_Region, weight_channel, "BJet",param);
+			    if(B_JetColl.size()==0 && ev.MET2ST() < 15)   FillCutflow(CutFlow_Region, weight_channel, "MET",param);
+			  }
+			}
+		      }
+		    }
+		  }
+		}
+	      }	      
+	    }
+	  }
+	}
+
+      }
+    }
+    if(HasFlag("RunOS")) continue;
 
     if(!PassGenMatchFilter(LepsT,param)) continue;
-    FillCutflow(CutFlow_Region, weight_ll, "GENMatched",param);
     
     if(param.syst_ ==AnalyzerParameter::Central){
       for(auto iel : electrons){
@@ -107,22 +163,16 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
       }
     }
     if(!PassHEMVeto(LepsV,weight_channel)) continue;
-    FillCutflow(CutFlow_Region, weight_ll, "HEMVeto", param);
-
     if(!PassMETFilter()) return;
 
-    FillCutflow(CutFlow_Region, weight_ll, "METFilter",param);
-  
     FillCutflow(HNL_LeptonCore::ChannelDepInc, weight_channel, GetChannelString(dilep_channel) +"_NoCut",param);
     
     
     if(!ConversionSplitting(LepsT,RunConv,2,param)) continue;
 
-    //    FillCutflow(CutFlow_Region, weight_ll, "ConvFilter",param);
-
 
     if(! CheckLeptonFlavourForChannel(dilep_channel, LepsT))  continue;
-    FillCutflow(CutFlow_Region, weight_channel, "LeptonFlavour",param);
+
     
 
     if(param.IsCentral()) PassJetHEMVeto(JetColl,param.Name+"_Jet",weight_channel);
@@ -151,26 +201,35 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     else{
       if(!SameCharge(LepsT)) continue;
     }
- 
+    
     if(RunFake&& IsData){
       //if(_jentry < 100) cout << "Event " << event << " param = " << param.Name << " Running Fakes... FR=" <<  GetFakeWeight(LepsT, param) << endl;
       
       weight_channel = GetFakeWeight(LepsT, param);
       FillFakeWeightHist(param.Name+"/FakeWeight", LepsT,param, weight_channel);
 
-      //// Fix for current High Pt Fakes, which are wrong
-      if(RunHighPtID) weight_channel = weight_channel*0.5;
+    }
+   
+
+    if (!PassTriggerSelection(dilep_channel, ev, LepsT,param.TriggerSelection)) {
+      if(dilep_channel==MuMu){
+	if(PassTriggerSelection(dilep_channel, ev, LepsT,"HighPt"))   FillCutflow(HNL_LeptonCore::ChannelDepTrigger, weight_channel, GetChannelString(dilep_channel) +"_MultiTrigger",param);
+      }
+      if(dilep_channel==EE){
+        if(PassTriggerSelection(dilep_channel, ev, LepsT,"POGSglLep"))   FillCutflow(HNL_LeptonCore::ChannelDepTrigger, weight_channel, GetChannelString(dilep_channel) +"_MultiTrigger",param);
+      } 
+      if(dilep_channel==EMu){
+        if(PassTriggerSelection(dilep_channel, ev, LepsT,"Full"))   FillCutflow(HNL_LeptonCore::ChannelDepTrigger, weight_channel, GetChannelString(dilep_channel) +"_MultiTrigger",param);
+      } 
+      continue;
     }
 
-    if (!PassTriggerSelection(dilep_channel, ev, LepsT,param.TriggerSelection)) continue;
+    //// Fill Trigger Cutflow
+    FillCutflow(HNL_LeptonCore::ChannelDepTrigger, weight_channel, GetChannelString(dilep_channel) +"_MultiTrigger",param); /// test adding SL trigger
+    FillCutflow(HNL_LeptonCore::ChannelDepTrigger, weight_channel, GetChannelString(dilep_channel) +"_Trigger",param);
     
     EvalTrigWeight(dilep_channel, muons,electrons,param, ev,weight_channel);
 
-    FillCutflow(CutFlow_Region, weight_channel, "Trigger",param);
-    if(LepsV.size()==2)     FillCutflow(CutFlow_Region, weight_channel, "LepVeto",param);
-  
-    if(LepsV.size()==2&& B_JetColl.size()==0)     FillCutflow(CutFlow_Region, weight_channel, "BJet",param);
-    if(LepsV.size()==2&& B_JetColl.size()==0 && ev.MET2ST() < 15)   FillCutflow(CutFlow_Region, weight_channel, "MET",param);
 
     /// RunMainRegionCode runs SR1/SR2/SR3
     
@@ -249,7 +308,14 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
     
     if(RegionBin != "false") {
 
-      /// Region 1+2+3
+      //if(RunFake && channel==EE && RegionBin.Contains("MNbin3")){
+      //  cout << "Name : " << param.Name << endl;
+      //  cout << "MNbin3 Fake Check" << endl;
+      //  for(auto ilep : LepsT) cout << "Pt lep = " << ilep->Pt() << " eta=  "<< ilep->Eta() << endl;
+      //  cout << "Weight = " << weight_reg << endl;
+      //}
+
+      /// Region 1+2+3                                                                                                                                                                  
       //FillLimitInput(LimitRegions, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
 
       if(param.syst_ == AnalyzerParameter::PDFUp)   weight_reg*=GetPDFUncertainty("SR1",1);
@@ -363,9 +429,6 @@ bool  HNL_RegionDefinitions::PassPreselection(bool ApplyForSR,HNL_LeptonCore::Ch
    */
   
   if(run_Debug) cout << "HNL_RegionDefinitions::PassPreselection " << GetChannelString(channel) <<  endl;
-
-  FillCutflow(HNL_LeptonCore::ChannelDepTrigger, w, GetChannelString(channel) +"_MultiTrigger",param);
-  FillCutflow(HNL_LeptonCore::ChannelDepTrigger, w, GetChannelString(channel) +"_Trigger",param);
 
   // Make sure events contain 2 leps
   if (leps_veto.size() != 2) return false;

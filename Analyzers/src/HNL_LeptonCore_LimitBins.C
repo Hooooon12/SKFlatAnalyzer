@@ -149,7 +149,7 @@ TString HNL_LeptonCore::GetSR3StringBin(TString RegionTag, TString channel, bool
 	    if(LT<= 150)       return RegionTag+"_bin1";
 	    else if(LT<= 200)  return RegionTag+"_bin2";
 	    else               return RegionTag+"_bin3";
-	  }
+	 }
 	  else{
 	    if(LT<= 150)  return RegionTag+"_bin4";
 	    else if(LT<= 200)  return RegionTag+"_bin5";

@@ -29,6 +29,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_SF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M1000".log
 #echo -e ".L test.C\n test(\"2018\",false,\"SSWWTypeI_SF_M30000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M30000".log
+echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"RunConv\");" | root -l 2>&1 | tee "2018_ZG_RunConv".log
 
 # HNL_SignalRegionPlotter (fake closure)
 #echo -e ".L test.C\n test(\"2017\",false,\"TTLJ\",\"HNMultiLepBDT\",\"RunFakeClosurePred\");" | root -l 2>&1 | tee "TTLJ_ClosPred".log
@@ -53,7 +54,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"DileptonBDT\",\"SS_CR,RunConv\");" | root -l 2>&1 | tee "2018_ZG_SS_CR_RunConv".log # RunConv uses Dilepton skim from PR97
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR,SaveIntConv\");" | root -l 2>&1 |         tee "2018_ZG_SS_CR_SaveIntConv".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR\");" | root -l 2>&1 |                     tee "2018_ZG_SS_CR".log
-echo -e ".L test.C\n test(\"2018\",false,\"ZZ\",\"HNMultiLepBDT\",\"SS_CR,RunPrompt\");" | root -l 2>&1 | tee "2018_ZZ_SS_CR_RunPrompt".log # RunConv uses Dilepton skim from PR97
+#echo -e ".L test.C\n test(\"2018\",false,\"ZZ\",\"HNMultiLepBDT\",\"SS_CR,RunPrompt\");" | root -l 2>&1 | tee "2018_ZZ_SS_CR_RunPrompt".log # RunConv uses Dilepton skim from PR97
 
 # SkimTree_EGammaTnP_HighPt
 #echo -e ".L test.C\n test(\"2017\",false,\"ZZ_pythia\",\"DileptonBDT\",\"\");" | root -l 2>&1 | tee "2017_ZZ_pythia".log
