@@ -20,6 +20,7 @@ parser.add_argument('--Syst', action='store_true', help='Add systematics')
 parser.add_argument('--Decorr', action='store_true', help='Decorrelate Fake, CF syst sources')
 parser.add_argument('--Flag', nargs='+', help='Your private flag names')
 parser.add_argument('--Merge', action='store_true', help='hadd the needed histograms')
+parser.add_argument('--CheckFile', action='store_true', help='check all inputs before merge')
 args = parser.parse_args()
 
 FlagName = ""
@@ -89,8 +90,11 @@ DataSkim = "_SkimTree_HNMultiLepBDT_"
 FakeSkim = "_SkimTree_HNMultiLepBDT_"
 #CFSkim = "_SkimTree_HNMultiLepBDT_" #FIXME MC CF
 CFSkim = "_SkimTree_DileptonBDT_" #FIXME Data CF
-#ConvSkim = "_SkimTree_HNMultiLepBDT_"
-ConvSkim = "_SkimTree_DileptonBDT_" # From PR97 to PR101
+ConvSkim = {}
+for this_conv in ["TG","TTG","WZG","WWG","WGJJToLNu","ZGToLLG","DYJets_MG"]:
+  ConvSkim[this_conv] = "_SkimTree_HNMultiLepBDT_"
+for this_conv in ["WGToLNuG","WGToLNuG_MG"]:
+  ConvSkim[this_conv] = "_SkimTree_DileptonBDT_"
 MCSkim = "_SkimTree_HNMultiLepBDT_"
 SignalSkim = "_SkimTree_HNMultiLepBDT_"
 
@@ -111,7 +115,8 @@ if args.CR:
 
   #regions = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","zg_cr","zg_cr1","zg_cr3","wz_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr","zz_cr1","zz_cr3"] # for CRs
   #regions = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","zg_cr","wz_cr","zz_cr"] if not args.Merge else "" # for CRs
-  regions = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
+  #regions = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
+  regions = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr1","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr1","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
   ########### JH: ww_cr is just SR2 but high MET? Then isn't it just InvMET_CR2? #########
 
   RegionToCRFlagMap['sr_inv'] = "SS_CR__"
@@ -128,6 +133,8 @@ if args.CR:
   RegionToCRFlagMap['cf_cr2']  = "SS_CR__"
   RegionToCRFlagMap['cf_cr3']  = "SS_CR__"
   RegionToCRFlagMap['ww_cr']  = "VBF_CR__"
+  RegionToCRFlagMap['ww_cr1']  = "VBF_CR__"
+  RegionToCRFlagMap['ww_cr2']  = "VBF_CR__"
   RegionToCRFlagMap['zg_cr']  = "LLL_VR__"
   RegionToCRFlagMap['zg_cr1']  = "LLL_VR__"
   RegionToCRFlagMap['zg_cr3']  = "LLL_VR__"
@@ -136,6 +143,7 @@ if args.CR:
   RegionToCRFlagMap['wz_cr2']  = "LLL_VR__"
   RegionToCRFlagMap['wz_cr3']  = "LLL_VR__"
   RegionToCRFlagMap['zz_cr']  = "LLL_VR__"
+  RegionToCRFlagMap['zz_cr1']  = "LLL_VR__"
   RegionToCRFlagMap['zz_cr2']  = "LLL_VR__"
   RegionToCRFlagMap['zz_cr3']  = "LLL_VR__"
 
@@ -153,6 +161,8 @@ if args.CR:
   RegionToChannelMap['cf_cr2']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['cf_cr3']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['ww_cr']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['ww_cr1']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['ww_cr2']  = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['zg_cr']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['zg_cr1']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['zg_cr3']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
@@ -161,6 +171,7 @@ if args.CR:
   RegionToChannelMap['wz_cr2']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['wz_cr3']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['zz_cr']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
+  RegionToChannelMap['zz_cr1']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
   RegionToChannelMap['zz_cr2']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
   RegionToChannelMap['zz_cr3']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
 
@@ -178,6 +189,8 @@ if args.CR:
   RegionToHistSuffixMap['cf_cr2']   = {'MuMu':'LimitShape_CF_SR2/Binned', 'EE':'LimitShape_CF_SR2/Binned', 'EMu':'LimitShape_CF_SR2/Binned'}
   RegionToHistSuffixMap['cf_cr3']   = {'MuMu':'LimitShape_CF_SR3/Binned', 'EE':'LimitShape_CF_SR3/Binned', 'EMu':'LimitShape_CF_SR3/Binned'}
   RegionToHistSuffixMap['ww_cr']   = {'MuMu':'LimitShape_WW/Binned', 'EE':'LimitShape_WW/Binned', 'EMu':'LimitShape_WW/Binned'}
+  RegionToHistSuffixMap['ww_cr1']   = {'MuMu':'LimitShape_WW_CR1/Binned', 'EE':'LimitShape_WW_CR1/Binned', 'EMu':'LimitShape_WW_CR1/Binned'}
+  RegionToHistSuffixMap['ww_cr2']   = {'MuMu':'LimitShape_WW_CR2/Binned', 'EE':'LimitShape_WW_CR2/Binned', 'EMu':'LimitShape_WW_CR2/Binned'}
   RegionToHistSuffixMap['zg_cr']   = {'MuMu':'LimitShape_ZG/Binned', 'EE':'LimitShape_ZG/Binned', 'EMu':'LimitShape_ZG/Binned'}
   RegionToHistSuffixMap['zg_cr1']  = {'MuMu':'LimitShape_ZG_SR1/Binned', 'EE':'LimitShape_ZG_SR1/Binned', 'EMu':'LimitShape_ZG_SR1/Binned'}
   RegionToHistSuffixMap['zg_cr3']  = {'MuMu':'LimitShape_ZG_SR3/Binned', 'EE':'LimitShape_ZG_SR3/Binned', 'EMu':'LimitShape_ZG_SR3/Binned'}
@@ -186,6 +199,7 @@ if args.CR:
   RegionToHistSuffixMap['wz_cr2']  = {'MuMu':'LimitShape_WZ_SR2/Binned', 'EE':'LimitShape_WZ_SR2/Binned', 'EMu':'LimitShape_WZ_SR2/Binned'}
   RegionToHistSuffixMap['wz_cr3']  = {'MuMu':'LimitShape_WZ_SR3/Binned', 'EE':'LimitShape_WZ_SR3/Binned', 'EMu':'LimitShape_WZ_SR3/Binned'}
   RegionToHistSuffixMap['zz_cr']   = {'MuMu':'LimitShape_ZZ/Binned', 'EE':'LimitShape_ZZ/Binned', 'EMu':'LimitShape_ZZ/Binned'}
+  RegionToHistSuffixMap['zz_cr1']  = {'MuMu':'LimitShape_ZZ_SR1/Binned', 'EE':'LimitShape_ZZ_SR1/Binned', 'EMu':'LimitShape_ZZ_SR1/Binned'}
   RegionToHistSuffixMap['zz_cr2']  = {'MuMu':'LimitShape_ZZ_SR2/Binned', 'EE':'LimitShape_ZZ_SR2/Binned', 'EMu':'LimitShape_ZZ_SR2/Binned'}
   RegionToHistSuffixMap['zz_cr3']  = {'MuMu':'LimitShape_ZZ_SR3/Binned', 'EE':'LimitShape_ZZ_SR3/Binned', 'EMu':'LimitShape_ZZ_SR3/Binned'}
 
@@ -333,63 +347,124 @@ else:
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR89/"
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR95/"
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR97/"
-InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR101/"
+#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR101/"
+InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR108/"
 #InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
+
+
+##### Input file check #####
+ConvList   = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGJJToLNu","ZGToLLG","DYJets_MG"] #FIXME time to time
+PromptList = [
+              #VVV
+              'WWW','WWZ','WZZ','ZZZ',
+              #SingleTop : 0.1 level events
+              #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
+              #ttV
+              'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
+              #TTXX
+              'TTTT','TTZZ',
+              #tZq
+              'tZq',
+              #Higgs
+              'ttHToNonbb','VHToNonbb', #'tHq'
+              #VBFHiggs
+              'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
+              #ggH
+              'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
+              #minor WWs
+              'WWTo2L2Nu_DS','WWTo2L2Nu_powheg',
+              #WW
+              'WpWp_QCD','WpWp_EWK',
+              #ZZ
+              'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu',
+              #WZ
+              'WZTo3LNu_mllmin4p0_powheg','WZ_EWK',
+             ]
+CRflags = ["SS_CR__","VBF_CR__","LLL_VR__"]
+SRPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR101/"
+CRPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR108/"
+
+if args.CheckFile:
+  for era in eras:
+    # SR
+    for this_proc in ConvList:
+      this_path=SRPath + "/" + era + "/" + "RunConv__"+FlagName+"/HNL_SignalRegion_Plotter"+ConvSkim[this_proc]+this_proc+".root"
+      if not os.path.exists(this_path):
+        print this_path,"-->",os.path.exists(this_path)
+    for this_proc in PromptList:
+      this_path=SRPath + "/" + era + "/" + "RunPrompt__"+FlagName+"/HNL_SignalRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+      if not os.path.exists(this_path):
+        print this_path,"-->",os.path.exists(this_path)
+    # CR
+    for this_proc in ConvList:
+      for CRflag in CRflags:
+        this_path=CRPath + "/" + era + "/" + CRflag+"RunConv__"+FlagName+"/HNL_ControlRegion_Plotter"+ConvSkim[this_proc]+this_proc+".root"
+        if not os.path.exists(this_path):
+          print this_path,"-->",os.path.exists(this_path)
+    for this_proc in PromptList:
+      for CRflag in CRflags:
+        this_path=CRPath + "/" + era + "/" + CRflag+"RunPrompt__"+FlagName+"/HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+        if not os.path.exists(this_path):
+          print this_path,"-->",os.path.exists(this_path)
+
+  exit()
 
 ##### Start merging #####
 MergeList = {}
-MergeList['Conv_inc']      = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGJJToLNu","ZGToLLG","DYJets_MG"] #FIXME time to time
-MergeList['Conv_others']   = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGJJToLNu"] #FIXME time to time
-MergeList['ZG_norm']       = ["DYJets_MG","ZGToLLG"] #FIXME add this after applying ConversionSpltting
-MergeList['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu"] #FIXME time to time
-MergeList['WZ_norm']       = ["WZTo3LNu_mllmin4p0_powheg","WZ_EWK"] #FIXME time to time
-MergeList['WW_norm']       = ["WpWp_QCD","WpWp_EWK"] #FIXME time to time
-MergeList['Prompt_others'] = [
-                              #VVV
-                              'WWW','WWZ','WZZ','ZZZ',
-                              #SingleTop : 0.1 level events
-                              #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
-                              #ttV
-                              'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
-                              #TTXX
-                              'TTTT','TTZZ',
-                              #tZq
-                              'tZq',
-                              #Higgs
-                              'ttHToNonbb','tHq','VHToNonbb',
-                              #VBFHiggs
-                              'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
-                              #ggH
-                              'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
-                              #minor WWs
-                              'WWTo2L2Nu_DS','WWTo2L2Nu_powheg',
-                             ] #FIXME time to time
-MergeList['Prompt_inc']    = [
-                              #VVV
-                              'WWW','WWZ','WZZ','ZZZ',
-                              #SingleTop : 0.1 level events
-                              #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
-                              #ttV
-                              'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
-                              #TTXX
-                              'TTTT','TTZZ',
-                              #tZq
-                              'tZq',
-                              #Higgs
-                              'ttHToNonbb','tHq','VHToNonbb',
-                              #VBFHiggs
-                              'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
-                              #ggH
-                              'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
-                              #minor WWs
-                              'WWTo2L2Nu_DS','WWTo2L2Nu_powheg',
-                              #WW
-                              'WpWp_QCD','WpWp_EWK',
-                              #ZZ
-                              'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu',
-                              #WZ
-                              'WZTo3LNu_mllmin4p0_powheg','WZ_EWK',
-                             ] #FIXME time to time
+MergeList['RunConv'] = {}
+MergeList['RunConv']['Conv_inc']      = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGJJToLNu","ZGToLLG","DYJets_MG"] #FIXME time to time
+MergeList['RunConv']['Conv_others']   = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGJJToLNu"] #FIXME time to time
+MergeList['RunConv']['ZG_norm']       = ["DYJets_MG","ZGToLLG"] #FIXME add this after applying ConversionSpltting
+MergeList['RunPrompt'] = {}
+MergeList['RunPrompt']['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu"] #FIXME time to time
+MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_mllmin4p0_powheg","WZ_EWK"] #FIXME time to time
+MergeList['RunPrompt']['WW_norm']       = ["WpWp_QCD","WpWp_EWK"] #FIXME time to time
+MergeList['RunPrompt']['Prompt_others'] = [
+                                           #VVV
+                                           'WWW','WWZ','WZZ','ZZZ',
+                                           #SingleTop : 0.1 level events
+                                           #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
+                                           #ttV
+                                           'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
+                                           #TTXX
+                                           'TTTT','TTZZ',
+                                           #tZq
+                                           'tZq',
+                                           #Higgs
+                                           'ttHToNonbb','tHq','VHToNonbb',
+                                           #VBFHiggs
+                                           'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
+                                           #ggH
+                                           'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
+                                           #minor WWs
+                                           'WWTo2L2Nu_DS','WWTo2L2Nu_powheg',
+                                          ] #FIXME time to time
+MergeList['RunPrompt']['Prompt_inc'] = [
+                                        #VVV
+                                        'WWW','WWZ','WZZ','ZZZ',
+                                        #SingleTop : 0.1 level events
+                                        #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
+                                        #ttV
+                                        'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
+                                        #TTXX
+                                        'TTTT','TTZZ',
+                                        #tZq
+                                        'tZq',
+                                        #Higgs
+                                        'ttHToNonbb','tHq','VHToNonbb',
+                                        #VBFHiggs
+                                        'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
+                                        #ggH
+                                        'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
+                                        #minor WWs
+                                        'WWTo2L2Nu_DS','WWTo2L2Nu_powheg',
+                                        #WW
+                                        'WpWp_QCD','WpWp_EWK',
+                                        #ZZ
+                                        'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu',
+                                        #WZ
+                                        'WZTo3LNu_mllmin4p0_powheg','WZ_EWK',
+                                       ] #FIXME time to time
 
 if MergeData:
 
@@ -466,24 +541,30 @@ if MergeConv:
     if era=="Run2":
       for CRflag in CRflags:
         os.system("mkdir -p "+InputPath+"/Run2/"+CRflag+"RunConv__"+FlagName+"/")
-        for OutProc in MergeList.keys():
-          OutFile=InputPath + "/Run2/" + CRflag + "RunConv__"+FlagName+"/"+Analyzer+ConvSkim+OutProc+".root"
+        for OutProc in MergeList['RunConv'].keys():
+          OutFile=InputPath + "/Run2/" + CRflag + "RunConv__"+FlagName+"/"+Analyzer+"_"+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2017/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2018/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-                      ) != 0:
-            os.system("rm " + OutFile) # remove the output if there is any unmatched process
+          #if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
+          #                               + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
+          #                               + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2017/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
+          #                               + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2018/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
+          #            ) != 0:
+          #  os.system("rm " + OutFile) # remove the output if there is any unmatched process
+          os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2017/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2018/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
+                   )
     else:
       for CRflag in CRflags:
-        for OutProc in MergeList.keys():
-          OutFile=InputPath + "/" + era + "/" + CRflag + "RunConv__"+FlagName+"/"+Analyzer+ConvSkim+OutProc+".root"
+        for OutProc in MergeList['RunConv'].keys():
+          OutFile=InputPath + "/" + era + "/" + CRflag + "RunConv__"+FlagName+"/"+Analyzer+"_"+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0]+ThisProc+".root" for ThisProc in MergeList[OutProc]])) != 0:
-            os.system("rm " + OutFile) # remove the output if there is any unmatched process
+          #if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0]+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])) != 0:
+          #  os.system("rm " + OutFile) # remove the output if there is any unmatched process
+          os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0]+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]]))
 
 if MergeMC:
 
@@ -491,24 +572,30 @@ if MergeMC:
     if era=="Run2":
       for CRflag in CRflags:
         os.system("mkdir -p "+InputPath+"/Run2/"+CRflag+"RunPrompt__"+FlagName+"/")
-        for OutProc in MergeList.keys():
+        for OutProc in MergeList['RunPrompt'].keys():
           OutFile=InputPath + "/" + era + "/" + CRflag + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2017/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2018/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-                      ) != 0:
-            os.system("rm " + OutFile) # remove the output if there is any unmatched process
+          #if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
+          #                               + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
+          #                               + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2017/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
+          #                               + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2018/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
+          #            ) != 0:
+          #  os.system("rm " + OutFile) # remove the output if there is any unmatched process
+          os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2017/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2018/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
+                   )
     else:
       for CRflag in CRflags:
-        for OutProc in MergeList.keys():
+        for OutProc in MergeList['RunPrompt'].keys():
           OutFile=InputPath + "/" + era + "/" + CRflag + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0]+ThisProc+".root" for ThisProc in MergeList[OutProc]])) != 0:
-            os.system("rm " + OutFile) # remove the output if there is any unmatched process
+          #if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0]+ThisProc+".root" for ThisProc in MergeList[OutProc]])) != 0:
+          #  os.system("rm " + OutFile) # remove the output if there is any unmatched process
+          os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0]+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]]))
 
 if MergeSignal:
 
@@ -621,9 +708,9 @@ for tag in tags:
       f_path_fake          = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunFake__"+FlagName+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
       f_path_cf            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunCF__"+FlagName+"/DATA/"+Analyzer+CFSkim+"CF.root"
       #f_path_cf            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunCF__"+FlagName+"/"+Analyzer+CFSkim+"CF.root" #FIXME MC CF
-      f_path_zg            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+ConvSkim+"ZG_norm.root"
-      f_path_conv_others   = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+ConvSkim+"Conv_others.root"
-      f_path_conv_inc      = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+ConvSkim+"Conv_inc.root"
+      f_path_zg            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+ConvSkim["ZGToLLG"]+"ZG_norm.root"
+      f_path_conv_others   = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+"_Conv_others.root"
+      f_path_conv_inc      = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+"_Conv_inc.root"
       f_path_wz            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+"WZ_norm.root"
       f_path_zz            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+"ZZ_norm.root"
       f_path_ww            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+"WW_norm.root"
