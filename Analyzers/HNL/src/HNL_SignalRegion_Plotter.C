@@ -7,7 +7,7 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
   HNL_LeptonCore::initializeAnalyzer();
   
 
-  if(IsData){
+  if(IsDATA){
     bool run_ee_bdt=false;
     bool run_mm_bdt=false;
     bool run_em_bdt=false;
@@ -65,7 +65,7 @@ void HNL_SignalRegion_Plotter::executeEvent(){
   //ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
 
 
-  if(IsData){
+  if(IsDATA){
     if (this->DataStream == "DoubleMuon") ChannelsToRun = {MuMu};
     if (this->DataStream == "SingleMuon") ChannelsToRun = {MuMu};
     if (this->DataStream == "DoubleEG") ChannelsToRun = {EE};

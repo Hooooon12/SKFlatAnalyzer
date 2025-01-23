@@ -7,6 +7,7 @@
 
 
 import os, sys, argparse
+from collections import OrderedDict
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--CnC', action='store_true', help='Cut and count limit')
@@ -52,6 +53,9 @@ channels = ["MuMu","EE","EMu"]
 #masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
 masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+
+## signal processes
+signals = ["","_DYVBF","_SSWW"]
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR43/LimitInputs/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitInputs/"
@@ -113,7 +117,8 @@ if args.Decorr:
 #OutputTag = "_Singluarity"
 #OutputTag = "_CompToPR86"
 #OutputTag = "_FakeCFSystSep"
-OutputTag = ""
+OutputTag = "_TEST"
+#OutputTag = ""
 
 if args.Combine is None and not args.CR: OutputTag+="_NoCR" # SR only
 elif args.Combine is not None and args.Combine not in ["CR","Era"]: OutputTag+="_NoCR" # Combine SR only
@@ -126,7 +131,47 @@ regions_sr = ["sr1","sr2","sr3"]
 
 ################################################################################################################################################
 
-def CardSetting(isCR, WP, era, channel, mass):
+def Initialize_Process():
+    return OrderedDict([
+        ('fake', '-1'),
+        ('cf', '-1'),
+        ('zg', '-1'),
+        ('conv_others', '-1'),
+        ('wz', '-1'),
+        ('zz', '-1'),
+        ('ww', '-1'),
+        ('prompt_others', '-1'),
+        ('signalDYVBF', '-1'),
+        ('signalSSWW', '-1')
+    ])
+
+def MakeProcString(region, mass, channel, signal):
+  this_process = Initialize_Process()
+  this_mass_value = int(mass.replace("M", ""))
+
+  if "Mu" in channel:
+    this_process['cf'] = '0'
+
+  if this_mass_value < 500:
+    this_process['signalSSWW'] = '0'
+  elif 500 <= this_mass_value <= 3000:
+    if "DY" in signal or "VBF" in signal:
+      this_process['signalSSWW'] = '0'
+    elif "SSWW" in signal:
+      this_process['signalDYVBF'] = '0'
+  else:  # mass_value > 3000
+    this_process['signalDYVBF'] = '0'
+
+  formatted_values = [
+      value.ljust(max(4,len(key)) + 2)
+      for key, value in this_process.items()
+  ]
+
+  this_string = "rate                          "+" ".join(formatted_values)+"\n"
+  return this_string
+
+
+def CardSetting(isCR, WP, era, channel, mass, signal):
 
   with open("card_skeleton_ANv3.txt",'r') as f: # your workspace
     lines = f.readlines()
@@ -137,8 +182,7 @@ def CardSetting(isCR, WP, era, channel, mass):
     this_lines_cr = lines[:]
     this_lines_cr[4] = "shapes * *  "+CRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
     if ("cf_cr" in region and "Mu" in channel): continue
-    if "Mu" in channel: this_lines_cr[17] = "rate                       -1     0      -1     -1            -1     -1     -1     -1             0            0\n"  # no cf, signal
-    else: this_lines_cr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             0            0\n"  # no signal
+    this_lines_cr[17] = MakeProcString(region, mass, channel, signal)
 
     for i in range(len(this_lines_cr)):
       this_lines_cr[i] = this_lines_cr[i].replace('bin1',region)
@@ -194,15 +238,7 @@ def CardSetting(isCR, WP, era, channel, mass):
   for region in regions_sr:
     this_lines_sr = lines[:]
     this_lines_sr[4] = "shapes * *  "+SRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
-    if int(mass.replace("M","")) < 500:
-      if "Mu" in channel: this_lines_sr[17] = "rate                       -1     0      -1     -1            -1     -1     -1     -1             -1           0\n"  # no cf, SSWW
-      else: this_lines_sr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             -1           0\n"  # no SSWW
-    if 500 <= int(mass.replace("M","")) and int(mass.replace("M","")) <= 3000:
-      if "Mu" in channel: this_lines_sr[17] = "rate                       -1     0      -1     -1            -1     -1     -1     -1             -1           -1\n" # no cf
-      else: this_lines_sr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             -1           -1\n"
-    elif 3000 < int(mass.replace("M","")):
-      if "Mu" in channel: this_lines_sr[17] = "rate                       -1     0      -1     -1            -1     -1     -1     -1             0            -1\n" # no cf, DYVBF
-      else: this_lines_sr[17] = "rate                       -1     -1     -1     -1            -1     -1     -1     -1             0            -1\n" # no DYVBF
+    this_lines_sr[17] = MakeProcString(region, mass, channel, signal)
 
     for i in range(len(this_lines_sr)):
       this_lines_sr[i] = this_lines_sr[i].replace('bin1',region)
@@ -246,7 +282,28 @@ def CardSetting(isCR, WP, era, channel, mass):
     return (lines_sr, lines_cr)
   else:
     return lines_sronly
-  
+ 
+def ValidMassSignal(mass, signal):
+  if signal=="": return True
+
+  if int(mass.strip('M'))<300:
+    if "DY" in signal:
+      return True
+    else:
+      return False
+  elif int(mass.strip('M'))<500:
+    if "DY" in signal or "VBF" in signal:
+      return True
+    else:
+      return False
+  elif int(mass.strip('M'))<=3000:
+    return True
+  else:
+    if "DY" in signal or "VBF" in signal:
+      return False
+    else:
+      return True
+
 #########################################
 #
 # MAIN
@@ -266,20 +323,22 @@ for InputWP in InputWPs:
     os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/MakeWorkspace.py "+OutputWP)
     os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/CheckNuisance.py "+OutputWP)
 
-    for era, channel, mass in [(era, channel, mass) for era in eras for channel in channels for mass in (masses if channel!="EMu" else masses_EMu)]:
-      this_card = CardSetting(args.CR, InputWP, era, channel, mass)
+    for era, channel, mass, signal in [(era, channel, mass, signal) for era in eras for channel in channels for mass in (masses if channel!="EMu" else masses_EMu) for signal in signals]:
+      if not ValidMassSignal(mass, signal): continue
+
+      this_card = CardSetting(args.CR, InputWP, era, channel, mass, signal)
       if args.CR:
         for region in this_card[0].keys():
-          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+"_"+region+systTag+".txt",'w') as f:
+          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+signal+"_"+region+systTag+".txt",'w') as f:
             for line in this_card[0][region]:
               f.write(line)
         for region in this_card[1].keys():
-          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+"_"+region+".txt",'w') as f:
+          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+signal+"_"+region+".txt",'w') as f:
             for line in this_card[1][region]:
               f.write(line)
       else:
         for region in this_card.keys():
-          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+"_sronly_"+region+systTag+".txt",'w') as f:
+          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass+signal+"_sronly_"+region+systTag+".txt",'w') as f:
             for line in this_card[region]:
               f.write(line)
 
@@ -289,9 +348,10 @@ for InputWP in InputWPs:
     os.system('pwd')
     if args.Syst:
       os.system('echo \'Systematics have been added.\'')
-    for channel, mass in [(channel, mass) for channel in channels for mass in (masses if channel!="EMu" else masses_EMu)]:
-      for era in eras:
+    for channel, mass, signal in [(channel, mass, signal) for channel in channels for mass in (masses if channel!="EMu" else masses_EMu) for signal in signals]:
+      if not ValidMassSignal(mass, signal): continue
 
+      for era in eras:
         if args.Combine == "CR":
           if "Mu" in channel: regions_cr = [cr for cr in regions_cr if "cf" not in cr]
           if int(mass.strip('M'))<=100:
@@ -300,39 +360,39 @@ for InputWP in InputWPs:
           else:
             regions_sr_filtered = regions_sr
             regions_cr_filtered = regions_cr
-          sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+"_"+sr+systTag+".txt" for sr in regions_sr_filtered])
-          cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr_filtered])
+          sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+sr+systTag+".txt" for sr in regions_sr_filtered])
+          cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr_filtered])
           # merge all SRs
-          os.system("combineCards.py "+sr_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+systTag+".txt")
+          os.system("combineCards.py "+sr_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass+signal+systTag+".txt")
 
           # Now make limit from each SRs
           ## make SR3 first which always exist regardless of mass
-          sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+".txt"
-          cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
-          os.system("combineCards.py "+sr3_combine+" "+cr3_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr3"+systTag+"_Combined.txt")
+          sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass+signal+"_sr3"+systTag+".txt"
+          cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
+          os.system("combineCards.py "+sr3_combine+" "+cr3_combine+" > card_"+era+"_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt")
           if int(mass.strip('M'))>100:
             # SR1, SR2 exists only for M(N) > 100 GeV
-            sr1_combine = "sr1=card_"+era+"_"+channel+"_"+mass+"_sr1"+systTag+".txt"
-            cr1_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr2' not in cr and 'sr3' not in cr and 'cr2' not in cr and 'cr3' not in cr])
+            sr1_combine = "sr1=card_"+era+"_"+channel+"_"+mass+signal+"_sr1"+systTag+".txt"
+            cr1_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr if 'sr2' not in cr and 'sr3' not in cr and 'cr2' not in cr and 'cr3' not in cr])
             #print regions_cr
             #print cr1_combine
-            os.system("combineCards.py "+sr1_combine+" "+cr1_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr1"+systTag+"_Combined.txt")
-            sr2_combine = "sr2=card_"+era+"_"+channel+"_"+mass+"_sr2"+systTag+".txt"
-            cr2_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr3' not in cr and 'cr1' not in cr and 'cr3' not in cr])
-            os.system("combineCards.py "+sr2_combine+" "+cr2_combine+" > card_"+era+"_"+channel+"_"+mass+"_sr2"+systTag+"_Combined.txt")
+            os.system("combineCards.py "+sr1_combine+" "+cr1_combine+" > card_"+era+"_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt")
+            sr2_combine = "sr2=card_"+era+"_"+channel+"_"+mass+signal+"_sr2"+systTag+".txt"
+            cr2_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr3' not in cr and 'cr1' not in cr and 'cr3' not in cr])
+            os.system("combineCards.py "+sr2_combine+" "+cr2_combine+" > card_"+era+"_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt")
 
         elif args.Combine == "SR": # Combine SR1 only, SR2 only, SR3 only (no rateParam)
           if int(mass.strip('M'))<=100:
             os.system("combineCards.py \
-                                       sr3=card_"+era+"_"+channel+"_"+mass+"_sronly_sr3"+systTag+".txt \
-                                       > card_"+era+"_"+channel+"_"+mass+"_sronly_sr123"+systTag+".txt")
+                                       sr3=card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr3"+systTag+".txt \
+                                       > card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt")
           else:
             os.system("combineCards.py \
-                                       sr1=card_"+era+"_"+channel+"_"+mass+"_sronly_sr1"+systTag+".txt \
-                                       sr2=card_"+era+"_"+channel+"_"+mass+"_sronly_sr2"+systTag+".txt \
-                                       sr3=card_"+era+"_"+channel+"_"+mass+"_sronly_sr3"+systTag+".txt \
-                                       > card_"+era+"_"+channel+"_"+mass+"_sronly_sr123"+systTag+".txt")
+                                       sr1=card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr1"+systTag+".txt \
+                                       sr2=card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr2"+systTag+".txt \
+                                       sr3=card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr3"+systTag+".txt \
+                                       > card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt")
       if args.Combine == "Era": # This will combine all era datacards with CR setup
-        os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+systTag+".txt year17=card_2017_"+channel+"_"+mass+systTag+".txt year18=card_2018_"+channel+"_"+mass+systTag+".txt > card_Run2_"+channel+"_"+mass+systTag+".txt")
+        os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+systTag+".txt")
     os.system('echo \'Done.\'')
     os.chdir(pwd)

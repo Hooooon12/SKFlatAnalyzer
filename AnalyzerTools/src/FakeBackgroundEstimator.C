@@ -116,9 +116,10 @@ double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, in
 
   /// Function uses MC to correct high pt Fake rates
   if(sys==-1)    return 1;
+  if(pt < 150) return 1;
 
   if(sys==0){
-    if(ID.Contains("2016")){
+    if(GetEra().Contains("2016")){
       
       if(fabs(eta) < 1.5){
 	if(pt > 200)  ApplyHighPtCorr=1.25;
@@ -128,7 +129,7 @@ double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, in
 	if(pt > 250)   ApplyHighPtCorr=0.75;
       }
     }
-    else  if(ID.Contains("2017")){
+    else  if(GetEra() =="2017"){
       if(fabs(eta) < 1.5){
 	if(pt > 200)  ApplyHighPtCorr=1.2;
 	else if(pt > 150)  ApplyHighPtCorr=1.1;
@@ -137,7 +138,7 @@ double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, in
 	if(pt > 250)   ApplyHighPtCorr=0.75;
       }
     }
-    else   if(ID.Contains("2018")){
+  else   if(GetEra() == "2018"){
       if(fabs(eta) < 1.5){
 	if(pt > 200)  ApplyHighPtCorr=1.1;
 	else if(pt > 150)  ApplyHighPtCorr=1.1;
@@ -147,8 +148,8 @@ double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, in
       }
     }
   }
-  if(sys==1){
-    if(ID.Contains("2016")){
+  else if(sys==1){
+    if(GetEra().Contains("2016")){
       
       if(fabs(eta) < 1.5){
         if(pt > 200)  ApplyHighPtCorr=1.5;
@@ -158,7 +159,7 @@ double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, in
         if(pt > 250)   ApplyHighPtCorr=0.5;
       }
     }
-    else  if(ID.Contains("2017")){
+    else  if(GetEra() =="2017"){
       if(fabs(eta) < 1.5){
         if(pt > 200)  ApplyHighPtCorr=1.4;
         else if(pt > 150)  ApplyHighPtCorr=1.2;
@@ -167,7 +168,7 @@ double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, in
         if(pt > 250)   ApplyHighPtCorr=0.5;
       }
     }
-    else   if(ID.Contains("2018")){
+    else   if(GetEra() == "2018"){
       if(fabs(eta) < 1.5){
         if(pt > 200)  ApplyHighPtCorr=1.2;
         else if(pt > 150)  ApplyHighPtCorr=1.2;
@@ -187,14 +188,19 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
 
   bool IsMC = false;
 
-  double ApplyHighPtCorr=1;
 
-  int HighPtSys=0;
-  if(sys==10) HighPtSys=1;
-  if(sys==-10) HighPtSys=-1;
-  
-  if(ID.Contains("HNL_HighPt"))    ApplyHighPtCorr = HighPtCorr(ID,eta,pt,HighPtSys);
-  
+  double ApplyHighPtCorr;
+
+  if(sys==10)    {
+    ApplyHighPtCorr = HighPtCorr(ID,eta,pt,1);
+    sys=0;
+  }
+  else if(sys==-10){
+    ApplyHighPtCorr = HighPtCorr(ID,eta,pt,-1);
+    sys=0;
+  }
+  else ApplyHighPtCorr = HighPtCorr(ID,eta,pt,0);
+
 
   if(ID.Contains("HighPt")) ID=ID.ReplaceAll("_HighPt","");
 
@@ -259,8 +265,6 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
     if(eta > 2.4) value *=1.5;
   }
   if(value > 0.5) value= 0.5;
-
-  //cout << "[FakeBackgroundEstimator::FakeBackgroundEstimator] value = " << value << endl;
 
   return ApplyHighPtCorr*(value+double(sys)*error);
 

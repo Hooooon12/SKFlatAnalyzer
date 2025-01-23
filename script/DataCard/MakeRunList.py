@@ -1,5 +1,5 @@
 # Place this at CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter
-# python MakeRunList.py <directories> [-e 2017 2018] [-c EMu] [-m 100 200] <--Work or --Limit>
+# python MakeRunList.py <directories> [-e 2017 2018] [-c EMu] [-m 100 200] [-s DYVBF] <--Work or --Limit>
 
 import os, sys
 import commands as cmd
@@ -10,6 +10,7 @@ parser.add_argument('dirNames', nargs='+') # nargs='+' force a user to feed this
 parser.add_argument('-e', dest='eras', default=[], nargs='+')
 parser.add_argument('-c', dest='channels', default=[], nargs='+') # store [] if nothing is fed
 parser.add_argument('-m', dest='masses', default=[], nargs='+')
+parser.add_argument('-s', dest='signals', default=[], nargs='+')
 parser.add_argument('--Work', action='store_true', help='for workspace production purposes')
 parser.add_argument('--Limit', action='store_true', help='for limit extraction purposes')
 args = parser.parse_args()
@@ -46,7 +47,7 @@ grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep '+CardRep # Whe
 
 ## SR only
 #tags = ["_sronly_sr1","_sronly_sr2","_sronly_sr3","_sronly_sr123","_sronly_sr","_sronly_sr1_syst","_sronly_sr2_syst","_sronly_sr3_syst","_sronly_sr123_syst","_sronly_sr_syst"]
-tags = ["_sronly_sr123_syst"] # no CR, sr123 combined.
+tags = ["_sronly_sr123_syst"] # no CR, sr123 combined, with Syst
 #tags = ["_sronly_sr123"] # NoCR, NoSyst
 #tags = ["_sronly_sr1_syst","_sronly_sr2_syst","_sronly_sr3_syst"] # no CR, sr1, 2, 3 separate run
 
@@ -57,7 +58,7 @@ if "Run2" in args.eras:
 
 for dirName in args.dirNames:
 
-  greps = 'ls '+dirName+grepRegion+' | grep '*int(bool(args.eras))+' '.join(["-e "+era for era in args.eras])+' | grep '*int(bool(args.channels))+' '.join(["-e "+channel for channel in args.channels])+' | grep '*int(bool(args.masses))+' '.join(["-e M"+mass+"_" for mass in args.masses]) # if any of eras, chs, ms exists, this line greps it in order. if not, just ls the directory
+  greps = 'ls '+dirName+grepRegion+' | grep '*int(bool(args.eras))+' '.join(["-e "+era for era in args.eras])+' | grep '*int(bool(args.channels))+' '.join(["-e "+channel for channel in args.channels])+' | grep '*int(bool(args.masses))+' '.join(["-e M"+mass+"_" for mass in args.masses])+' | grep '*int(bool(args.signals))+' '.join(["-e "+signal for signal in args.signals]) # if any of eras, chs, ms exists, this line greps it in order. if not, just ls the directory
   #print greps
 
   cards = cmd.getoutput(greps).replace('_'+CardRep+'.txt','').replace('_syst.txt','').split('\n')

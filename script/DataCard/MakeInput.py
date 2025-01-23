@@ -708,7 +708,7 @@ for tag in tags:
           #### Treat 0 fakes: see v) of https://hypernews.cern.ch/HyperNews/CMS/get/EXO-21-002/25
           for i in range(h_fake.GetNbinsX()):
             if h_fake.GetBinContent(i+1) <= 0.:
-              print "!!!!!! zero fakes detected in fake bin",i+1,":",h_fake.GetBinContent(i+1)
+              print "!!!!!! zero fakes detected in fake bin",i+1,":",h_fake.GetBinContent(i+1),"!!!!!!"
               h_fake.SetBinContent(i+1,0.15*0.645)
               h_fake.SetBinError(i+1,0.15*0.645)
 
@@ -934,7 +934,7 @@ for tag in tags:
                       print name_syst
                       for j in range(h_syst.GetNbinsX()):
                         if h_syst.GetBinContent(j+1) <= 0.:
-                          print "!!!!!! zero fakes detected in fake",name_syst," bin",j+1,":",h_syst.GetBinContent(j+1)
+                          print "!!!!!! zero fakes detected in fake",name_syst," bin",j+1,":",h_syst.GetBinContent(j+1),"!!!!!!"
                           h_syst.SetBinContent(j+1,0.15*0.645)
                           h_syst.SetBinError(j+1,0.15*0.645)
 

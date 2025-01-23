@@ -227,7 +227,7 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
   
     ////  AN [1]  AN2019_089 WZ/WZ VBF
     ////  AN [2]  AN2021_008 WW Peking HNL
-    ////  ΑΝ [3]  ΑΝ2020_045 SSWW
+    ////  AN [3]  AN2020_045 SSWW
 
     vector<TString> passed;
     if(RunCR("OS_VR",CRs)){

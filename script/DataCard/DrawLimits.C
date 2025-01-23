@@ -27,14 +27,16 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //TString WP_nom = "PR48_rateParam_HNL_ULID"; // nominal working point
   //TString WP_nom = "PR86_HNL_ULID_Decorr"; // nominal working point
   //TString WP_nom = "PR97_HNL_ULIDv2_NoCR_NoSyst"; // nominal working point
-  TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_NoCR"; // nominal working point
+  //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_NoCR"; // nominal working point
+  TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_TEST_NoCR"; // nominal working point
   //TString tag_nom = "_syst"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sronly_sr123_Run2Scaled"; // nominal tag
-  TString tag_nom = "_sronly_sr123_syst_Run2Scaled"; // nominal tag
+  //TString tag_nom = "_sronly_sr123_syst_Run2Scaled"; // nominal tag
+  TString tag_nom = "_DYVBF_sronly_sr123_syst_Run2Scaled"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
-  TString Name_IsXsecLimit = "";
+  TString Name_IsXsecLimit = "_mixing";
   if(IsXsecLimit) Name_IsXsecLimit = "_xsec";
 
   TString this_plotpath = plotpath+WP_nom;
@@ -92,6 +94,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       cout << elline << endl;
       double this_mass, this_obs, this_limit, this_onesig_left, this_onesig_right, this_twosig_left, this_twosig_right;
       std::istringstream is( elline );
+      TString this_line = elline;
+      if(this_line.Contains("#")||this_line=="") continue;
       if (is >> this_mass) mass.push_back(this_mass);
       if (is >> this_obs) obs.push_back(this_obs);
       if (is >> this_twosig_left) twosig_left.push_back(this_twosig_left);
@@ -120,20 +124,56 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
         double this_VBFxsec = GetVBFxsec(this_mass, channel);
         double this_SSWWxsec = GetSSWWxsec(this_mass, channel);
         if(channel=="EMu"){
-          obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) + 4*obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
-          limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) + 4*limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
-          onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + 4*onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
-          onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) + 4*onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
-          twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + 4*twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
-          twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) + 4*twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
+          if(tag_nom.Contains("DYVBF")){
+            obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) ;
+            limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) ;
+            onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) ;
+            onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) ;
+            twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) ;
+            twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) ;
+					}
+					else if(tag_nom.Contains("SSWW")){
+            obs[dummyint]          = 4*obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
+            limit[dummyint]        = 4*limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
+            onesig_left[dummyint]  = 4*onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
+            onesig_right[dummyint] = 4*onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
+            twosig_left[dummyint]  = 4*twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
+            twosig_right[dummyint] = 4*twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
+					}
+					else{
+            obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) + 4*obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
+            limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) + 4*limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
+            onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + 4*onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
+            onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) + 4*onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
+            twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + 4*twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
+            twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) + 4*twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
+					}
         }
         else{
-          obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) + obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
-          limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) + limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
-          onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
-          onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) + onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
-          twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
-          twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) + twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
+          if(tag_nom.Contains("DYVBF")){
+            obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) ;
+            limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) ;
+            onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) ;
+            onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) ;
+            twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) ;
+            twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) ;
+          }
+					else if(tag_nom.Contains("SSWW")){
+            obs[dummyint]          = obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
+            limit[dummyint]        = limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
+            onesig_left[dummyint]  = onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
+            onesig_right[dummyint] = onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
+            twosig_left[dummyint]  = twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
+            twosig_right[dummyint] = twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
+          }
+					else{
+            obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) + obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
+            limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) + limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
+            onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
+            onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) + onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
+            twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
+            twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) + twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
+          }
         }
 
       }
@@ -1011,7 +1051,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   if(CompareLimits) dummy->GetXaxis()->SetLabelSize(0);
   //if(channel=="EMu") dummy->GetXaxis()->SetRangeUser(80., 60000); //FIXME
   //else dummy->GetXaxis()->SetRangeUser(80., 30000); //FIXME
-  dummy->GetXaxis()->SetRangeUser(80., 25000); //FIXME
+  if(tag_nom.Contains("DYVBF")) dummy->GetXaxis()->SetRangeUser(80., 3000);
+	else if(tag_nom.Contains("SSWW")) dummy->GetXaxis()->SetRangeUser(400., 25000);
+	else dummy->GetXaxis()->SetRangeUser(80., 25000); //FIXME
   if(IsXsecLimit) dummy->GetYaxis()->SetRangeUser(1e-5, 0.1); //FIXME
   else dummy->GetYaxis()->SetRangeUser(5e-5, 1.); //FIXME
   dummy->SetTitle("");
@@ -1278,12 +1320,12 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       gr_ratio_21003->Draw("lpsame");
     }
 
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+"_comp_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+"_comp.png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.png");
   }
   else{
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_mixing_"+WP_nom+tag_nom+Name_IsXsecLimit+".png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+".png");
   }
 
   return;

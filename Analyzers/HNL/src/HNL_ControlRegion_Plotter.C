@@ -5,7 +5,7 @@ void HNL_ControlRegion_Plotter::initializeAnalyzer(){
   HNL_LeptonCore::initializeAnalyzer();
 
 
-  if(IsData){
+  if(IsDATA){
     bool run_ee_bdt=false;
     bool run_mm_bdt=false;
     bool run_em_bdt=false;
@@ -72,7 +72,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   else if(HasFlag("SSMultiLep")) CRToRun = {"SS_CR","VBF_CR","LLL_VR"};
 
 
-  if(IsData){
+  if(IsDATA){
     if (this->DataStream == "DoubleMuon") ChannelsToRun = {MuMu};
     if (this->DataStream == "SingleMuon") ChannelsToRun = {MuMu};
     if (this->DataStream == "DoubleEG") ChannelsToRun = {EE};
