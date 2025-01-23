@@ -96,7 +96,10 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
       bool CFRun = (RunCF && dilep_channel == EE && IsData && !SameCharge(LepsT));
       bool OSRun = (HasFlag("RunOS") && IsData && !SameCharge(LepsT));
       
-      if(CFRun)  weight_Cutflow = GetCFWeightElectron(LepsT, param,nElForRunCF,true);
+      if(RunCF) {
+	if(CFRun)  weight_Cutflow = GetCFWeightElectron(LepsT, param,nElForRunCF,true);
+      }
+
       if(OSRun)  weight_Cutflow = 1;
       
       bool FakeRun = (RunFake&& IsData);
@@ -123,7 +126,7 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
 		  if(CheckLeptonFlavourForChannel(dilep_channel, LepsT)) {
 		    if(LepsT.size()==2){
 		      FillCutflow(CutFlow_Region, weight_channel, "LeptonFlavour",param);
-		      if(SameCharge(LepsT)){
+		      if(SameCharge(LepsT) || (CFRun)){
 			
 			FillCutflow(CutFlow_Region, weight_channel, "SSLepton",param);
 			if(LepsV.size()==2) {
@@ -144,9 +147,9 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
 	    }
 	  }
 	}
-
       }
     }
+
     if(HasFlag("RunOS")) continue;
 
     if(!PassGenMatchFilter(LepsT,param)) continue;

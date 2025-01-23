@@ -6,7 +6,6 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
 
   HNL_LeptonCore::initializeAnalyzer();
   
-
   if(IsDATA){
     bool run_ee_bdt=false;
     bool run_mm_bdt=false;
@@ -108,8 +107,8 @@ void HNL_SignalRegion_Plotter::executeEvent(){
 
 void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
 
-  if(run_Debug) cout << "HNL_SignalRegion_Plotter::executeEvent " << endl;
-
+  if(_jentry< 10) cout << "HNL_SignalRegion_Plotter::executeEvent " << param.Name << endl;
+  
   Event ev = GetEvent();
   double weight =SetupWeight(ev,param);
   

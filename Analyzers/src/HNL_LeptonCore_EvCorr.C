@@ -114,6 +114,8 @@ double HNL_LeptonCore::GetScaleUncertainty(int sys){
   
   if(!MCSample.Contains("Type")) return 1;
   if(sys==0) return 1;
+  if(weight_Scale->size() == 0 )  return 1;
+
   if(sys == 1){
     double min_var=0;
     for(int iw=0; iw < weight_Scale->size() -2 ; iw++) {

@@ -192,15 +192,42 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
 	
 	TDirectory* origDir = gDirectory;
 	cout << "Acessing file " << TheoryPath << endl;
+
 	TFile* GenNormFile= new TFile(TheoryPath );
-	TheoryDir->cd();
-	h_SumW_PDF = ((TH1D*) GenNormFile->Get("sumW_PDF")->Clone());
-	h_SumW_Scale = ((TH1D*) GenNormFile->Get("sumW_Scale")->Clone());
-	h_SumW_AlphaS = ((TH1D*) GenNormFile->Get("sumW_AlphaS")->Clone());    
-	
+
+	GenNormFile->ls(); 
+
+	TIter next(GenNormFile->GetListOfKeys());
+	TKey* key;
+	while ((key = (TKey*)next())) {
+	  if (strcmp(key->GetClassName(), "TH1F") == 0 || 
+	      strcmp(key->GetClassName(), "TH1D") == 0 || 
+	      strcmp(key->GetClassName(), "TH1I") == 0 || 
+	      strcmp(key->GetClassName(), "TH1S") == 0) {
+
+	    cout << "Histogram: " << key->GetName() << endl;
+
+	    TheoryDir->cd();
+	    if(strcmp(key->GetName(),"sumW_PDF") == 0) {
+	      cout << "Initialising sumW_PDF " << endl;
+	      h_SumW_PDF = ((TH1D*) GenNormFile->Get("sumW_PDF")->Clone());
+	    }
+	    if(strcmp(key->GetName(),"sumW_Scale") == 0) h_SumW_Scale = ((TH1D*) GenNormFile->Get("sumW_Scale")->Clone());
+	    if(strcmp(key->GetName(),"sumW_AlphaS") == 0)h_SumW_AlphaS = ((TH1D*) GenNormFile->Get("sumW_AlphaS")->Clone());
+
+	    origDir->cd();
+
+	  }
+	}
+
 	GenNormFile->Close();
-      delete GenNormFile;
-      origDir->cd();
+	cout << "Close file" << endl;
+	delete GenNormFile;
+
+	cout << "h_SumW_PDF Integral = " << h_SumW_PDF->Integral() << endl;
+	cout << "h_SumW_Scale Integral = " << h_SumW_Scale->Integral() << endl;
+        cout << "h_SumW_AlphaS Integral = " << h_SumW_AlphaS->Integral() << endl;
+
       }
       else {
 	cout << "[HNL_LeptonCore::AccessPathName ] Theory file " << TheoryPath << " not found.." << endl;
@@ -978,9 +1005,19 @@ HNL_LeptonCore::~HNL_LeptonCore(){
   
   if(HasFlag("RunSyst")){
     if(MCSample.Contains("Type")){
-      if(h_SumW_PDF) delete h_SumW_PDF;
-      if(h_SumW_Scale) delete h_SumW_Scale;
-      if(h_SumW_AlphaS) delete h_SumW_AlphaS;
+
+      if (h_SumW_PDF != nullptr) {
+	delete h_SumW_PDF;
+	h_SumW_PDF = nullptr; // Set pointer to nullptr after deletion
+      }
+      if (h_SumW_Scale != nullptr) {
+	delete h_SumW_Scale;
+	h_SumW_Scale = nullptr; // Set pointer to nullptr after deletion
+      }
+      if (h_SumW_AlphaS != nullptr) {
+	delete h_SumW_AlphaS;
+	h_SumW_AlphaS = nullptr; // Set pointer to nullptr after deletion
+      }
     }
   }
   DeleteZptWeight();
