@@ -1,7 +1,3 @@
-# Place it in SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter
-# It does hadd first, and then create inputs for Combine.
-# Which to hadd is controlled by the Merge* flags.
-# If you want to do hadd only for some reason, then set regions as blank.
 # Run: python MakeInput.py --Merge\ python MakeInput.py --CR --Merge \
 # python MakeInput.py --Syst [--Decorr]\ python MakeInput.py --CR --Syst [--Decorr] 
 # python MakeInput.py --CheckFiles
@@ -20,65 +16,35 @@ parser.add_argument('--CR', action='store_true', help='Make HNL_ControlRegion_Pl
 parser.add_argument('--Syst', action='store_true', help='Add systematics')
 parser.add_argument('--Decorr', action='store_true', help='Decorrelate Fake, CF syst sources')
 parser.add_argument('--Flag', nargs='+', help='Your private flag names')
-parser.add_argument('--Merge', action='store_true', help='hadd the needed histograms')
+parser.add_argument('--Merge', action='store_true', help='hadd the needed histograms') # NOTE Run2 Merging deprecated.
 parser.add_argument('--CheckFiles', action='store_true', help='check all inputs before merge')
 args = parser.parse_args()
 
-FlagName = ""
+ExtFlag = ""
 if args.Flag is None: pass
 else:
   for this_flag in args.Flag:
-    FlagName += this_flag+"__" # SKFlat convention
+    ExtFlag += this_flag+"__" # SKFlat convention
 
 #eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
-#eras = ["2016preVFP"]
-#eras = ["2016postVFP"]
-#eras = ["2017"]
-eras = ["2018"]
+eras = ["2017"]
+#eras = ["2018"]
 #eras = ["Run2"] # Let's merge Run2 after running all eras first
-#masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses = ["M100","M1000","M10000"]
+
 masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250"]
-#masses = ["M1000"]
-#masses = ["M100","M500","1000","M10000"]
-#masses = ["M85","M90","M95","M125","M150","M200","M250","M300","M400","M600","M700","M800","M900","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M15000","M20000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M1000"]
-#masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
+
 channels = ["MuMu","EE","EMu"]
-#channels = ["MuMu","EE"]
-#channels = ["EMu"]
-#channels = ["MuMu"]
+
 HistChannelMap = {'MuMu':'Muon', 'EE':'Electron', 'EMu':'ElectronMuon'}
 ## Ugly region maps ##
-RegionToCRFlagMap = {}
+RegionToDefFlagMap = {}
 RegionToChannelMap = {}
 RegionToHistSuffixMap = {}
 
+outputTag = "ANv3" # tag the output directory name as you wish
+
 #tags = ["HNL_ULID","HNTightV2"] # HNLParameter Name
-#tags = ["HNL_ULID"] # HNLParameter Name, used to call the histogram
 tags = ["HNL_ULIDv2"] # HNLParameter Name, used to call the histogram
-#tags = ["HNL_ULID","HighPt"] # HNLParameter Name, used to call the histogram
-#tags = ["HighPt"] # HNLParameter Name, used to call the histogram
-#outputTagPrefix = "240501_1704_" # tag the output directory name as you wish
-#outputTagPrefix = "rateParam_" # tag the output directory name as you wish
-#outputTagPrefix = "PR48_rateParam_" # tag the output directory name as you wish
-#outputTagPrefix = "PR51_" # tag the output directory name as you wish
-#outputTagPrefix = "PR51_rescale_" # tag the output directory name as you wish
-#outputTagPrefix = "PR52_" # tag the output directory name as you wish
-#outputTagPrefix = "PR52_New" # tag the output directory name as you wish
-#outputTagPrefix = "PR52_10TeVrescale_" # tag the output directory name as you wish
-#outputTagPrefix = "PR55_" # tag the output directory name as you wish
-#outputTagPrefix = "PR55_NoMinPt_" # tag the output directory name as you wish
-#outputTagPrefix = "PR52_TestScan_" # tag the output directory name as you wish
-#outputTagPrefix = "PR52_SSWWrescale_" # tag the output directory name as you wish
-#outputTagPrefix = "PR85_" # tag the output directory name as you wish
-#outputTagPrefix = "PR89_" # tag the output directory name as you wish
-#outputTagPrefix = "PR95_" # tag the output directory name as you wish
-#outputTagPrefix = "PR97_" # tag the output directory name as you wish
-#outputTagPrefix = "PR101_" # tag the output directory name as you wish
-outputTagPrefix = "ANv3_" # tag the output directory name as you wish
 
 outputTagSuffix = ""
 if args.CnC:
@@ -91,11 +57,6 @@ DataSkim = "_SkimTree_HNMultiLepBDT_"
 FakeSkim = "_SkimTree_HNMultiLepBDT_"
 #CFSkim = "_SkimTree_HNMultiLepBDT_" #FIXME MC CF
 CFSkim = "_SkimTree_DileptonBDT_" #FIXME Data CF
-ConvSkim = {}
-for this_conv in ["TG","TTG","WZG","WWG","WGJJToLNu","ZGToLLG","DYJets_MG"]:
-  ConvSkim[this_conv] = "_SkimTree_HNMultiLepBDT_"
-for this_conv in ["WGToLNuG","WGToLNuG_MG"]:
-  ConvSkim[this_conv] = "_SkimTree_DileptonBDT_"
 MCSkim = "_SkimTree_HNMultiLepBDT_"
 SignalSkim = "_SkimTree_HNMultiLepBDT_"
 
@@ -111,42 +72,38 @@ MergeSignal = True if args.Merge else False
 
 if args.CR:
   Blinded = False # Blinded --> the total background will be used as data_obs
-  CRflags = ["SS_CR__","VBF_CR__","LLL_VR__"]
+  DefFlags = ["RunSyst__LLL__","RunSyst__SSMultiLep__"]
   Analyzer = "HNL_ControlRegion_Plotter"
 
-  #regions = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","zg_cr","zg_cr1","zg_cr3","wz_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr","zz_cr1","zz_cr3"] # for CRs
-  #regions = ["sr_inv","sr1_inv","sr2_inv","sr3_inv","cf_cr","ww_cr","zg_cr","wz_cr","zz_cr"] if not args.Merge else "" # for CRs
-  #regions = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
   regions = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr1","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
-  ########### JH: ww_cr is just SR2 but high MET? Then isn't it just InvMET_CR2? #########
 
-  RegionToCRFlagMap['sr_inv'] = "SS_CR__"
-  RegionToCRFlagMap['sr1_inv'] = "SS_CR__"
-  RegionToCRFlagMap['sr2_inv'] = "SS_CR__"
-  RegionToCRFlagMap['sr3_inv'] = "SS_CR__"
-  RegionToCRFlagMap['sr1_InvMET'] = "SS_CR__"
-  RegionToCRFlagMap['sr2_InvMET'] = "SS_CR__"
-  RegionToCRFlagMap['sr3_InvMET'] = "SS_CR__"
-  RegionToCRFlagMap['sr1_bjet'] = "SS_CR__"
-  RegionToCRFlagMap['sr2_bjet'] = "SS_CR__"
-  RegionToCRFlagMap['sr3_bjet'] = "SS_CR__"
-  RegionToCRFlagMap['cf_cr1']  = "SS_CR__"
-  RegionToCRFlagMap['cf_cr2']  = "SS_CR__"
-  RegionToCRFlagMap['cf_cr3']  = "SS_CR__"
-  RegionToCRFlagMap['ww_cr']  = "VBF_CR__"
-  RegionToCRFlagMap['ww_cr1']  = "VBF_CR__"
-  RegionToCRFlagMap['ww_cr2']  = "VBF_CR__"
-  RegionToCRFlagMap['zg_cr']  = "LLL_VR__"
-  RegionToCRFlagMap['zg_cr1']  = "LLL_VR__"
-  RegionToCRFlagMap['zg_cr3']  = "LLL_VR__"
-  RegionToCRFlagMap['wz_cr']  = "LLL_VR__"
-  RegionToCRFlagMap['wz_cr1']  = "LLL_VR__"
-  RegionToCRFlagMap['wz_cr2']  = "LLL_VR__"
-  RegionToCRFlagMap['wz_cr3']  = "LLL_VR__"
-  RegionToCRFlagMap['zz_cr']  = "LLL_VR__"
-  RegionToCRFlagMap['zz_cr1']  = "LLL_VR__"
-  RegionToCRFlagMap['zz_cr2']  = "LLL_VR__"
-  RegionToCRFlagMap['zz_cr3']  = "LLL_VR__"
+  RegionToDefFlagMap['sr_inv']     = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr1_inv']    = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr2_inv']    = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr3_inv']    = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr1_InvMET'] = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr2_InvMET'] = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr3_InvMET'] = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr1_bjet']   = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr2_bjet']   = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['sr3_bjet']   = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['cf_cr1']     = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['cf_cr2']     = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['cf_cr3']     = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['ww_cr']      = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['ww_cr1']     = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['ww_cr2']     = "RunSyst__SSMultiLep__"
+  RegionToDefFlagMap['zg_cr']      = "RunSyst__LLL__"
+  RegionToDefFlagMap['zg_cr1']     = "RunSyst__LLL__"
+  RegionToDefFlagMap['zg_cr3']     = "RunSyst__LLL__"
+  RegionToDefFlagMap['wz_cr']      = "RunSyst__LLL__"
+  RegionToDefFlagMap['wz_cr1']     = "RunSyst__LLL__"
+  RegionToDefFlagMap['wz_cr2']     = "RunSyst__LLL__"
+  RegionToDefFlagMap['wz_cr3']     = "RunSyst__LLL__"
+  RegionToDefFlagMap['zz_cr']      = "RunSyst__LLL__"
+  RegionToDefFlagMap['zz_cr1']     = "RunSyst__LLL__"
+  RegionToDefFlagMap['zz_cr2']     = "RunSyst__LLL__"
+  RegionToDefFlagMap['zz_cr3']     = "RunSyst__LLL__"
 
   RegionToChannelMap['sr_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['sr1_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
@@ -206,16 +163,15 @@ if args.CR:
 
 else:
   Blinded = True # Blinded --> the total background will be used as data_obs
-  CRflags = [""]
+  DefFlags = ["RunSyst__"]
   Analyzer = "HNL_SignalRegion_Plotter"
 
   regions = ["sr1","sr2","sr3"] if not args.Merge else "" # for SRs
-  #regions = ["sr"] # for SRs
 
-  RegionToCRFlagMap['sr'] = ""
-  RegionToCRFlagMap['sr1'] = ""
-  RegionToCRFlagMap['sr2'] = ""
-  RegionToCRFlagMap['sr3'] = ""
+  RegionToDefFlagMap['sr']  = "RunSyst__"
+  RegionToDefFlagMap['sr1'] = "RunSyst__"
+  RegionToDefFlagMap['sr2'] = "RunSyst__"
+  RegionToDefFlagMap['sr3'] = "RunSyst__"
 
   RegionToChannelMap['sr'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['sr1'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
@@ -227,13 +183,25 @@ else:
   RegionToHistSuffixMap['sr2'] = {'MuMu':'LimitBins/MuonSR2', 'EE':'LimitBins/ElectronSR2', 'EMu':'LimitBins/ElectronMuonSR2'}
   RegionToHistSuffixMap['sr3'] = {'MuMu':'LimitBins/MuonSR3', 'EE':'LimitBins/ElectronSR3', 'EMu':'LimitBins/ElectronMuonSR3'}
 
+# Region dependent RunConv skim
+ConvSkim = {}
+for DefFlag in DefFlags:
+  ConvSkim[DefFlag] = {}
+  if "LLL" in DefFlag:
+    for this_conv in ["TG","TTG","WZG","WWG","WGJJToLNu","ZGToLLG","DYJets_MG","WGToLNuG","WGToLNuG_MG"]:
+      ConvSkim[DefFlag][this_conv] = "_SkimTree_HNMultiLepBDT_"
+  else:
+    for this_conv in ["TG","TTG","WZG","WWG","WGJJToLNu","ZGToLLG","DYJets_MG"]:
+      ConvSkim[DefFlag][this_conv] = "_SkimTree_HNMultiLepBDT_"
+    for this_conv in ["WGToLNuG","WGToLNuG_MG"]:
+      ConvSkim[DefFlag][this_conv] = "_SkimTree_DileptonBDT_"
+
+
 SystList = [
             "JetResUp","JetResDown",
             "JetEnUp","JetEnDown",
             "JetPUIDUp","JetPUIDDown",
             "JetPNETUp","JetPNETDown",
-            #"JetMassUp","JetMassDown",
-            #"JetMassSmearUp","JetMassSmearDown",
             "MuonEnUp","MuonEnDown",
             "MuonResUp","MuonResDown",
             "ElectronEnUp","ElectronEnDown",
@@ -253,9 +221,6 @@ SystList = [
             #"CFSFUp","CFSFDown",
             "FRUp","FRDown",
             "FRHighPtUp","FRHighPtDown",
-            #"AJUp","AJDown",
-            #"LIDUp","LIDDown",
-            #"PSFUp","PSFDown",
             "PDFUp","PDFDown",
             "ScaleUp","ScaleDown",
            ]
@@ -344,14 +309,7 @@ if ChargeSplit:
 else:
   ChargeSplit = ""
 
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR52/"
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR89/"
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR95/"
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR97/"
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR101/"
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_PR108/"
-InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer+"_ANv3/"
-#InputPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/"+Analyzer
+InputPath = "/data9/Users/jalmond_public/SUS-24-014/"
 
 
 if args.CheckFiles:
@@ -375,7 +333,7 @@ if args.CheckFiles:
                 #ggH
                 'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
                 #minor WWs
-                'WWTo2L2Nu_DS','WWTo2L2Nu_powheg',
+                'WWTo2L2Nu_DS',
                 #WW
                 'WpWp_QCD','WpWp_EWK',
                 #ZZ
@@ -383,29 +341,29 @@ if args.CheckFiles:
                 #WZ
                 'WZTo3LNu_mllmin4p0_powheg','WZ_EWK',
                ]
-  CRflags = ["SS_CR__","VBF_CR__","LLL_VR__"]
-  SRPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_ANv3/"
-  CRPath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/"
+  DefFlags = ["RunSyst__SSMultiLep__","RunSyst__LLL__"]
+  SRPath = "/data9/Users/jalmond_public/SUS-24-014/HNL_SignalRegion_Plotter_ANv3/"
+  CRPath = "/data9/Users/jalmond_public/SUS-24-014/HNL_ControlRegion_Plotter_ANv3/"
 
   for era in eras:
     # SR
     for this_proc in ConvList:
-      this_path=SRPath + "/" + era + "/" + "RunConv__"+FlagName+"/HNL_SignalRegion_Plotter"+ConvSkim[this_proc]+this_proc+".root"
+      this_path=SRPath + "/" + era + "/" + "RunSyst__RunConv__"+ExtFlag+"/HNL_SignalRegion_Plotter"+ConvSkim[this_proc]+this_proc+".root"
       if not os.path.exists(this_path):
         print this_path,"-->",os.path.exists(this_path)
     for this_proc in PromptList:
-      this_path=SRPath + "/" + era + "/" + "RunPrompt__"+FlagName+"/HNL_SignalRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+      this_path=SRPath + "/" + era + "/" + "RunSyst__RunPrompt__"+ExtFlag+"/HNL_SignalRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
       if not os.path.exists(this_path):
         print this_path,"-->",os.path.exists(this_path)
     # CR
     for this_proc in ConvList:
-      for CRflag in CRflags:
-        this_path=CRPath + "/" + era + "/" + CRflag+"RunConv__"+FlagName+"/HNL_ControlRegion_Plotter"+ConvSkim[this_proc]+this_proc+".root"
+      for DefFlag in DefFlags:
+        this_path=CRPath + "/" + era + "/" + DefFlag+"RunConv__"+ExtFlag+"/HNL_ControlRegion_Plotter"+ConvSkim[this_proc]+this_proc+".root"
         if not os.path.exists(this_path):
           print this_path,"-->",os.path.exists(this_path)
     for this_proc in PromptList:
-      for CRflag in CRflags:
-        this_path=CRPath + "/" + era + "/" + CRflag+"RunPrompt__"+FlagName+"/HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+      for DefFlag in DefFlags:
+        this_path=CRPath + "/" + era + "/" + DefFlag+"RunPrompt__"+ExtFlag+"/HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
         if not os.path.exists(this_path):
           print this_path,"-->",os.path.exists(this_path)
 
@@ -433,13 +391,13 @@ MergeList['RunPrompt']['Prompt_others'] = [
                                            #tZq
                                            'tZq',
                                            #Higgs
-                                           'ttHToNonbb','tHq','VHToNonbb',
+                                           'ttHToNonbb','VHToNonbb',
                                            #VBFHiggs
                                            'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
                                            #ggH
                                            'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
                                            #minor WWs
-                                           'WWTo2L2Nu_DS','WWTo2L2Nu_powheg',
+                                           'WWTo2L2Nu_DS',
                                           ] #FIXME time to time
 MergeList['RunPrompt']['Prompt_inc'] = [
                                         #VVV
@@ -453,13 +411,13 @@ MergeList['RunPrompt']['Prompt_inc'] = [
                                         #tZq
                                         'tZq',
                                         #Higgs
-                                        'ttHToNonbb','tHq','VHToNonbb',
+                                        'ttHToNonbb','VHToNonbb',
                                         #VBFHiggs
                                         'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
                                         #ggH
                                         'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
                                         #minor WWs
-                                        'WWTo2L2Nu_DS','WWTo2L2Nu_powheg',
+                                        'WWTo2L2Nu_DS',
                                         #WW
                                         'WpWp_QCD','WpWp_EWK',
                                         #ZZ
@@ -476,128 +434,116 @@ if MergeData:
     print "[MergeData] Data unblinded. merging..."
     for era in eras:
       if era=="Run2":
-        for CRflag in CRflags:
-          os.system("mkdir -p "+InputPath+"/Run2/"+CRflag+FlagName+"/DATA/")
-          OutFile=InputPath + "/Run2/" + CRflag +FlagName+ "/DATA/"+Analyzer+DataSkim+"DATA.root"
+        for DefFlag in DefFlags:
+          os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+ExtFlag+"/DATA/")
+          OutFile=InputPath + "/Run2/" + DefFlag +ExtFlag+ "/DATA/"+Analyzer+DataSkim+"DATA.root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + CRflag +FlagName+"/DATA/*DATA.root"\
-                                      + " " + InputPath + "/2016postVFP/" + CRflag +FlagName+ "/DATA/*DATA.root"\
-                                      + " " + InputPath + "/2017/" + CRflag +FlagName+ "/DATA/*DATA.root"\
-                                      + " " + InputPath + "/2018/" + CRflag +FlagName+ "/DATA/*DATA.root"\
+          os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + DefFlag +ExtFlag+"/DATA/*DATA.root"\
+                                      + " " + InputPath + "/2016postVFP/" + DefFlag +ExtFlag+ "/DATA/*DATA.root"\
+                                      + " " + InputPath + "/2017/" + DefFlag +ExtFlag+ "/DATA/*DATA.root"\
+                                      + " " + InputPath + "/2018/" + DefFlag +ExtFlag+ "/DATA/*DATA.root"\
                    )
       else:
-        for CRflag in CRflags:
-          OutFile=InputPath + "/" + era + "/" + CRflag +FlagName+ "/DATA/"+Analyzer+DataSkim+"DATA.root"
+        for DefFlag in DefFlags:
+          os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag +ExtFlag+"/DATA/")
+          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag +ExtFlag+ "/DATA/"+Analyzer+DataSkim+"DATA.root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          os.system("hadd " + OutFile + " " + InputPath + "/"+era+"/" + CRflag +FlagName+ "/DATA/*")
+          os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+outputTag+ "/"+era+"/" + DefFlag +ExtFlag+ "/DATA/*")
 
 if MergeFake:
 
   for era in eras:
     if era=="Run2":
-      for CRflag in CRflags:
-        os.system("mkdir -p "+InputPath+"/Run2/"+CRflag+"RunFake__"+FlagName+"/DATA/")
-        OutFile=InputPath + "/Run2/" + CRflag + "RunFake__"+FlagName+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+"RunFake__"+ExtFlag+"/DATA/")
+        OutFile=InputPath + "/Run2/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
         if os.path.exists(OutFile):
           os.system("rm " + OutFile)
-        os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + CRflag + "RunFake__"+FlagName+"/DATA/*Fake.root"\
-                                    + " " + InputPath + "/2016postVFP/" + CRflag + "RunFake__"+FlagName+"/DATA/*Fake.root"\
-                                    + " " + InputPath + "/2017/" + CRflag + "RunFake__"+FlagName+"/DATA/*Fake.root"\
-                                    + " " + InputPath + "/2018/" + CRflag + "RunFake__"+FlagName+"/DATA/*Fake.root"\
+        os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*Fake.root"\
+                                    + " " + InputPath + "/2016postVFP/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*Fake.root"\
+                                    + " " + InputPath + "/2017/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*Fake.root"\
+                                    + " " + InputPath + "/2018/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*Fake.root"\
                  )
     else:
-      for CRflag in CRflags:
-        OutFile=InputPath + "/" + era + "/" + CRflag + "RunFake__"+FlagName+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/")
+        OutFile=InputPath + "/MergedFiles/" +Analyzer+"_"+outputTag + "/" + era + "/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
         if os.path.exists(OutFile):
           os.system("rm " + OutFile)
-        os.system("hadd " + OutFile + " " + InputPath + "/"+era+"/" + CRflag + "RunFake__"+FlagName+"/DATA/*")
+        os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+outputTag + "/" + era+"/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*")
 
 if MergeCF:
 
   for era in eras:
     if era=="Run2":
-      for CRflag in CRflags:
-        os.system("mkdir -p "+InputPath+"/Run2/"+CRflag+"RunCF__"+FlagName+"/DATA/")
-        OutFile=InputPath + "/Run2/" + CRflag + "RunCF__"+FlagName+"/DATA/"+Analyzer+CFSkim+"CF.root"
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+"RunCF__"+ExtFlag+"/DATA/")
+        OutFile=InputPath + "/Run2/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
         if os.path.exists(OutFile):
           os.system("rm " + OutFile)
-        os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + CRflag + "RunCF__"+FlagName+"/DATA/*CF.root"\
-                                    + " " + InputPath + "/2016postVFP/" + CRflag + "RunCF__"+FlagName+"/DATA/*CF.root"\
-                                    + " " + InputPath + "/2017/" + CRflag + "RunCF__"+FlagName+"/DATA/*CF.root"\
-                                    + " " + InputPath + "/2018/" + CRflag + "RunCF__"+FlagName+"/DATA/*CF.root"\
+        os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*CF.root"\
+                                    + " " + InputPath + "/2016postVFP/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*CF.root"\
+                                    + " " + InputPath + "/2017/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*CF.root"\
+                                    + " " + InputPath + "/2018/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*CF.root"\
                  )
     else:
-      for CRflag in CRflags:
-        OutFile=InputPath + "/" + era + "/" + CRflag + "RunCF__"+FlagName+"/DATA/"+Analyzer+CFSkim+"CF.root" #FIXME Data CF
-        #OutFile=InputPath + "/" + era + "/" + CRflag + "RunCF__"+FlagName+"/"+Analyzer+CFSkim+"CF.root" #FIXME MC CF
+      for DefFlag in DefFlags:
+        if "LLL" in DefFlag: continue
+        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/")
+        OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag + "/"+ era + "/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
         if os.path.exists(OutFile):
           os.system("rm " + OutFile)
-        os.system("hadd " + OutFile + " " + InputPath + "/"+era+"/" + CRflag + "RunCF__"+FlagName+"/DATA/*") #FIXME Data CF
-        #os.system("hadd " + OutFile + " " + InputPath + "/"+era+"/" + CRflag + "RunCF__"+FlagName+"/*") #FIXME MC CF
+        os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+outputTag+ "/"+ era+"/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*") 
 
 if MergeConv:
 
   for era in eras:
     if era=="Run2":
-      for CRflag in CRflags:
-        os.system("mkdir -p "+InputPath+"/Run2/"+CRflag+"RunConv__"+FlagName+"/")
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+"RunConv__"+ExtFlag+"/")
         for OutProc in MergeList['RunConv'].keys():
-          OutFile=InputPath + "/Run2/" + CRflag + "RunConv__"+FlagName+"/"+Analyzer+"_"+OutProc+".root"
+          OutFile=InputPath + "/Run2/" + DefFlag + "RunConv__"+ExtFlag+"/"+Analyzer+"_"+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          #if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-          #                               + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-          #                               + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2017/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-          #                               + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2018/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-          #            ) != 0:
-          #  os.system("rm " + OutFile) # remove the output if there is any unmatched process
           os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
                                          + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
                                          + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2017/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
                                          + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2018/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
                    )
     else:
-      for CRflag in CRflags:
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunConv__"+ExtFlag)
         for OutProc in MergeList['RunConv'].keys():
-          OutFile=InputPath + "/" + era + "/" + CRflag + "RunConv__"+FlagName+"/"+Analyzer+"_"+OutProc+".root"
+          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunConv__"+ExtFlag+"/"+Analyzer+"_"+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          #if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0]+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList[OutProc]])) != 0:
-          #  os.system("rm " + OutFile) # remove the output if there is any unmatched process
-          os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0]+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]]))
+          os.system("hadd " + OutFile + " " + ' '.join([InputPath + "/"+ Analyzer+"_"+outputTag+ "/" +era+"/" + DefFlag + "RunConv__"+ExtFlag+"/"+Analyzer+ConvSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]]))
 
 if MergeMC:
 
   for era in eras:
     if era=="Run2":
-      for CRflag in CRflags:
-        os.system("mkdir -p "+InputPath+"/Run2/"+CRflag+"RunPrompt__"+FlagName+"/")
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+"RunPrompt__"+ExtFlag+"/")
         for OutProc in MergeList['RunPrompt'].keys():
-          OutFile=InputPath + "/" + era + "/" + CRflag + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+OutProc+".root"
+          OutFile=InputPath + "/" + era + "/" + DefFlag + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          #if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-          #                               + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-          #                               + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2017/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-          #                               + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2018/")+ThisProc+".root" for ThisProc in MergeList[OutProc]])\
-          #            ) != 0:
-          #  os.system("rm " + OutFile) # remove the output if there is any unmatched process
           os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
                                          + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
                                          + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2017/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
                                          + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2018/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
                    )
     else:
-      for CRflag in CRflags:
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunPrompt__"+ExtFlag)
         for OutProc in MergeList['RunPrompt'].keys():
-          OutFile=InputPath + "/" + era + "/" + CRflag + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+OutProc+".root"
+          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          #if os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0]+ThisProc+".root" for ThisProc in MergeList[OutProc]])) != 0:
-          #  os.system("rm " + OutFile) # remove the output if there is any unmatched process
-          os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0]+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]]))
+          os.system("hadd " + OutFile + " " + ' '.join([InputPath + "/"+ Analyzer+"_"+outputTag+ "/" +era+"/" + DefFlag + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]]))
 
 if MergeSignal:
 
@@ -609,55 +555,58 @@ if MergeSignal:
     for era in eras:
       for mass in masses:
         if era=="Run2":
-          os.system("mkdir -p "+InputPath+"/Run2/"+FlagName)
-          OutFileDY    = InputPath + "/Run2/"+FlagName+"/"+Analyzer+"_signalDY_"+mass+".root"
-          OutFileVBF   = InputPath + "/Run2/"+FlagName+"/"+Analyzer+"_signalVBF_"+mass+".root"
-          OutFileDYVBF = InputPath + "/Run2/"+FlagName+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-          OutFileSSWW  = InputPath + "/Run2/"+FlagName+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+          os.system("mkdir -p "+InputPath+"/Run2/"+ExtFlag)
+          OutFileDY    = InputPath + "/Run2/"+ExtFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
+          OutFileVBF   = InputPath + "/Run2/"+ExtFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
+          OutFileDYVBF = InputPath + "/Run2/"+ExtFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+          OutFileSSWW  = InputPath + "/Run2/"+ExtFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
           # First, create DY, VBF, SSWWTypeI seperately
-          if os.system("hadd -f " + OutFileDY + " " + InputPath+"/2016preVFP/"+FlagName+"/*DYTypeI*"+mass+"_private.root"\
-                                              + " " + InputPath+"/2016postVFP/"+FlagName+"/*DYTypeI*"+mass+"_private.root"\
-                                              + " " + InputPath+"/2017/"+FlagName+"/*DYTypeI*"+mass+"_private.root"\
-                                              + " " + InputPath+"/2018/"+FlagName+"/*DYTypeI*"+mass+"_private.root"\
+          if os.system("hadd -f " + OutFileDY + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                              + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                              + " " + InputPath+"/2017/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                              + " " + InputPath+"/2018/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
                      ) != 0:
             os.system("rm " + OutFileDY) # remove the output if there is any unmatched process
-          if os.system("hadd -f " + OutFileVBF + " " + InputPath+"/2016preVFP/"+FlagName+"/*VBFTypeI*"+mass+"_private.root"\
-                                               + " " + InputPath+"/2016postVFP/"+FlagName+"/*VBFTypeI*"+mass+"_private.root"\
-                                               + " " + InputPath+"/2017/"+FlagName+"/*VBFTypeI*"+mass+"_private.root"\
-                                               + " " + InputPath+"/2018/"+FlagName+"/*VBFTypeI*"+mass+"_private.root"\
+          if os.system("hadd -f " + OutFileVBF + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                               + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                               + " " + InputPath+"/2017/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                               + " " + InputPath+"/2018/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
                      ) != 0:
             os.system("rm " + OutFileVBF) # remove the output if there is any unmatched process
-          if os.system("hadd -f " + OutFileSSWW + " " + InputPath+"/2016preVFP/"+FlagName+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2016postVFP/"+FlagName+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2017/"+FlagName+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2018/"+FlagName+"/*SSWWTypeI*"+mass+"_private.root"\
+          if os.system("hadd -f " + OutFileSSWW + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2017/"+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2018/"+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root"\
                      ) != 0:
             os.system("rm " + OutFileSSWW) # remove the output if there is any unmatched process
           # Now treat DYVBF depending on the mass
           if int(mass.replace("M","")) < 300: # DY only
-            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/2016preVFP/"+FlagName+"/*DYTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2016postVFP/"+FlagName+"/*DYTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2017/"+FlagName+"/*DYTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2018/"+FlagName+"/*DYTypeI*"+mass+"_private.root")
+            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2017/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2018/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root")
           else: # DY+VBF
-            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/2016preVFP/"+FlagName+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2016preVFP/"+FlagName+"/*VBFTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2016postVFP/"+FlagName+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2016postVFP/"+FlagName+"/*VBFTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2017/"+FlagName+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2017/"+FlagName+"/*VBFTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2018/"+FlagName+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2018/"+FlagName+"/*VBFTypeI*"+mass+"_private.root")
+            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2017/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2017/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2018/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2018/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root")
         else:
-          OutFileDY    = InputPath + "/" + era + "/"+FlagName+"/"+Analyzer+"_signalDY_"+mass+".root"
-          OutFileVBF   = InputPath + "/" + era + "/"+FlagName+"/"+Analyzer+"_signalVBF_"+mass+".root"
-          OutFileDYVBF = InputPath + "/" + era + "/"+FlagName+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-          OutFileSSWW  = InputPath + "/" + era + "/"+FlagName+"/"+Analyzer+"_signalSSWW_"+mass+".root"
-          # First, create DY, VBF, SSWWTypeI seperately
-          os.system("cp " + InputPath+"/"+era+"/"+FlagName+"/*DYTypeI*"+mass+"_private.root " + OutFileDY)
-          os.system("cp " + InputPath+"/"+era+"/"+FlagName+"/*VBFTypeI*"+mass+"_private.root " + OutFileVBF)
-          os.system("hadd -f " + OutFileSSWW + " " + InputPath+"/"+era+"/"+FlagName+"/*SSWWTypeI*"+mass+"_private.root")
-          # Now treat DYVBF depending on the mass
-          if int(mass.replace("M","")) < 300: # DY only
-            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/"+era+"/"+FlagName+"/*DYTypeI*"+mass+"_private.root")
-          else: # DY+VBF
-            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/"+era+"/"+FlagName+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/"+era+"/"+FlagName+"/*VBFTypeI*"+mass+"_private.root")
+          for DefFlag in DefFlags:
+            os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + ExtFlag)
+            OutFileDY    = InputPath +"/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/"+DefFlag+ExtFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
+            OutFileVBF   = InputPath +"/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/"+DefFlag+ExtFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
+            OutFileDYVBF = InputPath +"/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/"+DefFlag+ExtFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+            OutFileSSWW  = InputPath +"/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/"+DefFlag+ExtFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+            # First, create DY, VBF, SSWWTypeI seperately
+            os.system("cp " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDY)
+            os.system("cp " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*VBFTypeI*"+mass+"_private.root " + OutFileVBF)
+            if 500 <= int(mass.replace("M","")): # SSWW
+              os.system("hadd -f " + OutFileSSWW + " " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root")
+            # Now treat DYVBF depending on the mass
+            if int(mass.replace("M","")) < 300: # DY only
+              os.system("cp " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDYVBF)
+            elif int(mass.replace("M","")) <=3000: # DY+VBF
+              os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*VBFTypeI*"+mass+"_private.root")
 
 
 
@@ -703,21 +652,20 @@ for tag in tags:
   for era in eras:
     for region in regions: # ...and even each region to control!!
       print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      OutputPath = InputPath+'/LimitExtraction/'+outputTagPrefix+tag+outputTagSuffix+'/'
+      OutputPath = '/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/'+outputTag+"_"+tag+outputTagSuffix+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
   
-      f_path_data          = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + FlagName + "/DATA/"+Analyzer+DataSkim+"DATA.root"
-      f_path_fake          = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunFake__"+FlagName+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
-      f_path_cf            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunCF__"+FlagName+"/DATA/"+Analyzer+CFSkim+"CF.root"
-      #f_path_cf            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunCF__"+FlagName+"/"+Analyzer+CFSkim+"CF.root" #FIXME MC CF
-      f_path_zg            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+"_ZG_norm.root"
-      f_path_conv_others   = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+"_Conv_others.root"
-      f_path_conv_inc      = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunConv__"+FlagName+"/"+Analyzer+"_Conv_inc.root"
-      f_path_wz            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+"WZ_norm.root"
-      f_path_zz            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+"ZZ_norm.root"
-      f_path_ww            = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+"WW_norm.root"
-      f_path_prompt_others = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+"Prompt_others.root"
-      f_path_prompt_inc    = InputPath + "/" + era + "/" + RegionToCRFlagMap[region] + "RunPrompt__"+FlagName+"/"+Analyzer+MCSkim+"Prompt_inc.root"
+      f_path_data          = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + ExtFlag + "/DATA/"+Analyzer+DataSkim+"DATA.root"
+      f_path_fake          = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunFake__"+ExtFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
+      f_path_cf            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunCF__"+ExtFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
+      f_path_zg            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunConv__"+ExtFlag+"/"+Analyzer+"_ZG_norm.root"
+      f_path_conv_others   = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunConv__"+ExtFlag+"/"+Analyzer+"_Conv_others.root"
+      f_path_conv_inc      = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunConv__"+ExtFlag+"/"+Analyzer+"_Conv_inc.root"
+      f_path_wz            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"WZ_norm.root"
+      f_path_zz            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"ZZ_norm.root"
+      f_path_ww            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"WW_norm.root"
+      f_path_prompt_others = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"Prompt_others.root"
+      f_path_prompt_inc    = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"Prompt_inc.root"
       
       if not Blinded: f_data = TFile.Open(f_path_data)
       f_fake          = TFile.Open(f_path_fake)
@@ -767,13 +715,14 @@ for tag in tags:
           #  SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
 
           #print "f_cf :",f_path_cf
+          print "f_prompt_inc:",f_prompt_inc
           print "input_hist :", LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
           input_hist = LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
           
           print "##### Initiating",region,mass,channel,"..."
           if not Blinded: h_data        = f_data.Get(input_hist)
           h_fake          = f_fake.Get(input_hist)
-          h_cf            = f_cf.Get(input_hist) if "Mu" not in channel and "LLL_VR" not in RegionToCRFlagMap[region] else ""
+          h_cf            = f_cf.Get(input_hist) if "Mu" not in channel and "LLL_VR" not in RegionToDefFlagMap[region] else ""
           h_zg            = f_zg.Get(input_hist)
           h_conv_others   = f_conv_others.Get(input_hist)
           h_conv_inc      = f_conv_inc.Get(input_hist)
@@ -876,8 +825,8 @@ for tag in tags:
             print "##### This is CR setting."
             print "##### Skipping signal ..."
           else:
-            f_path_signalDYVBF = InputPath + "/" + era + "/"+FlagName+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-            f_path_signalSSWW  = InputPath + "/" + era + "/"+FlagName+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+            f_path_signalDYVBF = InputPath + "/" + era + "/"+ExtFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+            f_path_signalSSWW  = InputPath + "/" + era + "/"+ExtFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
   
             print "opening",f_path_signalDYVBF,"..."
             f_signalDYVBF = TFile.Open(f_path_signalDYVBF)
@@ -893,36 +842,15 @@ for tag in tags:
               if args.Scan:
                 print "##### Making 2D hist for","signalDYVBF","#####"
                 FillScan(h_scan,h_signalDYVBF,"signalDYVBF") # out, in, name
-              #print "Making an empty hist..."
-              #h_signalDYVBF = h_data.Clone() #NOTE This might be not working after unblinding, when there is no real data.
-              #for i in range(h_signalDYVBF.GetNbinsX()):
-              #  h_signalDYVBF.SetBinContent(i+1,0)
-              #  h_signalDYVBF.SetBinError(i+1,0)
-              #input_list.append([f_path_signalDYVBF, h_signalDYVBF, "signalDYVBF"])
-              #if h_signalDYVBF.Integral() != 0:
-              #  print "[!!ERROR!!] this must be empty. But having :",h_signalDYVBF.Integral()
-              #  print "Exiting..."
-              #  sys.exit()
             else:
               if args.Scan:
                 print "##### Making 2D hist for","signalDYVBF","#####"
                 FillScan(h_scan,h_signalDYVBF,"signalDYVBF") # out, in, name
               try:
-                if "PR52" in InputPath and "EMu" in channel: h_signalDYVBF.Scale(2) #XXX FIXME MY SKFlatOutput EMu signal had a half of events
                 h_signalDYVBF.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
               except AttributeError:
                 print("[!!WARNING!!] There is no hist named "+input_hist+" in "+f_path_signalDYVBF+" .")
                 print "Skipping..."
-                #print "Making an empty hist..."
-                #h_signalDYVBF = h_data.Clone() #NOTE This might be not working after unblinding, when there is no real data.
-                #for i in range(h_signalDYVBF.GetNbinsX()):
-                #  h_signalDYVBF.SetBinContent(i+1,0)
-                #  h_signalDYVBF.SetBinError(i+1,0)
-                #input_list.append([f_path_signalDYVBF, h_signalDYVBF, "signalDYVBF"])
-                #if h_signalDYVBF.Integral() != 0:
-                #  print "[!!ERROR!!] this must be empty. But having :",h_signalDYVBF.Integral()
-                #  print "Exiting..."
-                #  sys.exit()
               else:
                 input_list.append([f_path_signalDYVBF, h_signalDYVBF, "signalDYVBF"])
                 print "Scaled signalDYVBF :", h_signalDYVBF.Integral()
@@ -935,16 +863,6 @@ for tag in tags:
               if args.Scan:
                 print "##### Making 2D hist for","signalSSWW","#####"
                 FillScan(h_scan,h_signalDYVBF,"signalSSWW") # out, in, name
-              #print "Making an empty hist..."
-              #h_signalSSWW = h_data.Clone() #NOTE This might be not working after unblinding, when there is no real data.
-              #for i in range(h_signalSSWW.GetNbinsX()):
-              #  h_signalSSWW.SetBinContent(i+1,0)
-              #  h_signalSSWW.SetBinError(i+1,0)
-              #input_list.append([f_path_signalSSWW, h_signalSSWW, "signalSSWW"])
-              #if h_signalSSWW.Integral() != 0:
-              #  print "[!!ERROR!!] this must be empty. But having :",h_signalSSWW.Integral()
-              #  print "Exiting..."
-              #  sys.exit()
             else:
               if args.Scan:
                 print "##### Making 2D hist for","signalSSWW","#####"
@@ -954,27 +872,12 @@ for tag in tags:
               except AttributeError:
                 print("[!!WARNING!!] There is no hist named "+input_hist+" in "+f_path_signalSSWW+" .")
                 print "Skipping..."
-                #print "Making an empty hist..."
-                #h_signalSSWW = h_data.Clone() #NOTE This might be not working after unblinding, when there is no real data.
-                #for i in range(h_signalSSWW.GetNbinsX()):
-                #  h_signalSSWW.SetBinContent(i+1,0)
-                #  h_signalSSWW.SetBinError(i+1,0)
-                #input_list.append([f_path_signalSSWW, h_signalSSWW, "signalSSWW"])
-                #if h_signalSSWW.Integral() != 0:
-                #  print "[!!ERROR!!] this must be empty. But having :",h_signalSSWW.Integral()
-                #  print "Exiting..."
-                #  sys.exit()
               else:
                 print "Scaled signalSSWW :", h_signalSSWW.Integral()
                 input_list.append([f_path_signalSSWW, h_signalSSWW, "signalSSWW"])
   
             if args.Scan:
-              #print h_scan
-              #print h_scan.GetTitle()
-              #for i in range(h_scan.GetNbinsX()): print h_scan.GetYaxis().GetBinLabel(3), h_scan.GetBinContent(i+1,3)
-              #h_scan.SetDirectory(0)
               scan_list.append(h_scan)
-              #print scan_list
 
             print "##### Signal done."
   
@@ -1081,7 +984,6 @@ for tag in tags:
 
                   try:
                     if "DYVBF" in input_list[i][2]: # Scale the syst variated signals
-                      if "PR52" in InputPath and "EMu" in channel: h_syst.Scale(2) #XXX FIXME MY SKFlatOutput EMu signal had a half of events
                       h_syst.Scale(DYVBFscaler)
                     elif "SSWW" in input_list[i][2]:
                       h_syst.Scale(SSWWscaler)
@@ -1146,22 +1048,15 @@ for tag in tags:
             if args.CnC:
               print "!!Cut and count option activated!!"
               print "!!Merging all into 1 bin...!!"
-              #print item[1].GetXaxis().GetBinLowEdge(1)
-              #print item[1].GetXaxis().GetBinUpEdge(item[1].GetNbinsX())
-              #newbin = array.array('d',[0,item[1].GetNbinsX()])
-              #print newbin
               
               item[1].Rebin(item[1].GetNbinsX())
               CnChist = TH1D(item[2],item[2],1,0,1)
               CnChist.SetBinContent(1,item[1].GetBinContent(1))
               CnChist.SetBinError(1,item[1].GetBinError(1))
-              #CnChist = item[1].Rebin(item[1].GetNbinsX())
-              #CnChist = item[1].Rebin(1,"test",newbin)
 
             print "Writing "+item[2]+"..."
             if args.CnC: CnChist.Write()
             else: item[1].Write() # Write each histogram while iterating
-            #item[1].Write() # Write each histogram while iterating
           
           outfile.Close()
           print outName+"_card_input.root has been created."
@@ -1171,16 +1066,9 @@ for tag in tags:
             levels = array.array('d',[-1.e308,-0.00001,0.00001,1.e308]) # Even if I set the color with zero bins, it won't be drawn if the minimum is zero (not negative). See https://root-forum.cern.ch/t/not-plotting-zero-bins-in-th2-with-negative-entries/19633/4
             #print "len(scan_list):",len(scan_list)
             canvas = TCanvas("canvas","canvas",900,1000)
-            #canvas.SetFrameFillColor(417) # https://root-forum.cern.ch/t/how-to-set-a-color-for-zero-entry-bins-in-cont-histograms/5411; This doesn't look pretty.
-            #pad = TPad("pad","pad",0.1,0,1,1)
-            #pad.Draw()
-            #pad.cd()
             for i in range(len(scan_list)):
               this_h_scan = scan_list[i]
               this_proc = this_h_scan.GetTitle()
-              #print "this_proc:",this_proc
-              #Final check
-              #for j in range(this_h_scan.GetNbinsY()): print j,this_h_scan.GetYaxis().GetBinLabel(j+1),this_h_scan.GetBinContent(1,j+1)
               this_h_scan.SetStats(0)
               this_h_scan.SetContour(3,levels)
               #this_h_scan.GetYaxis().SetLabelSize(0.01)

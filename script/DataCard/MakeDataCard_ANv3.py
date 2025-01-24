@@ -70,8 +70,10 @@ signals = ["","_DYVBF","_SSWW"]
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR95/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR97/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR97/LimitExtraction/"
-SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR101/LimitExtraction/"
-CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR108/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR101/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR108/LimitExtraction/"
+SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_ANv3/LimitExtraction/"
+CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
 
@@ -117,15 +119,15 @@ if args.Decorr:
 #OutputTag = "_Singluarity"
 #OutputTag = "_CompToPR86"
 #OutputTag = "_FakeCFSystSep"
-OutputTag = "_TEST"
-#OutputTag = ""
+OutputTag = ""
 
 if args.Combine is None and not args.CR: OutputTag+="_NoCR" # SR only
 elif args.Combine is not None and args.Combine not in ["CR","Era"]: OutputTag+="_NoCR" # Combine SR only
 if not args.Syst: OutputTag+="_NoSyst"  # NoSyst
 
-regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
+#regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
 #regions_cr = ["cf_cr","sr1_inv","sr2_inv","sr3_inv","ww_cr","wz_cr","zg_cr","zz_cr"]
+regions_cr = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"]
 regions_sr = ["sr1","sr2","sr3"]
 
 
@@ -162,6 +164,10 @@ def MakeProcString(region, mass, channel, signal):
   else:  # mass_value > 3000
     this_process['signalDYVBF'] = '0'
 
+  if region in regions_cr:
+    this_process['signalDYVBF'] = '0'
+    this_process['signalSSWW'] = '0'
+
   formatted_values = [
       value.ljust(max(4,len(key)) + 2)
       for key, value in this_process.items()
@@ -193,6 +199,7 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
         if "xsec" in this_syst or "13TeV" in this_syst or "QCDscale" in this_syst or "pdf" in this_syst: pass # full correlation
         else: this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_'+era) # FR to FR_2018
       if channel=="MuMu":
+        this_lines_cr[21] = "" # no fake highpt syst
         for i in range(32,37):
           this_lines_cr[i] = "" # remove electron systs
       elif channel=="EE":
@@ -249,6 +256,7 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
         if "xsec" in this_syst or "13TeV" in this_syst or "QCDscale" in this_syst or "pdf" in this_syst: pass # full correlation
         else: this_lines_sr[i] = this_lines_sr[i].replace(this_syst,this_syst+'_'+era) # FR to FR_2018
       if channel=="MuMu":
+        this_lines_sr[21] = "" # no fake highpt syst
         for i in range(32,37):
           this_lines_sr[i] = "" # remove electron systs
       elif channel=="EE":
@@ -353,13 +361,13 @@ for InputWP in InputWPs:
 
       for era in eras:
         if args.Combine == "CR":
-          if "Mu" in channel: regions_cr = [cr for cr in regions_cr if "cf" not in cr]
+          if "Mu" in channel: regions_cr_filtered = [cr for cr in regions_cr if "cf" not in cr]
+          else: regions_cr_filtered = regions_cr[:]
           if int(mass.strip('M'))<=100:
             regions_sr_filtered = ["sr3"]
-            regions_cr_filtered = [cr for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr]
+            regions_cr_filtered = [cr for cr in regions_cr_filtered if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr]
           else:
-            regions_sr_filtered = regions_sr
-            regions_cr_filtered = regions_cr
+            regions_sr_filtered = regions_sr[:]
           sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+sr+systTag+".txt" for sr in regions_sr_filtered])
           cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr_filtered])
           # merge all SRs
@@ -368,17 +376,17 @@ for InputWP in InputWPs:
           # Now make limit from each SRs
           ## make SR3 first which always exist regardless of mass
           sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass+signal+"_sr3"+systTag+".txt"
-          cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
+          cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr_filtered if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
           os.system("combineCards.py "+sr3_combine+" "+cr3_combine+" > card_"+era+"_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt")
           if int(mass.strip('M'))>100:
             # SR1, SR2 exists only for M(N) > 100 GeV
             sr1_combine = "sr1=card_"+era+"_"+channel+"_"+mass+signal+"_sr1"+systTag+".txt"
-            cr1_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr if 'sr2' not in cr and 'sr3' not in cr and 'cr2' not in cr and 'cr3' not in cr])
+            cr1_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr_filtered if 'sr2' not in cr and 'sr3' not in cr and 'cr2' not in cr and 'cr3' not in cr])
             #print regions_cr
             #print cr1_combine
             os.system("combineCards.py "+sr1_combine+" "+cr1_combine+" > card_"+era+"_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt")
             sr2_combine = "sr2=card_"+era+"_"+channel+"_"+mass+signal+"_sr2"+systTag+".txt"
-            cr2_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr if 'sr1' not in cr and 'sr3' not in cr and 'cr1' not in cr and 'cr3' not in cr])
+            cr2_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr_filtered if 'sr1' not in cr and 'sr3' not in cr and 'cr1' not in cr and 'cr3' not in cr])
             os.system("combineCards.py "+sr2_combine+" "+cr2_combine+" > card_"+era+"_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt")
 
         elif args.Combine == "SR": # Combine SR1 only, SR2 only, SR3 only (no rateParam)
