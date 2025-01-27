@@ -2,8 +2,8 @@
 # Place this at CombineTool/CMSSW_10_2_13/src/<your working directory>
 # You need to place card_skeletons already
 # python MakeDataCard_ANv3.py --CR --Syst [--Decorr]; python MakeDataCard_ANv3.py --Combine CR --Syst [--Decorr] <-- add rateParam
-# python MakeDataCard_ANv3.py --Combine Era --Syst
-# python MakeDataCard_ANv3.py --Syst; python MakeDataCard_ANv3.py --Combine SR --Syst <-- without rateParam ("sronly" setting)
+# python MakeDataCard_ANv3.py --Combine Era --Syst [--Decorr]
+# python MakeDataCard_ANv3.py --Syst [--Decorr]; python MakeDataCard_ANv3.py --Combine SR --Syst [--Decorr] <-- without rateParam ("sronly" setting)
 
 
 import os, sys, argparse
@@ -11,7 +11,8 @@ from collections import OrderedDict
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--CnC', action='store_true', help='Cut and count limit')
-parser.add_argument('--Decorr', action='store_true', help='Decorrelate fake, CF, norm')
+parser.add_argument('--Decorr', action='store_true', help='Decorrelate fake, CF region by region')
+parser.add_argument('--JetDecorr', action='store_true', help='Decorrelate jet scale/res additionally')
 parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
 parser.add_argument('--Syst', action='store_true', help='Add systematics into the datacards')
 parser.add_argument('--Combine', choices=['CR','SR','Era'], help='CR --> Merge CR and SR datacards in one era,\nEra --> Merge pre-processed (CR+SR) over the Run2,\nSR --> Merge SR only datacards over the Run2')
@@ -30,11 +31,12 @@ pwd = os.getcwd()
 #eras = ["2016","2017","2018"]
 #eras = ["2017"]
 eras = ["2018"]
-#eras = ["2016preVFP","2016postVFP","2017","2018"]
+#eras = ["2016preVFP","2016postVFP","2017"]
+#eras = ["2016preVFP","2016postVFP","2017"]
 #eras = ["2016preVFP","2016postVFP","2018"]
 channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
-#channels = ["MuMu"]
+#channels = ["EE"]
 #channels = ["EE"]
 #channels = ["EE","EMu"]
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
@@ -46,16 +48,22 @@ channels = ["MuMu","EE","EMu"]
 #masses = ["M100","M500","M1000","M3000","M10000"]
 #masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100"]
-#masses = ["M20000"]
+#masses = ["M250","M1000","M10000"]
+#masses_EMu = ["M250","M1000","M10000"]
+#masses = ["M100","M250","M1000","M10000"]
+#masses_EMu = ["M100","M250","M1000","M10000"]
+masses = ["M100","M500","M1000","M10000"]
+masses_EMu = ["M100","M500","M1000","M10000"]
 
 ## Full mass ranges
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
 #masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 
 ## signal processes
-signals = ["","_DYVBF","_SSWW"]
+#signals = ["","_DYVBF","_SSWW"]
+signals = [""]
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR43/LimitInputs/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitInputs/"
@@ -72,10 +80,12 @@ signals = ["","_DYVBF","_SSWW"]
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR97/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR101/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_PR108/LimitExtraction/"
-SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_ANv3/LimitExtraction/"
-CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
+#SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_ANv3/LimitExtraction/"
+#CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
+SRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/"
+CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/"
 
 #InputWPs = ["240422_HNL_ULID"]
 #InputWPs = ["240501_1704_HNL_ULID","240501_1704_HNTightV2"]
@@ -99,8 +109,13 @@ CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_
 #InputWPs = ["PR95_HNL_ULID"]
 #InputWPs = ["PR97_HNL_ULIDv2"]
 InputWPs = ["ANv3_HNL_ULIDv2"]
+#InputWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet","HEMJet_HNL_ULIDv2_ScaleHEMJet","TuneP_HNL_ULIDv2_CompareTuneP","TuneP_HNTightV2_CompareTuneP","TuneP_POGTight_CompareTuneP"]
 if args.Decorr:
   InputWPs = [WP+"_Decorr" for WP in InputWPs]
+  range_decorr = range(20,25)
+  if args.JetDecorr:
+    InputWPs = [WP+"_JetDecorr" for WP in InputWPs]
+    range_decorr = range(20,27)
 
 #OutputTag = "_NOsr2inv"
 #OutputTag = "_NOsr2inv_NOzgcr1"
@@ -120,6 +135,8 @@ if args.Decorr:
 #OutputTag = "_CompToPR86"
 #OutputTag = "_FakeCFSystSep"
 OutputTag = ""
+#OutputTag = "_BD"
+#OutputTag = "_Run2"
 
 if args.Combine is None and not args.CR: OutputTag+="_NoCR" # SR only
 elif args.Combine is not None and args.Combine not in ["CR","Era"]: OutputTag+="_NoCR" # Combine SR only
@@ -127,7 +144,8 @@ if not args.Syst: OutputTag+="_NoSyst"  # NoSyst
 
 #regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
 #regions_cr = ["cf_cr","sr1_inv","sr2_inv","sr3_inv","ww_cr","wz_cr","zg_cr","zz_cr"]
-regions_cr = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"]
+#regions_cr = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"]
+regions_cr = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr3"] # Check 2016, 2017 ww_cr later, there were no entries. Other regions were channel-dependent.
 regions_sr = ["sr1","sr2","sr3"]
 
 
@@ -218,7 +236,8 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
     if args.Decorr:
       if "sr_" in region: pass # all sr_inv
       elif "sr" in region: # sr1_bjet etc.
-        for i in range(20,25):
+        for i in range_decorr:
+          if this_lines_cr[i]=="": continue
           this_syst = this_lines_cr[i].split(' ')[0]
           this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_'+region.split('_')[0]) # FR to FR_sr1
       elif "cr1" in region or "cr2" in region or "cr3" in region: # wz_cr2 etc.
@@ -228,11 +247,13 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
           regionName_SystSep = 'sr2'
         elif 'sr3' in region or 'cr3' in region:
           regionName_SystSep = 'sr3'
-        for i in range(20,25):
+        for i in range_decorr:
+          if this_lines_cr[i]=="": continue
           this_syst = this_lines_cr[i].split(' ')[0]
           this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_'+regionName_SystSep) # FR to FR_sr2
       else: # cf_cr etc.
-        for i in range(20,25):
+        for i in range_decorr:
+          if this_lines_cr[i]=="": continue
           this_syst = this_lines_cr[i].split(' ')[0]
           this_lines_cr[i] = this_lines_cr[i].replace(this_syst,this_syst+'_sr1')+this_lines_cr[i].replace(this_syst,this_syst+'_sr2')+this_lines_cr[i].replace(this_syst,this_syst+'_sr3') # FR_sr1\n FR_sr2\n FR_sr3\
 
@@ -275,7 +296,8 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
     if args.Decorr:
       if region=="sr": pass
       else:
-        for i in range(20,25):
+        for i in range_decorr:
+          if this_lines_sr[i]=="": continue
           this_syst = this_lines_sr[i].split(' ')[0]
           this_lines_sr[i] = this_lines_sr[i].replace(this_syst,this_syst+'_'+region.split('_')[0]) # FR to FR_sr1
 
@@ -311,6 +333,64 @@ def ValidMassSignal(mass, signal):
       return False
     else:
       return True
+
+def NuisanceGrouping(this_card):
+  print "Grouping",this_card,"..."
+
+  with open(this_card,'r') as f:
+    lines = f.readlines()
+
+  with open(this_card,'w') as f:
+    for line in lines[:]:
+      if "group" not in line:
+        f.write(line)
+  with open(this_card,'r') as f:
+    lines = f.readlines()
+
+  group_nuis = {
+                'lumi'        : [],
+                'xsec'        : [],
+                'theory'      : [],
+                'fake'        : [],
+                'cf'          : [],
+                'jet_energy'  : [],
+                'lep_uncert'  : [],
+                'btag_sf'     : [],
+                'met_energy'  : [],
+                'prefire'     : [],
+                'pileup'      : [],
+  }
+  for line in lines[:]:
+    line = line.split(' ')[0]
+    if "lumi" in line:
+      group_nuis["lumi"].append(line)
+    elif "xsec" in line:
+      group_nuis["xsec"].append(line)
+    elif "QCD" in line or "pdf" in line:
+      group_nuis["theory"].append(line)
+    elif "CMS_fake" in line:
+      group_nuis["fake"].append(line)
+    elif "CMS_cf" in line:
+      group_nuis["cf"].append(line)
+    elif "CMS_res_j" in line or "CMS_scale_j" in line:
+      group_nuis["jet_energy"].append(line)
+    elif ("CMS_res_m" in line or "CMS_scale_m" in line or "CMS_eff_m" in line or "CMS_res_e" in line or "CMS_scale_e" in line or "CMS_eff_e" in line) and "CMS_scale_met" not in line:
+      group_nuis["lep_uncert"].append(line)
+    elif "CMS_btag" in line:
+      group_nuis["btag_sf"].append(line)
+    elif "CMS_scale_met" in line:
+      group_nuis["met_energy"].append(line)
+    elif "CMS_l1_ecal_prefiring" in line:
+      group_nuis["prefire"].append(line)
+    elif "CMS_pileup" in line:
+      group_nuis["pileup"].append(line)
+
+  with open(this_card,'a') as f:
+    for key, value in group_nuis.items():
+      if len(value)!=0:
+        f.write(key+" group = "+" ".join(value)+'\n')
+
+  return
 
 #########################################
 #
@@ -378,6 +458,11 @@ for InputWP in InputWPs:
           sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass+signal+"_sr3"+systTag+".txt"
           cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr_filtered if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
           os.system("combineCards.py "+sr3_combine+" "+cr3_combine+" > card_"+era+"_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt")
+
+          if args.Syst:
+            NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass+signal+systTag+".txt"))
+            NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt"))
+
           if int(mass.strip('M'))>100:
             # SR1, SR2 exists only for M(N) > 100 GeV
             sr1_combine = "sr1=card_"+era+"_"+channel+"_"+mass+signal+"_sr1"+systTag+".txt"
@@ -388,6 +473,10 @@ for InputWP in InputWPs:
             sr2_combine = "sr2=card_"+era+"_"+channel+"_"+mass+signal+"_sr2"+systTag+".txt"
             cr2_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr_filtered if 'sr1' not in cr and 'sr3' not in cr and 'cr1' not in cr and 'cr3' not in cr])
             os.system("combineCards.py "+sr2_combine+" "+cr2_combine+" > card_"+era+"_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt")
+
+            if args.Syst:
+              NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt"))
+              NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt"))
 
         elif args.Combine == "SR": # Combine SR1 only, SR2 only, SR3 only (no rateParam)
           if int(mass.strip('M'))<=100:
@@ -400,7 +489,25 @@ for InputWP in InputWPs:
                                        sr2=card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr2"+systTag+".txt \
                                        sr3=card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr3"+systTag+".txt \
                                        > card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt")
+
+          if args.Syst:
+            NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt"))
+
       if args.Combine == "Era": # This will combine all era datacards with CR setup
-        os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+systTag+".txt")
+        #os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+systTag+".txt")
+        # SR3 limit
+        os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt")
+        if args.Syst:
+          #NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+systTag+".txt"))
+          NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt"))
+
+        if int(mass.strip('M'))>100:
+          # SR1, 2 limit
+          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt")
+          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt")
+          if args.Syst:
+            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt"))
+            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt"))
+
     os.system('echo \'Done.\'')
     os.chdir(pwd)

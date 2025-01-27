@@ -1,6 +1,6 @@
-# Run: python MakeInput.py --Merge\ python MakeInput.py --CR --Merge \
-# python MakeInput.py --Syst [--Decorr]\ python MakeInput.py --CR --Syst [--Decorr] 
-# python MakeInput.py --CheckFiles
+# Run first: python MakeInput_public.py -e 2018 --CheckFiles -i HEMJet --PreFlag RemoveHEMJet
+# python MakeInput_public.py --Merge -e 2018 -i HEMJet --PreFlag RemoveHEMJet \ python MakeInput_public.py --CR --Merge -e 2018 -i HEMJet --PreFlag RemoveHEMJet \
+# python MakeInput_public.py [--Syst] [--Decorr] -i HEMJet --PreFlag RemoveHEMJet \ python MakeInput_public.py --CR [--Syst] [--Decorr] -i HEMJet --PreFlag RemoveHEMJet
 
 import os, sys
 import commands as cmd
@@ -10,30 +10,44 @@ import array
 gROOT.SetBatch(kTRUE)
 
 parser = argparse.ArgumentParser(description='script for creating input root file.',formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-e', dest='eras', choices=['2016preVFP','2016postVFP','2017','2018','Run2'], default=['2016preVFP','2016postVFP','2017','2018'], nargs='+', help='eras to run')
+parser.add_argument('-m', dest='masses', nargs='+', help='signal masses to run')
+parser.add_argument('-c', dest='channels', nargs='+', default=["MuMu","EE","EMu"], help='lepton channels to run')
+parser.add_argument('-i', dest='inputTag', default='ANv3', help='tag attached to the input SKFlatOutput files')
+parser.add_argument('-t', dest='histTag', nargs='+', default=['HNL_ULIDv2'], help='this is the param name of the SKFlatAnalyzer. Mostly IDs.')
 parser.add_argument('--Scan', action='store_true', help='scan the bin content')
 parser.add_argument('--CnC', action='store_true', help='1bin cut and count setting')
 parser.add_argument('--CR', action='store_true', help='Make HNL_ControlRegion_Plotter input (default : HNL_SignalRegion_Plotter)')
 parser.add_argument('--Syst', action='store_true', help='Add systematics')
 parser.add_argument('--Decorr', action='store_true', help='Decorrelate Fake, CF syst sources')
-parser.add_argument('--Flag', nargs='+', help='Your private flag names')
+parser.add_argument('--JetDecorr', action='store_true', help='Decorrelate jet syst sources as well')
+parser.add_argument('--PreFlag', nargs='+', help='Your private flag names')
+parser.add_argument('--PostFlag', nargs='+', help='Your private flag names')
 parser.add_argument('--Merge', action='store_true', help='hadd the needed histograms') # NOTE Run2 Merging deprecated.
 parser.add_argument('--CheckFiles', action='store_true', help='check all inputs before merge')
 args = parser.parse_args()
 
-ExtFlag = ""
-if args.Flag is None: pass
+PreFlag = ""
+if args.PreFlag is None: pass
 else:
-  for this_flag in args.Flag:
-    ExtFlag += this_flag+"__" # SKFlat convention
+  for this_flag in args.PreFlag:
+    PreFlag += this_flag+"__" # SKFlat convention
+PostFlag = ""
+if args.PostFlag is None: pass
+else:
+  for this_flag in args.PostFlag:
+    PostFlag += this_flag+"__" # SKFlat convention
 
-#eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
-eras = ["2017"]
-#eras = ["2018"]
-#eras = ["Run2"] # Let's merge Run2 after running all eras first
+if not args.masses: # When you don't want to type all those masses!!
+  masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+  #masses = ["M100","M250","M1000","M10000"]
+else:
+  for i in range(len(args.masses)):
+    args.masses[i] = "M"+args.masses[i]
 
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-
-channels = ["MuMu","EE","EMu"]
+if not args.channels:
+  print "Please specify the lepton channels; e.g. MuMu ."
+  exit()
 
 HistChannelMap = {'MuMu':'Muon', 'EE':'Electron', 'EMu':'ElectronMuon'}
 ## Ugly region maps ##
@@ -41,16 +55,21 @@ RegionToDefFlagMap = {}
 RegionToChannelMap = {}
 RegionToHistSuffixMap = {}
 
-outputTag = "ANv3" # tag the output directory name as you wish
+inputTag = args.inputTag
 
-#tags = ["HNL_ULID","HNTightV2"] # HNLParameter Name
-tags = ["HNL_ULIDv2"] # HNLParameter Name, used to call the histogram
+if not args.histTag:
+  print "Please specify the hist tag; e.g. HNL_ULIDv2 ."
+  exit()
 
 outputTagSuffix = ""
+outputTagSuffix += '_'+PreFlag.rstrip('_').replace('__','_') if args.PreFlag else ""
+outputTagSuffix += '_'+PostFlag.rstrip('_').replace('__','_') if args.PostFlag else ""
 if args.CnC:
   outputTagSuffix += '_CnC'
 if args.Decorr:
   outputTagSuffix += '_Decorr'
+  if args.JetDecorr:
+    outputTagSuffix += '_JetDecorr'
 
 # Skim
 DataSkim = "_SkimTree_HNMultiLepBDT_"
@@ -72,38 +91,38 @@ MergeSignal = True if args.Merge else False
 
 if args.CR:
   Blinded = False # Blinded --> the total background will be used as data_obs
-  DefFlags = ["RunSyst__LLL__","RunSyst__SSMultiLep__"]
+  DefFlags = ["LLL__","SSMultiLep__"]
   Analyzer = "HNL_ControlRegion_Plotter"
 
   regions = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr1","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
 
-  RegionToDefFlagMap['sr_inv']     = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr1_inv']    = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr2_inv']    = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr3_inv']    = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr1_InvMET'] = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr2_InvMET'] = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr3_InvMET'] = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr1_bjet']   = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr2_bjet']   = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['sr3_bjet']   = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['cf_cr1']     = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['cf_cr2']     = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['cf_cr3']     = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['ww_cr']      = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['ww_cr1']     = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['ww_cr2']     = "RunSyst__SSMultiLep__"
-  RegionToDefFlagMap['zg_cr']      = "RunSyst__LLL__"
-  RegionToDefFlagMap['zg_cr1']     = "RunSyst__LLL__"
-  RegionToDefFlagMap['zg_cr3']     = "RunSyst__LLL__"
-  RegionToDefFlagMap['wz_cr']      = "RunSyst__LLL__"
-  RegionToDefFlagMap['wz_cr1']     = "RunSyst__LLL__"
-  RegionToDefFlagMap['wz_cr2']     = "RunSyst__LLL__"
-  RegionToDefFlagMap['wz_cr3']     = "RunSyst__LLL__"
-  RegionToDefFlagMap['zz_cr']      = "RunSyst__LLL__"
-  RegionToDefFlagMap['zz_cr1']     = "RunSyst__LLL__"
-  RegionToDefFlagMap['zz_cr2']     = "RunSyst__LLL__"
-  RegionToDefFlagMap['zz_cr3']     = "RunSyst__LLL__"
+  RegionToDefFlagMap['sr_inv']     = "SSMultiLep__"
+  RegionToDefFlagMap['sr1_inv']    = "SSMultiLep__"
+  RegionToDefFlagMap['sr2_inv']    = "SSMultiLep__"
+  RegionToDefFlagMap['sr3_inv']    = "SSMultiLep__"
+  RegionToDefFlagMap['sr1_InvMET'] = "SSMultiLep__"
+  RegionToDefFlagMap['sr2_InvMET'] = "SSMultiLep__"
+  RegionToDefFlagMap['sr3_InvMET'] = "SSMultiLep__"
+  RegionToDefFlagMap['sr1_bjet']   = "SSMultiLep__"
+  RegionToDefFlagMap['sr2_bjet']   = "SSMultiLep__"
+  RegionToDefFlagMap['sr3_bjet']   = "SSMultiLep__"
+  RegionToDefFlagMap['cf_cr1']     = "SSMultiLep__"
+  RegionToDefFlagMap['cf_cr2']     = "SSMultiLep__"
+  RegionToDefFlagMap['cf_cr3']     = "SSMultiLep__"
+  RegionToDefFlagMap['ww_cr']      = "SSMultiLep__"
+  RegionToDefFlagMap['ww_cr1']     = "SSMultiLep__"
+  RegionToDefFlagMap['ww_cr2']     = "SSMultiLep__"
+  RegionToDefFlagMap['zg_cr']      = "LLL__"
+  RegionToDefFlagMap['zg_cr1']     = "LLL__"
+  RegionToDefFlagMap['zg_cr3']     = "LLL__"
+  RegionToDefFlagMap['wz_cr']      = "LLL__"
+  RegionToDefFlagMap['wz_cr1']     = "LLL__"
+  RegionToDefFlagMap['wz_cr2']     = "LLL__"
+  RegionToDefFlagMap['wz_cr3']     = "LLL__"
+  RegionToDefFlagMap['zz_cr']      = "LLL__"
+  RegionToDefFlagMap['zz_cr1']     = "LLL__"
+  RegionToDefFlagMap['zz_cr2']     = "LLL__"
+  RegionToDefFlagMap['zz_cr3']     = "LLL__"
 
   RegionToChannelMap['sr_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['sr1_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
@@ -163,15 +182,15 @@ if args.CR:
 
 else:
   Blinded = True # Blinded --> the total background will be used as data_obs
-  DefFlags = ["RunSyst__"]
+  DefFlags = [""]
   Analyzer = "HNL_SignalRegion_Plotter"
 
   regions = ["sr1","sr2","sr3"] if not args.Merge else "" # for SRs
 
-  RegionToDefFlagMap['sr']  = "RunSyst__"
-  RegionToDefFlagMap['sr1'] = "RunSyst__"
-  RegionToDefFlagMap['sr2'] = "RunSyst__"
-  RegionToDefFlagMap['sr3'] = "RunSyst__"
+  RegionToDefFlagMap['sr']  = ""
+  RegionToDefFlagMap['sr1'] = ""
+  RegionToDefFlagMap['sr2'] = ""
+  RegionToDefFlagMap['sr3'] = ""
 
   RegionToChannelMap['sr'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['sr1'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
@@ -314,7 +333,22 @@ InputPath = "/data9/Users/jalmond_public/SUS-24-014/"
 
 if args.CheckFiles:
   ##### Input file check #####
-  ConvList   = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGJJToLNu","ZGToLLG","DYJets_MG"] #FIXME time to time
+  DataList   = {}
+  DataList['2016preVFP'] = []
+  DataList['2016postVFP'] = []
+  DataList['2017'] = []
+  DataList['2018'] = []
+  for stream in ["DoubleEG","DoubleMuon","MuonEG"]:
+    for period in ["B_ver2","C","D","E","F"]:
+      DataList['2016preVFP'].append(stream+"_"+period)
+    for period in ["F","G","H"]:
+      DataList['2016postVFP'].append(stream+"_"+period)
+    for period in ["B","C","D","E","F"]:
+      DataList['2017'].append(stream+"_"+period)
+  for stream in ["EGamma","DoubleMuon","MuonEG"]:
+    for period in ["A","B","C","D",]:
+      DataList['2018'].append(stream+"_"+period)
+  ConvList   = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGJJToLNu","ZGToLLG","DYJets_MG"]
   PromptList = [
                 #VVV
                 'WWW','WWZ','WZZ','ZZZ',
@@ -341,31 +375,75 @@ if args.CheckFiles:
                 #WZ
                 'WZTo3LNu_mllmin4p0_powheg','WZ_EWK',
                ]
-  DefFlags = ["RunSyst__SSMultiLep__","RunSyst__LLL__"]
-  SRPath = "/data9/Users/jalmond_public/SUS-24-014/HNL_SignalRegion_Plotter_ANv3/"
-  CRPath = "/data9/Users/jalmond_public/SUS-24-014/HNL_ControlRegion_Plotter_ANv3/"
+  DefFlags = ["","SSMultiLep__","LLL__"]
+  ConvSkim = {}
+  for DefFlag in DefFlags:
+    ConvSkim[DefFlag] = {}
+    if "LLL" in DefFlag:
+      for this_conv in ["TG","TTG","WZG","WWG","WGJJToLNu","ZGToLLG","DYJets_MG","WGToLNuG","WGToLNuG_MG"]:
+        ConvSkim[DefFlag][this_conv] = "_SkimTree_HNMultiLepBDT_"
+    else:
+      for this_conv in ["TG","TTG","WZG","WWG","WGJJToLNu","ZGToLLG","DYJets_MG"]:
+        ConvSkim[DefFlag][this_conv] = "_SkimTree_HNMultiLepBDT_"
+      for this_conv in ["WGToLNuG","WGToLNuG_MG"]:
+        ConvSkim[DefFlag][this_conv] = "_SkimTree_DileptonBDT_"
+  DefFlags_CR = ["SSMultiLep__","LLL__"]
+  SRPath = "/data9/Users/jalmond_public/SUS-24-014/HNL_SignalRegion_Plotter_"+inputTag
+  CRPath = "/data9/Users/jalmond_public/SUS-24-014/HNL_ControlRegion_Plotter_"+inputTag
 
-  for era in eras:
-    # SR
-    for this_proc in ConvList:
-      this_path=SRPath + "/" + era + "/" + "RunSyst__RunConv__"+ExtFlag+"/HNL_SignalRegion_Plotter"+ConvSkim[this_proc]+this_proc+".root"
-      if not os.path.exists(this_path):
-        print this_path,"-->",os.path.exists(this_path)
-    for this_proc in PromptList:
-      this_path=SRPath + "/" + era + "/" + "RunSyst__RunPrompt__"+ExtFlag+"/HNL_SignalRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
-      if not os.path.exists(this_path):
-        print this_path,"-->",os.path.exists(this_path)
-    # CR
-    for this_proc in ConvList:
-      for DefFlag in DefFlags:
-        this_path=CRPath + "/" + era + "/" + DefFlag+"RunConv__"+ExtFlag+"/HNL_ControlRegion_Plotter"+ConvSkim[this_proc]+this_proc+".root"
+  for era in args.eras:
+    if not args.CR:
+      # SR
+      #for this_proc in DataList[era]:
+      #  this_path=SRPath + "/" + era + "/" + PreFlag+PostFlag+"/DATA/HNL_SignalRegion_Plotter_HNMultiLepBDT_"+this_proc+".root"
+      #  if not os.path.exists(this_path):
+      #    print this_path,"-->",os.path.exists(this_path) # these are data
+      for this_proc in DataList[era]:
+        this_path=SRPath + "/" + era + "/" + PreFlag+"RunFake__"+PostFlag+"/DATA/HNL_SignalRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
         if not os.path.exists(this_path):
           print this_path,"-->",os.path.exists(this_path)
-    for this_proc in PromptList:
-      for DefFlag in DefFlags:
-        this_path=CRPath + "/" + era + "/" + DefFlag+"RunPrompt__"+ExtFlag+"/HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+      for this_proc in DataList[era]:
+        if "Muon" in this_proc: continue
+        this_path=SRPath + "/" + era + "/" + PreFlag+"RunCF__"+PostFlag+"/DATA/HNL_SignalRegion_Plotter_SkimTree_DileptonBDT_"+this_proc+".root"
         if not os.path.exists(this_path):
           print this_path,"-->",os.path.exists(this_path)
+      for this_proc in ConvList:
+        this_path=SRPath + "/" + era + "/" + PreFlag+"RunConv__"+PostFlag+"/HNL_SignalRegion_Plotter"+ConvSkim[""][this_proc]+this_proc+".root"
+        if not os.path.exists(this_path):
+          print this_path,"-->",os.path.exists(this_path)
+      for this_proc in PromptList:
+        this_path=SRPath + "/" + era + "/" + PreFlag+"RunPrompt__"+PostFlag+"/HNL_SignalRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+        if not os.path.exists(this_path):
+          print this_path,"-->",os.path.exists(this_path)
+    else:
+      # CR
+      for this_proc in DataList[era]:
+        for DefFlag in DefFlags_CR:
+          this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+PostFlag+"/DATA/HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+          if not os.path.exists(this_path):
+            print this_path,"-->",os.path.exists(this_path)
+      for this_proc in DataList[era]:
+        for DefFlag in DefFlags_CR:
+          this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+"RunFake__"+PostFlag+"/DATA/HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+          if not os.path.exists(this_path):
+            print this_path,"-->",os.path.exists(this_path)
+      for this_proc in DataList[era]:
+        if "Muon" in this_proc: continue
+        for DefFlag in DefFlags_CR:
+          if "LLL" in DefFlag: continue
+          this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+"RunCF__"+PostFlag+"/DATA/HNL_ControlRegion_Plotter_SkimTree_DileptonBDT_"+this_proc+".root"
+          if not os.path.exists(this_path):
+            print this_path,"-->",os.path.exists(this_path)
+      for this_proc in ConvList:
+        for DefFlag in DefFlags_CR:
+          this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+"RunConv__"+PostFlag+"/HNL_ControlRegion_Plotter"+ConvSkim[DefFlag][this_proc]+this_proc+".root"
+          if not os.path.exists(this_path):
+            print this_path,"-->",os.path.exists(this_path)
+      for this_proc in PromptList:
+        for DefFlag in DefFlags_CR:
+          this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+"RunPrompt__"+PostFlag+"/HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+          if not os.path.exists(this_path):
+            print this_path,"-->",os.path.exists(this_path)
 
   exit()
 
@@ -432,103 +510,103 @@ if MergeData:
     print "[MergeData] Data blinded. skipping..."
   else:
     print "[MergeData] Data unblinded. merging..."
-    for era in eras:
+    for era in args.eras:
       if era=="Run2":
         for DefFlag in DefFlags:
-          os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+ExtFlag+"/DATA/")
-          OutFile=InputPath + "/Run2/" + DefFlag +ExtFlag+ "/DATA/"+Analyzer+DataSkim+"DATA.root"
+          os.system("mkdir -p "+InputPath+"/Run2/"+PreFlag+DefFlag+PostFlag+"/DATA/")
+          OutFile=InputPath + "/Run2/" + PreFlag+DefFlag +PostFlag+ "/DATA/"+Analyzer+DataSkim+"DATA.root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + DefFlag +ExtFlag+"/DATA/*DATA.root"\
-                                      + " " + InputPath + "/2016postVFP/" + DefFlag +ExtFlag+ "/DATA/*DATA.root"\
-                                      + " " + InputPath + "/2017/" + DefFlag +ExtFlag+ "/DATA/*DATA.root"\
-                                      + " " + InputPath + "/2018/" + DefFlag +ExtFlag+ "/DATA/*DATA.root"\
+          os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + PreFlag+DefFlag +PostFlag+"/DATA/*DATA.root"\
+                                      + " " + InputPath + "/2016postVFP/" + PreFlag+DefFlag +PostFlag+ "/DATA/*DATA.root"\
+                                      + " " + InputPath + "/2017/" + PreFlag+DefFlag +PostFlag+ "/DATA/*DATA.root"\
+                                      + " " + InputPath + "/2018/" + PreFlag+DefFlag +PostFlag+ "/DATA/*DATA.root"\
                    )
       else:
         for DefFlag in DefFlags:
-          os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag +ExtFlag+"/DATA/")
-          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag +ExtFlag+ "/DATA/"+Analyzer+DataSkim+"DATA.root"
+          os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag +PostFlag+"/DATA/")
+          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag +PostFlag+ "/DATA/"+Analyzer+DataSkim+"DATA.root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+outputTag+ "/"+era+"/" + DefFlag +ExtFlag+ "/DATA/*")
+          os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+inputTag+ "/"+era+"/" + PreFlag+DefFlag +PostFlag+ "/DATA/*")
 
 if MergeFake:
 
-  for era in eras:
+  for era in args.eras:
     if era=="Run2":
       for DefFlag in DefFlags:
-        os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+"RunFake__"+ExtFlag+"/DATA/")
-        OutFile=InputPath + "/Run2/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
+        os.system("mkdir -p "+InputPath+"/Run2/"+PreFlag+DefFlag+"RunFake__"+PostFlag+"/DATA/")
+        OutFile=InputPath + "/Run2/" + PreFlag+DefFlag + "RunFake__"+PostFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
         if os.path.exists(OutFile):
           os.system("rm " + OutFile)
-        os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*Fake.root"\
-                                    + " " + InputPath + "/2016postVFP/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*Fake.root"\
-                                    + " " + InputPath + "/2017/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*Fake.root"\
-                                    + " " + InputPath + "/2018/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*Fake.root"\
+        os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + PreFlag+DefFlag + "RunFake__"+PostFlag+"/DATA/*Fake.root"\
+                                    + " " + InputPath + "/2016postVFP/" + PreFlag+DefFlag + "RunFake__"+PostFlag+"/DATA/*Fake.root"\
+                                    + " " + InputPath + "/2017/" + PreFlag+DefFlag + "RunFake__"+PostFlag+"/DATA/*Fake.root"\
+                                    + " " + InputPath + "/2018/" + PreFlag+DefFlag + "RunFake__"+PostFlag+"/DATA/*Fake.root"\
                  )
     else:
       for DefFlag in DefFlags:
-        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/")
-        OutFile=InputPath + "/MergedFiles/" +Analyzer+"_"+outputTag + "/" + era + "/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
+        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunFake__"+PostFlag+"/DATA/")
+        OutFile=InputPath + "/MergedFiles/" +Analyzer+"_"+inputTag + "/" + era + "/" + PreFlag+DefFlag + "RunFake__"+PostFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
         if os.path.exists(OutFile):
           os.system("rm " + OutFile)
-        os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+outputTag + "/" + era+"/" + DefFlag + "RunFake__"+ExtFlag+"/DATA/*")
+        os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+inputTag + "/" + era+"/" + PreFlag+DefFlag + "RunFake__"+PostFlag+"/DATA/*")
 
 if MergeCF:
 
-  for era in eras:
+  for era in args.eras:
     if era=="Run2":
       for DefFlag in DefFlags:
-        os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+"RunCF__"+ExtFlag+"/DATA/")
-        OutFile=InputPath + "/Run2/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
+        os.system("mkdir -p "+InputPath+"/Run2/"+PreFlag+DefFlag+"RunCF__"+PostFlag+"/DATA/")
+        OutFile=InputPath + "/Run2/" + PreFlag+DefFlag + "RunCF__"+PostFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
         if os.path.exists(OutFile):
           os.system("rm " + OutFile)
-        os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*CF.root"\
-                                    + " " + InputPath + "/2016postVFP/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*CF.root"\
-                                    + " " + InputPath + "/2017/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*CF.root"\
-                                    + " " + InputPath + "/2018/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*CF.root"\
+        os.system("hadd " + OutFile + " " + InputPath + "/2016preVFP/" + PreFlag+DefFlag + "RunCF__"+PostFlag+"/DATA/*CF.root"\
+                                    + " " + InputPath + "/2016postVFP/" + PreFlag+DefFlag + "RunCF__"+PostFlag+"/DATA/*CF.root"\
+                                    + " " + InputPath + "/2017/" + PreFlag+DefFlag + "RunCF__"+PostFlag+"/DATA/*CF.root"\
+                                    + " " + InputPath + "/2018/" + PreFlag+DefFlag + "RunCF__"+PostFlag+"/DATA/*CF.root"\
                  )
     else:
       for DefFlag in DefFlags:
         if "LLL" in DefFlag: continue
-        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/")
-        OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag + "/"+ era + "/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
+        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunCF__"+PostFlag+"/DATA/")
+        OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag + "/"+ era + "/" + PreFlag+DefFlag + "RunCF__"+PostFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
         if os.path.exists(OutFile):
           os.system("rm " + OutFile)
-        os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+outputTag+ "/"+ era+"/" + DefFlag + "RunCF__"+ExtFlag+"/DATA/*") 
+        os.system("hadd " + OutFile + " " + InputPath + "/"+ Analyzer+"_"+inputTag+ "/"+ era+"/" + PreFlag+DefFlag + "RunCF__"+PostFlag+"/DATA/*") 
 
 if MergeConv:
 
-  for era in eras:
+  for era in args.eras:
     if era=="Run2":
       for DefFlag in DefFlags:
-        os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+"RunConv__"+ExtFlag+"/")
+        os.system("mkdir -p "+InputPath+"/Run2/"+PreFlag+DefFlag+"RunConv__"+PostFlag+"/")
         for OutProc in MergeList['RunConv'].keys():
-          OutFile=InputPath + "/Run2/" + DefFlag + "RunConv__"+ExtFlag+"/"+Analyzer+"_"+OutProc+".root"
+          OutFile=InputPath + "/Run2/" + PreFlag+DefFlag + "RunConv__"+PostFlag+"/"+Analyzer+"_"+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
-                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
-                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2017/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
-                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2018/")+ConvSkim[ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
+          os.system("hadd " + OutFile + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ConvSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2016postVFP/")+ConvSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2017/")+ConvSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
+                                         + " " + ' '.join([OutFile.split("_"+OutProc+".root")[0].replace("/Run2/","/2018/")+ConvSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]])\
                    )
     else:
       for DefFlag in DefFlags:
-        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunConv__"+ExtFlag)
+        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunConv__"+PostFlag)
         for OutProc in MergeList['RunConv'].keys():
-          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunConv__"+ExtFlag+"/"+Analyzer+"_"+OutProc+".root"
+          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunConv__"+PostFlag+"/"+Analyzer+"_"+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          os.system("hadd " + OutFile + " " + ' '.join([InputPath + "/"+ Analyzer+"_"+outputTag+ "/" +era+"/" + DefFlag + "RunConv__"+ExtFlag+"/"+Analyzer+ConvSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]]))
+          os.system("hadd " + OutFile + " " + ' '.join([InputPath + "/"+ Analyzer+"_"+inputTag+ "/" +era+"/" + PreFlag+DefFlag + "RunConv__"+PostFlag+"/"+Analyzer+ConvSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]]))
 
 if MergeMC:
 
-  for era in eras:
+  for era in args.eras:
     if era=="Run2":
       for DefFlag in DefFlags:
-        os.system("mkdir -p "+InputPath+"/Run2/"+DefFlag+"RunPrompt__"+ExtFlag+"/")
+        os.system("mkdir -p "+InputPath+"/Run2/"+PreFlag+DefFlag+"RunPrompt__"+PostFlag+"/")
         for OutProc in MergeList['RunPrompt'].keys():
-          OutFile=InputPath + "/" + era + "/" + DefFlag + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+OutProc+".root"
+          OutFile=InputPath + "/" + era + "/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
           os.system("hadd " + OutFile + " " + ' '.join([OutFile.split(OutProc+".root")[0].replace("/Run2/","/2016preVFP/")+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])\
@@ -538,12 +616,12 @@ if MergeMC:
                    )
     else:
       for DefFlag in DefFlags:
-        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunPrompt__"+ExtFlag)
+        os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag)
         for OutProc in MergeList['RunPrompt'].keys():
-          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+OutProc+".root"
+          OutFile=InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          os.system("hadd " + OutFile + " " + ' '.join([InputPath + "/"+ Analyzer+"_"+outputTag+ "/" +era+"/" + DefFlag + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]]))
+          os.system("hadd " + OutFile + " " + ' '.join([InputPath + "/"+ Analyzer+"_"+inputTag+ "/" +era+"/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]]))
 
 if MergeSignal:
 
@@ -552,61 +630,61 @@ if MergeSignal:
     print "##### Skipping signal merging ..."
     pass
   else:
-    for era in eras:
-      for mass in masses:
+    for era in args.eras:
+      for mass in args.masses:
         if era=="Run2":
-          os.system("mkdir -p "+InputPath+"/Run2/"+ExtFlag)
-          OutFileDY    = InputPath + "/Run2/"+ExtFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
-          OutFileVBF   = InputPath + "/Run2/"+ExtFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
-          OutFileDYVBF = InputPath + "/Run2/"+ExtFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-          OutFileSSWW  = InputPath + "/Run2/"+ExtFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+          os.system("mkdir -p "+InputPath+"/Run2/"+PostFlag)
+          OutFileDY    = InputPath + "/Run2/"+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
+          OutFileVBF   = InputPath + "/Run2/"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
+          OutFileDYVBF = InputPath + "/Run2/"+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+          OutFileSSWW  = InputPath + "/Run2/"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
           # First, create DY, VBF, SSWWTypeI seperately
-          if os.system("hadd -f " + OutFileDY + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                              + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                              + " " + InputPath+"/2017/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                              + " " + InputPath+"/2018/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
+          if os.system("hadd -f " + OutFileDY + " " + InputPath+"/2016preVFP/"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                              + " " + InputPath+"/2016postVFP/"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                              + " " + InputPath+"/2017/"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                              + " " + InputPath+"/2018/"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
                      ) != 0:
             os.system("rm " + OutFileDY) # remove the output if there is any unmatched process
-          if os.system("hadd -f " + OutFileVBF + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                               + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                               + " " + InputPath+"/2017/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                               + " " + InputPath+"/2018/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
+          if os.system("hadd -f " + OutFileVBF + " " + InputPath+"/2016preVFP/"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                               + " " + InputPath+"/2016postVFP/"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                               + " " + InputPath+"/2017/"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                               + " " + InputPath+"/2018/"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
                      ) != 0:
             os.system("rm " + OutFileVBF) # remove the output if there is any unmatched process
-          if os.system("hadd -f " + OutFileSSWW + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2017/"+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2018/"+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+          if os.system("hadd -f " + OutFileSSWW + " " + InputPath+"/2016preVFP/"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2016postVFP/"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2017/"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2018/"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
                      ) != 0:
             os.system("rm " + OutFileSSWW) # remove the output if there is any unmatched process
           # Now treat DYVBF depending on the mass
           if int(mass.replace("M","")) < 300: # DY only
-            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2017/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2018/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root")
+            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/2016preVFP/"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2016postVFP/"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2017/"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2018/"+PostFlag+"/*DYTypeI*"+mass+"_private.root")
           else: # DY+VBF
-            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2016preVFP/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2016postVFP/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2017/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2017/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                + " " + InputPath+"/2018/"+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2018/"+ExtFlag+"/*VBFTypeI*"+mass+"_private.root")
+            os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/2016preVFP/"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2016preVFP/"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2016postVFP/"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2016postVFP/"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2017/"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2017/"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                + " " + InputPath+"/2018/"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/2018/"+PostFlag+"/*VBFTypeI*"+mass+"_private.root")
         else:
           for DefFlag in DefFlags:
-            os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/" + DefFlag + ExtFlag)
-            OutFileDY    = InputPath +"/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/"+DefFlag+ExtFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
-            OutFileVBF   = InputPath +"/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/"+DefFlag+ExtFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
-            OutFileDYVBF = InputPath +"/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/"+DefFlag+ExtFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-            OutFileSSWW  = InputPath +"/MergedFiles/" + Analyzer+"_"+outputTag+ "/" + era + "/"+DefFlag+ExtFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+            os.system("mkdir -p "+InputPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + PostFlag)
+            OutFileDY    = InputPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
+            OutFileVBF   = InputPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
+            OutFileDYVBF = InputPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+            OutFileSSWW  = InputPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
             # First, create DY, VBF, SSWWTypeI seperately
-            os.system("cp " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDY)
-            os.system("cp " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*VBFTypeI*"+mass+"_private.root " + OutFileVBF)
+            os.system("cp " + InputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+PostFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDY)
+            os.system("cp " + InputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+PostFlag+"/*VBFTypeI*"+mass+"_private.root " + OutFileVBF)
             if 500 <= int(mass.replace("M","")): # SSWW
-              os.system("hadd -f " + OutFileSSWW + " " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*SSWWTypeI*"+mass+"_private.root")
+              os.system("hadd -f " + OutFileSSWW + " " + InputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+PostFlag+"/*SSWWTypeI*"+mass+"_private.root")
             # Now treat DYVBF depending on the mass
             if int(mass.replace("M","")) < 300: # DY only
-              os.system("cp " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDYVBF)
+              os.system("cp " + InputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+PostFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDYVBF)
             elif int(mass.replace("M","")) <=3000: # DY+VBF
-              os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/"+Analyzer+"_"+outputTag+"/"+era+"/"+DefFlag+ExtFlag+"/*VBFTypeI*"+mass+"_private.root")
+              os.system("hadd -f " + OutFileDYVBF + " " + InputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + InputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+PostFlag+"/*VBFTypeI*"+mass+"_private.root")
 
 
 
@@ -648,24 +726,24 @@ def FillScan(outScan, inScan, procName):
   return
 
 ##### Main job starts #####
-for tag in tags:
-  for era in eras:
+for tag in args.histTag:
+  for era in args.eras:
     for region in regions: # ...and even each region to control!!
       print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      OutputPath = '/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/'+outputTag+"_"+tag+outputTagSuffix+'/'
+      OutputPath = '/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/'+inputTag+"_"+tag+outputTagSuffix+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
   
-      f_path_data          = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + ExtFlag + "/DATA/"+Analyzer+DataSkim+"DATA.root"
-      f_path_fake          = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunFake__"+ExtFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
-      f_path_cf            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunCF__"+ExtFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
-      f_path_zg            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunConv__"+ExtFlag+"/"+Analyzer+"_ZG_norm.root"
-      f_path_conv_others   = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunConv__"+ExtFlag+"/"+Analyzer+"_Conv_others.root"
-      f_path_conv_inc      = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunConv__"+ExtFlag+"/"+Analyzer+"_Conv_inc.root"
-      f_path_wz            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"WZ_norm.root"
-      f_path_zz            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"ZZ_norm.root"
-      f_path_ww            = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"WW_norm.root"
-      f_path_prompt_others = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"Prompt_others.root"
-      f_path_prompt_inc    = InputPath + "/MergedFiles/"+Analyzer+"_"+outputTag+"/" + era + "/" + RegionToDefFlagMap[region] + "RunPrompt__"+ExtFlag+"/"+Analyzer+MCSkim+"Prompt_inc.root"
+      f_path_data          = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + PostFlag + "/DATA/"+Analyzer+DataSkim+"DATA.root"
+      f_path_fake          = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunFake__"+PostFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
+      f_path_cf            = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunCF__"+PostFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
+      f_path_zg            = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunConv__"+PostFlag+"/"+Analyzer+"_ZG_norm.root"
+      f_path_conv_others   = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunConv__"+PostFlag+"/"+Analyzer+"_Conv_others.root"
+      f_path_conv_inc      = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunConv__"+PostFlag+"/"+Analyzer+"_Conv_inc.root"
+      f_path_wz            = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"WZ_norm.root"
+      f_path_zz            = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"ZZ_norm.root"
+      f_path_ww            = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"WW_norm.root"
+      f_path_prompt_others = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"Prompt_others.root"
+      f_path_prompt_inc    = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"Prompt_inc.root"
       
       if not Blinded: f_data = TFile.Open(f_path_data)
       f_fake          = TFile.Open(f_path_fake)
@@ -679,13 +757,13 @@ for tag in tags:
       f_prompt_others = TFile.Open(f_path_prompt_others)
       f_prompt_inc    = TFile.Open(f_path_prompt_inc)
 
-      for mass in masses: # iterate for each mass ...
+      for mass in args.masses: # iterate for each mass ...
         if "r3" not in region and (int(mass.replace("M","")) <= 100):
           continue # NOTE use only SR3 below M100
 
-        for channel in channels: # ...and each channel
+        for channel in args.channels: # ...and each channel
 
-          if ("sr" in region) and (int(mass.replace("M","")) <= 500):
+          if ("sr3" in region) and (int(mass.replace("M","")) <= 500):
             LimitDir = "LimitExtractionBDT"
             InputHistMass = mass+"/"
             if not 'BDT' in RegionToHistSuffixMap[region][channel]:
@@ -714,7 +792,7 @@ for tag in tags:
           #else:
           #  SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
 
-          #print "f_cf :",f_path_cf
+          print "f_cf :",f_path_cf
           print "f_prompt_inc:",f_prompt_inc
           print "input_hist :", LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
           input_hist = LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
@@ -722,7 +800,7 @@ for tag in tags:
           print "##### Initiating",region,mass,channel,"..."
           if not Blinded: h_data        = f_data.Get(input_hist)
           h_fake          = f_fake.Get(input_hist)
-          h_cf            = f_cf.Get(input_hist) if "Mu" not in channel and "LLL_VR" not in RegionToDefFlagMap[region] else ""
+          h_cf            = f_cf.Get(input_hist) if "Mu" not in channel and "LLL" not in RegionToDefFlagMap[region] else ""
           h_zg            = f_zg.Get(input_hist)
           h_conv_others   = f_conv_others.Get(input_hist)
           h_conv_inc      = f_conv_inc.Get(input_hist)
@@ -825,8 +903,8 @@ for tag in tags:
             print "##### This is CR setting."
             print "##### Skipping signal ..."
           else:
-            f_path_signalDYVBF = InputPath + "/" + era + "/"+ExtFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-            f_path_signalSSWW  = InputPath + "/" + era + "/"+ExtFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+            f_path_signalDYVBF = InputPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+            f_path_signalSSWW  = InputPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
   
             print "opening",f_path_signalDYVBF,"..."
             f_signalDYVBF = TFile.Open(f_path_signalDYVBF)
@@ -923,7 +1001,7 @@ for tag in tags:
                       print "[!!ERROR!!] Exiting ..."
                       sys.exit()
 
-                    DecorrList = ["CFRate","FR","FRHighPt"]
+                    DecorrList = ["CFRate","FR","FRHighPt"] if not args.JetDecorr else ["CFRate","FR","FRHighPt","JetRes","JetEn"]
                     this_syst_source = this_syst.replace('Up','').replace('Down','')
                     if this_syst_source in DecorrList: # if this is Fake of CF syst source
                       this_syst_nameSep = SystNameMap[era][this_syst_source]+"_"+regionName_Decorr+this_syst.replace(this_syst_source,'') # AJ_sr1Up

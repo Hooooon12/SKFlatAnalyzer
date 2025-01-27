@@ -27,14 +27,17 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //TString WP_nom = "PR48_rateParam_HNL_ULID"; // nominal working point
   //TString WP_nom = "PR86_HNL_ULID_Decorr"; // nominal working point
   //TString WP_nom = "PR97_HNL_ULIDv2_NoCR_NoSyst"; // nominal working point
-  TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_NoCR"; // nominal working point
+  //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_NoCR"; // nominal working point
   //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_TEST_NoCR"; // nominal working point
-  //TString tag_nom = "_syst"; // nominal tag
+  //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr"; // nominal working point
+  TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_Run2"; // nominal working point
+  TString tag_nom = "_syst"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sronly_sr123_Run2Scaled"; // nominal tag
-  TString tag_nom = "_sronly_sr123_syst_Run2Scaled"; // nominal tag
+  //TString tag_nom = "_sronly_sr123_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_DYVBF_sronly_sr123_syst_Run2Scaled"; // nominal tag
+  //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
   TString Name_IsXsecLimit = "_mixing";
   if(IsXsecLimit) Name_IsXsecLimit = "_xsec";
@@ -1242,8 +1245,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     dummy2->GetYaxis()->SetTitleSize(0.1);
     dummy2->GetYaxis()->SetTitleOffset(0.5);
     if(channel=="MuMu") dummy2->GetYaxis()->SetTitle("#frac{limits}{Run2 #mu#mu}");
-    //else if(channel=="EE") dummy2->GetYaxis()->SetTitle("#frac{limits}{Run2 ee}");
-    else if(channel=="EE") dummy2->GetYaxis()->SetTitle("#frac{HEEP}{New ID}");
+    else if(channel=="EE") dummy2->GetYaxis()->SetTitle("#frac{limits}{Run2 ee}");
     else if(channel=="EMu") dummy2->GetYaxis()->SetTitle("#frac{limits}{Run2 e#mu}");
     dummy2->GetYaxis()->SetLabelSize(0.12);
     dummy2->GetXaxis()->SetTitleSize(0.1);
@@ -1251,7 +1253,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     dummy2->GetXaxis()->SetTitle("m_{N} (GeV)");
     dummy2->GetXaxis()->SetLabelSize(0.12);
     dummy2->GetXaxis()->SetRangeUser(80., 25000);
-    if(Logy) dummy2->GetYaxis()->SetRangeUser(0.5, 10);
+    if(Logy) dummy2->GetYaxis()->SetRangeUser(0.5, 20);
     //if(Logy) dummy2->GetYaxis()->SetRangeUser(0.5, 3);
     //else dummy2->GetYaxis()->SetRangeUser(0.85, 2);
     //else dummy2->GetYaxis()->SetRangeUser(0.94, 1.06);
@@ -1331,12 +1333,12 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       gr_ratio_21003->Draw("lpsame");
     }
 
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.pdf");
   }
   else{
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+".png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+".pdf");
   }
 
   return;

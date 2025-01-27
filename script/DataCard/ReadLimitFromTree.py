@@ -16,7 +16,7 @@ workdir = "/data6/Users/jihkim/LatestCombine/CMSSW_14_1_0_pre4/src/DilepHN/Batch
 years = ["2016","2017","2018"]
 years = ["Run2"]
 years = ["2016preVFP","2016postVFP","2017","2018","Run2"]
-#years = ["Run2"]
+years = ["Run2"]
 #years = ["2017"]
 years = ["2018"]
 channels = ["MuMu","EE","EMu"]
@@ -57,14 +57,17 @@ IDs = [""] #["_ID"]
 #myWPs = ["PR97_HNL_ULIDv2_NoCR_NoSyst"]
 #myWPs = ["ANv3_HNL_ULIDv2_Decorr_NoCR"]
 #myWPs = ["ANv3_HNL_ULIDv2_Decorr_TEST_NoCR"]
-myWPs = ["ANv3_HNL_ULIDv2_Decorr"]
+#myWPs = ["ANv3_HNL_ULIDv2_Decorr"]
+#myWPs = ["ANv3_HNL_ULIDv2_Decorr_Run2"]
+#myWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet_NoCR_NoSyst","HEMJet_HNL_ULIDv2_ScaleHEMJet_NoCR_NoSyst","TuneP_HNL_ULIDv2_CompareTuneP_NoCR_NoSyst","TuneP_HNTightV2_CompareTuneP_NoCR_NoSyst","TuneP_POGTight_CompareTuneP_NoCR_NoSyst"]
+myWPs = ["ANv3_HNL_ULIDv2_Decorr_NoCR_NoSyst"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
-tags = ["_syst"]
+#tags = ["_syst"]
+#tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_sronly_sr123_syst"]
-#tags = ["_sronly_sr123"]
-#tags = ["_sronly_sr123_syst"]
+tags = ["_sronly_sr123"]
 #tags = ["_DYVBF_sronly_sr123_syst"]
 #tags = ["_DYVBF_syst"]
 #tags = ["_SSWW_syst"]
@@ -75,8 +78,8 @@ for WP in myWPs:
   for year, channel, ID, tag in [[year, channel, ID, tag] for year in years for channel in channels for ID in IDs for tag in tags]:
     
     if args.Asymptotic:
-      #with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Asym_limit.txt", 'w') as f:
-      with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Run2Scaled_Asym_limit.txt", 'w') as f:
+      with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Asym_limit.txt", 'w') as f:
+      #with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Run2Scaled_Asym_limit.txt", 'w') as f:
       #with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Run23Scaled_Asym_limit.txt", 'w') as f:
   
         for mass in (masses if channel!="EMu" else masses_EMu):
@@ -85,19 +88,25 @@ for WP in myWPs:
           path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic.root"
   
           f_Asym = TFile.Open(path)
-          tree_Asym = f_Asym.Get("limit")
+          try: tree_Asym = f_Asym.Get("limit")
+          except ReferenceError:
+            f.write("\n")
+            continue
   
-          tree_Asym.GetEntry(2) # substitute for obs. limit for now
-          #f.write(mass+"\t"+str(round(tree_Asym.limit,3))+"\t")
+          try: tree_Asym.GetEntry(2) # substitute for obs. limit for now
+          except AttributeError:
+            f.write("\n")
+            continue
+          f.write(mass+"\t"+str(round(tree_Asym.limit,3))+"\t")
           #f.write(mass+"\t"+str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
-          f.write(mass+"\t"+str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
+          #f.write(mass+"\t"+str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
           #f.write(mass+"\t"+str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
   
           for i in range(5): # expected limits
             tree_Asym.GetEntry(i)
-            #f.write(str(round(tree_Asym.limit,3))+"\t")
+            f.write(str(round(tree_Asym.limit,3))+"\t")
             #f.write(str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
-            f.write(str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
+            #f.write(str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
             #f.write(str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
           f.write("\n")
           print "done."

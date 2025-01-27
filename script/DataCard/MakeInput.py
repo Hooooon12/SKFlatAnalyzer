@@ -737,7 +737,7 @@ for tag in tags:
 
         for channel in channels: # ...and each channel
 
-          if ("sr" in region) and (int(mass.replace("M","")) <= 500):
+          if ("sr3" in region) and (int(mass.replace("M","")) <= 500):
             LimitDir = "LimitExtractionBDT"
             InputHistMass = mass+"/"
             if not 'BDT' in RegionToHistSuffixMap[region][channel]:
