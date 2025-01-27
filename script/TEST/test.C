@@ -16,6 +16,7 @@ void test(TString era, bool isdata, TString sample, TString skim, TString flag){
   if(isdata) m.DataStream = sample;
   else{
     m.MCSample = sample;
+    if(sample.Contains("Type")||sample.Contains("Weinberg")) m.MCSample += "_private";
     m.xsec = 6077.22;
     m.sumSign = 132089877.0;
     m.sumW = 3.336547209017e+12;

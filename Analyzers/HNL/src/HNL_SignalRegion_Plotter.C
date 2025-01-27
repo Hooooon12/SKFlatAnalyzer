@@ -72,12 +72,23 @@ void HNL_SignalRegion_Plotter::executeEvent(){
     if (this->DataStream == "EGamma") ChannelsToRun = {EE};
     if (this->DataStream == "MuonEG") ChannelsToRun = {EMu};
   }
+  if(MCSample.Contains("Type")){
+    //// Run channel based on MC Sample
+    if(MCSample.Contains("SSWWTypeI_DF")) ChannelsToRun = {EMu};
+    else if(MCSample.Contains("SSWWTypeI_SF")) ChannelsToRun = {EE,MuMu};
+    else ChannelsToRun = {EE,MuMu,EMu};
+
+
+  }
+
 
 
   for (auto id: LepIDs){
 
     for(auto channel : ChannelsToRun){
       
+      if(MCSample.Contains("Type")&& !SelectChannel(channel)) continue;
+
       AnalyzerParameter param = HNL_LeptonCore::InitialiseHNLParameter(id,channel);
       
       param.PlottingVerbose = 0; //// Draw basic plots
@@ -93,8 +104,36 @@ void HNL_SignalRegion_Plotter::executeEvent(){
 
       TString param_name = param.Name;
 
-      for(auto isyst : GetSystList("All",channel)){ //JH
-      //for(auto isyst : GetSystList("",channel)){ //JH
+      TString SystLabel = "";
+      if(HasFlag("Syst_Theory")) SystLabel= "Theory";
+      else if(HasFlag("Syst_Muon")) SystLabel= "Muon";
+      else if(HasFlag("Syst_Jet")) SystLabel= "Jet";
+      else SystLabel=GetChannelString(channel);
+
+      if(HasFlag("RunSyst")){
+
+        if(!PassMETFilter()) return;
+
+        Event ev = GetEvent();
+
+        if(channel==EE){
+          if(!ev.PassTrigger(TrigList_HNL_DblEG)) continue;
+          std::vector<Muon>       MuonCollV     = SelectMuons    (param,param.Muon_Veto_ID,     5., 2.4);
+          if(MuonCollV.size() > 0) continue;
+        }
+        if(channel==MuMu){
+          if(!ev.PassTrigger(TrigList_HNL_DblMu)) continue;
+          std::vector<Electron>   ElectronCollV = SelectElectrons(param,param.Electron_Veto_ID, 10., 2.5);
+          if(ElectronCollV.size() >0) continue;
+        }
+        if(channel==EMu){
+          if(!(ev.PassTrigger(TrigList_HNL_MuEG) || ev.PassTrigger(TrigList_HNL_EGMu) )) continue;
+        }
+
+      }
+
+      //// Run Systematics
+      for(auto isyst : GetSystList(SystLabel)){
         bool runJob = UpdateParamBySyst(id,param,AnalyzerParameter::Syst(isyst),param_name);
         if(runJob) RunULAnalysis(param);
       }
@@ -170,21 +209,21 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
       param.DefName=ORIGDefName +PNAME_PDF;
 
       RunAllSignalRegions(Inclusive,
-			  ElectronCollT,ElectronCollV,MuonCollT,MuonCollV,  TauColl,
-			  AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl,
-			  ev,METv, param, -1, weight*PDF_W);
+        ElectronCollT,ElectronCollV,MuonCollT,MuonCollV,  TauColl,
+        AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl,
+        ev,METv, param, -1, weight*PDF_W);
 
       
     }
   }
   else{
-					  
+            
     for(auto ir : RunEl){
       
       RunAllSignalRegions(Inclusive,
-			  ElectronCollT,ElectronCollV,MuonCollT,MuonCollV,  TauColl,
-			  AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl, 
-			ev,METv, param, ir, weight);
+        ElectronCollT,ElectronCollV,MuonCollT,MuonCollV,  TauColl,
+        AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl, 
+      ev,METv, param, ir, weight);
     }
   }
 

@@ -29,7 +29,8 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_SF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M1000".log
 #echo -e ".L test.C\n test(\"2018\",false,\"SSWWTypeI_SF_M30000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M30000".log
-echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"RunConv\");" | root -l 2>&1 | tee "2018_ZG_RunConv".log
+#echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"RunConv\");" | root -l 2>&1 | tee "2018_ZG_RunConv".log
+echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"RunSyst,LimitOnly\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_RunSyst_LimitOnly".log
 
 # HNL_SignalRegionPlotter (fake closure)
 #echo -e ".L test.C\n test(\"2017\",false,\"TTLJ\",\"HNMultiLepBDT\",\"RunFakeClosurePred\");" | root -l 2>&1 | tee "TTLJ_ClosPred".log

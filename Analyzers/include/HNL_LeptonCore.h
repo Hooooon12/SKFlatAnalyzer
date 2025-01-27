@@ -451,7 +451,7 @@ class HNL_LeptonCore : public AnalyzerCore {
 
 
   /// ------ SYSTEMATICS
-  vector<AnalyzerParameter::Syst> GetSystList(TString SystType="", HNL_LeptonCore::Channel channel=NONE);
+  vector<AnalyzerParameter::Syst> GetSystList(TString SystType="");
 
   /// ---- TRIGGER HNL_LeptonCore_Trigger
   void    SetupTriggerLists();  

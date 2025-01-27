@@ -185,7 +185,11 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
 
   TString TheoryPath = "/data9/Users/jalmond_public/PDFSyst/"+GetEra()+"/Theory/GetEffLumi_SkimTree_HNMultiLepBDT_"+MCSample+".root";
   std::ifstream infile(TheoryPath);
+
   
+  h_SumW_PDF=nullptr;
+  h_SumW_Scale=nullptr;
+
   if(HasFlag("RunSyst")){
     if(MCSample.Contains("Type")){
       if(infile.good()){
@@ -199,6 +203,7 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
 
 	TIter next(GenNormFile->GetListOfKeys());
 	TKey* key;
+	
 	while ((key = (TKey*)next())) {
 	  if (strcmp(key->GetClassName(), "TH1F") == 0 || 
 	      strcmp(key->GetClassName(), "TH1D") == 0 || 
@@ -213,8 +218,8 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
 	      h_SumW_PDF = ((TH1D*) GenNormFile->Get("sumW_PDF")->Clone());
 	    }
 	    if(strcmp(key->GetName(),"sumW_Scale") == 0) h_SumW_Scale = ((TH1D*) GenNormFile->Get("sumW_Scale")->Clone());
-	    if(strcmp(key->GetName(),"sumW_AlphaS") == 0)h_SumW_AlphaS = ((TH1D*) GenNormFile->Get("sumW_AlphaS")->Clone());
-
+	    ///if(strcmp(key->GetName(),"sumW_AlphaS") == 0)h_SumW_AlphaS = ((TH1D*) GenNormFile->Get("sumW_AlphaS")->Clone());
+	    
 	    origDir->cd();
 
 	  }
@@ -224,9 +229,8 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
 	cout << "Close file" << endl;
 	delete GenNormFile;
 
-	cout << "h_SumW_PDF Integral = " << h_SumW_PDF->Integral() << endl;
-	cout << "h_SumW_Scale Integral = " << h_SumW_Scale->Integral() << endl;
-        cout << "h_SumW_AlphaS Integral = " << h_SumW_AlphaS->Integral() << endl;
+	if (h_SumW_PDF!=nullptr)    cout << "h_SumW_PDF Integral = " << h_SumW_PDF->Integral() << endl;
+	if (h_SumW_Scale!=nullptr ) cout << "h_SumW_Scale Integral = " << h_SumW_Scale->Integral() << endl;
 
       }
       else {
@@ -413,10 +417,9 @@ double HNL_LeptonCore::MergeMultiMC(vector<TString> vec, TString Method){
 }
 
 
-vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HNL_LeptonCore::Channel channel){
+vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
 
   vector<AnalyzerParameter::Syst> SystList = {};
-  if(HasFlag("NoSyst")) return SystList;
 
   if(SystType=="Theory"){
     SystList.push_back(AnalyzerParameter::PDFUp);
@@ -447,6 +450,8 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
     return SystList;
   }
 
+  if(!HasFlag("RunSyst")) return SystList;
+
   if(RunCF){
     SystList = {
       AnalyzerParameter::CFRateUp,
@@ -463,7 +468,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
     //SystList.push_back(AnalyzerParameter::FRAJDown); 
     //SystList.push_back(AnalyzerParameter::FRPartonSFUp); /// Apply 10% in DataCard
     //SystList.push_back(AnalyzerParameter::FRPartonSFDown);
-    if(channel!=MuMu){
+    if(SystType!="MuMu"){
       SystList.push_back(AnalyzerParameter::FRHighPtUp);
       SystList.push_back(AnalyzerParameter::FRHighPtDown);
     }
@@ -471,7 +476,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
   else{
  
     if(IsData) return {};
-    if(SystType=="All"){
+    if(HasFlag("RunSyst")){
       
       SystList = {AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
                   AnalyzerParameter::JetEnUp, AnalyzerParameter::JetEnDown,
@@ -483,7 +488,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
                   AnalyzerParameter::PrefireUp,AnalyzerParameter::PrefireDown,
                   AnalyzerParameter::PUUp,AnalyzerParameter::PUDown};
 
-      if(channel==MuMu || channel==EMu){
+      if(SystType=="MuMu" || SystType=="EMu"){
         SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
         SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
         SystList.push_back(AnalyzerParameter::MuonEnUp);
@@ -495,7 +500,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType, HN
         //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
         //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
       }
-      if(channel==EE || channel==EMu){
+      if(SystType=="EE" || SystType=="EMu"){
         //SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
         //SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
         SystList.push_back(AnalyzerParameter::ElectronResUp);
@@ -1014,10 +1019,10 @@ HNL_LeptonCore::~HNL_LeptonCore(){
 	delete h_SumW_Scale;
 	h_SumW_Scale = nullptr; // Set pointer to nullptr after deletion
       }
-      if (h_SumW_AlphaS != nullptr) {
-	delete h_SumW_AlphaS;
-	h_SumW_AlphaS = nullptr; // Set pointer to nullptr after deletion
-      }
+      //      if (h_SumW_AlphaS != nullptr) {
+      //delete h_SumW_AlphaS;
+      //h_SumW_AlphaS = nullptr; // Set pointer to nullptr after deletion
+      //}
     }
   }
   DeleteZptWeight();
