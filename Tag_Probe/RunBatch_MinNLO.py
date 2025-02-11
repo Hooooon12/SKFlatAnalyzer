@@ -195,6 +195,7 @@ types = {
   'DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos'  : 'MC',
   'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : 'MC',
   'DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos' : 'MC',
+  'DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8' : 'MC',
   'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8' : 'MC',
   'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8' : 'MC',
   'ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8' : 'MC',
@@ -337,12 +338,30 @@ parser.add_argument('-v', dest='Version', default="Version1",help="")
 parser.add_argument('-s', dest='Script', default="NULL",help="pick config/*.py")
 parser.add_argument('-n', dest='NJob',type=int, default=15,help="")
 parser.add_argument('-max', dest='NMax',type=int, default=500,help="")
+parser.add_argument('--mass' , dest='Mass', default =[70,110], nargs='+', help='Dilepton mass range to study')
+parser.add_argument('-ScaleCF', dest='ScaleCF', type=float, default=1, help='SF for CF')
+parser.add_argument('--syst' , dest='Syst', default =[], nargs='+', help='DY or QCD Up/Down or CFSF Up/Down')
 
 args = parser.parse_args()
 
 Version = args.Version
 NJobs=args.NJob
 Era = args.Era
+ScaleCF=args.ScaleCF
+Syst = "" if len(args.Syst)==0 else ' '.join(args.Syst)
+Mass = ' '.join(map(str,args.Mass))
+MassName="_M"+str(args.Mass[0])+"to"+str(args.Mass[1])
+SystName=""
+if len(args.Syst)!=0:
+  SystName += "_Syst"
+  for this_syst in args.Syst:
+    SystName += "_"+this_syst
+
+if "DY" in args.Syst:
+  for era in ['2016', '2016preVFP', '2016postVFP', '2017', '2018']:
+    samples[era].pop(0)
+    samples[era].pop(0)
+    samples[era].insert(0,"DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8")
 
 if args.Script == "NULL":
     print ("-s command not set")
@@ -351,6 +370,7 @@ if args.Script == "NULL":
 print ("Running MakeInputList:")
 print ("Njobs = " + str(args.NJob))
 print ("Era = " + str(args.Era))
+print ("Syst = " + Syst)
 
 if not os.path.exists("batch_input"):
     os.mkdir("batch_input")
@@ -358,7 +378,7 @@ if not os.path.exists("batch_input"):
 
 #os.system("python MakeInputList.py -e " + Era +  " -n " + str(NJobs))
 
-SkimName="SkimTree_EGammaTnP_HNLHighPt"
+SkimName="SkimTree_EGammaTnP_HNLHighPt" if "SkimV2" not in Version else "SkimTree_EGammaTnP_HNLHighPtV2"
 
 
 
@@ -399,8 +419,15 @@ TandPRunlogDir = "/data6/Users/"+USER+"/TandPRunlog/"
 os.system("mkdir -p " +TandPRunlogDir)
 
 if Version != "":
-  TandPRunlogDir=TandPRunlogDir+Version+"/"
-  os.system("mkdir -p " +TandPRunlogDir)
+  TandPRunlogDir=TandPRunlogDir+Version
+
+TandPRunlogDir += MassName
+
+if len(args.Syst)!=0:
+  TandPRunlogDir += SystName+"/"
+
+TandPRunlogDir += "/"
+os.system("mkdir -p " +TandPRunlogDir)
 
 TandPRunlogDir=TandPRunlogDir+Era+"/"
 os.system("mkdir -p " +TandPRunlogDir)
@@ -443,7 +470,7 @@ for WorkDir in WorkDirs:
   
   scriptname=scriptname.replace('Config/','')
 
-  commandsfilename = 'ElectronIDSF_'+Era+"_"+Version
+  commandsfilename = 'ElectronIDSF_'+Era+"_"+Version+MassName+SystName
   run_commands = open(MasterJobDir+'/'+commandsfilename+'.sh','w')
 
   print>>run_commands,'''#!/bin/bash
@@ -477,7 +504,7 @@ while [ "$Trial" -lt 3 ]; do
   echo "#### running ####"
 
 
-  python {0}/{1} -nj ${{SECTION}} -e {4} -wd {0} 2> err.log
+  python {0}/{1} -nj ${{SECTION}} -e {4} -ScaleCF {5} --syst {6} --mass {7} -wd {0} 2> err.log
 
   EXITCODE=$?
   if [ "$EXITCODE" -eq 5 ]; then
@@ -496,7 +523,7 @@ fi
 
 cat err.log >&2
 exit $EXITCODE
-'''.format(MasterJobDir,scriptname, SCRAM_ARCH, cmsswrel, Era )
+'''.format(MasterJobDir,scriptname, SCRAM_ARCH, cmsswrel, Era, ScaleCF, Syst, Mass)
   run_commands.close()
 
   submit_command = open(MasterJobDir+'/submit.jds','w')

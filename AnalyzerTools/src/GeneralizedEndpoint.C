@@ -166,28 +166,54 @@ ScaledPts GeneralizedEndpoint::GeneralizedEndpointPt(TString Era, float MuonPt, 
   float KappaBias=_Correction[Era][kEtaBin][kPhiBin];
   float KappaBiasError=_CorrectionError[Era][kEtaBin][kPhiBin];
   
-  float rnd = KappaBias+99*KappaBiasError;
-  gRandom->SetSeed(seed);
-  while (abs(KappaBias-rnd) > KappaBiasError)
-    rnd = gRandom->Gaus(KappaBias,KappaBiasError);
+  //float rnd = KappaBias+99*KappaBiasError;
+  //gRandom->SetSeed(seed);
+  //while (abs(KappaBias-rnd) > KappaBiasError)
+  //  rnd = gRandom->Gaus(KappaBias,KappaBiasError);
 
-  KappaBias = rnd;
+// New GE
+vector<double> MuonPt_Iter;
+for(int i=0; i<100; i++){
+  double this_KappaBias = gRandom->Gaus(KappaBias,KappaBiasError);
+
+  double this_MuonPt = MuonPt;
+  this_MuonPt = this_MuonPt/1000.; //GeV to TeV.
+  this_MuonPt = MuonCharge*fabs(this_MuonPt); //Signed Pt.
+  this_MuonPt = 1/this_MuonPt; //Convert to Curvature.
+  this_MuonPt = this_MuonPt + this_KappaBias; //Apply the bias.
+
+  if (fabs(this_MuonPt) < 0.14) this_MuonPt = KappaBiasError; //To avoid a division by set the curvature to its error if after the correction the pt is larger than 7 TeV.
+  this_MuonPt = 1/this_MuonPt;//Return to Pt.
+  this_MuonPt = fabs(this_MuonPt);//returns unsigned Pt, any possible sign flip due to the curvature is absorbed here.
+  this_MuonPt = this_MuonPt*1000.;//Return to Pt in GeV.
+
+  MuonPt_Iter.push_back(this_MuonPt);
+}
+
+double MuonPt_Central = 0.;
+for(int i=0; i<100; i++){
+  MuonPt_Central += MuonPt_Iter.at(i);
+}
+MuonPt_Central = MuonPt_Central/100.;
+//
+
+  //KappaBias = rnd;
   // if ((KappaBias-KappaBiasError)/KappaBias > 0.70) return MuonPt;
   //  if (abs(KappaBiasError/KappaBias) > 0.70) return MuonPt; // ignore the bias if the error on the estimation is too big... 
   
-  MuonPt = MuonPt/1000.; //GeV to TeV.
-  MuonPt = MuonCharge*fabs(MuonPt); //Signed Pt.
-  MuonPt = 1/MuonPt; //Convert to Curvature.
-  MuonPt = MuonPt + KappaBias; //Apply the bias.
+  //MuonPt = MuonPt/1000.; //GeV to TeV.
+  //MuonPt = MuonCharge*fabs(MuonPt); //Signed Pt.
+  //MuonPt = 1/MuonPt; //Convert to Curvature.
+  //MuonPt = MuonPt + KappaBias; //Apply the bias.
 
-  double MuonPt_Central = MuonPt + KappaBias;
+  //double MuonPt_Central = MuonPt + KappaBias;
   double MuonPt_Up = MuonPt + KappaBias + KappaBiasError;
   double MuonPt_Down = MuonPt + KappaBias - KappaBiasError;
 
-  if (fabs(MuonPt_Central) < 0.14) MuonPt_Central = KappaBiasError; //To avoid a division by set the curvature to its error if after the correction the pt is larger than 7 TeV.
-  MuonPt_Central = 1/MuonPt_Central;//Return to Pt.
-  MuonPt_Central = fabs(MuonPt_Central);//returns unsigned Pt, any possible sign flip due to the curvature is absorbed here.
-  MuonPt_Central = MuonPt_Central*1000.;//Return to Pt in GeV.
+  //if (fabs(MuonPt_Central) < 0.14) MuonPt_Central = KappaBiasError; //To avoid a division by set the curvature to its error if after the correction the pt is larger than 7 TeV.
+  //MuonPt_Central = 1/MuonPt_Central;//Return to Pt.
+  //MuonPt_Central = fabs(MuonPt_Central);//returns unsigned Pt, any possible sign flip due to the curvature is absorbed here.
+  //MuonPt_Central = MuonPt_Central*1000.;//Return to Pt in GeV.
 
   if (fabs(MuonPt_Up) < 0.14) MuonPt_Up = KappaBiasError; //To avoid a division by set the curvature to its error if after the correction the pt is larger than 7 TeV.
   MuonPt_Up = 1/MuonPt_Up;//Return to Pt.

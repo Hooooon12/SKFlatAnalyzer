@@ -16,6 +16,7 @@ parser.add_argument('--JetDecorr', action='store_true', help='Decorrelate jet sc
 parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
 parser.add_argument('--Syst', action='store_true', help='Add systematics into the datacards')
 parser.add_argument('--Combine', choices=['CR','SR','Era'], help='CR --> Merge CR and SR datacards in one era,\nEra --> Merge pre-processed (CR+SR) over the Run2,\nSR --> Merge SR only datacards over the Run2')
+parser.add_argument('--Type', choices=['CR', 'SR'], help="(Optional) If --Combine Era is used, specify whether to merge only CR or SR.")
 args = parser.parse_args()
 
 pwd = os.getcwd()
@@ -30,8 +31,8 @@ pwd = os.getcwd()
 
 #eras = ["2016","2017","2018"]
 #eras = ["2017"]
-eras = ["2018"]
-#eras = ["2016preVFP","2016postVFP","2017"]
+#eras = ["2018"]
+eras = ["2016preVFP","2016postVFP","2017","2018"]
 #eras = ["2016preVFP","2016postVFP","2017"]
 #eras = ["2016preVFP","2016postVFP","2018"]
 channels = ["MuMu","EE","EMu"]
@@ -52,17 +53,17 @@ channels = ["MuMu","EE","EMu"]
 #masses_EMu = ["M250","M1000","M10000"]
 #masses = ["M100","M250","M1000","M10000"]
 #masses_EMu = ["M100","M250","M1000","M10000"]
-masses = ["M100","M500","M1000","M10000"]
-masses_EMu = ["M100","M500","M1000","M10000"]
+#masses = ["M100","M500","M1000","M10000"]
+#masses_EMu = ["M100","M500","M1000","M10000"]
 
 ## Full mass ranges
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
 #masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 
 ## signal processes
-#signals = ["","_DYVBF","_SSWW"]
+#signals = ["_DYVBF","_SSWW"]
 signals = [""]
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR43/LimitInputs/"
@@ -84,8 +85,8 @@ signals = [""]
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter/LimitExtraction/"
-SRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/"
-CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/"
+SRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
+CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
 
 #InputWPs = ["240422_HNL_ULID"]
 #InputWPs = ["240501_1704_HNL_ULID","240501_1704_HNTightV2"]
@@ -108,8 +109,9 @@ CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/"
 #InputWPs = ["PR89_HNL_ULID","PR89_HighPt"]
 #InputWPs = ["PR95_HNL_ULID"]
 #InputWPs = ["PR97_HNL_ULIDv2"]
-InputWPs = ["ANv3_HNL_ULIDv2"]
-#InputWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet","HEMJet_HNL_ULIDv2_ScaleHEMJet","TuneP_HNL_ULIDv2_CompareTuneP","TuneP_HNTightV2_CompareTuneP","TuneP_POGTight_CompareTuneP"]
+#InputWPs = ["ANv3_HNL_ULIDv2"]
+InputWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet","HEMJet_HNL_ULIDv2_ScaleHEMJet","TuneP_HNL_ULIDv2_CompareTuneP","TuneP_HNTightV2_CompareTuneP","TuneP_POGTight_CompareTuneP"]
+#InputWPs = ["ANv4_HNL_ULIDv2_RunSyst"]
 if args.Decorr:
   InputWPs = [WP+"_Decorr" for WP in InputWPs]
   range_decorr = range(20,25)
@@ -138,8 +140,10 @@ OutputTag = ""
 #OutputTag = "_BD"
 #OutputTag = "_Run2"
 
-if args.Combine is None and not args.CR: OutputTag+="_NoCR" # SR only
-elif args.Combine is not None and args.Combine not in ["CR","Era"]: OutputTag+="_NoCR" # Combine SR only
+if args.Combine is None:
+  if not args.CR: OutputTag+="_NoCR" # SR only
+else:
+  if not (args.Combine == "CR" or (args.Combine == "Era" and args.CR)): OutputTag+="_NoCR" # Combine SR only
 if not args.Syst: OutputTag+="_NoSyst"  # NoSyst
 
 #regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
@@ -493,21 +497,39 @@ for InputWP in InputWPs:
           if args.Syst:
             NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt"))
 
-      if args.Combine == "Era": # This will combine all era datacards with CR setup
-        #os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+systTag+".txt")
-        # SR3 limit
-        os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt")
-        if args.Syst:
-          #NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+systTag+".txt"))
-          NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt"))
-
-        if int(mass.strip('M'))>100:
-          # SR1, 2 limit
-          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt")
-          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt")
+      if args.Combine == "Era":
+        if args.CR: # with CR
+          # Full SR limit
+          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+systTag+".txt")
+          # SR3 limit
+          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt")
           if args.Syst:
-            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt"))
-            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt"))
+            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+systTag+".txt")) # Full
+            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr3"+systTag+"_Combined.txt")) # SR3
+
+          if int(mass.strip('M'))>100:
+            # SR1, 2 limit
+            os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt")
+            os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt")
+            if args.Syst:
+              NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr1"+systTag+"_Combined.txt"))
+              NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sr2"+systTag+"_Combined.txt"))
+        else: # SR only
+          # Full SR limit
+          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt")
+          # SR3 limit
+          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sronly"+"_sr3"+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sronly"+"_sr3"+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+"_sronly"+"_sr3"+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+"_sronly"+"_sr3"+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+"_sronly"+"_sr3"+systTag+".txt")
+          if args.Syst:
+            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sronly_sr123"+systTag+".txt")) # Full
+            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sronly"+"_sr3"+systTag+".txt")) # SR3
+
+          if int(mass.strip('M'))>100:
+            # SR1, 2 limit
+            os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sronly"+"_sr1"+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sronly"+"_sr1"+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+"_sronly"+"_sr1"+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+"_sronly"+"_sr1"+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+"_sronly"+"_sr1"+systTag+".txt")
+            os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass+signal+"_sronly"+"_sr2"+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass+signal+"_sronly"+"_sr2"+systTag+".txt year17=card_2017_"+channel+"_"+mass+signal+"_sronly"+"_sr2"+systTag+".txt year18=card_2018_"+channel+"_"+mass+signal+"_sronly"+"_sr2"+systTag+".txt > card_Run2_"+channel+"_"+mass+signal+"_sronly"+"_sr2"+systTag+".txt")
+            if args.Syst:
+              NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sronly"+"_sr1"+systTag+".txt"))
+              NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass+signal+"_sronly"+"_sr2"+systTag+".txt"))
 
     os.system('echo \'Done.\'')
     os.chdir(pwd)

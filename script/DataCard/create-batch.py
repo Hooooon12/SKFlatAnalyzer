@@ -22,12 +22,12 @@ parser.add_argument('--Asymptotic', action='store_true')
 parser.add_argument('--Work', action='store_true', help='create workspace')
 parser.add_argument('--FitDiag', action='store_true', help='check nuisance fit')
 parser.add_argument('--Impact', action='store_true', help='check impacts')
-parser.add_argument('--Break', action='store_true', help='uncertainty breakdown')
+parser.add_argument('--Breakdown', action='store_true', help='uncertainty breakdown')
 args = parser.parse_args()
 
 IsNuis = False
 Ncheck = 0
-for check in ['FitDiag','Impact','Break']:
+for check in ['FitDiag','Impact','Breakdown']:
   if vars(args)[check] is True:
     this_check = check
     IsNuis = True
@@ -256,7 +256,7 @@ for RunList in args.RunLists:
             runfile.write("plot1DScan.py higgsCombine."+shortcard+".MultiDimFit.mH120.root -o "+shortcard+"_MDfit\n")
             runfile.write("plot1DScan.py higgsCombine."+shortcard+"_rRange100.MultiDimFit.mH120.root -o "+shortcard+"_rRange100_MDfit\n")
 
-          elif args.Break:
+          elif args.Breakdown:
             runfile.write("combine -M MultiDimFit "+shortcard+".root --points=21 --rMin -5 --rMax 5 --alignEdges 1 -t -1 --saveWorkspace -n ."+shortcard+"_saveWorkspace\n")
             runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 -t -1 -n ."+shortcard+"_total\n")
             runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy -t -1 -n ."+shortcard+"_freeze_jet\n")
@@ -293,7 +293,7 @@ for RunList in args.RunLists:
             runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_MDfit\n")
             runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod_rRange100.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_rRange100_MDfit\n")
 
-          elif args.Break:
+          elif args.Breakdown:
             runfile.write("combine -M MultiDimFit "+shortcard+"_DefMod.root --points=21 --rMin -5 --rMax 5 --alignEdges 1 -t -1 --saveWorkspace -n ."+shortcard+"_saveWorkspace\n")
             runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 -t -1 -n ."+shortcard+"_total\n")
             runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy -t -1 -n ."+shortcard+"_freeze_jet\n")

@@ -30,14 +30,19 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_NoCR"; // nominal working point
   //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_TEST_NoCR"; // nominal working point
   //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr"; // nominal working point
-  TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_Run2"; // nominal working point
-  TString tag_nom = "_syst"; // nominal tag
+  //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_Run2"; // nominal working point
+  //TString WP_nom = "ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr_NoCR"; // nominal working point
+  TString WP_nom = "ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"; // nominal working point
+  //TString tag_nom = "_syst"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sronly_sr123_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sronly_sr123_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_DYVBF_sronly_sr123_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
+  //TString tag_nom = "_sronly_sr123_syst"; // nominal tag
+  TString tag_nom = "_syst"; // nominal tag
+  //TString tag_nom = "_sr2_syst_Combined"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
   TString Name_IsXsecLimit = "_mixing";
   if(IsXsecLimit) Name_IsXsecLimit = "_xsec";
@@ -64,14 +69,15 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //vector<TString> WPs = {"rateParam_HNL_ULID_PR46"};
   //vector<TString> WPs = {"PR55_HighPt","PR55_NoMinPt_HighPt"};
   //vector<TString> WPs = {"PR48_rateParam_HNL_ULID"}; // WPs to compare
-  vector<TString> WPs = {}; // WPs to compare
+  vector<TString> WPs = {"ANv3_HNL_ULIDv2_Decorr_Run2"}; // WPs to compare
   //vector<TString> tags = {"_syst_Run2Scaled"};
   //vector<TString> tags = {"_sr_Combined"};
-  vector<TString> tags = {};
+  vector<TString> tags = {"_syst"};
   for(int i=0; i<WPs.size(); i++){
     for(int j=0; j<tags.size(); j++){
       //files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
-      files.push_back(filepath+WPs[i]+"/2017_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
+      //files.push_back(filepath+WPs[i]+"/2017_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
+      files.push_back(filepath+WPs[i]+"/Run2_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
       scales.push_back(0.01);
     }
   }
@@ -108,7 +114,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       if (is >> this_twosig_right) twosig_right.push_back(this_twosig_right);
 
       double scale = scales.at(i);
-      if(i==0&&this_mass>3000.) scale *= 10; //NOTE SSWW-only region has mass-dependent scaler.. why? to see SSWW pull with narrower range
+      //if(i==0&&this_mass>3000.) scale *= 10; //NOTE Nominal only: SSWW-only region has mass-dependent scaler.. why? to see SSWW pull with narrower range
+      if(this_mass>3000.) scale *= 10; //NOTE All limit sets: SSWW-only region has mass-dependent scaler.. why? to see SSWW pull with narrower range
       //double scale=1.;
       //if(mass[dummyint]<=100) scale *= 0.001; // 0.001 only for low mass (https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844)
       //else scale *= 0.01; // input signal scaled as V^2 = 0.01 by default
@@ -238,9 +245,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   gr_band_2sigma_0->SetMarkerColor(kOrange);
 
   // Use when there are more than two input limits to compare
-  //TGraph *gr_exp_1 = new TGraph(n_centrals[1],&masses[1][0],&limits[1][0]);
-  //gr_exp_1->SetLineWidth(3);
-  ////gr_exp_1->SetLineColor(kViolet);
+  TGraph *gr_exp_1 = new TGraph(n_centrals[1],&masses[1][0],&limits[1][0]);
+  gr_exp_1->SetLineWidth(3);
+  gr_exp_1->SetLineColor(kViolet);
   //gr_exp_1->SetLineColor(kRed);
 
   //TGraph *gr_exp_2 = new TGraph(n_centrals[2],&masses[2][0],&limits[2][0]);
@@ -955,6 +962,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID 2017 Scaled (exp)", "l");
     //lg_Alt->AddEntry(gr_exp_2, "PR44 HNL_ULID (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
+
+    //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "ANv3 (exp)", "l");
+
     if(!IsXsecLimit) lg_Alt->AddEntry(gr_21003_exp, "EXO-21-003 Run2 (exp)", "l");
     //lg_Alt->AddEntry(gr_17028_obs, "CMS 13 TeV dilepton", "l");
     //lg_Alt->AddEntry(gr_trilepLimit, "CMS 13 TeV trilepton", "l");
@@ -977,6 +987,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "HEEP (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_2, "HEEP w/o pTcut (exp)", "l");
+
+    //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "ANv3 (exp)", "l");
+
     //lg_Alt->AddEntry(gr_exp_2, "PR44 HNL_ULID (exp)", "l");
     //lg_Alt->AddEntry(gr_17028_obs, "CMS 13 TeV dilepton", "l");
     //lg_Alt->AddEntry(gr_trilepLimit, "CMS 13 TeV trilepton", "l");
@@ -995,6 +1008,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "PR46 HNL_ULID 2017 Scaled (exp)", "l");
     //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "Old binning 2017 Scaled (exp)", "l");
+
+    //if(CompareLimits) lg_Alt->AddEntry(gr_exp_1, "ANv3 (exp)", "l");
+
     //lg_Alt->AddEntry(gr_exp_2, "PR44 HNL_ULID (exp)", "l");
     //lg_Alt->AddEntry(gr_17028_obs, "CMS 13 TeV dilepton", "l");
   }
@@ -1011,7 +1027,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     c_up->SetLeftMargin(0.14);
     c_up->SetRightMargin(0.04);
     c_up->SetLogx();
-    c_up->SetLogy();
+    if(Logy) c_up->SetLogy();
     c_up->Draw();
     c_up->cd();
   }
@@ -1019,7 +1035,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     c_Dilep->cd();
     c_Dilep->Draw();
     c_Dilep->SetLogx();
-    c_Dilep->SetLogy();
+    if(Logy) c_Dilep->SetLogy();
   }
 
   TH1D *dummy = new TH1D("hist", "", 100000, 0., 100000.);
@@ -1061,6 +1077,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 	else dummy->GetXaxis()->SetRangeUser(80., 25000); //FIXME
   if(IsXsecLimit) dummy->GetYaxis()->SetRangeUser(1e-5, 0.1); //FIXME
   else dummy->GetYaxis()->SetRangeUser(5e-5, 1.); //FIXME
+  //dummy->GetXaxis()->SetRangeUser(1000, 30000); //FIXME
   dummy->SetTitle("");
   dummy->Draw("hist");
 
@@ -1206,12 +1223,16 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     ////for(int i=0; i<25; i++) cout << ratio_PR46[i] << endl;
 
     // ratio PR48 vs PR86 // this is mass dependent.
-    double mass_comp_PR48[25] = {100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200,1300,1500,1700,2000,2500,3000,5000,7500,10000,15000,20000};
-    int index_comp_PR48_PR86[25] = {3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28};
-    double ratio_PR48[25];
+    //double mass_comp_PR48[25] = {100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200,1300,1500,1700,2000,2500,3000,5000,7500,10000,15000,20000};
+    //int index_comp_PR48_PR86[25] = {3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28};
+    //double ratio_PR48[25];
     //for(int i=0; i<25; i++) cout << limits[1][index_comp_PR46_PR48[i]] << " vs " << limits[0][i] << endl;
     //for(int i=0; i<25; i++) ratio_PR48[i] = limits[1][i]/limits[0][index_comp_PR48_PR86[i]];
     //for(int i=0; i<25; i++) cout << ratio_PR46[i] << endl;
+
+    // Use this when mass ranges are fully synchronzied;
+    double ratio_this[n_centrals[0]];
+    for(int i=0; i<n_centrals[0]; i++) ratio_this[i] = limits[1][i]/limits[0][i];
 
     // ratio with EXO-17-028 expected //FIXME this is mass dependent.
     //double mass_comp_17028[17] = {100,150,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1500,1700,2000};
@@ -1281,6 +1302,13 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     gr_ratio_17028->SetLineColor(kRed);
     gr_ratio_17028->SetLineWidth(2);
     gr_ratio_17028->Draw("lpsame");
+
+    TGraph *gr_ratio_this = new TGraph(n_centrals[0],&masses[0][0],ratio_this);
+    gr_ratio_this->SetMarkerColor(kViolet);
+    gr_ratio_this->SetLineColor(kViolet);
+    gr_ratio_this->SetLineWidth(2);
+    //gr_ratio_this->Draw("lpsame");
+
     //TGraph *gr_ratio_PR43 = new TGraph(25,mass_comp_PR43,ratio_PR43);
     //gr_ratio_PR43->SetMarkerColor(kCyan);
     //gr_ratio_PR43->SetLineColor(kCyan);
@@ -1335,10 +1363,14 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
     if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp_Logy.pdf");
     else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.png");
   }
   else{
     if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.pdf");
     else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+".pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+".png");
   }
 
   return;

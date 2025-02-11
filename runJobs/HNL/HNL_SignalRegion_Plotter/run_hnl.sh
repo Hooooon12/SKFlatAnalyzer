@@ -160,9 +160,6 @@ declare  -a era_list=("2018")
 ## Fake ##
 #SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_MuMu.txt      -n 100  --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunFake,RunHighPt &
 
-    done
-
-
 declare  -a flag_list=("Syst_Muon,CompareTuneP" "ScaleHEMJet" "RemoveHEMJet")
 
     for j in "${flag_list[@]}"
@@ -174,6 +171,7 @@ declare  -a flag_list=("Syst_Muon,CompareTuneP" "ScaleHEMJet" "RemoveHEMJet")
         
     done
 
+    done
 
 
 

@@ -1,3 +1,11 @@
+#Skim V2
+########### 1. totWeight now has zpt, z0, weak weight by default --> no need to apply zpt <-- this was deprecated from 250206 version ###########
+# 2. MC pass the trigger --> no need to apply turn-on
+# 3. tag is HEEP (no medium charge <-- this was V10)
+# 4. No mass requirement on TP pair
+# 5. Assume only one out of two lepton is charge-flipped (tag first)
+# 6. No SingleTop, TTLJ, DY NLO
+
 import os, sys, argparse
 import commands as cmd
 import argparse
@@ -17,7 +25,7 @@ parser.add_argument('-wd' , dest='WorkDir', default ='./')
 parser.add_argument('--measure' , dest='Measure', default =['ID','Trig'], help='(Save only option) What to measure: ID or Trig')
 parser.add_argument('--mass' , dest='Mass', default =[70,110], nargs='+', type=int, help='Dilepton mass range to study')
 parser.add_argument('-ScaleCF', dest='ScaleCF', type=float, default=1, help='SF for CF')
-parser.add_argument('--syst' , dest='Syst', default =[], nargs='*', help='DY or QCD Up/Down or CFSF Up/Down')
+parser.add_argument('--syst' , dest='Syst', default =[], nargs='*', help='DY or QCD Up/Down/Side or CFSF Up/Down')
 parser.add_argument('--sumUp' , dest='SumUp', action='store_true', help='Save syst uncertainty in SF rootfile')
 
 args = parser.parse_args()
@@ -47,8 +55,8 @@ for tmpID in It_ProbeID:
     NID_Full=NID_Full+1
 
 It_IsPasses = ['Pass','Fail']
-It_EtaRegions = ['BB','EC']
-#It_EtaRegions = ['BB']
+#It_EtaRegions = ['BB','EC']
+It_EtaRegions = ['IB','OB','EC']
 #It_Charges = ["os","ss","ss_zpt","ss_tot","ss_zpt_tot"]
 It_Charges = ["os","ss","ss_tot"]
 
@@ -72,9 +80,6 @@ samples = {
     "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
     "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
     "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
@@ -102,9 +107,6 @@ samples = {
     "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
     "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
     "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
@@ -131,9 +133,6 @@ samples = {
     "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
     "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
     "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
@@ -160,9 +159,6 @@ samples = {
     "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
     "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
     "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
@@ -189,9 +185,6 @@ samples = {
     "DYJetsToEE_M-50_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "DYJetsToTauTau_M-50_AtLeastOneEorMuDecay_massWgtFix_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos",
     "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8",
-    "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
-    "ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8",
     "WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8",
     "ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
     "TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
@@ -535,7 +528,8 @@ def merge_lastbins(hist):
   #pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 200, 300, 1000], dtype=np.float64) # up to V5 and V7
   #pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150, 200, 300, 1000], dtype=np.float64) # V6, V8 and later
 
-  if 'BB' in this_name:
+  #if 'BB' in this_name:
+  if 'B' in this_name:
     pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150, 200, 300, 1000], dtype=np.float64)
   else:
     pt_bins_merged = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150, 200, 1000], dtype=np.float64)
@@ -738,8 +732,12 @@ def classify_hist(this_year, this_sample, this_chain):
       return None
 
   # EtaRegion
-  if abs(this_chain.el_sc_eta) < 1.4442:
-    EtaRegion = 'BB'
+  #if abs(this_chain.el_sc_eta) < 1.4442:
+  #  EtaRegion = 'BB'
+  if abs(this_chain.el_sc_eta) < 0.8:
+    EtaRegion = 'IB'
+  elif abs(this_chain.el_sc_eta) < 1.4442:
+    EtaRegion = 'OB'
   elif 1.566 < abs(this_chain.el_sc_eta) < 2.5:
     EtaRegion = 'EC'
   else:
@@ -977,7 +975,6 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, OutTag, Save, n_job, OutF
   OutName = "SF_Pt_"+Era+"_"+EtaRegion+"_"+NameProbe+OutTag+MassName+SystName
 
   this_nBins = Data_OS['Pass'].GetNbinsX()
-  this_Bins = Data_OS['Pass'].GetXaxis().GetXbins().GetArray()
 
   for i in range(len(Bundle['Pass'])):
     if i==0 : continue # skip DY
@@ -1155,7 +1152,13 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, OutTag, Save, n_job, OutF
   txt_eta.SetTextSize(0.06)
   txt_eta.SetTextAlign(12)
   txt_eta.SetTextFont(42)
-  txt_eta.DrawLatex(.58,.78, "|#eta| < 1.4442") if EtaRegion=='BB' else txt_eta.DrawLatex(.58,.78, "1.566 < |#eta| < 2.5")
+  #txt_eta.DrawLatex(.58,.78, "|#eta| < 1.4442") if EtaRegion=='BB' else txt_eta.DrawLatex(.58,.78, "1.566 < |#eta| < 2.5")
+  if EtaRegion=='IB':
+    txt_eta.DrawLatex(.58,.78, "|#eta| < 0.8")
+  elif EtaRegion=='OB':
+    txt_eta.DrawLatex(.58,.78, "0.8 < |#eta| < 1.4442")
+  else:
+    txt_eta.DrawLatex(.58,.78, "1.566 < |#eta| < 2.5")
 
   c1.cd()
 
@@ -1180,37 +1183,85 @@ def measureSFs(Data_OS, Bundle, Era, EtaRegion, Probe, OutTag, Save, n_job, OutF
   #  print i+1,"th bin:",Ratio.GetBinContent(i+1)
 
   # Fill h_SF
-  Save_nBinsX = Save['SF'].GetNbinsX()
+  # 1D first
+  Save['Data_Eff_1D_'+EtaRegion] = Data_Eff.Clone()
+  Save['MC_Eff_1D_'+EtaRegion] = MC_Eff.Clone()
+  Save['SF_1D_'+EtaRegion] = Ratio.Clone()
+  Save['Data_Eff_1D_'+EtaRegion].SetName('Data_Eff_1D_'+EtaRegion+'_'+Probe)
+  Save['Data_Eff_1D_'+EtaRegion].SetTitle('Data_Eff_1D_'+EtaRegion+'_'+Probe)
+  Save['MC_Eff_1D_'+EtaRegion].SetName('MC_Eff_1D_'+EtaRegion+'_'+Probe)
+  Save['MC_Eff_1D_'+EtaRegion].SetTitle('MC_Eff_1D_'+EtaRegion+'_'+Probe)
+  Save['SF_1D_'+EtaRegion].SetName('SF_1D_'+EtaRegion+'_'+Probe)
+  Save['SF_1D_'+EtaRegion].SetTitle('SF_1D_'+EtaRegion+'_'+Probe)
+
+  # 2D
   Ratio_nBinsX = Ratio.GetNbinsX()
-  for iX in range(Save_nBinsX):
-    Save['Data_Eff'].SetBinContent(iX+1, 2, 0)
-    Save['MC_Eff']  .SetBinContent(iX+1, 2, 0)
-    Save['SF']      .SetBinContent(iX+1, 2, 0)
-    Save['Data_Eff'].SetBinError  (iX+1, 2, 0)
-    Save['MC_Eff']  .SetBinError  (iX+1, 2, 0)
-    Save['SF']      .SetBinError  (iX+1, 2, 0)
-  if EtaRegion == "BB":
+  #for iX in range(Ratio_nBinsX): # Fill GAP with 0
+  #  Save['Data_Eff_2D'].SetBinContent(iX+1, 2, 0)
+  #  Save['MC_Eff_2D']  .SetBinContent(iX+1, 2, 0)
+  #  Save['SF_2D']      .SetBinContent(iX+1, 2, 0)
+  #  Save['Data_Eff_2D'].SetBinError  (iX+1, 2, 0)
+  #  Save['MC_Eff_2D']  .SetBinError  (iX+1, 2, 0)
+  #  Save['SF_2D']      .SetBinError  (iX+1, 2, 0)
+  #if EtaRegion == "BB":
+  #  for iX in range(Ratio_nBinsX):
+  #    Save['Data_Eff_2D'].SetBinContent(iX+1, 1, Data_Eff.GetBinContent(iX+1))
+  #    Save['MC_Eff_2D']  .SetBinContent(iX+1, 1, MC_Eff.GetBinContent(iX+1)) 
+  #    Save['SF_2D']      .SetBinContent(iX+1, 1, Ratio.GetBinContent(iX+1)) 
+  #    Save['Data_Eff_2D'].SetBinError  (iX+1, 1, Data_Eff.GetBinError(iX+1))
+  #    Save['MC_Eff_2D']  .SetBinError  (iX+1, 1, MC_Eff.GetBinError(iX+1)) 
+  #    Save['SF_2D']      .SetBinError  (iX+1, 1, Ratio.GetBinError(iX+1)) 
+  #elif EtaRegion == "EC":
+  #  for iX in range(Ratio_nBinsX):
+  #    Save['Data_Eff_2D'].SetBinContent(iX+1, 3, Data_Eff.GetBinContent(iX+1))
+  #    Save['MC_Eff_2D']  .SetBinContent(iX+1, 3, MC_Eff.GetBinContent(iX+1)) 
+  #    Save['SF_2D']      .SetBinContent(iX+1, 3, Ratio.GetBinContent(iX+1)) 
+  #    Save['Data_Eff_2D'].SetBinError  (iX+1, 3, Data_Eff.GetBinError(iX+1))
+  #    Save['MC_Eff_2D']  .SetBinError  (iX+1, 3, MC_Eff.GetBinError(iX+1)) 
+  #    Save['SF_2D']      .SetBinError  (iX+1, 3, Ratio.GetBinError(iX+1)) 
+  #  Save['Data_Eff_2D'].SetBinContent(iX+2, 3, Data_Eff.GetBinContent(iX+1)) # EC SF has one less bin than Save (BB+EC), so save the same values
+  #  Save['MC_Eff_2D']  .SetBinContent(iX+2, 3, MC_Eff.GetBinContent(iX+1)) 
+  #  Save['SF_2D']      .SetBinContent(iX+2, 3, Ratio.GetBinContent(iX+1)) 
+  #  Save['Data_Eff_2D'].SetBinError  (iX+2, 3, Data_Eff.GetBinError(iX+1))
+  #  Save['MC_Eff_2D']  .SetBinError  (iX+2, 3, MC_Eff.GetBinError(iX+1)) 
+  #  Save['SF_2D']      .SetBinError  (iX+2, 3, Ratio.GetBinError(iX+1)) 
+  for iX in range(Ratio_nBinsX): # Fill GAP with 0
+    Save['Data_Eff_2D'].SetBinContent(iX+1, 3, 0)
+    Save['MC_Eff_2D']  .SetBinContent(iX+1, 3, 0)
+    Save['SF_2D']      .SetBinContent(iX+1, 3, 0)
+    Save['Data_Eff_2D'].SetBinError  (iX+1, 3, 0)
+    Save['MC_Eff_2D']  .SetBinError  (iX+1, 3, 0)
+    Save['SF_2D']      .SetBinError  (iX+1, 3, 0)
+  if EtaRegion == "IB":
     for iX in range(Ratio_nBinsX):
-      Save['Data_Eff'].SetBinContent(iX+1, 1, Data_Eff.GetBinContent(iX+1))
-      Save['MC_Eff']  .SetBinContent(iX+1, 1, MC_Eff.GetBinContent(iX+1)) 
-      Save['SF']      .SetBinContent(iX+1, 1, Ratio.GetBinContent(iX+1)) 
-      Save['Data_Eff'].SetBinError  (iX+1, 1, Data_Eff.GetBinError(iX+1))
-      Save['MC_Eff']  .SetBinError  (iX+1, 1, MC_Eff.GetBinError(iX+1)) 
-      Save['SF']      .SetBinError  (iX+1, 1, Ratio.GetBinError(iX+1)) 
+      Save['Data_Eff_2D'].SetBinContent(iX+1, 1, Data_Eff.GetBinContent(iX+1))
+      Save['MC_Eff_2D']  .SetBinContent(iX+1, 1, MC_Eff.GetBinContent(iX+1)) 
+      Save['SF_2D']      .SetBinContent(iX+1, 1, Ratio.GetBinContent(iX+1)) 
+      Save['Data_Eff_2D'].SetBinError  (iX+1, 1, Data_Eff.GetBinError(iX+1))
+      Save['MC_Eff_2D']  .SetBinError  (iX+1, 1, MC_Eff.GetBinError(iX+1)) 
+      Save['SF_2D']      .SetBinError  (iX+1, 1, Ratio.GetBinError(iX+1)) 
+  elif EtaRegion == "OB":
+    for iX in range(Ratio_nBinsX):
+      Save['Data_Eff_2D'].SetBinContent(iX+1, 2, Data_Eff.GetBinContent(iX+1))
+      Save['MC_Eff_2D']  .SetBinContent(iX+1, 2, MC_Eff.GetBinContent(iX+1)) 
+      Save['SF_2D']      .SetBinContent(iX+1, 2, Ratio.GetBinContent(iX+1)) 
+      Save['Data_Eff_2D'].SetBinError  (iX+1, 2, Data_Eff.GetBinError(iX+1))
+      Save['MC_Eff_2D']  .SetBinError  (iX+1, 2, MC_Eff.GetBinError(iX+1)) 
+      Save['SF_2D']      .SetBinError  (iX+1, 2, Ratio.GetBinError(iX+1)) 
   elif EtaRegion == "EC":
     for iX in range(Ratio_nBinsX):
-      Save['Data_Eff'].SetBinContent(iX+1, 3, Data_Eff.GetBinContent(iX+1))
-      Save['MC_Eff']  .SetBinContent(iX+1, 3, MC_Eff.GetBinContent(iX+1)) 
-      Save['SF']      .SetBinContent(iX+1, 3, Ratio.GetBinContent(iX+1)) 
-      Save['Data_Eff'].SetBinError  (iX+1, 3, Data_Eff.GetBinError(iX+1))
-      Save['MC_Eff']  .SetBinError  (iX+1, 3, MC_Eff.GetBinError(iX+1)) 
-      Save['SF']      .SetBinError  (iX+1, 3, Ratio.GetBinError(iX+1)) 
-    Save['Data_Eff'].SetBinContent(iX+2, 3, Data_Eff.GetBinContent(iX+1)) # EC SF has one less bin than Save (BB+EC), so save the same values
-    Save['MC_Eff']  .SetBinContent(iX+2, 3, MC_Eff.GetBinContent(iX+1)) 
-    Save['SF']      .SetBinContent(iX+2, 3, Ratio.GetBinContent(iX+1)) 
-    Save['Data_Eff'].SetBinError  (iX+2, 3, Data_Eff.GetBinError(iX+1))
-    Save['MC_Eff']  .SetBinError  (iX+2, 3, MC_Eff.GetBinError(iX+1)) 
-    Save['SF']      .SetBinError  (iX+2, 3, Ratio.GetBinError(iX+1)) 
+      Save['Data_Eff_2D'].SetBinContent(iX+1, 4, Data_Eff.GetBinContent(iX+1))
+      Save['MC_Eff_2D']  .SetBinContent(iX+1, 4, MC_Eff.GetBinContent(iX+1)) 
+      Save['SF_2D']      .SetBinContent(iX+1, 4, Ratio.GetBinContent(iX+1)) 
+      Save['Data_Eff_2D'].SetBinError  (iX+1, 4, Data_Eff.GetBinError(iX+1))
+      Save['MC_Eff_2D']  .SetBinError  (iX+1, 4, MC_Eff.GetBinError(iX+1)) 
+      Save['SF_2D']      .SetBinError  (iX+1, 4, Ratio.GetBinError(iX+1)) 
+    Save['Data_Eff_2D'].SetBinContent(iX+2, 4, Data_Eff.GetBinContent(iX+1)) # EC SF has one less bin than Save, so save the same values
+    Save['MC_Eff_2D']  .SetBinContent(iX+2, 4, MC_Eff.GetBinContent(iX+1)) 
+    Save['SF_2D']      .SetBinContent(iX+2, 4, Ratio.GetBinContent(iX+1)) 
+    Save['Data_Eff_2D'].SetBinError  (iX+2, 4, Data_Eff.GetBinError(iX+1))
+    Save['MC_Eff_2D']  .SetBinError  (iX+2, 4, MC_Eff.GetBinError(iX+1)) 
+    Save['SF_2D']      .SetBinError  (iX+2, 4, Ratio.GetBinError(iX+1)) 
   else:
     raise ValueError("Unknown EtaRegion: "+EtaRegion)
 
@@ -1305,11 +1356,11 @@ def CreateHists(NthJob):
   for year, eras in grouped_eras.items():
  
     # Call necessary files and hists first
-    TurnOnFiles = {}
-    TurnOnHists = {}
-    for era in eras:
-      TurnOnFiles[era] = TFile.Open(WorkDir+"/Out_TurnOn/TurnOn_"+era+".root")
-      TurnOnHists[era] = TurnOnFiles[era].Get("h_"+era+"_data_HEEP_barrel_Subt")
+    #TurnOnFiles = {}
+    #TurnOnHists = {}
+    #for era in eras:
+    #  TurnOnFiles[era] = TFile.Open(WorkDir+"/Out_TurnOn/TurnOn_"+era+".root")
+    #  TurnOnHists[era] = TurnOnFiles[era].Get("h_"+era+"_data_HEEP_barrel_Subt")
 
     OutFile = TFile.Open(WorkDir+"/Out_Eff/SF_"+year+"_"+str(NthJob)+".root","RECREATE")
 
@@ -1335,7 +1386,7 @@ def CreateHists(NthJob):
     for i, sample in enumerate(samples[year]):
 
       if i == len(samples[year])-1: continue # skip the data
-      if len(SplitChain(year,types[sample],sample,NthJob)) == 0: continue # NthJob out of range of this MC sample #FIXME logically imperfect... what if year==2016
+      if len(SplitChain(year,types[sample],sample,NthJob)) == 0: continue # NthJob out of range of this MC sample
   
       for era in eras:
         t1 = datetime.now()
@@ -1363,9 +1414,9 @@ def CreateHists(NthJob):
         # apply era-based turn on, even though the results can be merged
         this_era = mc_chains[i].GetCurrentFile().GetName().split('/')[-1].split('_')[1] # /gv0/DATA/SKFlat/Run2UltraLegacy_v3/2016preVFP/MC_SkimTree_EGammaTnP_HighPt/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/2024_12_03_013251/SKFlatNtuple_2016preVFP_MC_0.root
 
-        weight_pt = mc_chains[i].tag_Ele_pt_cor
-        if weight_pt >= 200: weight_pt = 199.5
-        TurnOn_Weight = TurnOnHists[this_era].GetBinContent(TurnOnHists[this_era].FindBin(weight_pt)) # let's simulate as if MC tag passed the trigger
+        #weight_pt = mc_chains[i].tag_Ele_pt_cor
+        #if weight_pt >= 200: weight_pt = 199.5
+        #TurnOn_Weight = TurnOnHists[this_era].GetBinContent(TurnOnHists[this_era].FindBin(weight_pt)) # let's simulate as if MC tag passed the trigger
 
         #if entry%10000==0:
         #  print "weight_pt:",mc_chains[i].tag_Ele_pt_cor,"TurnOn:",TurnOn_Weight
@@ -1394,10 +1445,23 @@ def CreateHists(NthJob):
               exit()
 
           for Charge in Charges:
-            if 'os' in Charge or 'zpt' in Charge:
-              this_weight *= mc_chains[i].zptweight # Zpt
-            if 'os' in Charge:
-              this_weight *= TurnOn_Weight # OS TurnOn
+            if "DYJetsToEE" in sample or "DYJetsToLL" in sample:
+              if 'os' in Charge or 'zpt' in Charge:
+                if "NoZpt" in WorkDir: pass
+                elif "ZptGYM" in WorkDir: this_weight *= mc_chains[i].zptweight_gym
+                elif "ZptGY" in WorkDir: this_weight *= mc_chains[i].zptweight_gy
+                elif "ZptG" in WorkDir: this_weight *= mc_chains[i].zptweight_g
+                else: this_weight *= mc_chains[i].zptweight # Zpt
+              else: # SS
+                if "SSZpt" in WorkDir:
+                  if "ZptGYM" in WorkDir: this_weight *= mc_chains[i].zptweight_gym
+                  elif "ZptGY" in WorkDir: this_weight *= mc_chains[i].zptweight_gy
+                  elif "ZptG" in WorkDir: this_weight *= mc_chains[i].zptweight_g
+                  else: this_weight *= mc_chains[i].zptweight # Zpt
+                else: pass
+            
+            #if 'os' in Charge:
+            #  this_weight *= TurnOn_Weight # OS TurnOn
             
             # ID iteration
             for ID, isPass in Probes.items():
@@ -1427,7 +1491,8 @@ def CreateHists(NthJob):
 
     if MC_total_entries != 0:
       OutFile.cd()
-      print "before add_overflow:", h_mc['BB']['ss_tot']['All'].GetBinContent(nBins), h_mc['BB']['ss_tot']['All'].GetBinContent(nBins+1)
+      #print "before add_overflow:", h_mc['BB']['ss_tot']['All'].GetBinContent(nBins), h_mc['BB']['ss_tot']['All'].GetBinContent(nBins+1)
+      print "before add_overflow:", h_mc['IB']['ss_tot']['All'].GetBinContent(nBins), h_mc['IB']['ss_tot']['All'].GetBinContent(nBins+1)
       for EtaRegion in It_EtaRegions:
         for Charge in It_Charges:
           if "tot" in Charge:
@@ -1437,7 +1502,8 @@ def CreateHists(NthJob):
               for IsPass in It_IsPasses:
                   h_mc[EtaRegion][Charge][Probe][IsPass] = add_overflow(h_mc[EtaRegion][Charge][Probe][IsPass])
                   h_mc[EtaRegion][Charge][Probe][IsPass].Write()
-      print "now:",h_mc['BB']['ss_tot']['All'].GetBinContent(nBins)
+      #print "now:",h_mc['BB']['ss_tot']['All'].GetBinContent(nBins)
+      print "now:",h_mc['IB']['ss_tot']['All'].GetBinContent(nBins)
 
     # Data
     data_chain = TChain("tnpEleIDs/fitter_tree")
@@ -1484,7 +1550,9 @@ def CreateHists(NthJob):
 
     # eta, charge cuts
     this_cuts = {
-                 "BB" : "(fabs(el_sc_eta)<1.4442)",
+                 #"BB" : "(fabs(el_sc_eta)<1.4442)",
+                 "IB" : "(fabs(el_sc_eta)<0.8)",
+                 "OB" : "(0.8<=fabs(el_sc_eta))&&(fabs(el_sc_eta)<1.4442)",
                  "EC" : "(1.566<fabs(el_sc_eta))&&(fabs(el_sc_eta)<2.5)",
                  "os" : "(el_q+tag_Ele_q==0)",
                  "ss" : "(el_q+tag_Ele_q!=0)",
@@ -1584,7 +1652,8 @@ def makeResults():
 
   SaveSF_pt_bins = np.array([35, 40, 45, 50, 60, 70, 80, 100, 150, 200, 300, 1000], dtype=np.float64)
   nBins_SaveSF_pt = len(SaveSF_pt_bins)-1
-  SaveSF_eta_bins = np.array([0, 1.4442, 1.566, 2.5], dtype='d')
+  #SaveSF_eta_bins = np.array([0, 1.4442, 1.566, 2.5], dtype='d')
+  SaveSF_eta_bins = np.array([0, 0.8, 1.4442, 1.566, 2.5], dtype='d')
   nBins_SaveSF_eta = len(SaveSF_eta_bins)-1
 
   for year, eras in grouped_eras.items():
@@ -1592,30 +1661,29 @@ def makeResults():
     if 'DY' in args.Syst:
       HistStackSetting = OrderedDict([
                                       ("DY NLO",     {'Color': kSpring+10, 'Idx': [0]                  }),
-                                      ("t#bar{t}",   {'Color': kRed      , 'Idx': [1, 2]               }),
-                                      ("SingleTop",  {'Color': kOrange-3 , 'Idx': [3, 4]               }),
-                                      ("Conversion", {'Color': kViolet   , 'Idx': [5, 6, 7, 8, 9, 10]  }),
-                                      ("Diboson",    {'Color': kBlue     , 'Idx': [11, 12, 13]         }),
-                                      ("Triboson",   {'Color': kBlue-7   , 'Idx': [14, 15, 16, 17]     }),
-                                      ("W#pmW#pm",   {'Color': kYellow   , 'Idx': [18, 19]             }),
-                                      ("etc",        {'Color': kPink+10  , 'Idx': [20, 21, 22, 23, 24] }),
+                                      ("t#bar{t}",   {'Color': kRed      , 'Idx': [1]                  }),
+                                      ("Conversion", {'Color': kViolet   , 'Idx': [2, 3, 4, 5, 6, 7]   }),
+                                      ("Diboson",    {'Color': kBlue     , 'Idx': [8, 9, 10]           }),
+                                      ("Triboson",   {'Color': kBlue-7   , 'Idx': [11, 12, 13, 14]     }),
+                                      ("W#pmW#pm",   {'Color': kYellow   , 'Idx': [15, 16]             }),
+                                      ("etc",        {'Color': kPink+10  , 'Idx': [17, 18, 19, 20, 21] }),
       ])
     else:
       HistStackSetting = OrderedDict([
                                       ("DYToEE",     {'Color': kSpring+10, 'Idx': [0]                  }),
                                       ("DYToTauTau", {'Color': kGreen    , 'Idx': [1]                  }),
-                                      ("t#bar{t}",   {'Color': kRed      , 'Idx': [2, 3]               }),
-                                      ("SingleTop",  {'Color': kOrange-3 , 'Idx': [4, 5]               }),
-                                      ("Conversion", {'Color': kViolet   , 'Idx': [6, 7, 8, 9, 10, 11] }),
-                                      ("Diboson",    {'Color': kBlue     , 'Idx': [12, 13, 14]         }),
-                                      ("Triboson",   {'Color': kBlue-7   , 'Idx': [15, 16, 17, 18]     }),
-                                      ("W#pmW#pm",   {'Color': kYellow   , 'Idx': [19, 20]             }),
-                                      ("etc",        {'Color': kPink+10  , 'Idx': [21, 22, 23, 24, 25] }),
+                                      ("t#bar{t}",   {'Color': kRed      , 'Idx': [2]                  }),
+                                      ("Conversion", {'Color': kViolet   , 'Idx': [3, 4, 5, 6, 7, 8]   }),
+                                      ("Diboson",    {'Color': kBlue     , 'Idx': [9, 10, 11]          }),
+                                      ("Triboson",   {'Color': kBlue-7   , 'Idx': [12, 13, 14, 15]     }),
+                                      ("W#pmW#pm",   {'Color': kYellow   , 'Idx': [16, 17]             }),
+                                      ("etc",        {'Color': kPink+10  , 'Idx': [18, 19, 20, 21, 22] }),
       ])
 
 
     # Call necessary files first
-    HistFiles = []
+    HistFiles = [] # to merge 2016preVFP and 2016postVFP
+    HistFiles_QCDSide = []
     for era in eras: # NOTE here eras are sub-year (of 2016)
       #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/SF_"+era+".root"))
       #HistFiles.append(TFile.Open("/data6/Users/jalmond_public/For_Jihun/Version3/SF_"+era+".root")) #V3 NLO
@@ -1639,11 +1707,46 @@ def makeResults():
             exit()
         else:
           HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/Version10_NNLO/SF_"+era+".root")) #V10: fix CFSF and RECO SF duplication issue, tag is now HEEP+medium charge (but HEEP SF still), remove probe pt cut in the skim, remove ev.PassTrigger for MC events
+      elif "SkimV2" in WorkDir:
+        if 'NoZpt' in WorkDir:
+          HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_NoZpt"+MassName+"/SF_"+era+".root"))
+        elif 'SSZptG' in WorkDir:
+          HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_SSZptG"+MassName+"/SF_"+era+".root"))
+        elif 'ZptGYM' in WorkDir:
+          HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_ZptGYM"+MassName+"/SF_"+era+".root"))
+        elif 'ZptGY' in WorkDir:
+          HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_ZptGY"+MassName+"/SF_"+era+".root"))
+        elif 'ZptG' in WorkDir:
+          if 'DY' in args.Syst:
+            HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_ZptG_SplitB"+MassName+"_Syst_DY/SF_"+era+".root"))
+          elif 'CFSF' in args.Syst:
+            if 'Up' in args.Syst:
+              HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_ZptG_SplitB"+MassName+"_Syst_CFSF_Up/SF_"+era+".root"))
+            elif 'Down' in args.Syst:
+              HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_ZptG_SplitB"+MassName+"_Syst_CFSF_Down/SF_"+era+".root"))
+            else:
+              print "CFSF should be accompanied with Up or Down."
+              print "Please use --syst CFSF Up/Down."
+              exit()
+          elif 'QCD' in args.Syst:
+            if 'Up' in args.Syst or 'Down' in args.Syst or 'Side' in args.Syst:
+              HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_ZptG_SplitB"+MassName+"/SF_"+era+".root"))
+              HistFiles_QCDSide.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_ZptG_SplitB_M110to150/SF_"+era+".root"))
+            else:
+              print "Possible options with QCD syst: Up/Down/Side."
+              print "Exiting ..."
+              exit()
+          else:
+            HistFiles.append(TFile.Open("/data9/Users/jihkim_public/TnPEleHighPt/KinHists/SkimV2_NNLO_ZptG_SplitB"+MassName+"/SF_"+era+".root"))
 
     # Merge 2016
     if len(eras) > 1:
       this_HistFile = MergeFiles(HistFiles, "2016")
     else: this_HistFile = HistFiles[0]
+    if 'QCD' in args.Syst and 'Side' in args.Syst:
+      if len(eras) > 1:
+        this_HistFile_QCDSide = MergeFiles(HistFiles_QCDSide, "2016")
+      else: this_HistFile_QCDSide = HistFiles_QCDSide[0]
 
     # Call h_mc
     h_mc = {}
@@ -1652,15 +1755,31 @@ def makeResults():
       h_mc[EtaRegion] = {}
       for Charge in ["os","ss_tot"]: # mc actually needs os and ss_tot
         h_mc[EtaRegion][Charge] = {}
-        # ID iteration
-        for Probe in It_Probes:
-          h_mc[EtaRegion][Charge][Probe] = {}
-          for IsPass in It_IsPasses:
-            #h_mc[EtaRegion][Charge][Probe][IsPass] = this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass) if "tot" in Charge else [this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass) for sample in samples[year][:-1]]
-            h_mc[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass)) if "tot" in Charge else [merge_lastbins(this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass)) for sample in samples[year][:-1]]
-        # All probes
-        #h_mc[EtaRegion][Charge]['All'] = this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion) if "tot" in Charge else [this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge) for sample in samples[year][:-1]] 
-        h_mc[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion)) if "tot" in Charge else [merge_lastbins(this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge)) for sample in samples[year][:-1]] 
+        if Charge=="os":
+          # ID iteration
+          for Probe in It_Probes:
+            h_mc[EtaRegion][Charge][Probe] = {}
+            for IsPass in It_IsPasses:
+              h_mc[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass)) if "tot" in Charge else [merge_lastbins(this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass)) for sample in samples[year][:-1]]
+          # All probes
+          h_mc[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion)) if "tot" in Charge else [merge_lastbins(this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge)) for sample in samples[year][:-1]] 
+        elif Charge=="ss_tot":
+          if 'QCD' in args.Syst and 'Side' in args.Syst: # QCD sideband
+            # ID iteration
+            for Probe in It_Probes:
+              h_mc[EtaRegion][Charge][Probe] = {}
+              for IsPass in It_IsPasses:
+                h_mc[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile_QCDSide.Get("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass)) if "tot" in Charge else [merge_lastbins(this_HistFile_QCDSide.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass)) for sample in samples[year][:-1]]
+            # All probes
+            h_mc[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile_QCDSide.Get("pt_"+year+"_"+Charge+"_"+EtaRegion)) if "tot" in Charge else [merge_lastbins(this_HistFile_QCDSide.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge)) for sample in samples[year][:-1]] 
+          else: # Z peak mass
+            # ID iteration
+            for Probe in It_Probes:
+              h_mc[EtaRegion][Charge][Probe] = {}
+              for IsPass in It_IsPasses:
+                h_mc[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion+"_"+Probe+"_"+IsPass)) if "tot" in Charge else [merge_lastbins(this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass)) for sample in samples[year][:-1]]
+            # All probes
+            h_mc[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile.Get("pt_"+year+"_"+Charge+"_"+EtaRegion)) if "tot" in Charge else [merge_lastbins(this_HistFile.Get("pt_"+year+"_"+nameFilter[sample]+"_"+EtaRegion+"_"+Charge)) for sample in samples[year][:-1]] 
 
     IDSFOutFile = TFile.Open(WorkDir+"/ID/SF_"+year+MassName+SystName+".root","RECREATE")
     TrigSFOutFile = TFile.Open(WorkDir+"/Trig/SF_"+year+MassName+SystName+".root","RECREATE")
@@ -1714,15 +1833,31 @@ def makeResults():
       h_data[EtaRegion] = {}
       for Charge in ["os","ss"]: # data needs os and ss
         h_data[EtaRegion][Charge] = {}
-        # ID iteration
-        for Probe in It_Probes:
-          h_data[EtaRegion][Charge][Probe] = {}
-          for IsPass in It_IsPasses:
-            #h_data[EtaRegion][Charge][Probe][IsPass] = this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass)
-            h_data[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass))
-        # All probes
-        #h_data[EtaRegion][Charge]['All'] = this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge)
-        h_data[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge))
+        if Charge=="os":
+          # ID iteration
+          for Probe in It_Probes:
+            h_data[EtaRegion][Charge][Probe] = {}
+            for IsPass in It_IsPasses:
+              h_data[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass))
+          # All probes
+          h_data[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge))
+        elif Charge=="ss":
+          if 'QCD' in args.Syst and 'Side' in args.Syst: # QCD sideband
+            # ID iteration
+            for Probe in It_Probes:
+              h_data[EtaRegion][Charge][Probe] = {}
+              for IsPass in It_IsPasses:
+                h_data[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile_QCDSide.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass))
+            # All probes
+            h_data[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile_QCDSide.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge))
+          else: # Z peak mass
+            # ID iteration
+            for Probe in It_Probes:
+              h_data[EtaRegion][Charge][Probe] = {}
+              for IsPass in It_IsPasses:
+                h_data[EtaRegion][Charge][Probe][IsPass] = merge_lastbins(this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge+"_"+Probe+"_"+IsPass))
+            # All probes
+            h_data[EtaRegion][Charge]['All'] = merge_lastbins(this_HistFile.Get("pt_"+year+"_data_"+EtaRegion+"_"+Charge))
   
     # Now stack OS bundles and get total error
     h_Stack = {}
@@ -1755,9 +1890,9 @@ def makeResults():
       for Probe in It_Probes:
         if Probe not in h_SFs:
           h_SFs[Probe] = {
-                          'Data_Eff' : TH2D("DataEff_"+Probe, "DataEff_"+Probe, nBins_SaveSF_pt, SaveSF_pt_bins, nBins_SaveSF_eta, SaveSF_eta_bins),
-                          'MC_Eff'   : TH2D("MCEff_"+Probe, "MCEff_"+Probe, nBins_SaveSF_pt, SaveSF_pt_bins, nBins_SaveSF_eta, SaveSF_eta_bins),
-                          'SF'       : TH2D("SF_"+Probe, "SF_"+Probe, nBins_SaveSF_pt, SaveSF_pt_bins, nBins_SaveSF_eta, SaveSF_eta_bins),
+                          'Data_Eff_2D' : TH2D("DataEff_2D_"+Probe, "DataEff_2D_"+Probe, nBins_SaveSF_pt, SaveSF_pt_bins, nBins_SaveSF_eta, SaveSF_eta_bins),
+                          'MC_Eff_2D'   : TH2D("MCEff_2D_"+Probe, "MCEff_2D_"+Probe, nBins_SaveSF_pt, SaveSF_pt_bins, nBins_SaveSF_eta, SaveSF_eta_bins),
+                          'SF_2D'       : TH2D("SF_2D_"+Probe, "SF_2D_"+Probe, nBins_SaveSF_pt, SaveSF_pt_bins, nBins_SaveSF_eta, SaveSF_eta_bins),
           }
         for IsPass in It_IsPasses:
 
@@ -1768,9 +1903,10 @@ def makeResults():
               h_data[EtaRegion]['ss'][Probe][IsPass].Scale(1.25)
             elif "Down" in args.Syst:
               h_data[EtaRegion]['ss'][Probe][IsPass].Scale(0.75)
+            elif "Side" in args.Syst: pass
             else:
-              print "QCD should be accompanied with Up or Down."
-              print "Please use --syst QCD Up/Down."
+              print "Possible options with QCD syst: Up/Down/Side."
+              print "Exiting ..."
               exit()
           if "NonNeg" in WorkDir:
             for iBin in range(h_data[EtaRegion]['ss'][Probe][IsPass].GetNbinsX()):
@@ -1801,9 +1937,10 @@ def makeResults():
           h_data[EtaRegion]['ss']['All'].Scale(1.25)
         elif "Down" in args.Syst:
           h_data[EtaRegion]['ss']['All'].Scale(0.75)
+        elif 'Side' in args.Syst: pass
         else:
-          print "QCD should be accompanied with Up or Down."
-          print "Please use --syst QCD Up/Down."
+          print "Possible options with QCD syst: Up/Down/Side."
+          print "Exiting ..."
           exit()
       if "NonNeg" in WorkDir:
         for iBin in range(h_data[EtaRegion]['ss']['All'].GetNbinsX()):
@@ -1843,14 +1980,17 @@ def makeResults():
 
 def SystSumUp():
 
-  SystList = ["_Syst_DY","_Syst_CFSF_Up","_Syst_CFSF_Down","_Syst_QCD_Up","_Syst_QCD_Down"]
+  SystList = ["_Syst_DY","_Syst_QCD_Side","_Syst_CFSF_Up","_Syst_CFSF_Down","_Syst_QCD_Up","_Syst_QCD_Down"]
 
   for year in grouped_eras.keys():
     for this_measure in args.Measure:
-      this_file_nominal = TFile.Open(WorkDir+"/"+this_measure+"/SF_"+year+MassName+".root","UPDATE")
-      this_file_systs = [TFile.Open(WorkDir+"/"+this_measure+"/SF_"+year+MassName+this_syst+".root","READ") for this_syst in SystList]
+      print "opening...",WorkDir+"/"+this_measure+"/SF_"+year+"_M70to110.root"
+      this_file_nominal = TFile.Open(WorkDir+"/"+this_measure+"/SF_"+year+"_M70to110.root","READ")
+      this_file_systs = [TFile.Open(WorkDir+"/"+this_measure+"/SF_"+year+"_M70to110"+this_syst+".root","READ") for this_syst in SystList]
+      this_file_out = TFile.Open(WorkDir+"/"+this_measure+"/SF_"+year+"_M70to110_SystCombined.root","RECREATE")
 
-      this_file_nominal.cd()
+      this_file_out.cd()
+
       nominal_keys = list(this_file_nominal.GetListOfKeys())
       for this_key in nominal_keys:
         this_obj = this_key.ReadObj()
@@ -1859,28 +1999,246 @@ def SystSumUp():
         this_hist_stat.SetTitle(this_hist_name+"_stat")
 
         this_hist_systs = [this_file_syst.Get(this_hist_name) for this_file_syst in this_file_systs]
+        #print this_hist_name
+        #print this_hist_systs
 
-        for iX in range(1, this_obj.GetNbinsX()+1):
-          for iY in range(1, this_obj.GetNbinsY()+1):
-            nom_error = this_obj.GetBinError(iX,iY)
-            syst_errors_naive = [abs(this_hist_syst.GetBinContent(iX,iY)-this_obj.GetBinContent(iX,iY)) for this_hist_syst in this_hist_systs]
+        if "1D" in this_hist_name:
+          for iX in range(1, this_obj.GetNbinsX()+1):
+            nom_error = this_obj.GetBinError(iX)
+            syst_errors_naive = [abs(this_hist_syst.GetBinContent(iX)-this_obj.GetBinContent(iX)) for this_hist_syst in this_hist_systs]
             syst_errors = []
-            syst_errors.append(syst_errors_naive[0])
-            syst_errors.append(max(syst_errors_naive[1],syst_errors_naive[2]))
-            syst_errors.append(max(syst_errors_naive[3],syst_errors_naive[4]))
+            syst_errors.append(syst_errors_naive[0]) # DY
+            if iX!=this_obj.GetNbinsX(): syst_errors.append(0)
+            else: syst_errors.append(syst_errors_naive[1]) # QCD Side only affects the last pt bin
+            syst_errors.append(max(syst_errors_naive[2],syst_errors_naive[3])) # CFSF Up/Down
+            syst_errors.append(max(syst_errors_naive[4],syst_errors_naive[5])) # QCD Up/Down
 
             new_error = nom_error**2
             for syst_error in syst_errors:
               new_error += syst_error**2
             new_error = new_error**0.5
-            this_obj.SetBinError(iX, iY, new_error)
+            this_obj.SetBinError(iX, new_error)
+
+        elif "2D" in this_hist_name:
+          for iX in range(1, this_obj.GetNbinsX()+1):
+            for iY in range(1, this_obj.GetNbinsY()+1):
+              nom_error = this_obj.GetBinError(iX,iY)
+              syst_errors_naive = [abs(this_hist_syst.GetBinContent(iX,iY)-this_obj.GetBinContent(iX,iY)) for this_hist_syst in this_hist_systs]
+              syst_errors = []
+              syst_errors.append(syst_errors_naive[0]) # DY
+              if iX!=this_obj.GetNbinsX(): syst_errors.append(0)
+              else: syst_errors.append(syst_errors_naive[1]) # QCD Side only affects the last pt bin
+              syst_errors.append(syst_errors_naive[1]) # QCD Side
+              syst_errors.append(max(syst_errors_naive[2],syst_errors_naive[3])) # CFSF Up/Down
+              syst_errors.append(max(syst_errors_naive[4],syst_errors_naive[5])) # QCD Up/Down
+
+              new_error = nom_error**2
+              for syst_error in syst_errors:
+                new_error += syst_error**2
+              new_error = new_error**0.5
+              this_obj.SetBinError(iX, iY, new_error)
 
         this_hist_stat.Write()
         this_obj.Write("", TObject.kOverwrite) #https://root.cern.ch/doc/master/classTObject.html#aeac9082ad114b6702cb070a8a9f8d2ed : first argument --> save the hist with the original name, second --> overwrite. If kOverwrite not specified, there will be two objects having the same name.
 
+      # Close file
       this_file_nominal.Close()
       for this_file_syst in this_file_systs:
         this_file_syst.Close()
+      this_file_out.Close()
+      #### Syst combine done.
+
+      # Now draw new 1D plot...
+
+      # Open the combined file
+      this_file_out = TFile.Open(WorkDir+"/"+this_measure+"/SF_"+year+"_M70to110_SystCombined.root","READ")
+
+      #for EtaRegion in ["BB", "EC"]:
+      for EtaRegion in ["IB", "OB", "EC"]:
+        for Probe in It_Probes:
+          if Probe=="HNLMVA":
+            NameProbe="HNLMVA_Old"
+            SaveDir = "ID/Main"
+          elif Probe=="HNLMVA_HighPt":
+            NameProbe="HNLMVA"
+            SaveDir = "ID/Main"
+          elif Probe=="MVABaseline":
+            NameProbe="MVABaseline"
+            SaveDir = "ID/Main"
+          elif Probe=="passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg1":
+            NameProbe="Ele23Leg1"
+            SaveDir = "Trig/Main"
+          elif Probe=="passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg2":
+            NameProbe="Ele12Leg2"
+            SaveDir = "Trig/Main"
+          else:
+            NameProbe=Probe
+            SaveDir = "ID/Support"
+
+          OutName = "SF_Pt_"+str(year)+"_"+EtaRegion+"_"+NameProbe+MassName+"_SystCombined"
+
+          if this_measure not in SaveDir: continue
+          #print "getting","Data_Eff_1D_"+EtaRegion+"_"+Probe,"..."
+          this_data_eff = this_file_out.Get("Data_Eff_1D_"+EtaRegion+"_"+Probe)
+          this_mc_eff = this_file_out.Get("MC_Eff_1D_"+EtaRegion+"_"+Probe)
+          this_sf = this_file_out.Get("SF_1D_"+EtaRegion+"_"+Probe)
+          this_nBins = this_data_eff.GetNbinsX()
+
+          c1 = TCanvas("c1_"+OutName,"",1000,1000)
+          c1.cd()
+
+          gStyle.SetPadTickX(1)
+          gStyle.SetPadTickY(1)
+
+          c_up = TPad("c_up", "", 0, 0.25, 1, 1)
+          c_up.SetTopMargin(0.08)
+          c_up.SetBottomMargin(0.017)
+          c_up.SetLeftMargin(0.14)
+          c_up.SetRightMargin(0.04)
+          c_up.SetLogx()
+          c_up.Draw()
+          c_up.cd()
+
+          c_up_min, c_up_max = GetMinMax(this_data_eff, this_mc_eff)
+          c_up_min *= 0.9
+
+          this_data_eff.SetTitle("")
+          this_data_eff.SetStats(0)
+          this_data_eff.GetXaxis().SetLabelSize(0)
+          this_data_eff.GetYaxis().SetLabelSize(0.045)
+          this_data_eff.GetYaxis().SetTitle("Efficiency")
+          this_data_eff.GetYaxis().SetTitleSize(0.075)
+          this_data_eff.GetYaxis().SetTitleOffset(0.7)
+          this_data_eff.GetYaxis().SetRangeUser(0.8, 1.1)
+          if Probe=="HNLMVA_HighPt" or Probe=="HNLMVA": this_data_eff.GetYaxis().SetRangeUser(0.55, 1.1)
+          elif "HNLMVA" in Probe and "No" in Probe:     this_data_eff.GetYaxis().SetRangeUser(0.7, 1.1)
+          this_data_eff.SetMarkerStyle(20)
+          this_data_eff.SetMarkerColor(kBlack)
+          this_data_eff.SetLineColor(kBlack)
+          this_data_eff.Draw("ep")
+          this_mc_eff.SetMarkerStyle(20)
+          this_mc_eff.SetMarkerColor(kRed)
+          this_mc_eff.SetLineWidth(1)
+          this_mc_eff.SetLineColor(kRed)
+          this_mc_eff.Draw("ep same")
+
+          lg = TLegend(0.3, 0.72, 0.5, 0.87)
+          lg.AddEntry(this_data_eff, "Data", "lep")
+          lg.AddEntry(this_mc_eff, "MC", "lep")
+          lg.SetBorderSize(0)
+          lg.SetTextSize(0.03)
+          lg.SetFillStyle(1001)
+          lg.SetShadowColor(0)
+          lg.Draw("same")
+ 
+          txt_lumi = TLatex()
+          txt_lumi.SetNDC()
+          txt_lumi.SetTextSize(0.05)
+          txt_lumi.SetTextAlign(32)
+          txt_lumi.SetTextFont(42)
+          txt_lumi.DrawLatex(.95,.96, luminosity[year]+" fb^{-1} (13 TeV)")
+
+          IDnames = {
+            'HNL_ULID_Split_1'   : 'Trigger Emulation',
+            'HNL_ULID_Split_2'   : 'MVA w/o iso Loose',
+            'HNL_ULID_Split_3'   : 'IP and SIP',
+            'HNL_ULID_Split_4'   : 'MiniIso, NmissHit',
+            'HNL_ULID_Split_4b'  : 'TrkIso, NmissHit',
+            'HNL_ULID_Split_5'   : 'Medium Charge',
+            'HNL_ULID_Split_5b'  : 'Tight Charge',
+            'HNL_ULID_Split_6'   : 'CF MVA',
+            'HNL_ULID_Split_7'   : 'Fake MVA',
+            'HNL_ULID_Split_7b'  : '',
+            'HNL_ULID_Split_7c'  : '',
+            'HNL_ULID_Split_7d'  : '',
+            'HNL_ULID_Split_7e'  : '',
+            'HNL_ULID_Split_7f'  : '',
+            'HNL_ULID_Split_7g'  : '',
+            'HNL_ULID_Split_7h'  : '',
+            'HNL_ULID_Split_8'   : 'Conv MVA',
+            'HNL_ULID_Split_8b'  : 'Conv MVA w/ low pt',
+            'HEEP'               : 'HEEP',
+            'HNLMVA'             : 'MVA ID old',
+            'HNLMVA_NoCF'        : 'MVA ID (No CF)',
+            'HNLMVA_NoConv'      : 'MVA ID (No Conv)',
+            'HNLMVA_NoFake'      : 'MVA ID (No Fake)',
+            'HNLMVA_HighPt'      : 'MVA ID',
+            'HNLMVA_HighPt_Tight': 'MVA ID w/ tighter cut',
+            'CutBasedTight94XV2' : 'POG Tight',
+            'HNLMVA_TrkIso'      : 'MVA ID w/ TrkIso',
+            'HNLHeep'            : 'MVA + HEEP combi.',
+            'HNLMVAFake'         : 'MVA Fake',
+            'HNLMVACF'           : 'MVA CF',
+            'HNLMVAConv'         : 'MVA Conv',
+            'MVALoose'           : 'Basic sel. for MVA',
+            'MVABaseline'        : 'Sel. before MVA',
+            'passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg1' : 'Ele23Leg1',
+            'passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg2' : 'Ele12Leg2',
+          }
+          txt_id = TLatex()
+          txt_id.SetNDC()
+          txt_id.SetTextSize(0.06)
+          txt_id.SetTextAlign(12)
+          txt_id.SetTextFont(42)
+          txt_id.DrawLatex(.58,.86, IDnames[Probe])
+
+          txt_eta = TLatex()
+          txt_eta.SetNDC()
+          txt_eta.SetTextSize(0.06)
+          txt_eta.SetTextAlign(12)
+          txt_eta.SetTextFont(42)
+          #txt_eta.DrawLatex(.58,.78, "|#eta| < 1.4442") if EtaRegion=='BB' else txt_eta.DrawLatex(.58,.78, "1.566 < |#eta| < 2.5")
+          if EtaRegion=='IB':
+            txt_eta.DrawLatex(.58,.78, "|#eta| < 0.8")
+          elif EtaRegion=='OB':
+            txt_eta.DrawLatex(.58,.78, "0.8 < |#eta| < 1.4442")
+          else:
+            txt_eta.DrawLatex(.58,.78, "1.566 < |#eta| < 2.5")
+
+          c1.cd()
+
+          c_down = TPad("c_down", "", 0, 0, 1, 0.25)
+          c_down.SetTopMargin(0.03)
+          c_down.SetBottomMargin(0.35)
+          c_down.SetLeftMargin(0.14)
+          c_down.SetRightMargin(0.04)
+          c_down.SetGridx()
+          c_down.SetGridy()
+          c_down.SetLogx()
+          c_down.Draw()
+          c_down.cd()
+
+          c_down_min, c_down_max = GetMinMax(this_sf)
+          c_down_min = max(0.9, c_down_min*0.95)
+          c_down_max = 1.+(1.-c_down_min)
+
+          this_sf.SetTitle("")
+          this_sf.SetStats(0)
+          this_sf.GetXaxis().SetTitle("p_{T} [GeV]")
+          this_sf.GetYaxis().SetTitle("#frac{Data}{MC}")
+          this_sf.GetYaxis().SetRangeUser(0.9, 1.1)
+          if Probe=="HNLMVA_HighPt" or Probe=="HNLMVA": this_sf.GetYaxis().SetRangeUser(0.75, 1.1)
+          this_sf.GetXaxis().SetLabelSize(0.12)
+          this_sf.GetYaxis().SetLabelSize(0.08)
+          this_sf.GetXaxis().SetTitleSize(0.16)
+          this_sf.GetYaxis().SetTitleSize(0.14)
+          this_sf.GetXaxis().SetTitleOffset(0.9)
+          this_sf.GetYaxis().SetTitleOffset(0.4)
+          this_sf.SetLineColor(1)
+          this_sf.SetMarkerColor(1)
+          this_sf.SetMarkerStyle(20)
+          this_sf.Draw("ep")
+
+          minRange = this_data_eff.GetBinLowEdge(1)
+          maxRange = this_data_eff.GetBinLowEdge(this_nBins) + this_data_eff.GetBinWidth(this_nBins)
+
+          line = TLine(minRange, 1., maxRange, 1.)
+          line.SetLineWidth(1)
+          line.SetLineColor(2)
+          line.Draw()
+
+          c1.SaveAs(WorkDir+"/"+SaveDir+"/"+str(year)+"/SF"+MassName+"/"+OutName+".png")
+          del c1
 
 if __name__ == '__main__':
   beginTime = datetime.now()
