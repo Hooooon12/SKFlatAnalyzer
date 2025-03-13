@@ -26,8 +26,11 @@ input_path = os.getcwd()
 #CardRep = "sr3_inv"
 #CardRep = "sr3_InvMET" # new CR where Bjet and InvMET split
 #CardRep = "sronly_sr3_syst" # NoCR and Syst
-CardRep = "sronly_sr123" # NoCR and NoSyst
-grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick everything by grepping 'card')
+#CardRep = "sronly_sr123" # NoCR and NoSyst
+CardRep = "syst.txt" if "Run2" in args.eras else "sr3_inv"
+#CardRep = "sronly_sr3_syst" if "Run2" in args.eras else "sr3_inv"
+#grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick everything by grepping 'card')
+grepRegion = ' | grep card | grep '+CardRep if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick everything by grepping 'card')
 #grepRegion = ' | grep card | grep -Ev "sr123"' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick sr1, 2, 3 separate limits by grepping all but removing sr123)
 
 #tags = ["_sronly"]
@@ -50,19 +53,26 @@ grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep '+CardRep # Whe
 #tags = ["_sronly_sr1","_sronly_sr2","_sronly_sr3","_sronly_sr123","_sronly_sr","_sronly_sr1_syst","_sronly_sr2_syst","_sronly_sr3_syst","_sronly_sr123_syst","_sronly_sr_syst"]
 #tags = ["_sronly_sr123_syst"] # no CR, sr123 combined, with Syst
 #tags = ["_sronly_sr1_syst","_sronly_sr2_syst","_sronly_sr3_syst"] # no CR, sr1, 2, 3, separate, with Syst
-tags = ["_sronly_sr123"] # NoCR, NoSyst
+#tags = ["_sronly_sr123"] # NoCR, NoSyst
+#tags = ["_sronly_sr2_syst"] # no CR, sr1, 2, 3, separate, with Syst
+
+## CR limit test
+tags = ["_sr2_syst_Combined_OnlyWZNormToAll","_sr2_syst_Combined_WZZGNormToAll"]
 
 isRun2 = ""
 if "Run2" in args.eras:
   #tags = ["_syst"]
   #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
-  tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+  #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+  #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+  #tags = ["_sr2_syst_Combined"]
+  #tags = ["_sronly_sr2_syst"] # no CR, sr1, 2, 3, separate, with Syst
   isRun2 = "Run2_"
 
 for dirName in args.dirNames:
 
   greps = 'ls '+dirName+grepRegion+' | grep '*int(bool(args.eras))+' '.join(["-e "+era for era in args.eras])+' | grep '*int(bool(args.channels))+' '.join(["-e "+channel for channel in args.channels])+' | grep '*int(bool(args.masses))+' '.join(["-e M"+mass+"_" for mass in args.masses])+' | grep '*int(bool(args.signals))+' '.join(["-e "+signal for signal in args.signals]) # if any of eras, chs, ms exists, this line greps it in order. if not, just ls the directory
-  #if len(args.signals)==0: greps += ' | grep -Ev \"DYVBF|SSWW\"' # When you don't want DYVBF, SSWW specific results
+  if len(args.signals)==0: greps += ' | grep -Ev \"DYVBF|SSWW\"' # When you don't want DYVBF, SSWW specific results
   #print greps
 
   cards = cmd.getoutput(greps).replace('_'+CardRep+'.txt','').replace('_syst.txt','').split('\n')

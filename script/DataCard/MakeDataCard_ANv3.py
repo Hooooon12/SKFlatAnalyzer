@@ -13,7 +13,8 @@ parser = argparse.ArgumentParser(description='script for creating or merging dat
 parser.add_argument('--CnC', action='store_true', help='Cut and count limit')
 parser.add_argument('--Decorr', action='store_true', help='Decorrelate fake, CF region by region')
 parser.add_argument('--JetDecorr', action='store_true', help='Decorrelate jet scale/res additionally')
-parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
+#parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
+parser.add_argument('--CR', nargs='*', help='Make datacards with manual CR inputs. (Default : SR only)') # Modify L164 with this line
 parser.add_argument('--Syst', action='store_true', help='Add systematics into the datacards')
 parser.add_argument('--Combine', choices=['CR','SR','Era'], help='CR --> Merge CR and SR datacards in one era,\nEra --> Merge pre-processed (CR+SR) over the Run2,\nSR --> Merge SR only datacards over the Run2')
 parser.add_argument('--Type', choices=['CR', 'SR'], help="(Optional) If --Combine Era is used, specify whether to merge only CR or SR.")
@@ -33,13 +34,12 @@ pwd = os.getcwd()
 #eras = ["2017"]
 #eras = ["2018"]
 eras = ["2016preVFP","2016postVFP","2017","2018"]
-#eras = ["2016preVFP","2016postVFP","2017"]
-#eras = ["2016preVFP","2016postVFP","2018"]
+
 channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
 #channels = ["EE"]
-#channels = ["EE"]
 #channels = ["EE","EMu"]
+#channels = ["MuMu"]
 #masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses = ["M100","M1000","M10000"]
 #masses = ["M500","M1000","M5000"]
@@ -53,18 +53,22 @@ channels = ["MuMu","EE","EMu"]
 #masses_EMu = ["M250","M1000","M10000"]
 #masses = ["M100","M250","M1000","M10000"]
 #masses_EMu = ["M100","M250","M1000","M10000"]
-#masses = ["M100","M500","M1000","M10000"]
-#masses_EMu = ["M100","M500","M1000","M10000"]
+#masses = ["M100","M500","M1000","M1500","M5000"]
+#masses_EMu = ["M100","M500","M1000","M1500","M5000"]
+masses = ["M1500"]
+masses_EMu = ["M1500"]
 
 ## Full mass ranges
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
 #masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+#masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 
 ## signal processes
 #signals = ["_DYVBF","_SSWW"]
-signals = [""]
+#signals = [""]
+#signals = ["_DYVBF","_SSWW",""]
+signals = ["_SSWW"]
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR43/LimitInputs/"
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/LimitInputs/"
@@ -110,14 +114,20 @@ CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
 #InputWPs = ["PR95_HNL_ULID"]
 #InputWPs = ["PR97_HNL_ULIDv2"]
 #InputWPs = ["ANv3_HNL_ULIDv2"]
-InputWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet","HEMJet_HNL_ULIDv2_ScaleHEMJet","TuneP_HNL_ULIDv2_CompareTuneP","TuneP_HNTightV2_CompareTuneP","TuneP_POGTight_CompareTuneP"]
-#InputWPs = ["ANv4_HNL_ULIDv2_RunSyst"]
-if args.Decorr:
-  InputWPs = [WP+"_Decorr" for WP in InputWPs]
-  range_decorr = range(20,25)
-  if args.JetDecorr:
-    InputWPs = [WP+"_JetDecorr" for WP in InputWPs]
-    range_decorr = range(20,27)
+#InputWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet","HEMJet_HNL_ULIDv2_ScaleHEMJet","TuneP_HNL_ULIDv2_CompareTuneP","TuneP_HNTightV2_CompareTuneP","TuneP_POGTight_CompareTuneP"]
+InputWPs = ["ANv4_HNL_ULIDv2_RunSyst"]
+
+if args.CnC:
+  InputWPs = [WP+"_CnC" for WP in InputWPs]
+if args.Syst:
+  if args.Decorr:
+    InputWPs = [WP+"_Decorr" for WP in InputWPs]
+    range_decorr = range(20,25)
+    if args.JetDecorr:
+      InputWPs = [WP+"_JetDecorr" for WP in InputWPs]
+      range_decorr = range(20,27)
+else:
+  InputWPs = [WP+"_Decorr_JetDecorr" for WP in InputWPs] # FIXME use syst input as a default; can be changed later
 
 #OutputTag = "_NOsr2inv"
 #OutputTag = "_NOsr2inv_NOzgcr1"
@@ -149,9 +159,21 @@ if not args.Syst: OutputTag+="_NoSyst"  # NoSyst
 #regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_bjet","sr2_bjet","sr3_bjet","cf_cr1","cf_cr2","cf_cr3","wz_cr1","wz_cr2","wz_cr3","zg_cr3","zz_cr2","zz_cr3"]
 #regions_cr = ["cf_cr","sr1_inv","sr2_inv","sr3_inv","ww_cr","wz_cr","zg_cr","zz_cr"]
 #regions_cr = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr2","zz_cr3"]
-regions_cr = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr3"] # Check 2016, 2017 ww_cr later, there were no entries. Other regions were channel-dependent.
+#regions_cr = ["sr1_inv","sr2_inv","sr3_inv"] # Inverted only
+#regions_cr = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr3"] # Check 2016, 2017 ww_cr later, there were no entries. Other regions were channel-dependent.
+regions_cr = args.CR # input from the user
 regions_sr = ["sr1","sr2","sr3"]
 
+if args.CR:
+  if any("sr1_inv" in region for region in regions_cr ): OutputTag+="_Inv1"
+  if any("sr2_inv" in region for region in regions_cr ): OutputTag+="_Inv2"
+  if any("sr3_inv" in region for region in regions_cr ): OutputTag+="_Inv3"
+  if any("ww" in region for region in regions_cr ): OutputTag+="_WW"
+  if any("zg" in region for region in regions_cr ): OutputTag+="_ZG"
+  if any("zz" in region for region in regions_cr ): OutputTag+="_ZZ"
+  if any("wz_cr1" in region for region in regions_cr ): OutputTag+="_WZ1"
+  if any("wz_cr2" in region for region in regions_cr ): OutputTag+="_WZ2"
+  if any("wz_cr3" in region for region in regions_cr ): OutputTag+="_WZ3"
 
 ################################################################################################################################################
 

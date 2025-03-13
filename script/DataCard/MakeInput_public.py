@@ -39,7 +39,7 @@ else:
     PostFlag += this_flag+"__" # SKFlat convention
 
 if not args.masses: # When you don't want to type all those masses!!
-  masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
+  args.masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
   #masses = ["M100","M250","M1000","M10000"]
 else:
   for i in range(len(args.masses)):
@@ -730,7 +730,7 @@ for tag in args.histTag:
   for era in args.eras:
     for region in regions: # ...and even each region to control!!
       print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      OutputPath = '/data9/Users/jalmond_public/SUS-24-014/LimitExtraction/'+inputTag+"_"+tag+outputTagSuffix+'/'
+      OutputPath = '/data9/Users/jalmond_public/SUS-24-014/LimitInputs/'+inputTag+"_"+tag+outputTagSuffix+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
   
       f_path_data          = InputPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + PostFlag + "/DATA/"+Analyzer+DataSkim+"DATA.root"
