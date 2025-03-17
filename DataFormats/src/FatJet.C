@@ -277,7 +277,7 @@ double FatJet::GetTaggerResult(JetTagging::Tagger tg) const{
   else if(tg==JetTagging::particleNetMD_QCD) return j_particleNetMD_QCD;
   else{
     
-    cout << "[FatJet::GetTaggerResult] ERROR; Wrong tagger " << tg << endl;
+    cout << "[FatJet::GetTaggerResult] ERROR; Wrong tagger " << TaggerToString(tg) << endl;
     return -999;
   }
 }

@@ -1,0 +1,12 @@
+DYJetsToTauTau_MiNNLO
+DYJetsToEE_MiNNLO
+TTLL_powheg
+WZTo3LNu_mllmin4p0_powheg
+WWTo2L2Nu_powheg
+ZZTo4L_powheg
+WWG
+WZG
+TG
+TTG
+ZGToLLG
+WGToLNuG_MG

@@ -59,7 +59,7 @@ void HNL_SignalRegionPlotter17028::RunEXO17028Analysis(AnalyzerParameter param){
 
   Particle METv = GetvMET("PuppiT1xyULCorr", param);
 
-  EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
+  EvalJetWeight(AK4_JetColl, AK4_JetColl, AK8_JetColl, weight, param);
 
   RunEXO17028SignalRegions(ElectronCollT,ElectronCollV,MuonCollT,MuonCollV,  AK4_JetColl,AK8_JetColl, AK4_BJetColl, ev,METv, param, weight);
   

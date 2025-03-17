@@ -15,7 +15,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",false,\"DYJets\",\"HNFakeBDT\",\"\");" | root -l 2>&1 | tee "DYJets".log
 #echo -e ".L test.C\n test(\"2017\",false,\"WJets\",\"HNFakeBDT\",\"\");" | root -l 2>&1 | tee "WJets".log
 
-# HNL_SignalRegionPlotter
+# HNL_SignalRegion_Plotter
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleMuon\",\"HNMultiLepBDT\",\"RunFake\");" | root -l 2>&1 | tee "DoubleMuon_RunFake".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"RunFake\");" | root -l 2>&1 | tee "DoubleEG_RunFake".log
 #echo -e ".L test.C\n test(\"2017\",true,\"MuonEG\",\"HNMultiLepBDT\",\"RunFake\");" | root -l 2>&1 | tee "MuonEG_RunFake".log
@@ -36,7 +36,7 @@ echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",
 #echo -e ".L test.C\n test(\"2017\",false,\"TTLJ\",\"HNMultiLepBDT\",\"RunFakeClosurePred\");" | root -l 2>&1 | tee "TTLJ_ClosPred".log
 #echo -e ".L test.C\n test(\"2017\",false,\"TTLJ\",\"HNMultiLepBDT\",\"RunFakeClosureObs\");" | root -l 2>&1 | tee "TTLJ_ClosObs".log
 
-# HNL_ControlRegionPlotter
+# HNL_ControlRegion_Plotter
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleMuon\",\"HNMultiLepBDT\",\"SSMultiLep,RunFake\");" | root -l 2>&1 | tee "DoubleMuon_RunFake".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleMuon\",\"HNMultiLepBDT\",\"SSMultiLep,RunFake\");" | root -l 2>&1 | tee "DoubleMuon_RunFake".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleMuon\",\"HNMultiLepBDT\",\"SSMultiLep\");" | root -l 2>&1 | tee "DoubleMuon_SSMultiLep".log

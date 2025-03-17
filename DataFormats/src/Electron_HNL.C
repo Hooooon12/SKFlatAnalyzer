@@ -54,6 +54,7 @@ int  Electron::PassHNLTight(TString ID) const{
   /// Version 3 with High Pt turn off
   if(ID == "HNL_HighPt_ULID_"+Year)      return BtoI(PassID("HNL_ULID_Defv3_FO") && PassID("HNL_ULID_Fake_HighPt"));
   if(ID == "HNL_HighPt_ULID")            return BtoI(PassID("HNL_ULID_Defv3_FO") && PassID("HNL_ULID_Fake_HighPt"));
+  if(ID == "Fail_HNL_HighPt_ULID")       return (!(BtoI(PassID("HNL_ULID_Defv3_FO") && PassID("HNL_ULID_Fake_HighPt"))));
   
   // Loose Fake IDs [FO]                            
                

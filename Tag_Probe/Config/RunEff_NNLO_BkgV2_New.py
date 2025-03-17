@@ -25,11 +25,12 @@ NJob=args.NJob
 #Era = args.Era
 WorkDir=args.WorkDir
 
-It_Probes    = [ 'MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt', 'HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','HNLMVA_NoCF','HNLMVA_NoConv','HNLMVA_NoFake']
-
+#It_Probes    = [ 'MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt', 'HNL_ULID_Split_1','HNL_ULID_Split_2','HNL_ULID_Split_3','HNL_ULID_Split_4','HNL_ULID_Split_4b','HNL_ULID_Split_5','HNL_ULID_Split_5b','HNL_ULID_Split_6','HNL_ULID_Split_7','HNL_ULID_Split_8','HNLMVA_NoCF','HNLMVA_NoConv','HNLMVA_NoFake']
+It_Probes    = [ 'HNLMVA_HighPt']
+It_ProbeID   = [ 'HNL_ULID_Probe_Split_2']
 #### IDs applied to probe befrpre PASS/FAIL
 
-It_ProbeID   = ['Pass',     'Pass', 'Pass', 'Pass','Pass',  'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'MVABaseline','MVABaseline','MVABaseline']                                                             
+#It_ProbeID   = ['Pass',     'Pass', 'Pass', 'Pass','Pass',  'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'MVABaseline','MVABaseline','MVABaseline']                                                             
 
 NID_Full= 0
 
@@ -1246,9 +1247,9 @@ def CreateHists(NthJob):
         if weight_pt >= 200: weight_pt = 199.5
         TurnOn_Weight = TurnOnHists[this_era].GetBinContent(TurnOnHists[this_era].FindBin(weight_pt)) # let's simulate as if MC tag passed the trigger
 
-        #if entry%10000==0:
-        #  print "weight_pt:",mc_chains[i].tag_Ele_pt_cor,"TurnOn:",TurnOn_Weight
-        #  print "probe_pt:",mc_chains[i].el_pt_cor
+        if entry%10000==0:
+          print "weight_pt:",mc_chains[i].tag_Ele_pt_cor,"TurnOn:",TurnOn_Weight
+          print "probe_pt:",mc_chains[i].el_pt_cor
 
         histinfo = classify_hist(year, sample, mc_chains[i])
 

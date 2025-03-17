@@ -181,7 +181,45 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
   }
   if(SETUPIDBDT) SetupIDMVAReaderDefault(false,false);
 
+ 
+  ///// Setup Theory files
   TheoryDir = TDirectoryHelper::GetTempDirectory("Theory");
+
+  ///// Setup K factor code
+  const char* skflat_wd = getenv("SKFlat_WD");
+  if (!skflat_wd) {
+    std::cerr << "Error: SKFlat_WD environment variable not set!" << std::endl;
+    return;
+  }
+
+  TString VV_EWK_Path = TString(skflat_wd) + "/data/Run2UltraLegacy_v3/Run2/Sample/VV_NLO_LO_CMS_mjj.root";
+
+  h_VV_KF_CMS=nullptr;
+  //  h_WW_KF_CMS=nullptr;
+  
+  vector<TString> EWK_Corr_VV_Samples = {"WZ_EWK","WpWp_EWK"};
+  if (std::find(EWK_Corr_VV_Samples.begin(), EWK_Corr_VV_Samples.end(), MCSample) != EWK_Corr_VV_Samples.end()) {
+
+    TDirectory* origDir = gDirectory;
+
+    TFile* VVKFactorFile= new TFile(VV_EWK_Path);
+
+    TheoryDir->cd();
+    if(MCSample=="WZ_EWK") h_VV_KF_CMS = ((TH1D*) VVKFactorFile->Get("hWZ_KF_CMS")->Clone());
+    if(MCSample=="WpWp_EWK") h_VV_KF_CMS = ((TH1D*) VVKFactorFile->Get("hWW_KF_CMS")->Clone());
+    
+    origDir->cd();
+
+    if(h_VV_KF_CMS == nullptr){
+      std::cerr << "Error: h_VV_KF_CMS  not set!" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
+    VVKFactorFile->Close();
+    cout << "Close " << VV_EWK_Path <<  " file" << endl;
+    delete VVKFactorFile;
+
+  }
 
   TString TheoryPath = "/data9/Users/jalmond_public/PDFSyst/"+GetEra()+"/Theory/GetEffLumi_SkimTree_HNMultiLepBDT_"+MCSample+".root";
   std::ifstream infile(TheoryPath);
@@ -311,25 +349,25 @@ vector<TString> HNL_LeptonCore::ConvertCutFlowLabels(vector<TString> SRlabels, T
 }
 
 
-TString HNL_LeptonCore::SetLeptonID(TString lep, AnalyzerParameter p){
-
-  if(lep=="Electron"){
-    TString ID = (RunFake||RunPromptTLRemoval) ?  p.Electron_FR_ID  : p.Electron_Tight_ID ;
-    if(p.FakeMethod == "MC")  ID =p.Electron_Tight_ID;
+TString HNL_LeptonCore::SetLeptonID(const TString& lep, AnalyzerParameter& p){
+  if (lep == "Electron") {
+    TString ID = (RunFake || RunPromptTLRemoval) ? p.Electron_FR_ID : p.Electron_Tight_ID;
+    if (p.FakeMethod == "MC") ID = p.Electron_Tight_ID;
     return ID;
   }
-  else if(lep=="Muon"){
-    TString ID = (RunFake||RunPromptTLRemoval) ?  p.Muon_FR_ID  : p.Muon_Tight_ID ;
-    if(p.FakeMethod == "MC")  ID = p.Muon_Tight_ID;
+    
+  if (lep == "Muon") {
+    TString ID = (RunFake || RunPromptTLRemoval) ? p.Muon_FR_ID : p.Muon_Tight_ID;
+    if (p.FakeMethod == "MC") ID = p.Muon_Tight_ID;
     return ID;
   }
-  else {
-    cout << "[HNL_LeptonCore::InitialiseHNLParameters ] ID not found.." << endl;
-    exit(EXIT_FAILURE);
-  }
 
-  return "";
+  std::cerr << "[HNL_LeptonCore::SetLeptonID] Error: Invalid lepton type '" << lep << "'" << std::endl;
+  exit(EXIT_FAILURE);  // Exiting program due to invalid input
+
+  return ""; // This return is redundant but ensures function consistency
 }
+
 
 double HNL_LeptonCore::MergeMultiMC(vector<TString> vec, TString Method){
 
@@ -424,9 +462,15 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
   if(SystType=="Theory"){
     SystList.push_back(AnalyzerParameter::PDFUp);
     SystList.push_back(AnalyzerParameter::PDFDown);
-    //SystList.push_back(AnalyzerParameter::PDF);
+    //    SystList.push_back(AnalyzerParameter::PDF);
     SystList.push_back(AnalyzerParameter::ScaleUp);
     SystList.push_back(AnalyzerParameter::ScaleDown);
+    return SystList;
+  }
+
+  if(SystType=="Muon_Reco"){
+    SystList.push_back(AnalyzerParameter::MuonRecoSFUp);
+    SystList.push_back(AnalyzerParameter::MuonRecoSFDown);
     return SystList;
   }
   if(SystType=="Muon"){
@@ -447,6 +491,10 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
     SystList.push_back(AnalyzerParameter::JetResDown);
     SystList.push_back(AnalyzerParameter::JetEnUp);
     SystList.push_back(AnalyzerParameter::JetEnDown);
+    return SystList;
+  }
+  if(SystType == "MET"){
+    SystList = {AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown};
     return SystList;
   }
 
@@ -473,9 +521,14 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
       SystList.push_back(AnalyzerParameter::FRHighPtDown);
     }
   }
-  else{
- 
+  else {
+    
     if(IsData) return {};
+    
+    if(HasFlag("ScanSystematicMET")) {
+      SystList = {AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown};
+      return SystList;
+    }
     if(HasFlag("RunSyst")){
       
       SystList = {AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
@@ -495,22 +548,22 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
         SystList.push_back(AnalyzerParameter::MuonEnDown);
         SystList.push_back(AnalyzerParameter::MuonResUp);
         SystList.push_back(AnalyzerParameter::MuonResDown);
-        //SystList.push_back(AnalyzerParameter::MuonIDSFUp);
-        //SystList.push_back(AnalyzerParameter::MuonIDSFDown);
-        //SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
-        //SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
+        SystList.push_back(AnalyzerParameter::MuonIDSFUp);
+        SystList.push_back(AnalyzerParameter::MuonIDSFDown);
+        SystList.push_back(AnalyzerParameter::MuonTriggerSFUp);
+        SystList.push_back(AnalyzerParameter::MuonTriggerSFDown);
       }
       if(SystType=="EE" || SystType=="EMu"){
-        //SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
-        //SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
+        SystList.push_back(AnalyzerParameter::ElectronRecoSFUp);
+        SystList.push_back(AnalyzerParameter::ElectronRecoSFDown);
         SystList.push_back(AnalyzerParameter::ElectronResUp);
         SystList.push_back(AnalyzerParameter::ElectronResDown);
         SystList.push_back(AnalyzerParameter::ElectronEnUp);
         SystList.push_back(AnalyzerParameter::ElectronEnDown);
-        //SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
-        //SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
-        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
-        //SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
+        SystList.push_back(AnalyzerParameter::ElectronIDSFUp);
+        SystList.push_back(AnalyzerParameter::ElectronIDSFDown);
+        SystList.push_back(AnalyzerParameter::ElectronTriggerSFUp);
+        SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
       }
     }
   }
@@ -531,15 +584,14 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
 //====================================================/====================================================
 //====================================================/====================================================
 
-AnalyzerParameter HNL_LeptonCore::InitialiseHNLParameter(TString s_setup_version){
-  AnalyzerParameter p = SetupHNLParameter(s_setup_version,"Default");
-  return p;
-
+AnalyzerParameter HNL_LeptonCore::InitialiseHNLParameter(const TString& s_setup){
+  AnalyzerParameter p = SetupHNLParameter(s_setup,"Default");
+  return p;  
 }
 
-AnalyzerParameter HNL_LeptonCore::InitialiseHNLParameter(TString s_setup_version, HNL_LeptonCore::Channel channel){
+AnalyzerParameter HNL_LeptonCore::InitialiseHNLParameter(const TString& s_setup, HNL_LeptonCore::Channel channel){
   
-  AnalyzerParameter p = SetupHNLParameter(s_setup_version,GetChannelString(channel));
+  AnalyzerParameter p = SetupHNLParameter(s_setup,GetChannelString(channel));
   //if(_jentry== 1 )   cout << "HNL_LeptonCore::InitialiseHNLParameter SetupHNLParameter Event " << event << endl;
   //p.PrintParameters();
   //}
@@ -547,7 +599,9 @@ AnalyzerParameter HNL_LeptonCore::InitialiseHNLParameter(TString s_setup_version
 }
 
 
-AnalyzerParameter HNL_LeptonCore::SetupFakeParameter(AnalyzerParameter::Syst SystType, HNL_LeptonCore::Channel channel, HNL_LeptonCore::NormMC norm, vector<TString>  s_jobs, TString PNAME, TString IDT, TString IDL){
+AnalyzerParameter HNL_LeptonCore::SetupFakeParameter(AnalyzerParameter::Syst SystType, HNL_LeptonCore::Channel channel,
+						     HNL_LeptonCore::NormMC norm, const std::vector<TString>& s_jobs,
+						     const TString& PNAME, const TString& IDT, const TString& IDL){
 
   AnalyzerParameter param  ;
   param.Clear();
@@ -628,7 +682,7 @@ AnalyzerParameter HNL_LeptonCore::SetupFakeParameter(AnalyzerParameter::Syst Sys
 
   param.AK4JetColl       = "TightPUL";
   param.AK4VBFJetColl    = "VBFTightPUL";
-  param.AK8JetColl       = "HNL_PN_NoMass";
+  param.AK8JetColl       = "HNL_PN";
   param.BJetColl         = "Tight";
 
   //// Weights                                                                                                                                              
@@ -657,7 +711,18 @@ AnalyzerParameter HNL_LeptonCore::SetupFakeParameter(AnalyzerParameter::Syst Sys
 }
 
 
-bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramEv , AnalyzerParameter::Syst systname, TString OrigParamName){
+TString HNL_LeptonCore::GetPtBin(bool muon, double pt){
+  TString pt_label="";
+  
+  if(pt< 50) pt_label = "_ptbin1"; 
+  else if(pt < 100) pt_label = "_ptbin2"; 
+  else if(pt < 400) pt_label = "_ptbin3";
+  else pt_label = "_ptbin4";                                                               
+  return pt_label;
+
+}
+
+bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramEv , AnalyzerParameter::Syst systname, const TString& OrigParamName){
 
   //// Update Name of param based on systematic settings
   paramEv.syst_   = systname;
@@ -675,15 +740,15 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
   //// Setup FR ID
   if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
     paramEv.Muon_FR_ID        = "HNL_ULID_FO_Up";
-    paramEv.Electron_FR_ID    = "HNL_ULID_FO_Up";
+    paramEv.Electron_FR_ID    = "HNL_HighPt_ULID_FO_Up";
   }
   else if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
     paramEv.Muon_FR_ID        = "HNL_ULID_FO_Down";
-    paramEv.Electron_FR_ID    = "HNL_ULID_FO_Down";
+    paramEv.Electron_FR_ID    = "HNL_HighPt_ULID_FO_Down";
   }
   else{
     paramEv.Muon_FR_ID        = "HNL_ULID_FO";
-    paramEv.Electron_FR_ID    = "HNL_ULID_FO";
+    paramEv.Electron_FR_ID    = "HNL_HighPt_ULID_FO";
   }
 
   TString MuFRBin = (paramEv.syst_ ==AnalyzerParameter::FRAltBinning) ? "_Binv2" : "";
@@ -697,59 +762,59 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
 
     if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
     }
     else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v0"+JFRJetPt+ElFRBin;
     }
     else{
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
     }
   }
   if(GetEra() == "2016postVFP"){
 
     if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
     }
     else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v0"+JFRJetPt+ElFRBin;
     }
     else {
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
     }
   }
   if(GetYearString() == "2017"){
     if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
 
     }
     else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v0"+JFRJetPt+ElFRBin;
     }
     else {
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
     }
   }
   if(GetYearString() == "2018"){
     if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
     }
     else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v4_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v0"+JFRJetPt+ElFRBin;
     }
     else {
       paramEv.k.Muon_FR         = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR     = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR     = "HNL_HighPt_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
     }
   }
 
@@ -758,9 +823,10 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
 }
 
 
-AnalyzerParameter HNL_LeptonCore::SetupHNLParameter(TString s_setup_version, TString channel_st){
+AnalyzerParameter HNL_LeptonCore::SetupHNLParameter(const TString& s_setup_version, const TString& channel_str_name){
+
   
-  AnalyzerParameter param  =  DefaultParam(s_setup_version, channel_st);
+  AnalyzerParameter param  =  DefaultParam(s_setup_version, channel_str_name);
 
   if (s_setup_version=="")      return param;
   if (s_setup_version=="Basic") return param;
@@ -806,6 +872,59 @@ AnalyzerParameter HNL_LeptonCore::SetupHNLParameter(TString s_setup_version, TSt
 }
 
   
+
+double HNL_LeptonCore::GetKFactor(){
+
+  if(IsDATA) return 1.;
+
+  double weight = 1.;
+
+  if(MCSample.Contains("WZTo3LNu_powheg") or MCSample.Contains("WZTo3LNu_mllmin4p0_powheg") or MCSample.Contains("WZTo2L2Q")){
+    //Physics Letters B 761 (2016) 197                                                                                                                                                                                                                                          
+    //http://dx.doi.org/10.1016/j.physletb.2016.08.017                                                                                                                                                                                                                          
+    weight = 1.109;
+  }
+  else if(MCSample.Contains("ZZTo4L_powheg") or MCSample.Contains("ZZTo2L2Nu") or MCSample.Contains("ZZTo2L2Q")){
+    // Physics Letters B 735 (2014) 311-313                                                                                                                                                                                                                                     
+    // https://doi.org/10.1016/j.physletb.2014.06.056                                                                                                                                                                                                                           
+    weight = 1.16;
+  }
+  else if(MCSample.Contains("GluGluToZZto")){
+    //  2.3 brings gg->ZZ from LO to NNLO (https://www.arxiv.org/pdf/1504.02388)
+    return 2.3; /// Need to update
+  }
+  else if(MCSample.Contains("GluGluHToZZ")){
+    return 1.67;
+    //AN2016_359                                                                                                                                                                                                                                                                
+  }
+  else if(MCSample.Contains("ttZ") && !MCSample.Contains("To")){
+    weight = 839.3/780.;
+  }
+  else if(MCSample.Contains("ttW") && !MCSample.Contains("To")){
+    weight = 600.8/610.;
+  }
+  else if(MCSample.Contains("WJet") && MCSample.Contains("HT")){
+    return 1.21;
+  }
+
+  if(MCSample.Contains("WZTo3LNu_mllmin0p1_powheg"))     weight = 0.632; //// This is done from WZ CR Norm                                                                                                                                                                      
+  vector<TString> EWK_Corr_VV_Samples = {"WZ_EWK","WpWp_EWK"};
+  if (std::find(EWK_Corr_VV_Samples.begin(), EWK_Corr_VV_Samples.end(), MCSample) != EWK_Corr_VV_Samples.end()) {
+
+    double  mymjj_EW = GetGenLevelJJMass();
+    if(mymjj_EW < 525) mymjj_EW=525;
+    if(mymjj_EW > 1975) mymjj_EW=1900;
+
+    float nominal_EW_correction = h_VV_KF_CMS->GetBinContent(h_VV_KF_CMS->GetXaxis()->FindFixBin(mymjj_EW));                                                            
+    return nominal_EW_correction;
+  }
+
+
+  return weight;
+
+}
+
+
 
 double HNL_LeptonCore::SetupWeight(Event ev, AnalyzerParameter& param){
 
@@ -860,6 +979,15 @@ double HNL_LeptonCore::SetupWeight(Event ev, AnalyzerParameter& param){
   if(param.Apply_Weight_TopCorr) this_mc_weight *= mcCorr->GetTopPtReweight(All_Gens);
   if(param.Apply_Weight_DYCorr)  this_mc_weight *= param.w.zptweight;
   if(param.Apply_Weight_DYCorr)  this_mc_weight *= param.w.weakweight;
+  if(param.Apply_Weight_Z0) FillWeightHist(param.ChannelDir()+"/Weight_Z0",     GetZ0Weight(vertex_Z));
+  if(param.Apply_Weight_TopCorr)  FillWeightHist(param.ChannelDir()+"/TopCorr",mcCorr->GetTopPtReweight(All_Gens));
+  if(param.Apply_Weight_DYCorr) {
+    FillWeightHist(param.ChannelDir()+"/zptweight",param.w.zptweight);
+    FillWeightHist(param.ChannelDir()+"/zptweight_g",param.w.zptweight_g);
+    FillWeightHist(param.ChannelDir()+"/zptweight_gy",param.w.zptweight_gy);
+    FillWeightHist(param.ChannelDir()+"/zptweight_gym",param.w.zptweight_gym);
+    FillWeightHist(param.ChannelDir()+"/weakweight",param.w.weakweight);
+  }
 
   FillWeightHist(param.ChannelDir()+"/MCFullWeight_" , this_mc_weight);
   
@@ -1025,6 +1153,12 @@ HNL_LeptonCore::~HNL_LeptonCore(){
       //}
     }
   }
+
+  if (h_VV_KF_CMS != nullptr){
+    delete h_VV_KF_CMS;
+    h_VV_KF_CMS = nullptr;
+  }
+
   DeleteZptWeight();
 
 }
@@ -1096,28 +1230,31 @@ Particle HNL_LeptonCore::GetSignalObject(TString obj, TString Sig){
 }
 
 
-TString HNL_LeptonCore::GetChannelString(HNL_LeptonCore::Channel channel, HNL_LeptonCore::ChargeType q){
+TString HNL_LeptonCore::GetChannelString(HNL_LeptonCore::Channel channel, HNL_LeptonCore::ChargeType q) {
+  TString channel_string = "";
 
-  TString channel_string="";
-  if (channel == EE) channel_string="EE";
-  if (channel == MuMu) channel_string="MuMu";
-  if (channel == EMu) channel_string="EMu";
+  switch (channel) {
+  case EE:      channel_string = "EE"; break;
+  case MuMu:    channel_string = "MuMu"; break;
+  case EMu:     channel_string = "EMu"; break;
+  case EEE:     channel_string = "EEE"; break;
+  case EMuL:    channel_string = "EMuL"; break;
+  case MuMuMu:  channel_string = "MuMuMu"; break;
+  case EEEE:    channel_string = "EEEE"; break;
+  case MuMuMuMu: channel_string = "MuMuMuMu"; break;
+  case EMuLL:   channel_string = "EMuLL"; break;
+  default:      return "";  // Handle unknown channel
+  }
 
-  if (channel == EEE) channel_string="EEE";
-  if (channel == EMuL) channel_string="EMuL";
-  if (channel == MuMuMu) channel_string="MuMuMu";
-
-  if (channel == EEEE) channel_string="EEEE";
-  if (channel == MuMuMuMu) channel_string="MuMuMuMu";
-  if (channel == EMuLL) channel_string="EMuLL";
-
-
-  if (q == Plus) channel_string+="_+";
-  else if (q == Minus) channel_string+="_-";
-  else   return channel_string;
+  if (q == Plus) {
+    channel_string += "_+";
+  } else if (q == Minus) {
+    channel_string += "_-";
+  }
 
   return channel_string;
 }
+
 
 TString HNL_LeptonCore::QToString(HNL_LeptonCore::ChargeType q){
 
@@ -1170,12 +1307,7 @@ vector<Gen> HNL_LeptonCore::GetGenLepronsSignal(){
       }
     }
   }
-
-
   else{
-
-
-
     for(unsigned int i=2; i<All_Gens.size(); i++){
       Gen gen = All_Gens.at(i);
       if (fabs(gen.PID()) == 13 && gen.Status() == 23) gen_lep.push_back(gen);
@@ -1187,20 +1319,31 @@ vector<Gen> HNL_LeptonCore::GetGenLepronsSignal(){
   return gen_lep;
 }
 
-bool HNL_LeptonCore::SelectChannel(HNL_LeptonCore::Channel channel){
-
+bool HNL_LeptonCore::SelectChannel(HNL_LeptonCore::Channel channel) {
   TString process = GetProcess();
-  if(channel == LL   && process.Contains("SS")) return true;
-  if(channel == MuMu && process.Contains("SS_Mu+Mu+")) return true;
-  if(channel == MuMu && process.Contains("SS_Mu-Mu-")) return true;
-  if(channel == EE   && process.Contains("SS_El+El+")) return true;
-  if(channel == EE   && process.Contains("SS_El-El-")) return true;
 
-  if(channel == EMu  && (process.Contains("SS_El+Mu+")||process.Contains("SS_Mu+El+")) ) return true;
-  if(channel == EMu  && (process.Contains("SS_El-Mu-")||process.Contains("SS_Mu-El-")) ) return true;
+  // Define matching process strings for each channel
+  switch (channel) {
+  case LL:
+    if (process.Contains("SS")) return true;
+    break;
+  case MuMu:
+    if (process.Contains("SS_Mu+Mu+") || process.Contains("SS_Mu-Mu-")) return true;
+    break;
+  case EE:
+    if (process.Contains("SS_El+El+") || process.Contains("SS_El-El-")) return true;
+    break;
+  case EMu:
+    if (process.Contains("SS_El+Mu+") || process.Contains("SS_Mu+El+") ||
+	process.Contains("SS_El-Mu-") || process.Contains("SS_Mu-El-")) return true;
+    break;
+  default:
+    return false;
+  }
 
   return false;
 }
+
 
 
 
@@ -1347,27 +1490,20 @@ bool HNL_LeptonCore::HasLowMassMeson(std::vector<Lepton *> leps){
 
 }
 
+double HNL_LeptonCore::GetFilterEffType1(TString SigProcess, int mass) {
+  // Filter efficiencies for DY process based on mass
+  if (SigProcess != "DY") return -1.;
 
+  // Use a map for efficient lookup
+  std::map<int, double> effMap = {
+    {85, 0.417}, {90, 0.625}, {95, 0.739}, {100, 0.856},
+    {125, 0.978}, {150, 0.983}, {200, 0.994}, {250, 0.996},
+    {300, 0.996}, {400, 0.998}, {500, 0.998}
+  };
 
-
-double HNL_LeptonCore::GetFilterEffType1(TString SigProcess, int mass){
-
-  //https://docs.google.com/spreadsheets/d/1adHrUM0I45-SUuaSzH0dh7fu9usEjJk4C_aH20bLDFA/edit#gid=0                                                                                                                                                                                                         
-  if(SigProcess == "DY"){
-    if(mass == 85) return 0.417;
-    if(mass == 90) return 0.625;
-    if(mass == 95) return 0.739;
-    if(mass == 100) return 0.856;
-    if(mass == 125) return 0.978;
-    if(mass == 150) return 0.983;
-    if(mass == 200) return 0.994;
-    if(mass == 250) return 0.996;
-    if(mass == 300) return 0.996;
-    if(mass == 400) return 0.998;
-    if(mass == 500) return 0.998;
-  }
-
-  return -1.;
+  // Return the efficiency if the mass exists in the map, otherwise return -1
+  auto it = effMap.find(mass);
+  return (it != effMap.end()) ? it->second : -1.;
 }
 
 double HNL_LeptonCore::GetXsec(TString SigProcess, int mass){

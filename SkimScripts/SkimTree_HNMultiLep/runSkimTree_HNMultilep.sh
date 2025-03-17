@@ -8,6 +8,27 @@ njobs_data=100
 nmax=350
 declare  -a era_list=("2016postVFP" "2016preVFP"  "2017" "2018")
 
+if [[ $1 == "GT36" ]]; then
+
+    declare  -a era_list=("2018")
+
+    for i in "${era_list[@]}"
+    do
+        SKFlat.py -a $analyzer  -i MuonEG_GT36:A     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i MuonEG_GT36:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i MuonEG_GT36:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i MuonEG_GT36:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+
+        SKFlat.py -a $analyzer  -i DoubleMuon_GT36:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i DoubleMuon_GT36:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i DoubleMuon_GT36:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+
+
+    done
+fi
+
+
+
 if [[ $1 == "Signal" ]]; then
     for i in "${era_list[@]}"
     do

@@ -6,10 +6,6 @@ void HNL_SignalRegion_TestRun::initializeAnalyzer(){
 
   HNL_LeptonCore::initializeAnalyzer();
   
-  bool run_ee_bdt=false;
-  bool run_mm_bdt=false;
-  bool run_em_bdt=false;
-  
   SetupEventMVAReader("V2");
 
   nLog = 100000;
@@ -24,14 +20,13 @@ void HNL_SignalRegion_TestRun::executeEvent(){
   if(_jentry == 0){
     cout << "HNL_SignalRegion_TestRun::IsData = " << IsData << endl;
   }
-  vector<TString> LepIDs = {"HNL_ULID"};
+  vector<TString> LepIDs = {"HNL_ULIDv2"};
 
 
   //  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULID","POGTight","TopHN","HNTightV2","MVAPOG"};//,"HNTightV2","POGTight","TopHN","HighPt"};
 
   vector<HNL_LeptonCore::Channel> ChannelsToRun = {MuMu};
   if(ChannelsToRun.size() == 0) ChannelsToRun = {EE,MuMu,EMu};
-
 
   for (auto id: LepIDs){
 
@@ -107,7 +102,7 @@ void HNL_SignalRegion_TestRun::RunULAnalysis(AnalyzerParameter param){
   //Particle METv = GetvMET("PuppiT1xyULCorr",param);
   Particle METv = GetvMET("PuppiT1xyULCorr", param, AK4_VBF_JetColl, AK8_JetColl, MuonCollT, ElectronCollT); // returns MET with systematic correction; run this after all object selection done; NOTE that VBF jet is used here
   
-  EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
+  EvalJetWeight(AK4_JetColl, AK4_VBF_JetColl,AK8_JetColl, weight, param);
 
   FillTimer("START_SR");
 

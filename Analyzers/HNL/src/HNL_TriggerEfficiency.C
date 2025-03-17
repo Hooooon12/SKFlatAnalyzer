@@ -262,16 +262,17 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_MuLeg(vector<Muon>& MuTColl, vector<M
   if( MuTColl.at(0).DeltaR(ElTColl.at(0))<0.4 ) return;
   if( !(JetColl.size()>1 && BJetColl.size()>0) ) return;
 
-  const int NPtBinEdges1=11, NPtBinEdges2=11, NfEtaBinEdges=5;
+  const int NPtBinEdges1=11, NPtBinEdges2=12, NfEtaBinEdges=5;
   double PtBinEdges1[NPtBinEdges1], PtBinEdges2[NPtBinEdges2];
-  double PtBinEdges1_17[NPtBinEdges1] = {0.,10.,20.,23.,25.,30.,40.,50.,100.,200.,1000.};
-  double PtBinEdges2_17[NPtBinEdges2] = {0.,5.,8.,10.,15.,20.,30.,50.,100.,200.,1000.};
+  double PtBinEdges1_17[NPtBinEdges1] = {0., 10., 20., 23., 25., 30., 40., 50., 100., 200., 1000.};
+  double PtBinEdges2_17[NPtBinEdges2] = {0., 5., 8., 10., 15., 20., 30., 40., 50., 100., 200., 1000.};
   copy(PtBinEdges1_17, PtBinEdges1_17+NPtBinEdges1, PtBinEdges1);
   copy(PtBinEdges2_17, PtBinEdges2_17+NPtBinEdges2, PtBinEdges2);
-  double PtBinEdges3[NPtBinEdges1-1] = {0.,10.,20.,23.,25.,30.,40.,50.,100.,200.};
-  double PtBinEdges4[NPtBinEdges2-1] = {0.,5.,8.,10.,15.,20.,30.,50.,100.,200.};
+  double PtBinEdges3[NPtBinEdges1-1] = {0., 10., 20., 23., 25., 30., 40., 50., 100., 200.};
+  double PtBinEdges4[NPtBinEdges2-1] = {0., 5., 8., 10., 15., 20., 30., 40., 50., 100., 200.};
 
-  double fEtaBinEdges[NfEtaBinEdges] = {0.,0.9,1.2,2.1,2.4};
+  double fEtaBinEdges1[NfEtaBinEdges] = {0., 0.9, 1.2, 2.1, 2.4};
+  double fEtaBinEdges2[NfEtaBinEdges-1] = {0., 0.9, 1.2, 2.4};
   double PTMu   = MuTColl.at(0).MiniAODPt();
   double fEtaMu = fabs(MuTColl.at(0).Eta());
 
@@ -285,41 +286,65 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_MuLeg(vector<Muon>& MuTColl, vector<M
   //filter name different only in 17B in full Run-2, wasn't catched before processing, but checked eff(DZ)~1 in 17
   if(!PassTagHLT) return;
 
-  FillHist("NMu1_ALL_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
-  FillHist("NMu1_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
-  FillHist("LowPt/NMu1_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
-  FillHist("NMu2_ALL_Pt_1D", PTMu, weight, NPtBinEdges2-1, PtBinEdges2);
-  FillHist("NMu2_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
-  FillHist("LowPt/NMu2_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+  FillHist("NMu1_AllEta_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
+  FillHist("NMu1_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges1);
+  FillHist("LowPt/NMu1_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges1);
+  FillHist("NMu1_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-2, fEtaBinEdges2);
+  FillHist("LowPt/NMu1_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-2, fEtaBinEdges2);
+
+  FillHist("NMu2_AllEta_Pt_1D", PTMu, weight, NPtBinEdges2-1, PtBinEdges2);
+  FillHist("NMu2_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges1);
+  FillHist("LowPt/NMu2_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges1);
+  FillHist("NMu2_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-2, fEtaBinEdges2);
+  FillHist("LowPt/NMu2_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-2, fEtaBinEdges2);
+
   if(PassLeg1){
-    FillHist("NMu1Trig_ALL_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
-    FillHist("NMu1Trig_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("LowPt/NMu1Trig_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
+    FillHist("NMu1Trig_AllEta_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
+    FillHist("NMu1Trig_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges1);
+    FillHist("LowPt/NMu1Trig_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges1);
+    FillHist("NMu1Trig_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-2, fEtaBinEdges2);
+    FillHist("LowPt/NMu1Trig_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-2, fEtaBinEdges2);
   }
+
   if(PassLeg2){
-    FillHist("NMu2Trig_ALL_Pt_1D", PTMu, weight, NPtBinEdges2-1, PtBinEdges2);
-    FillHist("NMu2Trig_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("LowPt/NMu2Trig_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+    FillHist("NMu2Trig_AllEta_Pt_1D", PTMu, weight, NPtBinEdges2-1, PtBinEdges2);
+    FillHist("NMu2Trig_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges1);
+    FillHist("LowPt/NMu2Trig_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges1);
+    FillHist("NMu2Trig_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-2, fEtaBinEdges2);
+    FillHist("LowPt/NMu2Trig_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-2, fEtaBinEdges2);
   }
 
   //Syst:QCD contamination 
   if(ElTColl.at(0).Pt()>40){
-    FillHist("NMu1_AltTag_ALL_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
-    FillHist("NMu1_AltTag_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("LowPt/NMu1_AltTag_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("NMu2_AltTag_ALL_Pt_1D", PTMu, weight, NPtBinEdges2-1, PtBinEdges2);
-    FillHist("NMu2_AltTag_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("LowPt/NMu2_AltTag_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+
+    FillHist("NMu1_AltTag_AllEta_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
+    FillHist("NMu1_AltTag_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges1);
+    FillHist("LowPt/NMu1_AltTag_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges1);
+    FillHist("NMu1_AltTag_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-2, fEtaBinEdges2);
+    FillHist("LowPt/NMu1_AltTag_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-2, fEtaBinEdges2);
+
+    FillHist("NMu2_AltTag_AllEta_Pt_1D", PTMu, weight, NPtBinEdges2-1, PtBinEdges2);
+    FillHist("NMu2_AltTag_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges1);
+    FillHist("LowPt/NMu2_AltTag_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges1);
+    FillHist("NMu2_AltTag_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-2, fEtaBinEdges2);
+    FillHist("LowPt/NMu2_AltTag_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-2, fEtaBinEdges2);
+
     if(PassLeg1){
-      FillHist("NMu1Trig_AltTag_ALL_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
-      FillHist("NMu1Trig_AltTag_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
-      FillHist("LowPt/NMu1Trig_AltTag_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
+      FillHist("NMu1Trig_AltTag_AllEta_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
+      FillHist("NMu1Trig_AltTag_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges1);
+      FillHist("LowPt/NMu1Trig_AltTag_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges1);
+      FillHist("NMu1Trig_AltTag_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-2, fEtaBinEdges2);
+      FillHist("LowPt/NMu1Trig_AltTag_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-2, fEtaBinEdges2);
     }
+
     if(PassLeg2){
-      FillHist("NMu2Trig_AltTag_ALL_Pt_1D", PTMu, weight, NPtBinEdges2-1, PtBinEdges2);
-      FillHist("NMu2Trig_AltTag_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
-      FillHist("LowPt/NMu2Trig_AltTag_ALL_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+      FillHist("NMu2Trig_AltTag_AllEta_Pt_1D", PTMu, weight, NPtBinEdges2-1, PtBinEdges2);
+      FillHist("NMu2Trig_AltTag_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges1);
+      FillHist("LowPt/NMu2Trig_AltTag_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges1);
+      FillHist("NMu2Trig_AltTag_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-2, fEtaBinEdges2);
+      FillHist("LowPt/NMu2Trig_AltTag_3EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-2, fEtaBinEdges2);
     }
+
   }
 
 }
@@ -336,14 +361,14 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_ElLeg(vector<Muon>& MuTColl, vector<M
   if( MuTColl.at(0).DeltaR(ElTColl.at(0))<0.4 ) return;
   if( !(JetColl.size()>1 && BJetColl.size()>0) ) return;
 
-  const int NPtBinEdges1=11, NPtBinEdges2=10, NfEtaBinEdges=4;
+  const int NPtBinEdges1=11, NPtBinEdges2=11, NfEtaBinEdges=4;
   double PtBinEdges1[NPtBinEdges1], PtBinEdges2[NPtBinEdges2];
-  double PtBinEdges1_17[NPtBinEdges1] = {0.,10.,20.,23.,25.,30.,40.,50.,100.,200.,1000.};
-  double PtBinEdges2_17[NPtBinEdges2] = {0.,10.,12.,15.,20.,30.,50.,100.,200.,1000.};
+  double PtBinEdges1_17[NPtBinEdges1] = {0., 10., 20., 23., 25., 30., 40., 50., 100., 200., 1000.};
+  double PtBinEdges2_17[NPtBinEdges2] = {0., 10., 12., 15., 20., 30., 40., 50., 100., 200., 1000.};
   copy(PtBinEdges1_17, PtBinEdges1_17+NPtBinEdges1, PtBinEdges1); 
   copy(PtBinEdges2_17, PtBinEdges2_17+NPtBinEdges2, PtBinEdges2); 
-  double PtBinEdges3[NPtBinEdges1-1] = {0.,10.,20.,23.,25.,30.,40.,50.,100.,200.};
-  double PtBinEdges4[NPtBinEdges2-1] = {0.,10.,12.,15.,20.,30.,50.,100.,200.};
+  double PtBinEdges3[NPtBinEdges1-1] = {0., 10., 20., 23., 25., 30., 40., 50., 100., 200.};
+  double PtBinEdges4[NPtBinEdges2-1] = {0., 10., 12., 15., 20., 30., 40., 50., 100., 200.};
 
   double fEtaBinEdges[NfEtaBinEdges]={0., 0.8, 1.479, 2.5};
   double PTEle   = ElTColl.at(0).Pt();
@@ -357,42 +382,50 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_ElLeg(vector<Muon>& MuTColl, vector<M
   PassLeg1 = ElTColl.at(0).PassFilter(TestFilter1), PassLeg2 = ElTColl.at(0).PassFilter(TestFilter2);
   if(!PassTagHLT) return;
 
-  FillHist("NEle1_ALL_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
-  FillHist("NEle1_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
-  FillHist("LowPt/NEle1_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
-  FillHist("NEle2_ALL_Pt_1D", PTEle, weight, NPtBinEdges2-1, PtBinEdges2);
-  FillHist("NEle2_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
-  FillHist("LowPt/NEle2_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+  FillHist("NEle1_AllEta_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
+  FillHist("NEle1_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
+  FillHist("LowPt/NEle1_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
+
+  FillHist("NEle2_AllEta_Pt_1D", PTEle, weight, NPtBinEdges2-1, PtBinEdges2);
+  FillHist("NEle2_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
+  FillHist("LowPt/NEle2_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+
   if(PassLeg1){
-    FillHist("NEle1Trig_ALL_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
-    FillHist("NEle1Trig_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("LowPt/NEle1Trig_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
+    FillHist("NEle1Trig_AllEta_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
+    FillHist("NEle1Trig_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
+    FillHist("LowPt/NEle1Trig_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
   }
+
   if(PassLeg2){
-    FillHist("NEle2Trig_ALL_Pt_1D", PTEle, weight, NPtBinEdges2-1, PtBinEdges2);
-    FillHist("NEle2Trig_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("LowPt/NEle2Trig_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+    FillHist("NEle2Trig_AllEta_Pt_1D", PTEle, weight, NPtBinEdges2-1, PtBinEdges2);
+    FillHist("NEle2Trig_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
+    FillHist("LowPt/NEle2Trig_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
   }
 
   //Syst:QCD contamination 
   //if(MuTColl.at(0).Pt()>35 && MuTColl.at(0).RelIso()<0.15){
   if(MuTColl.at(0).Pt()>35){
-    FillHist("NEle1_AltTag_ALL_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
-    FillHist("NEle1_AltTag_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("LowPt/NEle1_AltTag_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("NEle2_AltTag_ALL_Pt_1D", PTEle, weight, NPtBinEdges2-1, PtBinEdges2);
-    FillHist("NEle2_AltTag_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
-    FillHist("LowPt/NEle2_AltTag_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+
+    FillHist("NEle1_AltTag_AllEta_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
+    FillHist("NEle1_AltTag_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
+    FillHist("LowPt/NEle1_AltTag_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
+
+    FillHist("NEle2_AltTag_AllEta_Pt_1D", PTEle, weight, NPtBinEdges2-1, PtBinEdges2);
+    FillHist("NEle2_AltTag_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
+    FillHist("LowPt/NEle2_AltTag_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+
     if(PassLeg1){
-      FillHist("NEle1Trig_AltTag_ALL_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
-      FillHist("NEle1Trig_AltTag_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
-      FillHist("LowPt/NEle1Trig_AltTag_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
+      FillHist("NEle1Trig_AltTag_AllEta_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
+      FillHist("NEle1Trig_AltTag_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);
+      FillHist("LowPt/NEle1Trig_AltTag_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-2, PtBinEdges3, NfEtaBinEdges-1, fEtaBinEdges);
     }
+
     if(PassLeg2){
-      FillHist("NEle2Trig_AltTag_ALL_Pt_1D", PTEle, weight, NPtBinEdges2-1, PtBinEdges2);
-      FillHist("NEle2Trig_AltTag_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
-      FillHist("LowPt/NEle2Trig_AltTag_ALL_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
+      FillHist("NEle2Trig_AltTag_AllEta_Pt_1D", PTEle, weight, NPtBinEdges2-1, PtBinEdges2);
+      FillHist("NEle2Trig_AltTag_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-1, PtBinEdges2, NfEtaBinEdges-1, fEtaBinEdges);
+      FillHist("LowPt/NEle2Trig_AltTag_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges2-2, PtBinEdges4, NfEtaBinEdges-1, fEtaBinEdges);
     }
+
   }
 
 }

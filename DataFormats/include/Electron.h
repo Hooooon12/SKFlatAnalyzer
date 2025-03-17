@@ -18,13 +18,15 @@ public:
   inline TString PtEtaCategoryCFScaleFactor() const{
     if(fabs(j_scEta) < 1.5){
       if(this->Pt() < 35) return "BB_Pt1";
-      if(this->Pt() < 50) return "BB_Pt2";
-      return "BB_Pt3";
+      if(this->Pt() < 75) return "BB_Pt2";
+      if(this->Pt() < 150) return "BB_Pt3";
+      return "BB_Pt4";
     } 
     else{
       if(this->Pt() < 35) return "EC_Pt1";
-      if(this->Pt() < 50) return "EC_Pt2";
-      return "EC_Pt3";
+      if(this->Pt() < 75) return "EC_Pt2";
+      if(this->Pt() < 150) return "EC_Pt3";
+      return "EC_Pt4";
     }
   }
   inline TString GetCFShift_BinLabel(double shift) const{

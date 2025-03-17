@@ -357,6 +357,17 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
     }
   }
 
+  /// 
+  /*
+    2016post 40-50 0.9 70-100 0.9
+    2016pre 200 + SF = 1.2 ; 
+    2017  150+ SF = 0.8 
+    // 2018 200 + SF = 0.8; 100-200 1.2
+    
+   */
+
+
+
   int this_bin = (key.Contains("Inv")) ?  (mapit->second)->FindBin(1/pt,eta) :  (mapit->second)->FindBin(pt,eta);
 
   if(GetEra() == "2016postVFP"){

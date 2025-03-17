@@ -224,12 +224,11 @@ public:
     if (this->Pt() < 10.) return "pt_5_10";
     if (this->Pt() < 15.) return "pt_10_15";
     if (this->Pt() < 20.) return "pt_15_20";
-    if (this->Pt() < 30.) return "pt_20_30";
-    if (this->Pt() < 40.) return "pt_30_40";
-    if (this->Pt() < 50.) return "pt_40_50";
+    if (this->Pt() < 35.) return "pt_20_35";
+    if (this->Pt() < 50.) return "pt_35_50";
     if (this->Pt() < 100.) return "pt_50_100";
-    if (this->Pt() < 2000.) return "pt_100_2000";
-    return "pt_100_2000";
+    if (this->Pt() < 2000.) return "pt_100_150";
+    return "pt_150_2000";
  }
   
   inline TString GetMotherPtLabel(){
@@ -246,9 +245,9 @@ public:
 
   inline TString GetEtaLabel(){
     double eta = fEta();
-    if(fabs(eta) < 0.8 ) return "eta1";
-    if(fabs(eta) < 1.5 ) return "eta2";
-    if(fabs(eta) < 2.5 ) return "eta3";
+    if(fabs(eta) < 0.8 ) return "IB";
+    if(fabs(eta) < 1.5 ) return "OB";
+    if(fabs(eta) < 2.5 ) return "EC";
     return "";
 
   }

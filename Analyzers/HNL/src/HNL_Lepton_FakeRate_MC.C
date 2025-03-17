@@ -926,7 +926,7 @@ void HNL_Lepton_FakeRate_MC::GetElFakeRates(TString Method, Lepton* lep,bool ble
     if(!Method.Contains("PtCone")) return;
   }
 
-  double   isocut  = (Method == "PtCone") ? GetIsoFromID(*lep, param.Electron_Tight_ID) : 0. ;
+  double   isocut  = (Method == "PtCone") ? GetIsolationCutFromID(*lep, param.Electron_Tight_ID) : 0. ;
   TString  LooseID =  param.Electron_Loose_ID ;
   TString  TightID =  param.Electron_Tight_ID ;
   double MVACut = lep->MVAFakeCut(TightID,GetYearString());
@@ -1119,7 +1119,7 @@ void HNL_Lepton_FakeRate_MC::GetMuFakeRates(TString Method, Lepton*  lep, bool b
   FillHist("GetMuFakeRates",   1, event_weight, 1, 0,1);
 
 
-  double   isocut  = (Method == "PtCone") ? GetIsoFromID(*lep, param.Muon_Tight_ID) : 0.;
+  double   isocut  = (Method == "PtCone") ? GetIsolationCutFromID(*lep, param.Muon_Tight_ID) : 0.;
   TString  LooseID =  param.Muon_Loose_ID ;
   TString  TightID =  param.Muon_Tight_ID ;
   double MVACut = lep->MVAFakeCut(TightID,GetYearString());

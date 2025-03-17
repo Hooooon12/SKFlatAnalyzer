@@ -236,12 +236,22 @@ void HNL_LeptonCore::FillLimitInput(HNL_LeptonCore::SearchRegion sr, double even
 
   FillCutflowDef(hist_path,   histname, event_weight,lables, label);
   FillCutflow2D (hist_path+"_2D",   histname, event_weight,lables, label);
+  
+  TString hist_pathLL = hist_path;
+  hist_pathLL=hist_pathLL.ReplaceAll("EE","LL");
+  hist_pathLL=hist_pathLL.ReplaceAll("MuMu","LL");
+  hist_pathLL=hist_pathLL.ReplaceAll("EMu","LL");
+  FillCutflowDef(hist_pathLL,   histname, event_weight,lables, label);
 
 
   /// Fill SingleBinned                                                                                                                                                                                           
-  vector<HNL_LeptonCore::SearchRegion> SingleBinned = {MuonCR1,        MuonCR2,        MuonCR3,        MuonCR3BDT,
-                                                       ElectronCR1,    ElectronCR2,    ElectronCR3,    ElectronCR3BDT,
-						       ElectronMuonCR1,ElectronMuonCR2,ElectronMuonCR3,ElectronMuonCR3BDT,
+  vector<HNL_LeptonCore::SearchRegion> SingleBinned = {MuonCR1,        MuonCR2,        MuonCR3,        MuonCR3BDT, 
+
+						       MuonInvBJetCR1, MuonInvMETCR1,MuonInvBJetCR2, MuonInvMETCR2,MuonInvBJetCR3, MuonInvMETCR3,MuonInvBJetCR3BDT, MuonInvMETCR3BDT,
+                                                       ElectronCR1,    ElectronCR2,    ElectronCR3,    ElectronCR3BDT, 
+						       ElectronInvBJetCR1, ElectronInvMETCR1,ElectronInvBJetCR2, ElectronInvMETCR2,ElectronInvBJetCR3, ElectronInvMETCR3,ElectronInvBJetCR3BDT, ElectronInvMETCR3BDT,
+						       ElectronMuonCR1,ElectronMuonCR2,ElectronMuonCR3,ElectronMuonCR3BDT, 
+						       ElectronMuonInvBJetCR1, ElectronMuonInvMETCR1,ElectronMuonInvBJetCR2, ElectronMuonInvMETCR2,ElectronMuonInvBJetCR3, ElectronMuonInvMETCR3,ElectronMuonInvBJetCR3BDT, ElectronMuonInvMETCR3BDT,
 						       MuonSR1,        MuonSR2,        MuonSR3,        MuonSR3BDT,
                                                        ElectronSR1,    ElectronSR2,    ElectronSR3,    ElectronSR3BDT,
                                                        ElectronMuonSR1,ElectronMuonSR2,ElectronMuonSR3,ElectronMuonSR3BDT};
@@ -397,6 +407,7 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
   if(sr==ElectronSR3BDT)   EVHistName ="ElectronSR3BDT";
   if(sr==ElectronMuonSR3BDT)   EVHistName ="ElectronMuonSR3BDT";
 
+
   ///// CR Names                                                                                     
   if(sr==MuonCR1)   EVHistName ="MuonCR1";
   if(sr==MuonCR2)   EVHistName ="MuonCR2";
@@ -410,6 +421,40 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
   if(sr==MuonCR3BDT)   EVHistName ="MuonCR3BDT";
   if(sr==ElectronCR3BDT)   EVHistName ="ElectronCR3BDT";
   if(sr==ElectronMuonCR3BDT)   EVHistName ="ElectronMuonCR3BDT";
+
+  if(sr==MuonInvBJetCR1)   EVHistName ="MuonInvBJetCR1";
+  if(sr==ElectronInvBJetCR1)   EVHistName ="ElectronInvBJetCR1";
+  if(sr==ElectronMuonInvBJetCR1)   EVHistName ="ElectronMuonInvBJetCR1";
+
+  if(sr==MuonInvMETCR1)   EVHistName ="MuonInvMETCR1";
+  if(sr==ElectronInvMETCR1)   EVHistName ="ElectronInvMETCR1";
+  if(sr==ElectronMuonInvMETCR1)   EVHistName ="ElectronMuonInvMETCR1";
+
+  if(sr==MuonInvBJetCR2)   EVHistName ="MuonInvBJetCR2";
+  if(sr==ElectronInvBJetCR2)   EVHistName ="ElectronInvBJetCR2";
+  if(sr==ElectronMuonInvBJetCR2)   EVHistName ="ElectronMuonInvBJetCR2";
+
+  if(sr==MuonInvMETCR2)   EVHistName ="MuonInvMETCR2";
+  if(sr==ElectronInvMETCR2)   EVHistName ="ElectronInvMETCR2";
+  if(sr==ElectronMuonInvMETCR2)   EVHistName ="ElectronMuonInvMETCR2";
+
+  if(sr==MuonInvBJetCR3)   EVHistName ="MuonInvBJetCR3";
+  if(sr==ElectronInvBJetCR3)   EVHistName ="ElectronInvBJetCR3";
+  if(sr==ElectronMuonInvBJetCR3)   EVHistName ="ElectronMuonInvBJetCR3";
+
+  if(sr==MuonInvMETCR3)   EVHistName ="MuonInvMETCR3";
+  if(sr==ElectronInvMETCR3)   EVHistName ="ElectronInvMETCR3";
+  if(sr==ElectronMuonInvMETCR3)   EVHistName ="ElectronMuonInvMETCR3";
+
+
+  if(sr==MuonInvBJetCR3BDT)   EVHistName ="MuonInvBJetCR3BDT";
+  if(sr==ElectronInvBJetCR3BDT)   EVHistName ="ElectronInvBJetCR3BDT";
+  if(sr==ElectronMuonInvBJetCR3BDT)   EVHistName ="ElectronMuonInvBJetCR3BDT";
+
+  if(sr==MuonInvMETCR3BDT)   EVHistName ="MuonInvMETCR3BDT";
+  if(sr==ElectronInvMETCR3BDT)   EVHistName ="ElectronInvMETCR3BDT";
+  if(sr==ElectronMuonInvMETCR3BDT)   EVHistName ="ElectronMuonInvMETCR3BDT";
+
 
   /// Channel Summary plots
   if(sr==ChannelDepInc )    EVHistName ="ChannelDependant_Inclusive";
@@ -466,13 +511,24 @@ vector<TString>  HNL_LeptonCore::GetLimitLabelsFromRegion(HNL_LeptonCore::Search
   if(sr==MuonCR1    || sr==ElectronCR1   || sr==ElectronMuonCR1)      return CR1labels;
   if(sr==MuonCR2    || sr==ElectronCR2   || sr==ElectronMuonCR2)      return CR2labels;
   if(sr==MuonCR3    || sr==ElectronCR3   || sr==ElectronMuonCR3)      return CR3labels;
+
+  if(sr==MuonInvBJetCR1 || sr==ElectronInvBJetCR1 || sr==ElectronMuonInvBJetCR1)  return  CR1labels;
+  if(sr==MuonInvMETCR1 || sr==ElectronInvMETCR1 || sr==ElectronMuonInvMETCR1)  return  CR1labels;
   
+  if(sr==MuonInvBJetCR2 || sr==ElectronInvBJetCR2 || sr==ElectronMuonInvBJetCR2)  return  CR2labels;
+  if(sr==MuonInvMETCR2 || sr==ElectronInvMETCR2 || sr==ElectronMuonInvMETCR2)  return  CR2labels;
+
+  if(sr==MuonInvBJetCR3 || sr==ElectronInvBJetCR3 || sr==ElectronMuonInvBJetCR3)  return  CR3labels;
+  if(sr==MuonInvMETCR3 || sr==ElectronInvMETCR3 || sr==ElectronMuonInvMETCR3)  return  CR3labels;
+
 
   vector<TString> SR3BDTlabels = GetBDTLimitLabels(bin_key);
   if(sr==MuonSR3BDT || sr==ElectronSR3BDT || sr==ElectronMuonSR3BDT)  return SR3BDTlabels;
 
 
   if(sr==MuonCR3BDT || sr==ElectronCR3BDT || sr==ElectronMuonCR3BDT)  return  GetBDTLimitLabels("CR3BDT_"+channel);
+  if(sr==MuonInvBJetCR3BDT || sr==ElectronInvBJetCR3BDT || sr==ElectronMuonInvBJetCR3BDT)  return  GetBDTLimitLabels("CR3BDT_"+channel);
+  if(sr==MuonInvMETCR3BDT || sr==ElectronInvMETCR3BDT || sr==ElectronMuonInvMETCR3BDT)  return  GetBDTLimitLabels("CR3BDT_"+channel);
 
   return {""};
 

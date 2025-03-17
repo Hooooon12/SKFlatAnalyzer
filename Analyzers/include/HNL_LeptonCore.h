@@ -19,15 +19,30 @@ class HNL_LeptonCore : public AnalyzerCore {
     NormToXsec
   };
 
-  enum TheRunEra{
-    y2016B,y2016C,y2016D,y2016E,y2016F,y2016G,y2016H,
-    y2017B,y2017C,y2017D,y2017E,y2017F,
-    y2018A,y2018B,y2018C,y2018D,
+  enum TheRunEra {
+    // 2016 Data
+    y2016B, y2016C, y2016D, y2016E, y2016F, y2016G, y2016H,
+
+    // 2017 Data
+    y2017B, y2017C, y2017D, y2017E, y2017F,
+
+    // 2018 Data
+    y2018A, y2018B, y2018C, y2018D,
+
+    // 2016-2018 Monte Carlo (MC)
     y2016MC, y2017MC, y2018MC,
-    yUL2016B,yUL2016C,yUL2016D,yUL2016E,yUL2016F,yUL2016Flate,yUL2016G,yUL2016H,
-    yUL2017B,yUL2017C,yUL2017D,yUL2017E,yUL2017F,
-    yUL2018A,yUL2018B,yUL2018C,yUL2018D,
-    yUL2016MCAPV, yUL2016MCnonAPV, yUL2017MC,  yUL2018MC
+
+    // Ultra Legacy (UL) 2016 Data
+    yUL2016B, yUL2016C, yUL2016D, yUL2016E, yUL2016F, yUL2016Flate, yUL2016G, yUL2016H,
+
+    // Ultra Legacy (UL) 2017 Data
+    yUL2017B, yUL2017C, yUL2017D, yUL2017E, yUL2017F,
+
+    // Ultra Legacy (UL) 2018 Data
+    yUL2018A, yUL2018B, yUL2018C, yUL2018D,
+
+    // Ultra Legacy (UL) Monte Carlo (MC)
+    yUL2016MCAPV, yUL2016MCnonAPV, yUL2017MC, yUL2018MC
   };
 
 
@@ -38,51 +53,79 @@ class HNL_LeptonCore : public AnalyzerCore {
     Minus=-1,
   };
 
-  enum Channel
-  {
-    E=0,    EE=1,    EEE=2,    EEEE=3,
-    Mu=10,    MuMu=11,    MuMuMu=12,    MuMuMuMu=13,
-    EMu=15,     EMuL=16,    EMuLL=17,
-    LL=18,NONE=19
-
+  enum Channel {
+    E = 0, EE = 1, EEE = 2, EEEE = 3,
+    Mu = 10, MuMu = 11, MuMuMu = 12, MuMuMuMu = 13,
+    EMu = 15, EMuL = 16, EMuLL = 17,
+    LL = 18, NONE = 19
   };
-  enum SearchRegion
-  {
-    ChannelDepPresel,
-    ChannelDepSR1,     ChannelDepSR2,     ChannelDepSR3,     ChannelDepSR3HM,
-    ChannelDepDilep,   ChannelDepTrigger,     ChannelDepInc,ChannelDepIncQ,
-    ChannelDepCR1,    ChannelDepCR2,    ChannelDepCR3,ChannelDepCR3HM,
-    
-    MuonSRSummary,    ElectronSRSummary,    ElectronMuonSRSummary,
-    
-    MuonSR1,    ElectronSR1,    ElectronMuonSR1,    
-    MuonSR2,    ElectronSR2,    ElectronMuonSR2,    
-    MuonSR3,    ElectronSR3,    ElectronMuonSR3,
-    MuonSR3BDT,    ElectronSR3BDT,    ElectronMuonSR3BDT,    
-    
-    MuonCR1,    ElectronCR1,    ElectronMuonCR1,
-    MuonCR2,    ElectronCR2,    ElectronMuonCR2,
-    MuonCR3,    ElectronCR3,    ElectronMuonCR3,
-    MuonCR3BDT,    ElectronCR3BDT,    ElectronMuonCR3BDT,
 
-    MuonSR,    ElectronSR,    ElectronMuonSR,
-    MuonCR,    ElectronCR,    ElectronMuonCR, 
-    MuonSRBDT,    ElectronSRBDT,    ElectronMuonSRBDT,
-    MuonCRBDT,    ElectronCRBDT,    ElectronMuonCRBDT, 
 
-    SR1,    SR2,    SR3,    SR3BDT,
-    CR1,   CR2,  CR3,    CR3BDT, 
+  enum SearchRegion {
+    // Channel-Dependent Regions
+    ChannelDepPresel, ChannelDepSR1, ChannelDepSR2, ChannelDepSR3, ChannelDepSR3HM,
+    ChannelDepDilep, ChannelDepTrigger, ChannelDepInc, ChannelDepIncQ,
+    ChannelDepCR1, ChannelDepCR2, ChannelDepCR3, ChannelDepCR3HM,
 
-    MuonSROpt,    ElectronSROpt,    ElectronMuonSROpt,    
-    MuonSRBDTOpt,    ElectronSRBDTOpt,    ElectronMuonSRBDTOpt,
+    // Summary Regions
+    MuonSRSummary, ElectronSRSummary, ElectronMuonSRSummary,
 
-    Presel,    PreselSS,    PreselOS,
-    sigmm,    sigee,    sigem,   sigmm_17028,    sigee_17028,    sigem_17028,
-    ControlRegion,    SignalRegion,  SRLowMass,SRHighMass,  CR,
-    WGCR,    ZGCR, WZCR, ZZCR, ZZVBFCR, WZBCR,WZVBFCR,WZVBFCR2,ZZCR2,HMCR1,HMCR2,HMCR3,HMBDTCR3,HMNPCR,HMBCR,HM1JCR,PreselVBF,
-    WWNP1CR, WWNP2CR, WWNP3CR, WWCR1,WWCR2,ZAK8CR,ZCR,ZNPElCR,ZNPMuCR,TopCR,TopNPCR,TopAK8NPCR,TopNPCR2,
+    // Signal Regions (SR)
+    MuonSR1, ElectronSR1, ElectronMuonSR1,
+    MuonSR2, ElectronSR2, ElectronMuonSR2,
+    MuonSR3, ElectronSR3, ElectronMuonSR3,
+    MuonSR3BDT, ElectronSR3BDT, ElectronMuonSR3BDT,
 
+    // Control Regions (CR)
+    MuonCR1, ElectronCR1, ElectronMuonCR1,
+    MuonCR2, ElectronCR2, ElectronMuonCR2,
+    MuonCR3, ElectronCR3, ElectronMuonCR3,
+    MuonCR3BDT, ElectronCR3BDT, ElectronMuonCR3BDT,
+    MuonInvBJetCR1, ElectronInvBJetCR1, ElectronMuonInvBJetCR1,
+    MuonInvMETCR1, ElectronInvMETCR1, ElectronMuonInvMETCR1,
+
+    MuonInvBJetCR2, ElectronInvBJetCR2, ElectronMuonInvBJetCR2,
+    MuonInvMETCR2, ElectronInvMETCR2, ElectronMuonInvMETCR2,
+
+    MuonInvBJetCR3, ElectronInvBJetCR3, ElectronMuonInvBJetCR3,
+    MuonInvMETCR3, ElectronInvMETCR3, ElectronMuonInvMETCR3,
+
+    MuonInvBJetCR3BDT, ElectronInvBJetCR3BDT, ElectronMuonInvBJetCR3BDT,
+    MuonInvMETCR3BDT, ElectronInvMETCR3BDT, ElectronMuonInvMETCR3BDT,
+
+    // General SR and CR
+    MuonSR, ElectronSR, ElectronMuonSR,
+    MuonCR, ElectronCR, ElectronMuonCR,
+    MuonSRBDT, ElectronSRBDT, ElectronMuonSRBDT,
+    MuonCRBDT, ElectronCRBDT, ElectronMuonCRBDT,
+
+    // Simplified SR and CR
+    SR1, SR2, SR3, SR3BDT,
+    CR1, CR2, CR3, CR3BDT,
+
+    // Optimized Regions
+    MuonSROpt, ElectronSROpt, ElectronMuonSROpt,
+    MuonSRBDTOpt, ElectronSRBDTOpt, ElectronMuonSRBDTOpt,
+
+    // Preselection Categories
+    Presel, PreselSS, PreselOS,
+
+    // Signal Categories
+    sigmm, sigee, sigem,
+    sigmm_17028, sigee_17028, sigem_17028,
+
+    // High and Low Mass Regions
+    ControlRegion, SignalRegion, SRLowMass, SRHighMass, CR,
+
+    // Specific CR Regions
+    WGCR, ZGCR, WZCR, ZZCR, ZZVBFCR, WZBCR, WZVBFCR, WZVBFCR2, ZZCR2,
+    HMCR1, HMCR2, HMCR3, HMBDTCR3, HMNPCR, HMBCR, HM1JCR, PreselVBF,
+
+    // WW and Top Control Regions
+    WWNP1CR, WWNP2CR, WWNP3CR, WWCR1, WWCR2,
+    ZAK8CR, ZCR, ZNPElCR, ZNPMuCR, TopCR, TopNPCR, TopAK8NPCR, TopNPCR2
   };
+
 
   enum LeptonType
   {
@@ -95,23 +138,27 @@ class HNL_LeptonCore : public AnalyzerCore {
   ~HNL_LeptonCore();
 
 
-  //========== MAIN ANALYZER FUNCTIONS
+  // ========== Main Analyzer Functions
 
+  // ----- Setup Analyzer
+  AnalyzerParameter SetupFakeParameter(AnalyzerParameter::Syst SystType, HNL_LeptonCore::Channel channel, 
+				       HNL_LeptonCore::NormMC norm, const std::vector<TString>& s_jobs, 
+				       const TString& PNAME, const TString& IDT, const TString& IDL);
 
-  // ----- SETUP ANALYZER
-  AnalyzerParameter SetupFakeParameter(AnalyzerParameter::Syst SystType,HNL_LeptonCore::Channel channel, HNL_LeptonCore::NormMC norm,vector<TString> s_jobs,TString PNAME, TString IDT, TString IDL);
-  AnalyzerParameter InitialiseHNLParameter(TString s_setup);  
-  AnalyzerParameter InitialiseHNLParameter(TString s_setup, HNL_LeptonCore::Channel channel);  
-  AnalyzerParameter SetupHNLParameter(TString s_setup_version, TString channel_str_name);
+  AnalyzerParameter InitialiseHNLParameter(const TString& s_setup);
+  AnalyzerParameter InitialiseHNLParameter(const TString& s_setup, HNL_LeptonCore::Channel channel);
+  AnalyzerParameter SetupHNLParameter(const TString& s_setup_version, const TString& channel_str_name);
 
-  AnalyzerParameter DefaultParam(TString s_setup_version,TString channel_st);
+  AnalyzerParameter DefaultParam(const TString& s_setup_version, const TString& channel_st);
 
-  double GetLimitBin(TString region, vector<Lepton*> leps, vector<Jet> AK4Jets, vector<FatJet> AK8_JetColl , Event ev, double & nbins_reg);
-  vector<TString> GetLimitLabels(TString SR,TString channel="");
-  vector<double> GetLimitBinBoundary(TString SR, TString channel="");
-  vector<TString> GetBDTLimitLabels(TString key);
+  /// Limit Binning setup
+  double GetLimitBin(const TString& region, const std::vector<Lepton*>& leps, const std::vector<Jet>& AK4Jets, 
+		     const std::vector<FatJet>& AK8_JetColl, const Event& ev, double& nbins_reg);
 
-  TString GetSR3StringBin(TString RegionTag, TString channel, bool LowJet, double met2_st, double LT, double ll_dphi);
+  std::vector<TString> GetLimitLabels(const TString& SR, const TString& channel = "");
+  std::vector<double> GetLimitBinBoundary(const TString& SR, const TString& channel = "");
+  std::vector<TString> GetBDTLimitLabels(const TString& key);
+  TString GetSR3StringBin(const TString& RegionTag, const TString& channel, bool LowJet, double met2_st, double LT, double ll_dphi);
 
   /// List of Setups
   void GetSetup_POGTight(AnalyzerParameter& paramEv);
@@ -126,30 +173,33 @@ class HNL_LeptonCore : public AnalyzerCore {
   void GetSetup_HNLOpt(AnalyzerParameter& paramEv);
   void GetSetup_BDT(AnalyzerParameter& paramEv);
 
-  /// Systemaic HNL ID setup
-  bool UpdateParamBySyst(TString JobID, AnalyzerParameter& paramEv , AnalyzerParameter::Syst systname, TString OrigParamName);
+
+  bool UpdateParamBySyst(TString JobID, AnalyzerParameter& paramEv, AnalyzerParameter::Syst systname, const TString& OrigParamName);
   
   // ------ Analysis Obj   
-
-  // HNL_LeptonCore_MET
-
-  std::pair<double,double> METXYCorr_Met_MetPhi(double uncormet, double uncormet_phi, int runnb, TString year, bool isMC, int npv, bool isUL =false,bool ispuppi=false);
+  // Function to calculate METXY corrections for uncorrected MET
+  std::pair<double, double> METXYCorr_Met_MetPhi(double uncormet, double uncormet_phi, int runnb, const TString& year, bool isMC, int npv, bool isUL = false, bool ispuppi = false);
+  // A map to store correction factors
   std::map<TString, double> cfmap;
-
   std::map<TString, double> MakeSFmap;
   std::map<TString, double> MakeCFShiftmap;
-  map<TString, Particle> METMap(AnalyzerParameter param);
+  map<TString, Particle> METMap(AnalyzerParameter& param);
 
 
-  double ReturnCFWeight(vector<double> CFRates);
-  double ReturnCFWeight(double CFRates);
+  // Returns the correction factor weight for a vector of correction rates
+  double ReturnCFWeight(const std::vector<double>& CFRates);
+
+  // Returns the correction factor weight for a single correction rate
+  double ReturnCFWeight(double CFRate);
 
 
-  bool PassTandP_PairCriteria(vector<Muon> muons, int itag, int iprobe);
+  // Checks whether a pair of muons passes the T&P pair criteria
+  bool PassTandP_PairCriteria(const std::vector<Muon>& muons, int tagIndex, int probeIndex);
+  bool PassTandP_PairCriteriaHighMass(const std::vector<Muon>& muons, int tagIndex, int probeIndex);
 
   /// Jet Functions   HNL_LeptonCore_Jet                                                                                                                           
-  JetTagging::Parameters GetParamJetTagger(AnalyzerParameter param);
-  void  EvalJetWeight(std::vector<Jet>    AK4_JetColl, std::vector<FatJet> fatjets, double & w,AnalyzerParameter& param); 
+  JetTagging::Parameters GetParamJetTagger(AnalyzerParameter& param);
+  void  EvalJetWeight(const std::vector<Jet>&    AK4_JetColl, const std::vector<Jet>&    AK4_VBFJetColl, const std::vector<FatJet>& fatjets, double & w,AnalyzerParameter& param); 
   TString CloseJetFlavour(std::vector<Jet> jetColl, Lepton* lep);
   TString CloseJetFlavour(std::vector<Jet> jetColl, Muon mu);
   TString CloseJetFlavour(std::vector<Jet> jetColl, Electron el);
@@ -157,26 +207,40 @@ class HNL_LeptonCore : public AnalyzerCore {
   TString CloseJetFlavourInt(std::vector<Jet> jetColl, Muon mu);
   TString CloseJetFlavourInt(std::vector<Jet> jetColl, Electron el);
 
-  std::vector<Jet>    GetHNLJets(TString JetType, AnalyzerParameter param);
-  std::vector<FatJet> GetHNLAK8Jets(TString JetType, AnalyzerParameter param);
+  std::vector<Jet>    GetHNLJets(const TString& JetType, AnalyzerParameter& param);
+  std::vector<FatJet> GetHNLAK8Jets(const TString& JetType, AnalyzerParameter& param);
   std::vector<Jet>    SelBJets(std::vector<Jet>& jetColl, JetTagging::Parameters jtp);
 
-  double GetEventFatJetSF(vector<FatJet> fatjets, TString label, int dir);
-  double GetFatJetSF(FatJet fatjet, TString tag,  int dir);
-  double  GetBJetSF(AnalyzerParameter param,vector<Jet> jets, JetTagging::Parameters jtp);
-  double GetJetPileupIDSF(vector<Jet> jets , TString WP, AnalyzerParameter param);
+  double GetEventFatJetSF(const std::vector<FatJet>& fatjets, const TString& label, int dir) ;
+  double GetFatJetSF(const FatJet& fatjet, const TString& tag, int dir);
+  double GetBJetSF(AnalyzerParameter param,vector<Jet> jets, JetTagging::Parameters jtp);
+  double GetJetPileupIDSF(const std::vector<Jet>& jets, const TString& WP, const AnalyzerParameter& param);
 
 
-  void  DefineLimitBins();
+  // Define limit bins
+  void DefineLimitBins();
+
+  // Define BDT limit bins
   void DefineBDTLimitBins();
-  void SetBinningBDT(TString channel,TString mass, TString RegionTag, TString BinBoundaries_label, vector<pair<TString, double > >& BDTLimitBins);
+
+  // Set binning for BDT with specific parameters
+  void SetBinningBDT(const TString& channel, const TString& mass, const TString& RegionTag, 
+		     const TString& BinBoundaries_label, std::vector<std::pair<TString, double>>& BDTLimitBins);
 
 
-  ///// MET FUNCTIONS  HNL_LeptonCore_MET
-  Particle GetvMET(TString METType, AnalyzerParameter param, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Muon> muons, std::vector<Electron> electrons, bool propsmear=true);
-  Particle GetvMET(TString METType, AnalyzerParameter param, bool propsmear=true);
-  Particle GetMiniAODvMET(TString METType);
-  Particle GetvCorrMET(TString METType, AnalyzerParameter param, Particle METUncorr);
+
+  // Returns the MET (Missing Transverse Energy) based on various parameters
+  Particle GetvMET(const TString& METType, AnalyzerParameter param, const std::vector<Jet>& jets, const std::vector<FatJet>& fatjets, 
+		   const std::vector<Muon>& muons, const std::vector<Electron>& electrons, bool propsmear = true);
+
+  Particle GetvMET(const TString& METType, AnalyzerParameter& param, bool propsmear = true );
+
+  // Returns the MiniAOD MET (Missing Transverse Energy) based on the MET type
+  Particle GetMiniAODvMET(const TString& METType);
+
+  // Returns the corrected MET based on the provided uncorrected MET
+  Particle GetvCorrMET(const TString& METType, const std::vector<Muon>& muons, AnalyzerParameter param, Particle METUncorr);
+
 
    
   //------ BKG
@@ -188,7 +252,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   double GetFakeRateElectron(Electron el , AnalyzerParameter param);
   double GetFakeRateMuon(Muon mu, AnalyzerParameter param);
   double GetFakeWeight(std::vector<Lepton *> leps,  AnalyzerParameter param);
-  double GetIsoFromID(Lepton lep, TString id);
+  double GetIsolationCutFromID(Lepton lep, TString id);
   double GetCFSF(AnalyzerParameter param, Lepton*  lep, bool ApplySF=true) ;
   double GetCFSF(AnalyzerParameter param, Lepton  lep, bool ApplySF=true) ;
   double GetCFSF(AnalyzerParameter param, TString EtaReg, bool ApplySF=true) ;
@@ -212,57 +276,110 @@ class HNL_LeptonCore : public AnalyzerCore {
   void SetupEventMVAReader(TString version, bool ee=true, bool mm=true, bool emu=true);
   void SetupEvMVA();
   void DeleteEvMVA();
-  
-  /// ------ Corrections  HNL_LeptonCore_Corrections                                                                                                                                                
-  double HNLZvtxSF(HNL_LeptonCore::Channel ch);
-  double HNLZvtxSF(TString  ch);
-  bool PassHEMVeto(std::vector<Lepton *> leps,double& weight_hem);
-  void  PassJetHEMVeto(vector<Jet> jets,TString Flag, double& weight_hem);
 
+
+  // ================= Corrections: HNL_LeptonCore_Corrections ================= 
+
+  double HNLZvtxSF(HNL_LeptonCore::Channel ch);
+  double HNLZvtxSF(const TString& ch);
+
+  bool PassHEMVeto(const std::vector<Lepton*>& leps, double& weight_hem);
+  void PassJetHEMVeto(const std::vector<Jet>& jets, const TString& Flag, double& weight_hem);
 
   double GetDYWeakWeight(double mass);
+  
 
-  //  ================= MC weight functions              HNL_LeptonCore_EvCorr.C   =================                           
-  TString SetLeptonID(TString lep, AnalyzerParameter p);                                                                                                                                                                                       
-  void EvalLeptonIDWeight(std::vector<Lepton *> leps,      AnalyzerParameter& param , double& d);
-  void EvalMuonIDWeight     (std::vector<Muon> muons,         AnalyzerParameter& param, double& d );
-  void EvalElectronIDWeight (std::vector<Electron> electrons, AnalyzerParameter& param, double& d );
-  double GetElectronIDWeight(std::vector<Electron> electrons,AnalyzerParameter param);
-  double GetMuonIDWeight(std::vector<Muon> muons,AnalyzerParameter param);
+  //==== Kfactors                                                                                                                              
+  double GetKFactor();
 
-  double GetPileUpWeight(int N_pileup, int syst);
-  double GetZ0Weight(double valx);
 
+  // ================= MC weight functions: HNL_LeptonCore_EvCorr.C ================= 
+
+  // Sets the Lepton ID based on the lepton type and the provided parameters
+  TString SetLeptonID(const TString& lep, AnalyzerParameter& p);  // `p` is modified, so no `const`
+
+  // Evaluates the lepton ID weight for a collection of leptons
+  void EvalLeptonIDWeight(const std::vector<Lepton*>& leps, AnalyzerParameter& param, double& weight);
+
+  // Evaluates the electron ID weight for a collection of electrons
+  void EvalElectronIDWeight(const std::vector<Electron>& electrons, AnalyzerParameter& param, double& weight);
+
+  // Gets the electron ID weight for a collection of electrons
+  double GetElectronIDWeight(const std::vector<Electron>& electrons, AnalyzerParameter& param);
+
+  // Gets the muon ID weight for a collection of muons
+  double GetMuonIDWeight(const std::vector<Muon>& muons, AnalyzerParameter& param);
+
+  // Evaluates the muon ID weight for a collection of muons
+  void EvalMuonIDWeight(const std::vector<Muon>& muons, AnalyzerParameter& param, double& weight);
+
+  // Returns the pile-up weight based on the number of pileup events and the systematic variation
+  double GetPileUpWeight(int numPileup, int syst);
+
+  // Returns the Z0 weight based on the input value
+  double GetZ0Weight(double valX);
+
+  // Returns the scale uncertainty for a given systematic variation
   double GetScaleUncertainty(int sys);
-  TString GetPDFUncertainty(int iw, double& ev_weight );
-  double GetPDFUncertainty(TString SRBin, int sys);
+
+  // Returns the PDF uncertainty for the given weight index and event weight reference
+  TString GetPDFUncertainty(int weightIndex, double& eventWeight);
+
+  // Returns the PDF uncertainty for a specific signal region bin and systematic variation
+  double GetPDFUncertainty(const TString& signalRegionBin, int sys);
 
   //  ================= MC weight functions              HNL_LeptonCore_Lepton.C   =================                                                                                                                                          
 
-  std::vector<Muon> SelectMuons(const std::vector<Muon>& muons,    TString id, double ptmin, double fetamax);
-  std::vector<Muon> SelectMuons(TString id, double ptmin, double fetamax);
-  std::vector<Muon> SelectMuons(AnalyzerParameter& param, TString id, double ptmin, double fetamax, double& EvWeight);
-  std::vector<Muon> SelectMuons(AnalyzerParameter& param, TString id, double ptmin, double fetamax);
 
-  std::vector<Electron> SelectElectrons(const std::vector<Electron>& electrons,
-					TString id, double ptmin, double fetamax, bool vetoHEM = false);
+  // Selects muons from a given vector based on ID, pt minimum, and eta maximum
+  std::vector<Muon> SelectMuons(const std::vector<Muon>& muons, const TString& id, double ptmin, double fetamax);
 
-  std::vector<Electron> SelectElectrons(TString id, double ptmin, double fetamax, bool vetoHEM = false);
-  std::vector<Electron> SelectElectrons(AnalyzerParameter& param, TString id, double ptmin, double fetamax, double& EvWeight, bool vetoHEM=false);
-  std::vector<Electron> SelectElectrons(AnalyzerParameter& param, TString id, double ptmin, double fetamax,bool vetoHEM=false);
+  // Selects muons based on ID, pt minimum, and eta maximum from a default source
+  std::vector<Muon> SelectMuons(const TString& id, double ptmin, double fetamax);
+
+  // Selects and evaluates muon ID weight based on ID, pt minimum, eta maximum, and a reference to event weight
+  std::vector<Muon> SelectMuons(AnalyzerParameter& param, const TString& id, double ptmin, double fetamax, double& EvWeight);
+
+  // Selects muons based on ID, pt minimum, and eta maximum with parameters for analyzer setup
+  std::vector<Muon> SelectMuons(AnalyzerParameter& param, const TString& id, double ptmin, double fetamax);
 
 
-  std::vector<Tau>    SelectTaus(const std::vector<Tau>& taus,       TString id, double ptmin, double fetamax);
-  std::vector<Tau>    SelectTaus(vector<Lepton*> leps, TString id, double ptmin, double fetamax);
-  std::vector<Tau>    SelectTaus(TString id, double ptmin, double fetamax);
+  // Selects electrons from a given vector based on ID, pt minimum, eta maximum, and optional veto of HEM
+  std::vector<Electron> SelectElectrons(const std::vector<Electron>& electrons, const TString& id, double ptmin, double fetamax, bool vetoHEM = false);
+
+  // Selects electrons based on ID, pt minimum, eta maximum, and optional veto of HEM from a default source
+  std::vector<Electron> SelectElectrons(const TString& id, double ptmin, double fetamax, bool vetoHEM = false);
+
+  // Selects electrons based on ID, pt minimum, eta maximum, and evaluates event weight with parameters for analyzer setup
+  std::vector<Electron> SelectElectrons(AnalyzerParameter& param, const TString& id, double ptmin, double fetamax, double& EvWeight, bool vetoHEM = false);
+
+  // Selects electrons based on ID, pt minimum, eta maximum with parameters for analyzer setup and optional veto of HEM
+  std::vector<Electron> SelectElectrons(AnalyzerParameter& param, const TString& id, double ptmin, double fetamax, bool vetoHEM = false);
+
+
+  // Selects taus from a given vector based on ID, pt minimum, and eta maximum
+  std::vector<Tau> SelectTaus(const std::vector<Tau>& taus, const TString& id, double ptmin, double fetamax);
+
+  // Selects taus based on ID, pt minimum, eta maximum, and leptons in the collection
+  std::vector<Tau> SelectTaus(std::vector<Lepton*>& leps, const TString& id, double ptmin, double fetamax);
+
+  // Selects taus based on ID, pt minimum, and eta maximum from a default source
+  std::vector<Tau> SelectTaus(const TString& id, double ptmin, double fetamax);
 
 
   bool ComparePtTune(Muon mu, double ratio);
 
-  vector<Muon>     SkimLepColl(const vector<Muon>& MuColl,     AnalyzerParameter param, TString Option);
-  vector<Electron> SkimLepColl(const vector<Electron>& ElColl, AnalyzerParameter param,TString Option);
-  vector<Electron> SkimLepColl(const vector<Electron>& ElColl, TString Option);
-  vector<Muon>     SkimLepColl(const vector<Muon>& MuColl,     TString Option);
+  // Skims muon collection based on parameters and options
+  std::vector<Muon> SkimLepColl(const std::vector<Muon>& muColl, AnalyzerParameter& param, const TString& option);
+
+  // Skims electron collection based on parameters and options
+  std::vector<Electron> SkimLepColl(const std::vector<Electron>& elColl, AnalyzerParameter& param, const TString& option);
+
+  // Skims electron collection based on options
+  std::vector<Electron> SkimLepColl(const std::vector<Electron>& elColl, const TString& option);
+
+  // Skims muon collection based on options
+  std::vector<Muon> SkimLepColl(const std::vector<Muon>& muColl, const TString& option);
 
   std::vector<Jet>    SelectJets(AnalyzerParameter param);
   std::vector<Jet>    SelectJets(AnalyzerParameter param,TString ID, double ptmin, double fetamax);
@@ -273,8 +390,6 @@ class HNL_LeptonCore : public AnalyzerCore {
   std::vector<FatJet> SelectFatJets(AnalyzerParameter param,TString ID, double ptmin, double fetamax);
   std::vector<FatJet> SelectFatJets(TString id, double ptmin, double fetamax);
   std::vector<FatJet> SelectFatJets(const std::vector<FatJet>& jets, TString id, double ptmin, double fetamax);
-
-  vector<Jet>      SkimJetColl(const vector<Jet>& JetColl,     vector<Gen>& TruthColl, AnalyzerParameter param,TString Option);
 
 
   //===== Detailed jet selection
@@ -299,8 +414,14 @@ class HNL_LeptonCore : public AnalyzerCore {
 
   // ZptWeight
   void SetupZptWeight();
-  double GetZptWeight(double mass,double rapidity,double pt,TString opt="GYM");
+  double GetZptWeight(double pt,double rapidity,double mass) const ;
+  double GetZptWeight(double pt) const;
+  double GetZptWeight(double pt,double rapidity) const ;
   void DeleteZptWeight();
+  void ZptCorrectionReset();
+
+
+
   TF1* fZptWeightG=NULL;
   vector<TF1*> fZptWeightY;
   TAxis* fZptWeightYaxis=NULL;
@@ -312,6 +433,8 @@ class HNL_LeptonCore : public AnalyzerCore {
   TH1D* h_SumW_PDF;
   TH1D* h_SumW_Scale;
   TH1D* h_SumW_AlphaS;
+
+  TH1D* h_VV_KF_CMS;
 
   TDirectory *TheoryDir;
 

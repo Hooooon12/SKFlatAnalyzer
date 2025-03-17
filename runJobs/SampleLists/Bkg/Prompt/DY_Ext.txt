@@ -1,0 +1,6 @@
+DYJets_Pt-50To100
+DYJets_Pt-100To250
+DYJets_Pt-250To400
+DYJets_Pt-400To650
+DYJets_Pt-650ToInf
+DYJetsToMuMu_MiNNLO

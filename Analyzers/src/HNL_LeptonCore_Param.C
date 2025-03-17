@@ -1,7 +1,8 @@
 #include "HNL_LeptonCore.h"
 
 
-AnalyzerParameter  HNL_LeptonCore::DefaultParam(TString s_setup_version,TString channel_st){
+AnalyzerParameter  HNL_LeptonCore::DefaultParam(const TString& s_setup_version, const TString& channel_st){
+
 
   AnalyzerParameter param_default;
   
@@ -82,6 +83,9 @@ AnalyzerParameter  HNL_LeptonCore::DefaultParam(TString s_setup_version,TString 
   param_default.w.prefireweight_down=1;
   param_default.w.z0weight=1;
   param_default.w.zptweight=1;
+  param_default.w.zptweight_g=1;
+  param_default.w.zptweight_gy=1;
+  param_default.w.zptweight_gym=1;
   param_default.w.weakweight=1;
   param_default.w.topptweight=1;
   param_default.w.muonRECOSF=1;
@@ -109,7 +113,10 @@ AnalyzerParameter  HNL_LeptonCore::DefaultParam(TString s_setup_version,TString 
     if(IsDYSample){
       if((abs(lhe_l0.ID())==11||abs(lhe_l0.ID())==13)) {
         TLorentzVector genZ=(gen_l0+gen_l1);
-        param_default.w.zptweight =GetZptWeight(genZ.M(),genZ.Rapidity(),genZ.Pt());
+        param_default.w.zptweight = GetZptWeight(genZ.Pt(),genZ.Rapidity());
+        param_default.w.zptweight_g =GetZptWeight(genZ.Pt());
+        param_default.w.zptweight_gy =GetZptWeight(genZ.Pt(),genZ.Rapidity());
+        param_default.w.zptweight_gym =GetZptWeight(genZ.Pt(),genZ.Rapidity(),genZ.M());
         param_default.w.weakweight=GetDYWeakWeight(genZ.M());
 
       } 

@@ -26,6 +26,9 @@ class SkimTree_EGammaTnP_HNLHighPtV2 : public HNL_LeptonCore {
   float PUweight,PUweight_up,PUweight_down;
   float prefireweight,prefireweight_up,prefireweight_down;
   float zptweight;
+  float zptweight_g;
+  float zptweight_gy;
+  float zptweight_gym;
   float z0weight;
   float totWeight;
   float totWeight_Up;

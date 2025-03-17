@@ -1,268 +1,281 @@
 #include "HNL_LeptonCore.h"
 
-std::vector<Muon> HNL_LeptonCore::SelectMuons(const std::vector<Muon>& muons, TString id, double ptmin, double fetamax){
 
+
+std::vector<Muon> HNL_LeptonCore::SelectMuons(const std::vector<Muon>& muons, const TString& id, double ptmin, double fetamax) {
   std::vector<Muon> out;
-  for(unsigned int i=0; i<muons.size(); i++){
-    if(!( muons.at(i).Pt()>ptmin ))           continue;
-    if(!( fabs(muons.at(i).Eta())<fetamax ))  continue;
-    if(!( muons.at(i).PassID(id) ))           continue;
-    out.push_back( muons.at(i) );
+
+  for (const auto& muon : muons) {
+    if (muon.Pt() <= ptmin || std::abs(muon.Eta()) >= fetamax || !muon.PassID(id)) {
+      continue;
+    }
+    out.push_back(muon);
   }
 
-  std::sort(out.begin(),       out.end(),        PtComparing);
-
-  return out;
-}
-
-std::vector<Muon> HNL_LeptonCore::SelectMuons(TString id, double ptmin, double fetamax){
-
-  std::vector<Muon> muons = All_Muons;
-
-  std::vector<Muon> out;
-  for(unsigned int i=0; i<muons.size(); i++){
-    if(!( muons.at(i).Pt()>ptmin ))             continue;
-    if(!( fabs(muons.at(i).Eta())<fetamax ))  continue;
-    if(!( muons.at(i).PassID(id) ))             continue;
-    out.push_back( muons.at(i) );
-  }
-  std::sort(out.begin(),       out.end(),        PtComparing);
+  std::sort(out.begin(), out.end(), PtComparing);
   return out;
 }
 
 
-std::vector<Muon> HNL_LeptonCore::SelectMuons(AnalyzerParameter& param, TString id, double ptmin, double fetamax, double& EvWeight){
-  
+std::vector<Muon> HNL_LeptonCore::SelectMuons(const TString& id, double ptmin, double fetamax) {
+  std::vector<Muon> out;
+
+  for (const auto& muon : All_Muons) {
+    if (muon.Pt() <= ptmin || std::abs(muon.Eta()) >= fetamax || !muon.PassID(id)) {
+      continue;
+    }
+    out.push_back(muon);
+  }
+
+  std::sort(out.begin(), out.end(), PtComparing);
+  return out;
+}
+
+
+std::vector<Muon> HNL_LeptonCore::SelectMuons(AnalyzerParameter& param, const TString& id, double ptmin, double fetamax, double& EvWeight) {
   std::vector<Muon> muons = SelectMuons(param, id, ptmin, fetamax);
-  if(!IsData) EvalMuonIDWeight(muons  , param, EvWeight);
+    
+  if (!IsData) {
+    EvalMuonIDWeight(muons, param, EvWeight);
+  }
+
   return muons;
 }
 
-std::vector<Muon> HNL_LeptonCore::SelectMuons(AnalyzerParameter& param, TString id, double ptmin, double fetamax){
+std::vector<Muon> HNL_LeptonCore::SelectMuons(AnalyzerParameter& param, const TString& id, double ptmin, double fetamax) {
 
-  std::vector<Muon> this_AllMuons =  All_Muons;
-  std::vector<Muon> muons ;
+  std::vector<Muon> muons = All_Muons;
 
-  //// smeares high pt and sets scale syst
+  // Apply high pt smearing and scale systematics
+  HighPtMuonCorr(muons);
 
-  HighPtMuonCorr(this_AllMuons);
+  if (param.syst_ == AnalyzerParameter::MuonEnUp) {
+    muons = ScaleMuons(muons, +1);
+  } else if (param.syst_ == AnalyzerParameter::MuonEnDown) {
+    muons = ScaleMuons(muons, -1);
+  }
 
-
-  if(param.syst_ == AnalyzerParameter::MuonEnUp)         muons = ScaleMuons( this_AllMuons, +1 );
-  else if(param.syst_ == AnalyzerParameter::MuonEnDown)  muons = ScaleMuons( this_AllMuons, -1 );
-  else muons = this_AllMuons;
-
-
-  //// High Pt have resolution syst 
-  if(param.syst_ == AnalyzerParameter::MuonResUp)    SmearHighPtMuonSyst(muons);
-
+  // Apply resolution systematics to high-pt muons
+  if (param.syst_ == AnalyzerParameter::MuonResUp) {
+    SmearHighPtMuonSyst(muons);
+  }
 
   std::vector<Muon> out;
-  for(unsigned int i=0; i<muons.size(); i++){
-    if(!( muons.at(i).Pt()> ptmin ))          continue;
-    if(!( fabs(muons.at(i).Eta())< fetamax )) continue;
-    if(!( muons.at(i).PassID(id) ))           continue;
-    
-    bool CorrPt = (RunFake||RunPromptTLRemoval) && (id == param.Muon_FR_ID || id == param.Muon_Veto_ID);
+  for (auto& muon : muons) {
+    if (muon.Pt() <= ptmin || std::abs(muon.Eta()) >= fetamax || !muon.PassID(id)) {
+      continue;
+    }
 
-    if(CorrPt){
+    // Remove high-pt EC muons if flag is set
+    if (HasFlag("Remove_HighPtEC") && std::abs(muon.Eta()) > 1.5 && muon.Pt() > 500) {
+      continue;
+    }
 
-      Muon this_muon = muons.at(i);
-      if(param.FakeRateParam == "PtCone"){
-        double Isocut = GetIsoFromID(Lepton(muons[i]), param.Muon_Tight_ID );
-        this_muon.SetPtEtaPhiM( muons.at(i).CalcPtCone(muons.at(i).RelIso(), Isocut), muons.at(i).Eta(), muons.at(i).Phi(), muons.at(i).M() );
-      }
-      if(param.FakeRateParam == "TrkPtCone"){
-        double Isocut = GetIsoFromID(Lepton(muons[i]), param.Muon_Tight_ID );
-	this_muon.SetPtEtaPhiM( muons.at(i).CalcTrkPtCone(muons.at(i).RelIso(), Isocut), muons.at(i).Eta(), muons.at(i).Phi(), muons.at(i).M() );
-      }
-      if(param.FakeRateParam == "PtConeMini"){
-        double Isocut  = GetIsoFromID(Lepton(muons[i]), param.Muon_Tight_ID);
-        this_muon.SetPtEtaPhiM( muons.at(i).CalcPtCone(muons.at(i).MiniRelIso(), Isocut), muons.at(i).Eta(), muons.at(i).Phi(), muons.at(i).M() );
-      }
-      if(param.FakeRateParam == "PtCorr"){
-        this_muon.SetPtEtaPhiM( muons.at(i).CalcMVACone( muons.at(i).MVAFakeCut(param.Muon_Tight_ID,GetYearString())) , muons.at(i).Eta(), muons.at(i).Phi(), muons.at(i).M() );
-      }
-      if(param.FakeRateParam == "PtParton"){
-        this_muon.SetPtEtaPhiM(muons.at(i).PtParton(GetPtPartonSF(Lepton(muons.at(i)), param.Muon_FR_ID, param), muons.at(i).MVAFakeCut(param.Muon_Tight_ID,GetYearString())), muons.at(i).Eta(), muons.at(i).Phi(), muons.at(i).M() );
-      }
-      if(param.FakeRateParam == "MotherJetPt"){
-        this_muon.SetPtEtaPhiM( muons.at(i).MotherJetPt(),muons.at(i).Eta(), muons.at(i).Phi(), muons.at(i).M() );
+    bool CorrPt = (RunFake || RunPromptTLRemoval) && (id == param.Muon_FR_ID || id == param.Muon_Veto_ID);
+    if (RunFake && HasFlag("OS")) CorrPt=false;
+    if (CorrPt) {
+      Muon this_muon = muon;
+      double IsolationRequirement = param.FakeRateParam.Contains("Cone") ? GetIsolationCutFromID(Lepton(muon), param.Muon_Tight_ID) : 1.0;
+
+      if (param.FakeRateParam == "PtCone") {
+	this_muon.SetPtEtaPhiM(muon.CalcPtCone(muon.RelIso(), IsolationRequirement), muon.Eta(), muon.Phi(), muon.M());
+      } else if (param.FakeRateParam == "TrkPtCone") {
+	this_muon.SetPtEtaPhiM(muon.CalcTrkPtCone(muon.RelIso(), IsolationRequirement), muon.Eta(), muon.Phi(), muon.M());
+      } else if (param.FakeRateParam == "PtConeMini") {
+	this_muon.SetPtEtaPhiM(muon.CalcPtCone(muon.MiniRelIso(), IsolationRequirement), muon.Eta(), muon.Phi(), muon.M());
+      } else if (param.FakeRateParam == "PtCorr") {
+	this_muon.SetPtEtaPhiM(muon.CalcMVACone(muon.MVAFakeCut(param.Muon_Tight_ID, GetYearString())), muon.Eta(), muon.Phi(), muon.M());
+      } else if (param.FakeRateParam == "PtParton") {
+	this_muon.SetPtEtaPhiM(muon.PtParton(GetPtPartonSF(Lepton(muon), param.Muon_FR_ID, param), muon.MVAFakeCut(param.Muon_Tight_ID, GetYearString())),
+			       muon.Eta(), muon.Phi(), muon.M());
       } 
-      out.push_back( this_muon);
-      
-    }
-    else   out.push_back( muons.at(i) );
-  }
-  
-  std::sort(out.begin(),       out.end(),        PtComparing);
 
+      out.push_back(this_muon);
+    } else {
+      out.push_back(muon);
+    }
+  }
+
+  std::sort(out.begin(), out.end(), PtComparing);
   return out;
 }
 
 
-std::vector<Electron> HNL_LeptonCore::SelectElectrons(const std::vector<Electron>& electrons, TString id, double ptmin, double fetamax, bool vetoHEM){
+std::vector<Electron> HNL_LeptonCore::SelectElectrons(const std::vector<Electron>& electrons, const TString& id, 
+                                                      double ptmin, double fetamax, bool vetoHEM) {
+  std::vector<Electron> out;
+
+  for (const auto& electron : electrons) {
+    if (electron.Pt() <= ptmin || std::abs(electron.scEta()) >= fetamax || !electron.PassID(id)) {
+      continue;
+    }
+    if (vetoHEM && FindHEMElectron(electron)) {
+      continue;
+    }
+    out.push_back(electron);
+  }
+
+  std::sort(out.begin(), out.end(), PtComparing);
+  return out;
+}
+
+std::vector<Electron> HNL_LeptonCore::SelectElectrons(const TString& id, double ptmin, double fetamax, bool vetoHEM) {
 
   std::vector<Electron> out;
-  for(unsigned int i=0; i<electrons.size(); i++){
-    if(!( electrons.at(i).Pt()>ptmin ))             continue;
-    if(!( fabs(electrons.at(i).scEta())<fetamax ))  continue;
-    if(!( electrons.at(i).PassID(id) ))             continue;
-    if(vetoHEM){
-      if ( FindHEMElectron (electrons.at(i)) ){
-        continue;
-      }
+
+  for (const auto& electron : All_Electrons) {
+    if (electron.Pt() <= ptmin || std::abs(electron.scEta()) >= fetamax || !electron.PassID(id)) {
+      continue;
     }
-    out.push_back(electrons.at(i));
+    if (vetoHEM && FindHEMElectron(electron)) {
+      continue;
+    }
+    out.push_back(electron);
   }
-  std::sort(out.begin(),       out.end(),        PtComparing);
+
+  std::sort(out.begin(), out.end(), PtComparing);
   return out;
 }
 
 
-std::vector<Electron> HNL_LeptonCore::SelectElectrons(TString id, double ptmin, double fetamax, bool vetoHEM){
-
-  std::vector<Electron> electrons = All_Electrons;
-
-  std::vector<Electron> out;
-  for(unsigned int i=0; i<electrons.size(); i++){
-    if(!( electrons.at(i).Pt()>ptmin ))             continue;
-    if(!( fabs(electrons.at(i).scEta())<fetamax ))  continue;
-    if(!( electrons.at(i).PassID(id) ))             continue;
-    if(vetoHEM){
-      if ( FindHEMElectron (electrons.at(i)) ){
-        continue;
-      }
-    }
-    out.push_back( electrons.at(i) );
-  }
-
-  std::sort(out.begin(),       out.end(),        PtComparing);
-
-  return out;
-
-}
-
-std::vector<Electron> HNL_LeptonCore::SelectElectrons(AnalyzerParameter& param, TString id, double ptmin, double fetamax, double& EvWeight,bool vetoHEM){
-
+std::vector<Electron> HNL_LeptonCore::SelectElectrons(AnalyzerParameter& param, const TString& id, 
+                                                      double ptmin, double fetamax, double& EvWeight, bool vetoHEM) {
   std::vector<Electron> electrons = SelectElectrons(param, id, ptmin, fetamax, vetoHEM);
-  if(!IsData) EvalElectronIDWeight(electrons, param, EvWeight);
+    
+  if (!IsData) {
+    EvalElectronIDWeight(electrons, param, EvWeight);
+  }
+
   return electrons;
 }
 
-std::vector<Electron> HNL_LeptonCore::SelectElectrons(AnalyzerParameter& param, TString id, double ptmin, double fetamax, bool vetoHEM){
 
-  std::vector<Electron> this_AllElectrons = All_Electrons;
-  std::vector<Electron> electrons ;
+std::vector<Electron> HNL_LeptonCore::SelectElectrons(AnalyzerParameter& param, const TString& id, 
+                                                      double ptmin, double fetamax, bool vetoHEM) {
+  std::vector<Electron> electrons = All_Electrons;
 
-  if(param.syst_ == AnalyzerParameter::ElectronResUp)        electrons = SmearElectrons( this_AllElectrons, +1 );
-  else if(param.syst_ == AnalyzerParameter::ElectronResDown) electrons = SmearElectrons( this_AllElectrons, -1 );
-  else if(param.syst_ == AnalyzerParameter::ElectronEnUp)    electrons = ScaleElectrons( this_AllElectrons, +1 );
-  else if(param.syst_ == AnalyzerParameter::ElectronEnDown)  electrons = ScaleElectrons( this_AllElectrons, -1 );
-  else electrons = this_AllElectrons;
-
-  //  double ElEnergyShift=1;
-  // if(RunCF ) ElEnergyShift = GetZMassShift(electrons);
+  // Apply smearing or scaling based on systematic variations
+  if (param.syst_ == AnalyzerParameter::ElectronResUp) {
+    electrons = SmearElectrons(electrons, +1);
+  } else if (param.syst_ == AnalyzerParameter::ElectronResDown) {
+    electrons = SmearElectrons(electrons, -1);
+  } else if (param.syst_ == AnalyzerParameter::ElectronEnUp) {
+    electrons = ScaleElectrons(electrons, +1);
+  } else if (param.syst_ == AnalyzerParameter::ElectronEnDown) {
+    electrons = ScaleElectrons(electrons, -1);
+  }
 
   std::vector<Electron> out;
-  for(unsigned int i=0; i<electrons.size(); i++){
 
-    if(!( electrons.at(i).Pt()> ptmin ))            continue;
-    if(!( fabs(electrons.at(i).scEta())< fetamax )) continue;
-    if(!( electrons.at(i).PassID(id) ))             continue;
-    if(vetoHEM){
-      if ( FindHEMElectron (electrons.at(i)) ){
-        continue;
-      }
+  for (auto& electron : electrons) {
+    if (electron.Pt() <= ptmin || std::abs(electron.scEta()) >= fetamax || !electron.PassID(id)) {
+      continue;
     }
-    
-    bool CorrPt = (RunFake||RunPromptTLRemoval) && (id == param.Electron_FR_ID || id == param.Electron_Veto_ID);
 
-    if(CorrPt){
-      Electron this_electron = electrons.at(i);
-      if(param.FakeRateParam == "PtCone"){
-        double Isocut = GetIsoFromID(Lepton(electrons.at(i)),param.Electron_Tight_ID);
-        this_electron.SetPtEtaPhiM( electrons.at(i).CalcPtCone(electrons.at(i).RelIso(), Isocut), electrons.at(i).Eta(), electrons.at(i).Phi(), electrons.at(i).M() );
-      }
-      if(param.FakeRateParam == "TrkPtCone"){
-	double Isocut = GetIsoFromID(Lepton(electrons.at(i)),param.Electron_Tight_ID);
-        this_electron.SetPtEtaPhiM( electrons.at(i).CalcTrkPtCone(electrons.at(i).RelIso(), Isocut), electrons.at(i).Eta(), electrons.at(i).Phi(), electrons.at(i).M() );
-      }
-      if(param.FakeRateParam == "PtConeMini"){
-        double Isocut = GetIsoFromID(Lepton(electrons.at(i)) ,param.Electron_Tight_ID);
-        this_electron.SetPtEtaPhiM( electrons.at(i).CalcPtCone(electrons.at(i).MiniRelIso(), Isocut), electrons.at(i).Eta(), electrons.at(i).Phi(), electrons.at(i).M() );
-      }
-
-      if(param.FakeRateParam == "PtCorr"){
-        this_electron.SetPtEtaPhiM( electrons.at(i).CalcMVACone( electrons.at(i).MVAFakeCut(param.Electron_Tight_ID,GetYearString())) , electrons.at(i).Eta(), electrons.at(i).Phi(), electrons.at(i).M() );
-      }
-      if(param.FakeRateParam == "PtParton"){
-        this_electron.SetPtEtaPhiM(electrons.at(i).PtParton(GetPtPartonSF(Lepton(electrons.at(i)), param.Electron_FR_ID,param), electrons.at(i).MVAFakeCut(param.Electron_Tight_ID,GetYearString())), electrons.at(i).Eta(), electrons.at(i).Phi(), electrons.at(i).M() );
-      }
-      if(param.FakeRateParam == "MotherJetPt"){
-        this_electron.SetPtEtaPhiM( electrons.at(i).MotherJetPt(),electrons.at(i).Eta(), electrons.at(i).Phi(), electrons.at(i).M() );
-      }
-      
-      out.push_back( this_electron);
+    // Apply HEM veto if required
+    if (vetoHEM && FindHEMElectron(electron)) {
+      continue;
     }
-    else   out.push_back( electrons.at(i) );
+
+    // Remove high-pt electrons in the EC region if flag is set
+    if (HasFlag("Remove_HighPtEC") && std::abs(electron.Eta()) > 1.5 && electron.Pt() > 500) {
+      continue;
+    }
+
+    bool CorrPt = (RunFake || RunPromptTLRemoval) && 
+      (id == param.Electron_FR_ID || id == param.Electron_Veto_ID);
+
+    if (RunFake&& HasFlag("OS")) CorrPt=false;
+
+    if (CorrPt) {
+      Electron this_electron = electron;
+      double IsolationRequirement = param.FakeRateParam.Contains("Cone") ?  GetIsolationCutFromID(Lepton(electron), param.Electron_Tight_ID) : 1.;
+
+      if (param.FakeRateParam == "PtCone") {
+	this_electron.SetPtEtaPhiM(electron.CalcPtCone(electron.RelIso(), IsolationRequirement), 
+				   electron.Eta(), electron.Phi(), electron.M());
+      } else if (param.FakeRateParam == "TrkPtCone") {
+	this_electron.SetPtEtaPhiM(electron.CalcTrkPtCone(electron.RelIso(), IsolationRequirement), 
+				   electron.Eta(), electron.Phi(), electron.M());
+      } else if (param.FakeRateParam == "PtConeMini") {
+	this_electron.SetPtEtaPhiM(electron.CalcPtCone(electron.MiniRelIso(), IsolationRequirement), 
+				   electron.Eta(), electron.Phi(), electron.M());
+      } else if (param.FakeRateParam == "PtCorr") {
+	this_electron.SetPtEtaPhiM(electron.CalcMVACone(electron.MVAFakeCut(param.Electron_Tight_ID, GetYearString())), 
+				   electron.Eta(), electron.Phi(), electron.M());
+      } else if (param.FakeRateParam == "PtParton") {
+	this_electron.SetPtEtaPhiM(electron.PtParton(GetPtPartonSF(Lepton(electron), param.Electron_FR_ID, param), 
+						     electron.MVAFakeCut(param.Electron_Tight_ID, GetYearString())), 
+				   electron.Eta(), electron.Phi(), electron.M());
+      } 
+
+      out.push_back(this_electron);
+    } else {
+      out.push_back(electron);
+    }
   }
-  
-  std::sort(out.begin(),       out.end(),        PtComparing);
 
+  std::sort(out.begin(), out.end(), PtComparing);
   return out;
-  
 }
 
-std::vector<Tau> HNL_LeptonCore::SelectTaus(const std::vector<Tau>& taus, TString id, double ptmin, double fetamax){
 
+
+std::vector<Tau> HNL_LeptonCore::SelectTaus(const std::vector<Tau>& taus, const TString& id, double ptmin, double fetamax) {
   std::vector<Tau> out;
-  for(unsigned int i=0; i<taus.size(); i++){
-    if(!( taus.at(i).Pt()>ptmin ))            continue;
-    if(!( fabs(taus.at(i).Eta())<fetamax ))   continue;
-    if(!( taus.at(i).PassID(id) ))            continue;
-    out.push_back( taus.at(i) );
+
+  for (const auto& tau : taus) {
+    if (tau.Pt() <= ptmin || std::abs(tau.Eta()) >= fetamax || !tau.PassID(id)) {
+      continue;
+    }
+    out.push_back(tau);
   }
-  std::sort(out.begin(),       out.end(),        PtComparing);
 
+  std::sort(out.begin(), out.end(), PtComparing);
   return out;
-
 }
 
-std::vector<Tau> HNL_LeptonCore::SelectTaus(std::vector<Lepton* > leps,TString id, double ptmin, double fetamax){
 
+std::vector<Tau> HNL_LeptonCore::SelectTaus(std::vector<Lepton*>& leps, const TString& id, double ptmin, double fetamax) {
   std::vector<Tau> Taus = SelectTaus(id, ptmin, fetamax);
   std::vector<Tau> out;
-  for(auto tau : Taus){
-    for(auto lep : leps){
-      if(lep->DeltaR(tau) > 0.4)  out.push_back(tau);
+
+  for (auto& tau : Taus) {
+    bool pass = true;
+    for (auto* lep : leps) {
+      if (lep->DeltaR(tau) <= 0.4) {
+	pass = false;
+	break;
+      }
+    }
+
+    if (pass) {
+      out.push_back(tau);
     }
   }
-  std::sort(out.begin(),       out.end(),        PtComparing);
-  
+
+  std::sort(out.begin(), out.end(), PtComparing);
   return out;
 }
 
-std::vector<Tau> HNL_LeptonCore::SelectTaus(TString id, double ptmin, double fetamax){
 
+std::vector<Tau> HNL_LeptonCore::SelectTaus(const TString& id, double ptmin, double fetamax) {
   std::vector<Tau> taus = GetAllTaus();
   std::vector<Tau> out;
 
-  for(unsigned int i=0; i<taus.size(); i++){
-    if(!( taus.at(i).Pt()>ptmin ))           continue;
-    if(!( fabs(taus.at(i).Eta())<fetamax ))  continue;
-    if(!( taus.at(i).PassID(id) ))           continue;
-    out.push_back( taus.at(i) );
+  for (const auto& tau : taus) {
+    if (tau.Pt() <= ptmin || std::abs(tau.Eta()) >= fetamax || !tau.PassID(id)) {
+      continue;
+    }
+    out.push_back(tau);
   }
 
-  std::sort(out.begin(),       out.end(),        PtComparing);
-
+  std::sort(out.begin(), out.end(), PtComparing);
   return out;
-
 }
 
 
-vector<Muon> HNL_LeptonCore::SkimLepColl(const vector<Muon>& MuColl,  AnalyzerParameter param, TString Option){
+vector<Muon> HNL_LeptonCore::SkimLepColl(const vector<Muon>& MuColl,  AnalyzerParameter& param, const TString& Option){
 
   bool GetPrompt=false, GetHadFake=false, GetEWtau=false, GetNHIntConv=false, GetNHExtConv=false;
 
@@ -299,7 +312,7 @@ vector<Muon> HNL_LeptonCore::SkimLepColl(const vector<Muon>& MuColl,  AnalyzerPa
 }
 
 
-vector<Electron> HNL_LeptonCore::SkimLepColl(const vector<Electron>& ElColl, AnalyzerParameter param,TString Option){
+vector<Electron> HNL_LeptonCore::SkimLepColl(const vector<Electron>& ElColl, AnalyzerParameter& param,const TString& Option){
 
   bool GetPrompt=false, GetHadFake=false, GetEWtau=false, GetNHIntConv=false, GetNHExtConv=false, GetCF=false;
   //CFHFakeNHConv                                                                                                                                                                                                                                                                                  
@@ -335,7 +348,7 @@ vector<Electron> HNL_LeptonCore::SkimLepColl(const vector<Electron>& ElColl, Ana
 }
 
 
-vector<Electron> HNL_LeptonCore::SkimLepColl(const vector<Electron>& ElColl, TString Option){
+vector<Electron> HNL_LeptonCore::SkimLepColl(const vector<Electron>& ElColl, const TString& Option){
 
   vector<Electron> ReturnColl;
 
@@ -356,7 +369,7 @@ vector<Electron> HNL_LeptonCore::SkimLepColl(const vector<Electron>& ElColl, TSt
 }
 
 
-vector<Muon> HNL_LeptonCore::SkimLepColl(const vector<Muon>& MuColl,  TString Option){
+vector<Muon> HNL_LeptonCore::SkimLepColl(const vector<Muon>& MuColl,  const TString& Option){
 
   vector<Muon> ReturnColl;
   bool Barrel=false, Overlap=false, Endcap=false;

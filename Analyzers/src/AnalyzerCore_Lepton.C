@@ -82,6 +82,8 @@ std::vector<Electron> AnalyzerCore::SmearElectrons(const std::vector<Electron>& 
     Electron this_electron = electrons.at(i);
 
     double this_sf = this_electron.ResShift(sys);
+    if(HasFlag("ScanSystematic")) cout << "SmearElectron " << sys << " this_sf= " << this_sf << " this_electron.Pt() " << this_electron.Pt() << " -->  " << this_electron.Pt() * this_sf << endl;
+    
     this_electron.SetPtEtaPhiM( this_electron.Pt() * this_sf, this_electron.Eta(), this_electron.Phi(), this_electron.M() );
 
     out.push_back( this_electron );
@@ -211,12 +213,18 @@ void AnalyzerCore::HighPtMuonCorr(std::vector<Muon>& muons){
 
       /// change syst scale
       //      cout << "muons[i] = " << muons[i].Pt() << endl;
-      SmearHighPtMuon(muons[i]); 
+      //      SmearHighPtMuon(muons[i]);  ---> Apply in getallmuons now
       //      cout << "SmearHighPtMuon muons[i] = " << muons[i].Pt() <<endl;
       
       Particle this_tunep4 = muons[i].TuneP4();
       ScaledPts ptvalues = muonGE->GeneralizedEndpointPt(GetEraShort(), this_tunep4.Pt(), this_tunep4.Charge(), this_tunep4.Eta(), this_tunep4.Phi()*180./M_PI, event);
-      muons[i].SetMomentumScaleUpDown(ptvalues.ScaledPt_Up,ptvalues.ScaledPt_Down);
+      
+      double GEPt = ptvalues.ScaledPt;
+      //      double RelativePt = fabs(GEPt - muons[i].UncorrectedPt());
+      //double Pt_Scale_Up = muons[i].UncorrectedPt() + RelativePt;
+      //double Pt_Scale_Down = muons[i].UncorrectedPt() - RelativePt;
+
+      muons[i].SetMomentumScaleUpDown(GEPt, muons[i].Pt());
       
     }
   }

@@ -87,7 +87,7 @@ void HNL_CrossCheck::RunControlRegions(AnalyzerParameter param, vector<TString> 
   std::vector<Jet>    AK4_JetCollLoose            = GetHNLJets("Loose",     param);
   std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param);
   
-  EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
+  EvalJetWeight(AK4_JetColl, AK4_VBF_JetColl,AK8_JetColl, weight, param);
 
 
   if(ElectronTightColl.size() == 2){

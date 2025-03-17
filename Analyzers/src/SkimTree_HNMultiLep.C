@@ -165,7 +165,6 @@ void SkimTree_HNMultiLep::executeEvent(){
   //==== Skim 1 ) trigger
   if(! (ev.PassTrigger(triggers)) ) return;
 
-
   if(this->DataStream == "SingleElectron" && (ev.PassTrigger(triggers_di_el))) return;
 
   std::vector<Muon>     muonPreColl     = GetMuons("HNLoosest", 5., 2.4);

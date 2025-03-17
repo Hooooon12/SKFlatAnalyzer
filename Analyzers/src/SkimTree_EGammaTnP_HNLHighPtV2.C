@@ -20,11 +20,11 @@ void SkimTree_EGammaTnP_HNLHighPtV2::initializeAnalyzer(){
     weight_tree->Branch("prefireweight_up",&prefireweight_up);
     weight_tree->Branch("prefireweight_down",&prefireweight_down);
     weight_tree->Branch("zptweight",&zptweight);
+    weight_tree->Branch("zptweight_g",&zptweight_g);
+    weight_tree->Branch("zptweight_gy",&zptweight_gy);
+    weight_tree->Branch("zptweight_gym",&zptweight_gym);
     weight_tree->Branch("z0weight",&z0weight);
     weight_tree->Branch("totWeight",&totWeight);
-    weight_tree->Branch("totWeight_Up",&totWeight_Up);
-    weight_tree->Branch("totWeight_Down",&totWeight_Down);
-
   }
 
 
@@ -42,11 +42,11 @@ void SkimTree_EGammaTnP_HNLHighPtV2::initializeAnalyzer(){
     newtree->Branch("prefireweight_up",&prefireweight_up);
     newtree->Branch("prefireweight_down",&prefireweight_down);
     newtree->Branch("zptweight",&zptweight);
+    newtree->Branch("zptweight_g",&zptweight_g);
+    newtree->Branch("zptweight_gy",&zptweight_gy);
+    newtree->Branch("zptweight_gym",&zptweight_gym);
     newtree->Branch("z0weight",&z0weight);
     newtree->Branch("totWeight",&totWeight);
-    newtree->Branch("totWeight_Up",&totWeight_Up);
-    newtree->Branch("totWeight_Down",&totWeight_Down);
-
   }
   newtree->Branch("event_met_pfmet",&pfMET_Type1_pt);
   newtree->Branch("event_met_pfphi",&pfMET_Type1_phi);
@@ -88,6 +88,8 @@ void SkimTree_EGammaTnP_HNLHighPtV2::initializeAnalyzer(){
   newtree->Branch("passingHNL_ULID_Probe_Split_6",&passingHNL_ULID_Probe_Split_6);
   newtree->Branch("passingHNL_ULID_Probe_Split_7",&passingHNL_ULID_Probe_Split_7);
   newtree->Branch("passingHNL_ULID_Probe_Split_8",&passingHNL_ULID_Probe_Split_8);
+
+
 
   newtree->Branch("scoreHNLMVACF",&scoreHNLMVACF);
   newtree->Branch("scoreHNLMVAConv",&scoreHNLMVAConv);
@@ -177,14 +179,9 @@ bool SkimTree_EGammaTnP_HNLHighPtV2::IsGoodTagProbe(Electron el_tag, Electron el
   if(fabs(el_probe.scEta()) >2.5) return false;
   if(el_probe.etaRegion()==Electron::GAP) return false;
 
-  if((el_tag+el_probe).M()<70) return false;
-  if((el_tag+el_probe).M()>110) return false;
-
+  //  if((el_tag+el_probe).M()<70) return false;
+  //  if((el_tag+el_probe).M()>110) return false;
   //if((el_tag.Charge() + el_probe.Charge()) != 0)  return false;
-
-  //  if(RunFake){
-  //    if((el_tag.Charge() + el_probe.Charge()) == 0)  return false;       
-  //  }
   return true;
 }
 
@@ -202,18 +199,18 @@ bool SkimTree_EGammaTnP_HNLHighPtV2::IsTag(Electron el_tag){
   }
   
   // Match trigger in data
-  if(IsDATA){
-    if(DataYear == 2016){
-      //if(!el_tag.PassPath("HLT_Ele27_eta2p1_WPTight_Gsf_v")) return false; 
-      if(!el_tag.PassPath("HLT_Ele27_WPTight_Gsf_v")) return false; 
-    }
-    else if(DataYear == 2017){
-      if(!el_tag.PassPath("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v")) return false;
-    }
-    else if(DataYear == 2018){
-      if(!el_tag.PassPath("HLT_Ele32_WPTight_Gsf_v")) return false;
-    }
+  //  if(IsDATA){
+  if(DataYear == 2016){
+    //if(!el_tag.PassPath("HLT_Ele27_eta2p1_WPTight_Gsf_v")) return false; 
+    if(!el_tag.PassPath("HLT_Ele27_WPTight_Gsf_v")) return false; 
   }
+  else if(DataYear == 2017){
+    if(!el_tag.PassPath("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v")) return false;
+  }
+  else if(DataYear == 2018){
+    if(!el_tag.PassPath("HLT_Ele32_WPTight_Gsf_v")) return false;
+  }
+  
   return true;
 }
 
@@ -225,19 +222,18 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
     Event ev = GetEvent();
 
     vector<Electron> electrons= GetAllElectrons();
+   
     
-    AnalyzerParameter p = HNL_LeptonCore::InitialiseHNLParameter("Basic");
+    AnalyzerParameter p = HNL_LeptonCore::InitialiseHNLParameter("HNL_ULIDv2");
 
-    if(IsDATA){
-      if(DataYear == 2016){
-	if(! (ev.PassTrigger("HLT_Ele27_WPTight_Gsf_v")))return;
-      }
-      if(DataYear == 2017){
-	if(! (ev.PassTrigger("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v"))) return;
-      }
-      if(DataYear == 2018){
-	if(! (ev.PassTrigger("HLT_Ele32_WPTight_Gsf_v"))) return;
-      }
+    if(DataYear == 2016){
+      if(! (ev.PassTrigger("HLT_Ele27_WPTight_Gsf_v")))return;
+    }
+    if(DataYear == 2017){
+      if(! (ev.PassTrigger("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v"))) return;
+    }
+    if(DataYear == 2018){
+      if(! (ev.PassTrigger("HLT_Ele32_WPTight_Gsf_v"))) return;
     }
     
     //else{
@@ -245,10 +241,10 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
     // }
     
     double EvWeight=1.;
-    double EvWeight_Up=1.;
-    double EvWeight_Down=1.;
     if(!PassMETFilter()) return;
-    
+    std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", p);
+    if(AK4_BJetColl.size() > 0) return;
+
     if(!IsDATA){
       //PrintGen(All_Gens); //JH
 
@@ -260,16 +256,12 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
       prefireweight_up=p.w.prefireweight_up;
       prefireweight_down=p.w.prefireweight_down;
       zptweight=p.w.zptweight;
+      zptweight_g=p.w.zptweight_g;
+      zptweight_gy=p.w.zptweight_gy;
+      zptweight_gym=p.w.zptweight_gym;
       z0weight=p.w.z0weight;
-      //      totWeight=p.w.lumiweight*p.w.PUweight*p.w.prefireweight*p.w.zptweight*p.w.z0weight;
-      EvWeight=p.w.lumiweight*p.w.PUweight*p.w.prefireweight;
-      EvWeight_Up=p.w.lumiweight*p.w.PUweight*p.w.prefireweight;
-      EvWeight_Down=p.w.lumiweight*p.w.PUweight*p.w.prefireweight;
-    }
-    else{
-      EvWeight=1;
-      EvWeight_Up=1;
-      EvWeight_Down=1;
+      //totWeight=p.w.lumiweight*p.w.PUweight*p.w.prefireweight*p.w.zptweight*p.w.z0weight;
+      EvWeight=p.w.lumiweight*p.w.PUweight*p.w.prefireweight*p.w.z0weight*p.w.weakweight;
     }
     L1ThresholdHLTEle23Ele12CaloIdLTrackIdLIsoVL=GetL1Threshold();
     
@@ -350,23 +342,14 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
       Electron tag = t_p_pair.first;
       if(!IsTag(tag)) continue;
       totWeight = EvWeight;
-      totWeight_Up = EvWeight_Up;
-      totWeight_Down = EvWeight_Down;
 
       if(!IsDATA) totWeight = totWeight * mcCorr->ElectronID_SF("HEEP",tag.scEta(), tag.Pt(), 0);
-      if(_jentry < 1000) cout << "HEEP SF = " << mcCorr->ElectronID_SF("HEEP",tag.scEta(), tag.Pt(), 0) << endl;
-      
+
       for(Electron& probe:vProbe){
         
         if(&tag==&probe) continue;
         if(!IsGoodTagProbe(tag,probe)) continue;
         
-	bool SSFake=false;
-	if(tag.Charge() == probe.Charge()) {
-	  SSFake=true;
-	  if(!IsData) continue;
-	}
-	
         passingCutBasedMedium94XV2=probe.passMediumID();
         passingCutBasedTight94XV2=probe.passTightID();
         
@@ -381,19 +364,6 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
         passingHNLMVAFake =probe.PassID("HNL_ULID_Fake");
         passingHNLMVA     =probe.PassID("HNL_ULID_"+GetYearString());
         passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_"+GetYearString());
-	if(SSFake)  {
-	  passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_FO");
-	  double FR=fakeEst->GetElectronFakeRate("HNL_HighPt_ULID_"+GetYearString(), "HNL_ULID_FO_v9_a_AJ40_El12", "Standard", "PtParton", fabs(probe.Eta()), probe.Pt(), probe.LeptonFakeTagger() );
-	  if(probe.PassID("HNL_HighPt_ULID_"+GetYearString())) {
-	    totWeight = 0;
-	    totWeight_Up = 0;
-	    totWeight_Down = 0;
-	    continue;
-	  }
-	  else totWeight = FR/(1-FR);
-	}
-	else  passingHNLMVA_HighPt =probe.PassID("HNL_HighPt_ULID_"+GetYearString());
-
         passingHNLMVA_TrkIso =probe.PassID("HNL_ULID_TrkIso");
 	passingHNLMVA_NoFake = probe.PassID("HNL_ULID_Defv3_FO");
 	passingHNLMVA_NoConv = probe.PassID("HNL_ULID_NoConv");
@@ -501,7 +471,6 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
 	    totWeight=totWeight* mcCorr->ElectronReco_SF("RECO_SF",tag.defEta(),tag.Pt(),0);
 	    totWeight=totWeight* mcCorr->ElectronReco_SF("RECO_SF",probe.defEta(),probe.Pt(),0);
 	    
-	    /*
 	    if(tag.LeptonIsCF()){
 	      
 	      double CFSF = 1.;
@@ -520,7 +489,7 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
 	      }
 	      totWeight=totWeight*CFSF;
 	    }
-	    if(probe.LeptonIsCF()){
+	    else if(probe.LeptonIsCF()){
 	      
 	      double CFSF = 1.;
               if(probe.GetEtaRegion()=="BB"){
@@ -539,9 +508,9 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
               totWeight=totWeight*CFSF;
 
             }
-	    */
+
             mcTrue=true;
-	  }
+          } 
 	  else{
             mcTrue=false;
           }
@@ -571,9 +540,8 @@ void SkimTree_EGammaTnP_HNLHighPtV2::executeEvent(){
           if(probe.IsPrompt()) el_IsPrompt=true;
 					else el_IsPrompt=false;
 
-	  totWeight_Up=totWeight_Up*1.5;
-	  totWeight_Down=totWeight_Down*0.5;
         }
+        
         newtree->Fill();
         weight_tree->Fill();
   

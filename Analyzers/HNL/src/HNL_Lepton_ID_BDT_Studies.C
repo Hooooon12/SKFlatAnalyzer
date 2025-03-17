@@ -16,7 +16,7 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
     TriggerPrintOut(GetEvent());
   }
   
-  AnalyzerParameter param  = HNL_LeptonCore::InitialiseHNLParameter("HNL_ULID");
+  AnalyzerParameter param  = HNL_LeptonCore::InitialiseHNLParameter("HNL_ULIDv2");
   
   Event ev = GetEvent();
   double weight = SetupWeight(ev,param);
@@ -181,7 +181,7 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
       TString ptstring = "Pt1";
       if(ilep.Pt() < 30 ) ptstring = "Pt1";
       else if(ilep.Pt() < 150 ) ptstring = "Pt2";
-      else ptstring = "Pt3";
+      else ptstring = "Pt4";
       
       TString etastring = ilep.sEtaRegion();
       
@@ -300,7 +300,7 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
       
       if(i.Contains("IsFake") && HasBjet) continue;
 
-      if(imuon.PassID("HNL_ULID_"+GetYearString()))FillMuonKinematicPlots( param, "Tight"+imuon.GetFlavour(), imuon, weight);
+      if(imuon.PassID("HNL_HighPt_ULID_"+GetYearString()))FillMuonKinematicPlots( param, "Tight"+imuon.GetFlavour(), imuon, weight);
       
       map<TString, double> mapBDT = imuon.MAPBDT();
       for(auto imap : mapBDT )  {
@@ -314,7 +314,7 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
         if(imuon.HNL_MVA_Fake("EDv4")  > 0.6)  FillHist("BDTVariablesNP4/"  + imuon.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
       }
 
-      vector<TString> IDs = {"HNTightV2","HNL_Peking","HNTight_17028","HNL_HN3L","HNL_ULID_"+GetYearString()};
+      vector<TString> IDs = {"HNTightV2","HNL_Peking","HNTight_17028","HNL_HN3L","HNL_HighPt_ULID_"+GetYearString()};
 
       int nbin_pt    =10;
       double ptbins    [nbin_pt    +1] = { 10.,15.,20.,30.,35., 40.,50., 60., 80., 100.,200.};
@@ -371,7 +371,7 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
       if(i.Contains("IsFake") && HasBjet) continue;
       
 
-      if(iel.PassID("HNL_ULID_"+GetYearString()))FillElectronKinematicPlots(param, "Tight"+iel.GetFlavour(), iel, weight);
+      if(iel.PassID("HNL_ULID_HighPt_"+GetYearString()))FillElectronKinematicPlots(param, "Tight"+iel.GetFlavour(), iel, weight);
       FillElectronKinematicPlots(param,"LooseUL_"+iel.GetFlavour()+i , iel, weight);
 
       
@@ -386,13 +386,13 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
 	if(iel.HNL_MVA_Fake("EDv5") > 0.2) {
 	  FillHist("BDTVariablesNP"+EtaRegion+"1/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 	  
-	  if(iel.PassID("HNL_ULID_Conv_2016")) FillHist("BDTVariablesConvNP"+EtaRegion+"1/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
+	  if(iel.PassID("HNL_ULID_Conv_HighPt")) FillHist("BDTVariablesConvNP"+EtaRegion+"1/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
           if(iel.HNL_MVA_Conv("EDv5")   > -0.7) FillHist("BDTVariablesConvNP"+EtaRegion+"2/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
           if(iel.HNL_MVA_Conv("EDv5")   > 0.) FillHist("BDTVariablesConvNP"+EtaRegion+"3/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 	  
 	}
 
-	if(iel.PassID("HNL_ULID_Conv_2016")) FillHist("BDTVariablesConv"+EtaRegion+"1/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
+	if(iel.PassID("HNL_ULID_Conv_HighPt")) FillHist("BDTVariablesConv"+EtaRegion+"1/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 	if(iel.HNL_MVA_Conv("EDv5")   > -0.7) FillHist("BDTVariablesConv"+EtaRegion+"2/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 	if(iel.HNL_MVA_Conv("EDv5")   > 0.) FillHist("BDTVariablesConv"+EtaRegion+"3/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 
@@ -404,15 +404,15 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
         if(iel.HNL_MVA_Fake("EDv5") > 0.2  && iel.HNL_MVA_CF("EDv5") >0.6) FillHist("BDTVariablesNPCF"+EtaRegion+"2/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 	if(iel.HNL_MVA_Fake("EDv5") > 0.3  && iel.HNL_MVA_CF("EDv5") >0.65) FillHist("BDTVariablesNPCF"+EtaRegion+"3/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 
-	if(iel.HNL_MVA_CF("EDv5") >0.4 &&  iel.PassID("HNL_ULID_Conv_2016"))      FillHist("BDTVariablesConvCF"+EtaRegion+"1/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
+	if(iel.HNL_MVA_CF("EDv5") >0.4 &&  iel.PassID("HNL_ULID_Conv_HighPt"))      FillHist("BDTVariablesConvCF"+EtaRegion+"1/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 	
-	if(iel.HNL_MVA_CF("EDv5") >0.65 &&  iel.PassID("HNL_ULID_Conv_2016"))      FillHist("BDTVariablesConvCF"+EtaRegion+"2/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
+	if(iel.HNL_MVA_CF("EDv5") >0.65 &&  iel.PassID("HNL_ULID_Conv_HighPt"))      FillHist("BDTVariablesConvCF"+EtaRegion+"2/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 	if(iel.HNL_MVA_CF("EDv5") >0.65 &&  iel.HNL_MVA_Conv("EDv5")   > -0.7)      FillHist("BDTVariablesConvCF"+EtaRegion+"3/"+ iel.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
 	
       }
       
 
-      vector<TString> IDs = {"HNTightV2","HNL_Peking_"+GetYearString(),  "HNTight_17028","HNL_ULID_"+GetYearString() , "HNL_ULID_Conv_"+GetYearString()};
+      vector<TString> IDs = {"HNTightV2","HNL_Peking_"+GetYearString(),  "HNTight_17028","HNL_HighPt_ULID" , "HNL_ULID_Conv_HighPt"};
 
 
       int nbin_pt    =10;
@@ -1208,7 +1208,7 @@ void HNL_Lepton_ID_BDT_Studies::MakeBDTPlots(AnalyzerParameter param,HNL_LeptonC
     if(BJetColl.size() > 1) return;
     if(METv.Pt() > 30) return;
     if(!ZmassOSSFWindowCheck(LeptonColl, 10.)) return;
-
+    
     FillAllElectronPlots(param,"OSElectronZ",ElectronColl,weight_ll);
 
     vector<Electron> ElectronCollDATATight;

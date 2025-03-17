@@ -376,7 +376,7 @@ void HNL_Lepton_FakeRate_Region_Plotter::MakeDiLepPlots(HNL_LeptonCore::Channel 
   std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param); 
   std::vector<FatJet> AK8_JetColl                 = GetHNLAK8Jets(param.AK8JetColl,param);
 
-  EvalJetWeight(AK4_JetColl, AK8_JetColl, d_event_weight, param);
+  EvalJetWeight(AK4_JetColl, AK4_JetColl,AK8_JetColl, d_event_weight, param);
 
   if(AK4_BJetColl.size() > 0) return;
 

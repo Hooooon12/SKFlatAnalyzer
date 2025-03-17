@@ -530,6 +530,9 @@ void AnalyzerParameter::PrintParameters(){
   cout << "w.z0weight            = " << w.z0weight<< endl;
   cout << "w.weakweight          = " << w.weakweight<< endl;
   cout << "w.zptweight           = " << w.zptweight<< endl;
+  cout << "w.zptweight_g           = " << w.zptweight_g<< endl;
+  cout << "w.zptweight_gy           = " << w.zptweight_gy<< endl;
+  cout << "w.zptweight_gym           = " << w.zptweight_gym<< endl;
   cout << "w.topptweight         = " << w.topptweight<< endl;
   cout << "w.muonRECOSF          = " << w.muonRECOSF << endl;
   cout << "w.electronRECOSF      = " << w.electronRECOSF << endl;

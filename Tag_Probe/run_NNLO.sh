@@ -4,4 +4,6 @@
 #python RunBatch_MinNLO_New.py  -e 2018 -n 100 -s Config/RunEff_NNLO_BkgV2_New.py -v Version1_Bkgv2_NNLO -ScaleCF 0.75
 #python RunBatch_MinNLO_New.py  -e 2018 -n 100 -s Config/RunEff_NNLO_BkgV2_New.py -v Version1_Bkgv2_NNLO -ScaleCF 1.
 
-python RunBatch_MinNLO_New.py  -e 2018 -n 200 -s Config/RunEff_NNLO_BkgV2_New.py -v Version1_Bkgv2_NNLO 
+python RunBatch_MinNLO_New.py  -e 2017 -n 200 -s Config/RunEff_NNLO_BkgV2_New1.py -v Version1_Bkgv2_NNLO_DiffDen_Split1
+python RunBatch_MinNLO_New.py  -e 2017 -n 200 -s Config/RunEff_NNLO_BkgV2_New2.py -v Version1_Bkgv2_NNLO_DiffDen_Split2
+python RunBatch_MinNLO_New.py  -e 2017 -n 200 -s Config/RunEff_NNLO_BkgV2_New3.py -v Version1_Bkgv2_NNLO_DiffDen_Split3

@@ -29,9 +29,9 @@ void HNL_LeptonCore::GetSetup_HNL16(AnalyzerParameter& param_default ){
   param_default.k.Muon_RECO_SF       = "MuonRecoSF";
 
   param_default.TriggerSelection = "Dilep";
-  if(param_default.Channel.Contains("EE"))   param_default.k.Electron_Trigger_SF = "DiElIso_HNL_ULID";
-  if(param_default.Channel.Contains("MuMu")) param_default.k.Muon_Trigger_SF = "DiMuIso_HNL_ULID";
-  if(param_default.Channel.Contains("EMu"))  param_default.k.EMu_Trigger_SF = "EMuIso_HNL_ULID";
+  if(param_default.Channel.Contains("EE"))   param_default.k.Electron_Trigger_SF = "DiElIso_HNL_ULIDv2";
+  if(param_default.Channel.Contains("MuMu")) param_default.k.Muon_Trigger_SF = "DiMuIso_HNL_ULIDv2";
+  if(param_default.Channel.Contains("EMu"))  param_default.k.EMu_Trigger_SF = "EMuIso_HNL_ULIDv2";
 
   return;
 }
@@ -63,9 +63,9 @@ void HNL_LeptonCore::GetSetup_HNTightV2(AnalyzerParameter& param_default ){
   param_default.k.Muon_RECO_SF       = "MuonRecoSF";
 
   param_default.TriggerSelection = "Dilep";
-  if(param_default.Channel.Contains("EE"))   param_default.k.Electron_Trigger_SF = "DiElIso_HNL_ULID";
-  if(param_default.Channel.Contains("MuMu")) param_default.k.Muon_Trigger_SF = "DiMuIso_HNL_ULID";
-  if(param_default.Channel.Contains("EMu"))  param_default.k.EMu_Trigger_SF = "EMuIso_HNL_ULID";
+  if(param_default.Channel.Contains("EE"))   param_default.k.Electron_Trigger_SF = "DiElIso_HNL_ULIDv2";
+  if(param_default.Channel.Contains("MuMu")) param_default.k.Muon_Trigger_SF = "DiMuIso_HNL_ULIDv2";
+  if(param_default.Channel.Contains("EMu"))  param_default.k.EMu_Trigger_SF = "EMuIso_HNL_ULIDv2";
 
   param_default.AK8JetColl       = "HNL";
 
@@ -99,9 +99,9 @@ void HNL_LeptonCore::GetSetup_HNLTopID(AnalyzerParameter& param_default ){
   param_default.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_TopHNSST";
 
   param_default.TriggerSelection = "Dilep";
-  if(param_default.Channel.Contains("EE"))   param_default.k.Electron_Trigger_SF = "DiElIso_HNL_ULID";
-  if(param_default.Channel.Contains("MuMu")) param_default.k.Muon_Trigger_SF = "DiMuIso_HNL_ULID";
-  if(param_default.Channel.Contains("EMu"))  param_default.k.EMu_Trigger_SF = "EMuIso_HNL_ULID";
+  if(param_default.Channel.Contains("EE"))   param_default.k.Electron_Trigger_SF = "DiElIso_HNL_ULIDv2";
+  if(param_default.Channel.Contains("MuMu")) param_default.k.Muon_Trigger_SF = "DiMuIso_HNL_ULIDv2";
+  if(param_default.Channel.Contains("EMu"))  param_default.k.EMu_Trigger_SF = "EMuIso_HNL_ULIDv2";
 
   return;
 }

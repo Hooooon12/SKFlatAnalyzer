@@ -470,22 +470,22 @@ void HNL_LeptonCore::DefineBDTLimitBins(){
   map_bdt_limit_bins["SR3BDT_MuMu_2016preVFP_85"]  = {-0.1 , -0.05 , 0 , 0.03 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 , 0.2 , 0.22 , 0.25 , 1};//14
   map_bdt_limit_bins["SR3BDT_MuMu_2016postVFP_85"] = {-0.1 , -0.05 , 0 , 0.03 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 , 0.2 , 0.22 , 0.25 , 1};//14 
   map_bdt_limit_bins["SR3BDT_MuMu_2017_85"]        = {-0.1 , -0.05 , 0 , 0.05 , 0.1 , 0.12 , 0.16 , 0.2 , 0.22 , 0.24 , 0.25 , 0.27 , 0.29 , 1};
-  map_bdt_limit_bins["SR3BDT_MuMu_2018_85"]        = {-0.1 ,  0 , 0.05 , 0.1 ,  0.14 , 0.16 , 0.18 , 0.2 , 0.21 , 0.23 , 0.26 , 0.28 , 0.3 , 1};
+  map_bdt_limit_bins["SR3BDT_MuMu_2018_85"]        = {-0.05 ,  0 , 0.05 , 0.1 ,  0.14 , 0.16 , 0.18 , 0.2 , 0.21 , 0.23 , 0.26 , 0.28 , 0.3 , 1};
   
   map_bdt_limit_bins["SR3BDT_MuMu_2016preVFP_90"]   = {-0.1 , -0.05 , 0 , 0.03 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 , 0.2 , 0.22 , 0.25 , 1};//14 
   map_bdt_limit_bins["SR3BDT_MuMu_2016postVFP_90"]  = {-0.1 , -0.05 , 0 , 0.03 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 , 0.2 , 0.22 , 0.25 , 1};//14 
   map_bdt_limit_bins["SR3BDT_MuMu_2017_90"]         = {-0.1 , -0.05 , 0 , 0.05 , 0.1 , 0.12 , 0.16 , 0.2 , 0.22 , 0.24 , 0.25 , 0.27 , 0.29 , 1};
-  map_bdt_limit_bins["SR3BDT_MuMu_2018_90"]         = {-0.1 ,  0 , 0.05 , 0.1 ,  0.14 , 0.16 , 0.18 , 0.2 , 0.21 , 0.23, 0.26 , 0.28 , 0.3 , 1};
+  map_bdt_limit_bins["SR3BDT_MuMu_2018_90"]         = {-0.05 ,  0 , 0.05 , 0.1 ,  0.14 , 0.16 , 0.18 , 0.2 , 0.21 , 0.23, 0.26 , 0.28 , 0.3 , 1};
   
   map_bdt_limit_bins["SR3BDT_MuMu_2016preVFP_95"]  = {-0.1 , -0.05 , 0 , 0.03 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 , 0.2 , 0.22 , 0.25 , 1};//14 
   map_bdt_limit_bins["SR3BDT_MuMu_2016postVFP_95"]  = {-0.1 , -0.05 , 0 , 0.03 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 , 0.2 , 0.22 , 0.25 , 1};//14 
   map_bdt_limit_bins["SR3BDT_MuMu_2017_95"]  = {-0.1 , -0.05 , 0 , 0.05 , 0.1 , 0.12 , 0.16 , 0.2 , 0.22 , 0.24 , 0.25 , 0.27 , 0.29 , 1};
-  map_bdt_limit_bins["SR3BDT_MuMu_2018_95"]  = {-0.1 ,  0 , 0.05 , 0.1 ,  0.14 , 0.16 , 0.18 , 0.2 , 0.21 , 0.23 , 0.26 , 0.28 , 0.3 , 1};
+  map_bdt_limit_bins["SR3BDT_MuMu_2018_95"]  = {-0.05 ,  0 , 0.05 , 0.1 ,  0.14 , 0.16 , 0.18 , 0.2 , 0.21 , 0.23 , 0.26 , 0.28 , 0.3 , 1};
   
   map_bdt_limit_bins["SR3BDT_MuMu_2016preVFP_100"] = {-0.1 , -0.05 , 0 , 0.03 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 , 0.2 , 0.22 , 0.25 , 1};//14 
   map_bdt_limit_bins["SR3BDT_MuMu_2016postVFP_100"] = {-0.1 , -0.05 , 0 , 0.03 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 , 0.2 , 0.22 , 0.25 , 1};//14 
   map_bdt_limit_bins["SR3BDT_MuMu_2017_100"] = {-0.1 , -0.05 , 0 , 0.05 , 0.1 , 0.12 , 0.16 , 0.2 , 0.22 , 0.24 , 0.25 , 0.27 , 0.29 , 1};
-  map_bdt_limit_bins["SR3BDT_MuMu_2018_100"] = {-0.1 ,  0 , 0.05 , 0.1 ,  0.14 , 0.16 , 0.18 , 0.2 , 0.21 , 0.23 , 0.26 , 0.28 , 0.3 , 1};
+  map_bdt_limit_bins["SR3BDT_MuMu_2018_100"] = {-0.05 ,  0 , 0.05 , 0.1 ,  0.14 , 0.16 , 0.18 , 0.2 , 0.21 , 0.23 , 0.26 , 0.28 , 0.3 , 1};
   
   map_bdt_limit_bins["SR3BDT_MuMu_2016preVFP_125"]  = {-0.1 , -0.05 , 0 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 ,   0.2 , 1}; //12
   map_bdt_limit_bins["SR3BDT_MuMu_2016postVFP_125"] = {-0.1 ,-0.05 , 0 , 0.05 , 0.1 , 0.12 , 0.14 , 0.16 , 0.18 ,    0.2 , 1};  //12  
@@ -657,27 +657,29 @@ void HNL_LeptonCore::DefineBDTLimitBins(){
   
 }
 
+void HNL_LeptonCore::SetBinningBDT(const TString& channel, const TString& mass, const TString& RegionTag, 
+                                   const TString& BinBoundaries_label, std::vector<std::pair<TString, double>>& BDTLimitBins) {
+  auto mit = map_bdt_limit_bins.find(BinBoundaries_label);
 
-void HNL_LeptonCore::SetBinningBDT(TString channel, TString mass,TString RegionTag, TString BinBoundaries_label, vector<pair<TString, double > >& BDTLimitBins){
-
-  map<TString, vector<double> >::iterator mit = map_bdt_limit_bins.find(BinBoundaries_label);
-
-  if(mit == map_bdt_limit_bins.end()) {
-    cout << "SetBinningBDT ERROR " << BinBoundaries_label << endl;
-    for(auto imap : map_bdt_limit_bins) cout << imap.first << endl;
+  // Check if the label exists in the map
+  if (mit == map_bdt_limit_bins.end()) {
+    std::cout << "SetBinningBDT ERROR: " << BinBoundaries_label << " not found." << std::endl;
+    for (const auto& imap : map_bdt_limit_bins) {
+      std::cout << imap.first << std::endl;
+    }
     exit(EXIT_FAILURE);
   }
-  vector<double> BinBoundaries = mit->second;
-    
-  BDTLimitBins.clear();
-  for(unsigned int i=0; i < BinBoundaries.size(); i++){
-    BDTLimitBins.push_back( make_pair(RegionTag+"_bin"+to_string(i+1) , BinBoundaries[i]));
-  }
-  
-  
 
-  return;
-}                                                                                                        
+  // Retrieve the bin boundaries
+  const std::vector<double>& BinBoundaries = mit->second;
+
+  // Clear existing BDT bins and populate with new data
+  BDTLimitBins.clear();
+  for (size_t i = 0; i < BinBoundaries.size(); ++i) {
+    BDTLimitBins.emplace_back(RegionTag + "_bin" + std::to_string(i + 1), BinBoundaries[i]);
+  }
+}
+
 
 void HNL_LeptonCore::InitializeTreeVars(){
 

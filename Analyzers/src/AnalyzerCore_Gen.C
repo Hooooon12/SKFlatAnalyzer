@@ -1,6 +1,27 @@
 #include "AnalyzerCore.h"
 
 
+double AnalyzerCore::GetGenLevelJJMass(){
+  
+  double mjj=0.0;
+  int nmatched=0;
+  Particle JJ;
+  for(int i=2; i<int(All_Gens.size()); i++){
+    Gen gen = All_Gens.at(i);
+    if(gen.Status()==23){
+      if(abs(gen.PID() ) < 6) {
+	if(nmatched < 2) JJ=JJ+gen;
+	nmatched++;
+      }
+    }    
+  }
+  
+  if(nmatched < 2) PrintGen(All_Gens);
+
+  return JJ.M();
+}
+
+
 //=========================================================                                  //==== Gen Matching Tools                                                                                             
 
 bool AnalyzerCore::HasMEPhoton(Lepton lep){

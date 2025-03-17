@@ -10,12 +10,12 @@ void HNL_ControlRegion_Plotter::initializeAnalyzer(){
     bool run_mm_bdt=false;
     bool run_em_bdt=false;
 
-    if (this->DataStream == "DoubleMuon") run_mm_bdt=true;
+    if (this->DataStream.Contains("DoubleMuon")) run_mm_bdt=true;
     if (this->DataStream == "SingleMuon") run_mm_bdt=true;
     if (this->DataStream == "DoubleEG") run_ee_bdt=true;
     if (this->DataStream == "SingleElectron") run_ee_bdt=true;
     if (this->DataStream == "EGamma") run_ee_bdt=true;
-    if (this->DataStream == "MuonEG") run_em_bdt=true;
+    if (this->DataStream.Contains("MuonEG")) run_em_bdt=true;
 
     SetupEventMVAReader("V2",run_ee_bdt,run_mm_bdt,run_em_bdt);
 
@@ -50,7 +50,8 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   if(RunHighPtID) LepIDs = {"HNL_ULID","HighPt"};
   if(RunPekingID) LepIDs = {"Peking"};
 
-  //  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULID","POGTight","TopHN","HNTightV2","MVAPOG"};//,"HNTightV2","POGTight","TopHN","HighPt"};                               
+  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULIDv2","POGTight","HNTightV2"};
+
 
   vector<HNL_LeptonCore::Channel> ChannelsToRun = {};
   if(RunEE)   ChannelsToRun.push_back(EE);
@@ -73,15 +74,13 @@ void HNL_ControlRegion_Plotter::executeEvent(){
 
 
   if(IsDATA){
-    if (this->DataStream == "DoubleMuon") ChannelsToRun = {MuMu};
+    if (this->DataStream.Contains("DoubleMuon")) ChannelsToRun = {MuMu};
     if (this->DataStream == "SingleMuon") ChannelsToRun = {MuMu};
     if (this->DataStream == "DoubleEG") ChannelsToRun = {EE};
     if (this->DataStream == "SingleElectron") ChannelsToRun = {EE};
     if (this->DataStream == "EGamma") ChannelsToRun = {EE};
-    if (this->DataStream == "MuonEG") ChannelsToRun = {EMu};
+    if (this->DataStream.Contains("MuonEG")) ChannelsToRun = {EMu};
   }
-
-
 
   for (auto id: LepIDs){
 
@@ -101,8 +100,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
         TString param_name = param_signal.Name;
 
         TString SystString = "";
-        if(HasFlag("OS")) SystString = "Muon";
-        else SystString=GetChannelString(channel);
+        SystString=GetChannelString(channel);
 
 
         if(HasFlag("RunSyst")){
@@ -169,6 +167,7 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param, vecto
   std::vector<Electron>   ElectronTightColl = SelectElectrons(ElectronTightColl_Init,Electron_ID, Min_Electron_Pt, 2.5);
 
 
+
   //// Change this so now Truth matching does not remove Leptons but in Definition code the GenFIlter removes events 
   //  std::vector<Muon>       MuonTightColl      =  GetLepCollByRunType    (MuonTightCollInit,    param);  
   //std::vector<Electron>   ElectronTightColl  =  GetLepCollByRunType    (ElectronTightCollInit,param);
@@ -181,7 +180,7 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param, vecto
   std::vector<Jet>    AK4_JetCollLoose            = GetHNLJets("Loose",     param);
   std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param);
   
-  EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
+  EvalJetWeight(AK4_JetColl,AK4_VBF_JetColl, AK8_JetColl, weight, param);
 
   Particle METv = GetvMET("PuppiT1xyULCorr", param, AK4_VBF_JetColl, AK8_JetColl, MuonTightColl,ElectronTightColl);
 
@@ -197,7 +196,6 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param, vecto
        AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl, 
        ev,METv, param, CRs,ir,weight);
   }
-
 }
 
 

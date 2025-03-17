@@ -68,6 +68,9 @@ class AnalyzerParameter{
     double prefireweight=1,prefireweight_up=1,prefireweight_down=1;
     double z0weight=1;
     double zptweight=1;
+    double zptweight_g=1;
+    double zptweight_gy=1;
+    double zptweight_gym=1;
     double topptweight=1;
     double weakweight=1;
     double muonRECOSF=1;

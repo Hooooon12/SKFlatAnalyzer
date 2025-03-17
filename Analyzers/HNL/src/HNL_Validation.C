@@ -80,7 +80,7 @@ void HNL_Validation::executeEvent(){
   std::vector<Jet>    AK4_VBF_JetColl             = GetHNLJets("VBFTight",  param);
   std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param);
 
-  EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
+  EvalJetWeight(AK4_JetColl, AK4_VBF_JetColl,AK8_JetColl, weight, param);
 
   // Chose Typ1 Phi corr MET + smear jets 
 

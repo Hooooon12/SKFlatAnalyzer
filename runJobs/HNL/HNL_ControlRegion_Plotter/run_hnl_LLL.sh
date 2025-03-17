@@ -11,7 +11,20 @@ njobs_data=200
 nmax=400
 skim=' '
 
-if [[ $1 == "" ]]; then
+if [[ $1 == "Failed" ]]; then
+    
+-    #SKFlat.py -a $analyzer  -i ZZTo4L_powheg -n 100 --nmax 600 -e 2016postVFP --skim SkimTree_HNMultiLepBDT --userflags  SSMultiLep,RunPrompt &
+    #SKFlat.py -a $analyzer  -i ZZTo4L_powheg -n 100 --nmax 600 -e 2016postVFP --skim SkimTree_HNMultiLepBDT --userflags  LLL,RunPrompt &
+
+    #SKFlat.py -a $analyzer  -i ttZToLLNuNu -n 100 --nmax 600 -e 2018 --skim SkimTree_HNMultiLepBDT --userflags  LLL,RunPrompt &
+    #SKFlat.py -a $analyzer  -i GluGluToZZto4e -n 100 --nmax 600 -e 2018 --skim SkimTree_HNMultiLepBDT --userflags  LLL,RunPrompt &
+
+    SKFlat.py -a $analyzer  -i TG -n 100 --nmax 600 -e 2018  --nmax ${nmax}   --skim SkimTree_HNMultiLepBDT  --userflags LLL,RunConv&
+    SKFlat.py -a $analyzer  -i WGToLNuG_MG -n 100 --nmax 600 -e 2018  --nmax ${nmax}   --skim SkimTree_HNMultiLepBDT  --userflags LLL,RunConv&
+
+fi
+
+if [[ $1 == "Main" ]]; then
 
     declare  -a era_list=("2017" "2016postVFP" "2016preVFP" "2018")
     for i in "${era_list[@]}"

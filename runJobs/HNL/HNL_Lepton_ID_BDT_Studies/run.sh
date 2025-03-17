@@ -16,9 +16,11 @@ if [[ $1 == "BDT" ]]; then
 
     for i in "${era_list[@]}"
     do
-        SKFlat.py -a $analyzer  -i DYJets    -n 200 --nmax 300  -e ${i}       --skim SkimTree_DileptonBDT  --userflags FakeSplit &
-        SKFlat.py -a $analyzer  -i TTLJ_powheg    -n 200 --nmax 300  -e ${i}  --skim SkimTree_DileptonBDT  --userflags FakeSplit &
-	#SKFlat.py -a $analyzer  -l ${mcpath}/QCD_${i}.txt  -n 50  --nmax 300  -e ${i}  --skim SkimTree_FakeEventSkimBDT  --userflags FakeSplit  &
+        SKFlat.py -a $analyzer  -i DYJetsToMuMu_MiNNLO    -n 400 --nmax 400  -e ${i}       --skim SkimTree_DileptonBDT  --userflags BDTPerType,BDTPlots,BDT &
+	SKFlat.py -a $analyzer  -i DYJetsToEE_MiNNLO    -n 400 --nmax 400  -e ${i}       --skim SkimTree_DileptonBDT  --userflags BDTPerType,BDTPlots,BDT &
+        #SKFlat.py -a $analyzer  -i TTLJ_powheg    -n 400 --nmax 400  -e ${i}  --skim SkimTree_DileptonBDT  --userflags BDTPerType,BDTPlots,BDT &
+	#SKFlat.py -a $analyzer  -l ${datapath}/DATA_${i}.txt  -n 100  --nmax 400 --userflag BDTPerType,BDTPlots,BDT  -e ${i}  --skim SkimTree_DileptonBDT&
+
 
    done
 fi
@@ -46,6 +48,18 @@ if [[ $1 == "" ]]; then
 	#SKFlat.py -a $analyzer  -i WJets_MG  -n 200  --nmax 300  -e ${i}   --userflag SSBreakdown   --skim SkimTree_FakeEventSkimBDT &
 	SKFlat.py -a $analyzer  -l ${mcpath}/QCD_${i}.txt  -n 10  --nmax 300 --userflag SSBreakdown  -e ${i}  --skim SkimTree_FakeEventSkimBDT &
 		
+    done
+fi
+
+if [[ $1 == "OS" ]]; then
+
+    declare  -a era_list=("2017")
+    for i in "${era_list[@]}"
+    do
+        
+        SKFlat.py -a $analyzer  -i DYJetsToEE_MiNNLO    -n 200 --nmax 300  -e ${i}    --userflag BDT   --skim SkimTree_DileptonBDT &                                                                            
+    
+
     done
 fi
 

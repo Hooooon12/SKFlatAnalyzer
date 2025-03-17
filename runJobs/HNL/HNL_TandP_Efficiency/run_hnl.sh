@@ -4,20 +4,21 @@ mcpath=${SKFlat_WD}/runJobs/HNL/${analyzer}/Bkg/
 datapath=${SKFlat_WD}/runJobs/SampleLists/Data/
 
 njobs=5
-nmax=300
+nmax=800
 skim=' '
 
-declare  -a era_list=("2018")
-
+#declare  -a era_list=(#"2016preVFP" "2016postVFP" "2017" "2018")
+declare  -a era_list=("2018")       
 
 if [[ $1 == "" ]]; then
 
     for i in "${era_list[@]}"
     do
 	
-        SKFlat.py -a $analyzer  -l $datapath/SL/${i}_SingleLepton_Mu.txt   -n 200    --nmax ${nmax}   -e ${i} --skim SkimTree_DileptonBDT &
-	#SKFlat.py -a $analyzer  -i DYJetsToMuMu_MiNNLO   -n 400    --nmax ${nmax}   -e ${i} --skim SkimTree_DileptonBDT &
-	#SKFlat.py -a $analyzer  -i DYJets   -n 400    --nmax ${nmax}   -e ${i} --skim SkimTree_DileptonBDT &
+        #SKFlat.py -a $analyzer  -l ${SKFlat_WD}/runJobs/SampleLists/Bkg/Prompt/DY_Ext.txt  -n 200    --nmax ${nmax}   -e ${i} --skim SkimTree_DileptonBDT &
+	SKFlat.py -a $analyzer  -i DYJetsToEE_MiNNLO   -n 400    --nmax 800   -e ${i} --skim SkimTree_DileptonBDT& 
+	#SKFlat.py -a $analyzer  -i TTLL_powheg         -n 400    --nmax 800   -e ${i} --skim SkimTree_DileptonBDT &
+	
 	
     done
 

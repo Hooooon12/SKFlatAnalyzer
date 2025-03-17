@@ -428,7 +428,7 @@ void HNL_RegionDefinitions17028::Fill_SigRegionPlots2(HNL_LeptonCore::Channel ch
   Particle N1cand = fatjets[m] + *leps[0];
   Particle N2cand = fatjets[m] + *leps[1];
 
-  HNL_LeptonCore::SearchRegion  cutflow_SR_index = SR2;
+  //  HNL_LeptonCore::SearchRegion  cutflow_SR_index = SR2;
   TString label_mass_tmp=label_mass;
   //if  (label_anid.Contains("OS")) label_mass_tmp+="OS";                                                                                                                                                                             
 
@@ -488,7 +488,7 @@ void   HNL_RegionDefinitions17028::Fill_SigRegionPlots1(HNL_LeptonCore::Channel 
 
 
 
-  HNL_LeptonCore::SearchRegion cutflow_SR_index = SR1;
+  //  HNL_LeptonCore::SearchRegion cutflow_SR_index = SR1;
   if(jets.size() >= var1) return;
   if(jets[0].Pt() < var2)return;
   if(Wcand.DeltaR(*leps[1]) > var3) return;

@@ -409,7 +409,7 @@ void HNL_ControlRegion::RunControlRegions(AnalyzerParameter param, vector<TStrin
   std::vector<Jet>    AK4_JetCollLoose            = GetHNLJets("Loose",     param);
   std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param);
   
-  EvalJetWeight(AK4_JetColl, AK8_JetColl, weight, param);
+  EvalJetWeight(AK4_JetColl,AK4_VBF_JetColl, AK8_JetColl, weight, param);
 
   if(CRs.size() == 0) return;
   

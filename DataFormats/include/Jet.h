@@ -63,6 +63,15 @@ public:
     return RAWE/this->Pt();
   }
 
+  inline bool IsHEMJet(TString era){
+    if(era != "2018") return false;
+    
+    if (this->Eta() < -1.3){
+      if((this->Phi() < -0.87) && (this->Phi() > -1.57)) return true;
+    }
+    return false;
+  }
+
   inline double ResShift(int s) const {
     if(s==0) return 1.;
     else if(s>0) return j_Res_up;

@@ -98,10 +98,10 @@ bool Event::PassTrigger(std::vector<TString> trigs){
 
       //cout << j_HLT_TriggerName.at(j) << endl;
       if( j_HLT_TriggerName.at(j).find(this_check_trig)!=std::string::npos ){
-        return true;
+	return true;
       }
     }
-
+    
   }
   return false;
 }
@@ -1220,7 +1220,7 @@ bool Event::IsPDForTrigger(TString trig, TString PD){
       if(trig=="HLT_Photon90_v") return true;
     }
     
-    else   if(PD=="DoubleMuon"){
+    else   if(PD.Contains("DoubleMuon")){
       if(trig=="HLT_DoubleMu0_v") return true;
       if(trig=="HLT_DoubleMu18NoFiltersNoVtx_v") return true;
       if(trig=="HLT_DoubleMu23NoFiltersNoVtxDisplaced_v") return true;
@@ -1260,7 +1260,7 @@ bool Event::IsPDForTrigger(TString trig, TString PD){
       if(trig=="HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v") return true;
       if(trig=="HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v") return true;
     }
-    else   if(PD=="MuonEG"){
+    else   if(PD.Contains("MuonEG")){
       if(trig=="HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v") return true;
       if(trig=="HLT_Mu12_Photon25_CaloIdL_L1ISO_v") return true;
       if(trig=="HLT_Mu12_Photon25_CaloIdL_L1OR_v") return true;
@@ -1450,7 +1450,7 @@ bool Event::IsPDForTrigger(TString trig, TString PD){
       if(trig=="HLT_Photon90_R9Id90_HE10_IsoM_v")  return true;
       if(trig=="HLT_Photon90_v")  return true;
     }
-    if(PD=="DoubleMuon"){
+    if(PD.Contains("DoubleMuon")){
       if(trig=="HLT_DoubleL2Mu50_v")  return true;
       if(trig=="HLT_DoubleMu3_DCA_PFMET50_PFMHT60_v")  return true;
       if(trig=="HLT_DoubleMu3_DZ_PFMET50_PFMHT60_v")  return true;
@@ -1496,7 +1496,7 @@ bool Event::IsPDForTrigger(TString trig, TString PD){
       if(trig=="HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v")  return true;
     }
     
-    if(PD=="MuonEG"){
+    if(PD.Contains("MuonEG")){
       if(trig=="HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ_v")  return true;
       if(trig=="HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v")  return true;
       if(trig=="HLT_DoubleMu20_7_Mass0to30_L1_DM4EG_v")  return true;
@@ -1717,7 +1717,7 @@ bool Event::IsPDForTrigger(TString trig, TString PD){
       if(trig=="HLT_TriplePhoton_30_30_10_CaloIdLV2_v") return true;
       if(trig=="HLT_TriplePhoton_35_35_5_CaloIdLV2_R9IdVL_v") return true;
     }
-    if(PD=="DoubleMuon"){
+    if(PD.Contains("DoubleMuon")){
       if(trig=="HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched_v") return true;
       if(trig=="HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v") return true;
       if(trig=="HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched_v") return true;
@@ -1784,7 +1784,7 @@ bool Event::IsPDForTrigger(TString trig, TString PD){
       if(trig=="HLT_Tau3Mu_Mu7_Mu1_TkMu1_Tau15_Charge1_v") return true;
       if(trig=="HLT_Tau3Mu_Mu7_Mu1_TkMu1_Tau15_v") return true;
     }
-    if(PD=="MuonEG"){
+    if(PD.Contains("MuonEG")){
       if(trig=="HLT_DiMu4_Ele9_CaloIdL_TrackIdL_DZ_Mass3p8_v") return true;
       if(trig=="HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ_v") return true;
       if(trig=="HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v") return true;

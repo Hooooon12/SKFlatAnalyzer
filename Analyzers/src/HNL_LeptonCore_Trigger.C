@@ -3,28 +3,33 @@
 
 void HNL_LeptonCore::SetupTriggerLists(){
 
-  // clear Trig vect
-  TrigList_HNL_HighPtMu.clear();
-  TrigList_HNL_DblMu.clear();
-  TrigList_HNL_Mu.clear();
-  TrigList_Full_Mu.clear();
-  TrigList_POG_Mu.clear();
 
-  // EG                 
-  TrigList_HNL_DblEG.clear();
-  TrigList_HNL_EG.clear();
-  TrigList_POG_EG.clear();
-  TrigList_HNL_HighPtEG.clear();
-  TrigList_Full_EG.clear();
+  std::vector<std::vector<TString>*> triggerLists = {
+    &TrigList_HNL_HighPtMu,
+    &TrigList_HNL_DblMu,
+    &TrigList_HNL_Mu,
+    &TrigList_Full_Mu,
+    &TrigList_POG_Mu,
+    
+    &TrigList_HNL_DblEG,
+    &TrigList_HNL_EG,
+    &TrigList_POG_EG,
+    &TrigList_HNL_HighPtEG,
+    &TrigList_Full_EG,
+    
+    &TrigList_HNL_MuEG,
+    &TrigList_POG_MuEG,
+    &TrigList_Full_MuEG,
+    
+    &TrigList_HNL_EGMu,
+    &TrigList_POG_EGMu,
+    &TrigList_Full_EGMu
+  };
 
-  // MUG  
-  TrigList_HNL_MuEG.clear();
-  TrigList_POG_MuEG.clear();
-  TrigList_Full_MuEG.clear();
-
-  TrigList_HNL_EGMu.clear();
-  TrigList_POG_EGMu.clear();
-  TrigList_Full_EGMu.clear();
+  // Clear all the trigger lists
+  for (auto& triggerList : triggerLists) {
+    triggerList->clear();
+  }
 
   if(GetEraShort()=="2016a"){
     // Lumi = 19.5 fb-1                                      
@@ -132,11 +137,6 @@ void HNL_LeptonCore::SetupTriggerLists(){
   }
 
 
-  TrigList_Full_Mu.clear();
-  TrigList_Full_EG.clear();
-  TrigList_Full_MuEG.clear();
-  TrigList_Full_EGMu.clear();
-
   for(auto itrig : TrigList_HNL_DblMu)    TrigList_Full_Mu.push_back(itrig);
   for(auto itrig : TrigList_HNL_Mu)       TrigList_Full_Mu.push_back(itrig);
   for(auto itrig : TrigList_HNL_HighPtMu) TrigList_Full_Mu.push_back(itrig);
@@ -160,11 +160,15 @@ bool HNL_LeptonCore::PassMultiDatasetTriggerSelection(HNL_LeptonCore::Channel ch
 
   bool PassTrigger       = PassTriggerSelection(channel, ev,leps, selectionMain, true);
   bool PassTrigger2      = PassTriggerSelection(channel, ev,leps, selectionOR, true);
-  bool PassTriggerAllPD  = PassTriggerSelection(channel, ev,leps, selectionMain, false);
 
-  if(!IsData) return (PassTrigger || PassTrigger2);
+  // For non-data, we only need to return the OR of the first two triggers
+  if (!IsData) {
+    return (PassTrigger || PassTrigger2);
+  }
 
   if(PassTrigger) return true;
+
+  bool PassTriggerAllPD  = PassTriggerSelection(channel, ev,leps, selectionMain, false);
   if(PassTriggerAllPD) return false;
   return PassTrigger2;
 
@@ -476,6 +480,7 @@ void HNL_LeptonCore::EvalTrigWeight(HNL_LeptonCore::Channel channel, vector<Muon
   if(p.syst_ == AnalyzerParameter::ElectronTriggerSFDown)TriggerSFSyst="SystDown";
 
   double this_trigsf =  SFKey_Trig!=""? mcCorr->GetTriggerSF(electrons, muons, SFKey_Trig, TriggerSFSyst):1.;
+  if(_jentry < 1000) cout << "this_trigsf = " << this_trigsf << " SFKey_Trig = " << SFKey_Trig << endl;
   FillWeightHist(p.ChannelDir()+"/Trig_SF", this_trigsf);
 
   w*=(this_trigsf);

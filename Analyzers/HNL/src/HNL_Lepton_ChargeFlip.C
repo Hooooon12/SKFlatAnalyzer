@@ -25,8 +25,8 @@ void HNL_Lepton_ChargeFlip::executeEvent(){
   vector<TString> LepIDs = {"HNL_ULID","TopHN", "POGTight", "HNTightV2", "passHEEPID_v1","passHEEPID_v3", "HNL_HighPt_ULID"};
 
   if(HasFlag("ClosureTest")) LepIDs = {"HNL_ULID" , "HNL_HighPt_ULID",  "passHEEPID_v1",  "passHEEPID_v3" };
-  if(HasFlag("ScaleFactor")) LepIDs = {"HNL_ULID" , "HNL_HighPt_ULID", "passHEEPID_v1","passHEEPID_v3" };
-  if(HasFlag("ScaleFactorTop"))  LepIDs = {"TopHN","HNL_HighPt_ULID"};
+  if(HasFlag("ScaleFactor")) LepIDs = {"HNL_ULID" , "HNL_HighPt_ULID", "passHEEPID_v1", "passHEEPID_v3" };
+  if(HasFlag("ScaleFactorTop"))  LepIDs = {"NoCut","HNL_ULID_BaseLineCC","Fail_HNL_HighPt_ULID"};
 
   //  if(HasFlag("ShiftEnergyZ")) LepIDs = {"HNL_ULID" , "POGTight","passHEEPID_v3", "TpHN", };
 
@@ -44,6 +44,7 @@ void HNL_Lepton_ChargeFlip::executeEvent(){
       param.Apply_Weight_LumiNorm = true;
       param.Apply_Weight_Norm1Ipb = true;
     }
+    
     if(HasFlag("ScaleFactorTop")){
       param.Apply_Weight_LumiNorm = true;
       param.Apply_Weight_Norm1Ipb = true;
@@ -89,7 +90,7 @@ void HNL_Lepton_ChargeFlip::executeEvent(){
 }
 
 // check if fitting is useless
-/*
+/*sselecte
  execute under --userflag CFfitval
 1. pick up some processes with large xsec (ttbar DY)
 2. choose OS ee events
@@ -115,8 +116,9 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
 
   if(_jentry<10) cout << "EvWeight  = " << EvWeight << endl;
   // Electrons 
-  std::vector<Electron> ElectronColltmp;
-  if(param.Electron_Tight_ID.Contains("HEEP")) ElectronColltmp = GetElectrons(param.Electron_Tight_ID,15.,2.5);
+  std::vector<Electron> ElectronColltmp;  
+  if(HasFlag("ScaleFactorTop")) ElectronColltmp = GetElectrons(param.Electron_Tight_ID,35.,2.5);
+  else if(param.Electron_Tight_ID.Contains("HEEP")) ElectronColltmp = GetElectrons(param.Electron_Tight_ID,15.,2.5);
   else ElectronColltmp = GetElectrons(param.Electron_Tight_ID,15.,2.5);
   
   if(run_Debug) cout <<  "Number of All ID Electrons = " << ElectronColltmp.size() << endl;
@@ -1237,7 +1239,7 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
   }
 
   
-  if(HasFlag("ScaleFactor") || HasFlag("ScaleFactorTop") ){
+  if(HasFlag("ScaleFactor") || HasFlag("ScaleFactorTop")  || HasFlag("ScaleFactorPt1") || HasFlag("ScaleFactorPt2") || HasFlag("ScaleFactorPt3")){
 
     FillHist(param.Name+"/ZGSub/All",  1    , EvWeight ,2., 0, 2, "");
 
@@ -1297,7 +1299,6 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
     if((abs(ElectronColl.at(0).scEta())<1.4442&&abs(ElectronColl.at(1).scEta())>=1.556)||(abs(ElectronColl.at(0).scEta())>=1.556&&abs(ElectronColl.at(1).scEta())<1.4442)) EtaCat ="BE";
     if(abs(ElectronColl.at(0).scEta())>=1.556&&abs(ElectronColl.at(1).scEta())>=1.556) EtaCat = "EE";
     
-
     TString PtEtaCat1 = ElectronColl.at(0).PtEtaCategoryCFScaleFactor();
     TString PtEtaCat2 = ElectronColl.at(1).PtEtaCategoryCFScaleFactor();
 
@@ -1405,7 +1406,6 @@ void HNL_Lepton_ChargeFlip::executeEventFromParameter(AnalyzerParameter param){
 	
 	weight_ClosureNoS      = ReturnCFWeight({rateNoS_cf1,rateNoS_cf2});
         weight_ClosureNoS_SF   = ReturnCFWeight({rateNoS_cf1 * GetCFSF(param, Lepton(this_El1)),rateNoS_cf2 * GetCFSF(param, Lepton(this_El2))});
-
       }
       weight_Closure    *= EvWeight;
       weight_Closure_SF *= EvWeight;

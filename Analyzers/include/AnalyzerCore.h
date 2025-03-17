@@ -72,6 +72,23 @@ public:
   void beginEvent();
 
 
+  template <typename T>
+    void checkReturnType(T value) {
+    if constexpr (std::is_same_v<T, bool>) {
+	std::cout << "The returned value is a boolean.\n";
+      } else if constexpr (std::is_same_v<T, std::string>) {
+	std::cout << "The returned value is a string.\n";
+      } else {
+      std::cout << "The returned value is neither bool nor string.\n";
+    }
+  }
+
+
+  //// Check User
+  inline bool User(const TString& user) {
+    const char* sysUser = getenv("USER"); // Get system username
+    return (sysUser && user == sysUser);  // Check if it matches the input user
+  }
 
   //==================
   //==== Get objects
@@ -256,6 +273,8 @@ public:
   bool IsCF(Muon mu, std::vector<Gen> gens);
   bool HasPromptConv(Electron el);
 
+  double GetGenLevelJJMass();
+
   bool HasMEPhoton(Lepton lep);
   bool GenIsPrompt(Gen gen);
   Gen GenGetMother(Gen gen);
@@ -287,7 +306,7 @@ public:
   
 
   bool RunBDT();
-
+  TString GetBDTSignalMass(TString mass);
 
   
   // ------ General HNL functions (HNL_LeptonCore.C)                                                                                              
@@ -487,9 +506,6 @@ public:
 
   //==== MCweight
   double MCweight(bool usesign=true, bool norm_1invpb=true) const;
-
-  //==== Kfactors
-  double GetKFactor();
 
   //==== Muon GeneralizedEngpoint momentum scaling
   GeneralizedEndpoint *muonGE=NULL;

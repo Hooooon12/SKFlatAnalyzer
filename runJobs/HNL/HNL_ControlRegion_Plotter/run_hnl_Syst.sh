@@ -8,12 +8,19 @@ datapath=${SKFlat_WD}/runJobs/SampleLists/Data/
 njobs=30
 njobs_sig=2
 njobs_data=200
-nmax=400
+nmax=500
 skim=' '
 
-if [[ $1 == "" ]]; then
+if [[ $1 == "Failed" ]]; then
+    
+    SKFlat.py -a $analyzer  -i GluGluToZZto4e  -n 100       --nmax ${nmax}   -e 2018 --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,LLL,RunPrompt &
+    SKFlat.py -a $analyzer  -i ttZToLLNuNu  -n 100       --nmax ${nmax}   -e 2018 --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,LLL,RunPrompt &
+    
+fi
 
-    declare  -a era_list=("2016postVFP" "2016preVFP")
+if [[ $1 == "Main" ]]; then
+
+    declare  -a era_list=("2016preVFP" "2018")
 
     for i in "${era_list[@]}"
     do
@@ -23,7 +30,7 @@ if [[ $1 == "" ]]; then
 	SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,SSMultiLep 
 	
 	#### Prompt
-	SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS.txt             -n 20        --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,SSMultiLep,RunPrompt &
+	SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS.txt             -n 50        --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,SSMultiLep,RunPrompt &
 	SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS2.txt            -n 400       --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,SSMultiLep,RunPrompt &
 	
 	### Conv
@@ -44,12 +51,12 @@ if [[ $1 == "" ]]; then
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EMu.txt      -n 100  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,LLL &
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,LLL 
         #### Prompt
-        SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS.txt             -n 20        --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,LLL,RunPrompt &
+        SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS.txt             -n 50        --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,LLL,RunPrompt &
         SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS2.txt            -n 400       --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,LLL,RunPrompt 
         
         ### Conv
-        SKFlat.py -a $analyzer  -l $mcpath/Conv/Conv.txt          -n 20        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunConv&
-        SKFlat.py -a $analyzer  -l $mcpath/Conv/Conv2.txt         -n 100        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunConv
+        SKFlat.py -a $analyzer  -l $mcpath/Conv/Conv.txt          -n 50        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunConv&
+        SKFlat.py -a $analyzer  -l $mcpath/Conv/ConvWG.txt         -n 100        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunConv &
 
         ### Fakes
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EMu.txt      -n 100  --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunFake   &

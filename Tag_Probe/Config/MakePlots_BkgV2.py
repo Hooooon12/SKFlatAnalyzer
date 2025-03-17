@@ -26,6 +26,10 @@ It_Probes    = [ 'MVALoose','MVABaseline','HNLMVA','HNLMVA_HighPt', 'HNL_ULID_Sp
 
 #### IDs applied to probe befrpre PASS/FAIL
 It_ProbeID   = ['Pass',     'Pass', 'Pass', 'Pass','Pass',       'HNL_ULID_Probe_Split_2','HNL_ULID_Probe_Split_3','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_4','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_5','HNL_ULID_Probe_Split_6','HNL_ULID_Probe_Split_7','HNL_ULID_Probe_Split_8' ,'MVABaseline','MVABaseline','MVABaseline']
+
+It_Probes    = [ 'HNLMVA_HighPt']
+It_ProbeID   = [ 'HNL_ULID_Probe_Split_1']
+
 It_IsPasses = ['Pass','Fail']
 It_EtaRegions = ['BB','EC']
 #It_EtaRegions = ['BB']
@@ -1426,8 +1430,8 @@ def makeResults():
     HistFiles = []
     for era in eras:
 
-      HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version1_BkgV2/SF_"+era+".root"))
-      
+      HistFiles.append(TFile.Open("/data9/Users/jalmond_public/For_Jihun/Version1_BkgV2/"+era+"v3.root"))
+     
 
     # Merge 2016
     if len(eras) > 1:

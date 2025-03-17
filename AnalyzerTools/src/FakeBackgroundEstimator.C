@@ -112,72 +112,40 @@ double FakeBackgroundEstimator::GetFakeRate(bool IsMuon,TString ID, TString key,
  
 double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, int sys){
 
-  double ApplyHighPtCorr=1;
-
   /// Function uses MC to correct high pt Fake rates
-  if(sys==-1)    return 1;
   if(pt < 150) return 1;
 
-  if(sys==0){
-    if(GetEra().Contains("2016")){
-      
-      if(fabs(eta) < 1.5){
-	if(pt > 200)  ApplyHighPtCorr=1.25;
-	else if(pt > 150)  ApplyHighPtCorr=1.1;
-      }
-      else{
-	if(pt > 250)   ApplyHighPtCorr=0.75;
-      }
-    }
-    else  if(GetEra() =="2017"){
-      if(fabs(eta) < 1.5){
-	if(pt > 200)  ApplyHighPtCorr=1.2;
-	else if(pt > 150)  ApplyHighPtCorr=1.1;
-      }
-      else{
-	if(pt > 250)   ApplyHighPtCorr=0.75;
-      }
-    }
-  else   if(GetEra() == "2018"){
-      if(fabs(eta) < 1.5){
-	if(pt > 200)  ApplyHighPtCorr=1.1;
-	else if(pt > 150)  ApplyHighPtCorr=1.1;
-      }
-      else{
-	if(pt > 250)   ApplyHighPtCorr=0.75;
-      }
-    }
-  }
-  else if(sys==1){
-    if(GetEra().Contains("2016")){
-      
-      if(fabs(eta) < 1.5){
-        if(pt > 200)  ApplyHighPtCorr=1.5;
-        else if(pt > 150)  ApplyHighPtCorr=1.2;
-      }
-      else{
-        if(pt > 250)   ApplyHighPtCorr=0.5;
-      }
-    }
-    else  if(GetEra() =="2017"){
-      if(fabs(eta) < 1.5){
-        if(pt > 200)  ApplyHighPtCorr=1.4;
-        else if(pt > 150)  ApplyHighPtCorr=1.2;
-      }
-      else{
-        if(pt > 250)   ApplyHighPtCorr=0.5;
-      }
-    }
-    else   if(GetEra() == "2018"){
-      if(fabs(eta) < 1.5){
-        if(pt > 200)  ApplyHighPtCorr=1.2;
-        else if(pt > 150)  ApplyHighPtCorr=1.2;
-      }
-      else{
-        if(pt > 250)   ApplyHighPtCorr=0.5;
+
+  double ApplyHighPtCorr = 1;
+
+  // Function uses MC to correct high pt Fake rates
+  if (pt < 150) return 1;
+
+  // Initialize correction factor for each era and sys value
+  double correctionFactor = 1.0;
+  bool isEtaLessThan1_5 = fabs(eta) < 1.5;
+
+  if (sys == -1 || sys == 0 || sys == 1) {
+    if (GetEra().Contains("2016") || GetEra() == "2017" || GetEra() == "2018") {
+      if (isEtaLessThan1_5) {
+	if (pt > 200) {
+	  if (sys == -1) correctionFactor = 1.0;
+	  else if (sys == 0) correctionFactor = (GetEra() == "2016" ? 1.25 : (GetEra() == "2017" ? 1.2 : 1.1));
+	  else if (sys == 1) correctionFactor = (GetEra() == "2016" ? 1.5 : (GetEra() == "2017" ? 1.4 : 1.2));
+	} else if (pt > 150) {
+	  if (sys == -1) correctionFactor = 1.0;
+	  else if (sys == 0) correctionFactor = (GetEra() == "2016" ? 1.1 : (GetEra() == "2017" ? 1.1 : 1.1));
+	  else if (sys == 1) correctionFactor = (GetEra() == "2016" ? 1.2 : (GetEra() == "2017" ? 1.2 : 1.2));
+	}
+      } else {
+	if (pt > 250) {
+	  correctionFactor = (sys == -1 ? 0.5 : (sys == 0 ? 0.75 : 1.0));
+	}
       }
     }
   }
+
+  ApplyHighPtCorr = correctionFactor;
 
 
   return ApplyHighPtCorr;

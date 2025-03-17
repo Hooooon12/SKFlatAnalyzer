@@ -324,7 +324,7 @@ double HNL_LeptonCore::GetFakeWeight(std::vector<Lepton *> leps, AnalyzerParamet
 }
 
 
-double HNL_LeptonCore::GetIsoFromID(Lepton lep, TString id){
+double HNL_LeptonCore::GetIsolationCutFromID(Lepton lep, TString id){
 
   double pt = lep.Pt();
   double eta = lep.Eta();

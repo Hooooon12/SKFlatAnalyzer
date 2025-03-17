@@ -1,6 +1,6 @@
 #include "HNL_LeptonCore.h"
 
-JetTagging::Parameters HNL_LeptonCore::GetParamJetTagger(AnalyzerParameter param){
+JetTagging::Parameters HNL_LeptonCore::GetParamJetTagger(AnalyzerParameter& param){
   
   if(param.BTagger == "DeepJet" && param.BWP == "T") return JetTagging::Parameters(JetTagging::DeepJet, JetTagging::Tight, JetTagging::incl, JetTagging::mujets);
   if(param.BTagger == "DeepJet" && param.BWP == "M") return JetTagging::Parameters(JetTagging::DeepJet, JetTagging::Medium, JetTagging::incl, JetTagging::mujets);
@@ -16,49 +16,83 @@ JetTagging::Parameters HNL_LeptonCore::GetParamJetTagger(AnalyzerParameter param
 
 }
 
-void  HNL_LeptonCore::EvalJetWeight(std::vector<Jet>    AK4_JetColl, std::vector<FatJet>   AK8_JetColl,  double & w,AnalyzerParameter& param){
+void  HNL_LeptonCore::EvalJetWeight(const std::vector<Jet>&    AK4_JetColl, const std::vector<Jet>&    AK4_VBFJetColl, const std::vector<FatJet>&   AK8_JetColl,  double & w,AnalyzerParameter& param){
   
   if(IsData) return;
     
   /// BJET SF
  
-  if(param.Apply_Weight_BJetSF && param.BTagger != "Default"){
+  if (param.Apply_Weight_BJetSF && param.BTagger != "Default") {
+    // Get jet tagging parameters
     JetTagging::Parameters param_jets = GetParamJetTagger(param);
-    std::vector<Jet>    BJetColl_Tmp      = GetHNLJets(param.BJetColl,     param);
-    std::vector<Jet>    BJetColl;
-    for(int ij =0 ; ij < BJetColl_Tmp.size(); ij++) {
-      if(fabs(BJetColl_Tmp[ij].Eta()) < 2.4) BJetColl.push_back(BJetColl_Tmp[ij]);
-    }
-    double sf_btag                    = GetBJetSF(param, BJetColl, param_jets);
-    w*= sf_btag;
 
-    param.w.btagSF=sf_btag;
-    FillWeightHist(param.ChannelDir()+"/"+param.BTagger+"SF"+param.BWP, sf_btag);
+    // Get and filter jets
+    std::vector<Jet> BJetColl_Tmp = GetHNLJets(param.BJetColl, param);
+    std::vector<Jet> BJetColl;
+    
+    // Only push jets with |Eta| < 2.4
+    for (const auto& jet : BJetColl_Tmp) {
+      if (std::abs(jet.Eta()) < 2.4) {
+	BJetColl.push_back(jet);
+      }
+    }
+
+    // Apply b-tagging SF and update weights
+    double sf_btag = GetBJetSF(param, BJetColl, param_jets);
+    w *= sf_btag;
+
+    // Store the SF and fill the histogram
+    param.w.btagSF = sf_btag;
+    FillWeightHist(param.ChannelDir() + "/" + param.BTagger + "SF" + param.BWP, sf_btag);
   }
+
 
   /// PNET SF
-  if(param.Apply_Weight_PNETSF){
-    double AK8PNETSF(1.);
-    
+  if (param.Apply_Weight_PNETSF) {
+    double AK8PNETSF = 1.0;
     double PNETSyst = 0;
-    if(param.syst_ == AnalyzerParameter::JetPNETUp) PNETSyst = 1;
-    if(param.syst_ == AnalyzerParameter::JetPNETDown) PNETSyst = -1;
-    
-    for(auto iJ : AK8_JetColl) AK8PNETSF*= iJ.GetTaggerSF(JetTagging::particleNet_WvsQCD, DataEra, PNETSyst);
-    w*= AK8PNETSF;
-    param.w.PNETSF=AK8PNETSF;
 
-    FillWeightHist(param.ChannelDir()+"/PNET_JETTagger", AK8PNETSF);
+    // Determine systematics for PNET
+    if (param.syst_ == AnalyzerParameter::JetPNETUp) {
+      PNETSyst = 1;
+    } else if (param.syst_ == AnalyzerParameter::JetPNETDown) {
+      PNETSyst = -1;
+    }
+
+    // Apply PNET SF for each jet in AK8_JetColl
+    for (const auto& jet : AK8_JetColl) {
+      AK8PNETSF *= jet.GetTaggerSF(JetTagging::particleNet_WvsQCD, DataEra, PNETSyst);
+    }
+
+    // Update weight and parameter
+    w *= AK8PNETSF;
+    param.w.PNETSF = AK8PNETSF;
+
+    // Fill histogram
+    FillWeightHist(param.ChannelDir() + "/PNET_JETTagger", AK8PNETSF);
   }
-  if(param.Apply_Weight_JetPUID){
-    double jPUID = GetJetPileupIDSF(AK4_JetColl, param.JetPUID, param);
-    w*= FillWeightHist(param.ChannelDir()+"/PJet_PUID"+param.JetPUID+"_weight_" , jPUID);
-    param.w.JetPU=jPUID;
+
+  // Jet PUID SF
+  if (param.Apply_Weight_JetPUID) {
+
+    vector<Jet> Merged_Jets = AK4_VBFJetColl; 
+    for(const auto& jet : AK4_JetColl) {
+      if(jet.Pt() < 30) Merged_Jets.push_back(jet);
+    }
+    double jPUID = GetJetPileupIDSF(Merged_Jets, param.JetPUID, param);
+
+    // Apply weight and update parameter
+    w *= jPUID;
+    param.w.JetPU = jPUID;
+
+    // Fill histogram
+    FillWeightHist(param.ChannelDir() + "/PJet_PUID" + param.JetPUID + "_weight_", jPUID);
   }
+
   return;
 }
 
-std::vector<FatJet> HNL_LeptonCore::GetHNLAK8Jets(TString JetType, AnalyzerParameter param){
+std::vector<FatJet> HNL_LeptonCore::GetHNLAK8Jets(const TString& JetType, AnalyzerParameter& param){
   
   std::vector<FatJet>   AK8JetColl  = SelectFatJets(param, param.FatJet_ID, param.FatJet_MinPt, param.FatJet_MaxEta);
   if(JetType=="Loose")  return AK8JetColl;
@@ -69,8 +103,10 @@ std::vector<FatJet> HNL_LeptonCore::GetHNLAK8Jets(TString JetType, AnalyzerParam
   if(JetType=="HNL")            return SelectAK8Jets  (AK8JetColl,  200., 2.7,  true,   1., false, -999, true,  40., 130.,    "",  ElectronCollV, MuonCollV);
   if(JetType=="HNL_NoMass")     return SelectAK8Jets  (AK8JetColl,  200., 2.7,  true,   1., false, -999, false, 0.,  200000., "",  ElectronCollV, MuonCollV);
   if(JetType=="BDT")            return SelectAK8Jets  (AK8JetColl,  200., 2.7,  true,   1., false, -999, false, 0.,  200000., "",  ElectronCollV, MuonCollV);
-  if(JetType=="HNL_PN")         return SelectAK8Jets  (AK8JetColl,  200., 2.7,  true,   1., false, -999, true,  40., 130.,    "particleNet_WvsQCD", ElectronCollV, MuonCollV);
-  if(JetType=="HNL_PN_NoMass")  return SelectAK8Jets  (AK8JetColl,  200., 2.7,  true,   1., false, -999, true,  0., 200000.,    "particleNet_WvsQCD", ElectronCollV, MuonCollV);
+
+  //if(JetType=="HNL_PN")         return SelectAK8Jets  (AK8JetColl,  200., 2.7,  true,   1., false, -999, true,  40., 130.,    "particleNet_WvsQCD", ElectronCollV, MuonCollV);
+  if(JetType=="HNL_PN")          return SelectAK8Jets  (AK8JetColl,  200., 2.4,  true,   1., false, -999, false,  0., 200000.,    "particleNet_WvsQCD", ElectronCollV, MuonCollV);
+
   if(JetType=="EXO17028")        return SelectAK8Jets  (AK8JetColl,  200., 2.7,  true,   1., true, -999, true,  60., 130.,    "",  ElectronCollV, MuonCollV);
 
 
@@ -78,7 +114,7 @@ std::vector<FatJet> HNL_LeptonCore::GetHNLAK8Jets(TString JetType, AnalyzerParam
 
 }
 
-std::vector<Jet> HNL_LeptonCore::GetHNLJets(TString JetType, AnalyzerParameter param){
+std::vector<Jet> HNL_LeptonCore::GetHNLJets(const TString& JetType, AnalyzerParameter& param){
   /// AK4                                                                                                                                                                    
   if(JetType=="All")          return SelectJets   ( param, "NoID",      param.Jet_MinPt,  param.Jet_MaxEta);
   if(JetType=="NoCut_Eta3")   return SelectJets   ( param, "NoID",      param.Jet_MinPt,  3.); 
@@ -196,22 +232,6 @@ std::vector<Jet> HNL_LeptonCore::SelBJets(std::vector<Jet>& jetColl, JetTagging:
 }
 
 
-
-vector<Jet> HNL_LeptonCore::SkimJetColl(const vector<Jet>& JetColl, vector<Gen>& TruthColl, AnalyzerParameter param,TString Option){
-
-  bool GetPrLepCleanJet=false;
-  TString Criteria="";
-  if(Option.Contains("NoPr"))  GetPrLepCleanJet =true;
-  if(Option.Contains("NoTau")) Criteria="InclTau";
-
-  vector<Jet> ReturnVec;
-  for(unsigned int i=0; i<JetColl.size(); i++){
-    bool HasEWLep=HasEWLepInJet(JetColl.at(i), TruthColl, Criteria);
-    if( GetPrLepCleanJet && (!HasEWLep) ) ReturnVec.push_back(JetColl.at(i));
-  }
-
-  return ReturnVec;
-}
 
 std::vector<Jet> HNL_LeptonCore::SelectJets(const std::vector<Jet>& jets, TString id, double ptmin, double fetamax){
 
@@ -338,22 +358,13 @@ std::vector<FatJet> HNL_LeptonCore::SelectFatJets(AnalyzerParameter param,TStrin
   std::vector<FatJet> jets;
   int sys_ak8_scale = 0;
   int sys_ak8_smear = 0;
-  int sys_ak8_mass_scale = 0;
-  int sys_ak8_mass_smear = 0;
 
   if(param.syst_ == AnalyzerParameter::JetEnUp)    sys_ak8_scale=1;
   if(param.syst_ == AnalyzerParameter::JetEnDown)  sys_ak8_scale=-1;
   if(param.syst_ == AnalyzerParameter::JetResUp)   sys_ak8_smear=1;
   if(param.syst_ == AnalyzerParameter::JetResDown) sys_ak8_smear=-1;
-  if(param.syst_ == AnalyzerParameter::JetMassUp)  sys_ak8_mass_scale=1;
-  if(param.syst_ == AnalyzerParameter::JetMassDown)  sys_ak8_mass_scale=-1;
-  if(param.syst_ == AnalyzerParameter::JetMassSmearUp) sys_ak8_mass_smear=1;
-  if(param.syst_ == AnalyzerParameter::JetMassSmearDown) sys_ak8_mass_smear=-1;
-
   jets    = ScaleFatJets( jets_pc, sys_ak8_scale );
   jets    = SmearFatJets(jets, sys_ak8_smear );
-  jets    = ScaleSDMassFatJets( jets, sys_ak8_mass_scale );
-  jets    = SmearSDMassFatJets( jets, sys_ak8_mass_smear );
 
   std::vector<FatJet> out;
   for(unsigned int i=0; i<jets.size(); i++){
@@ -484,9 +495,13 @@ vector<Jet>   HNL_LeptonCore::SelectAK4Jets(vector<Jet> jets, double pt_cut ,  d
 
 vector<FatJet>  HNL_LeptonCore::SelectAK8Jets(vector<FatJet> fatjets, double pt_cut ,  double eta_cut, bool lepton_cleaning  , double dr_lep_clean , bool apply_tau21, double tau21_cut , bool apply_masscut, double sdmass_lower_cut,  double sdmass_upper_cut, TString  tagger,  vector<Electron>  veto_electrons, vector<Muon>  veto_muons){
 
+  bool DEBUGMode=false;
 
   vector<FatJet> output_fatjets;
   for(unsigned int ijet =0; ijet < fatjets.size(); ijet++){
+    
+    if(abs(fatjets[ijet].Eta()) > 2.3) DEBUGMode=true;
+    else DEBUGMode=false;
 
     bool jetok=true;
 
@@ -497,7 +512,7 @@ vector<FatJet>  HNL_LeptonCore::SelectAK8Jets(vector<FatJet> fatjets, double pt_
     for(unsigned int iel=0 ; iel < veto_muons.size(); iel++){
       if(fatjets[ijet].DeltaR(veto_muons[iel]) < dr_lep_clean) jetok = false;
     }
-
+    
     if( tagger != ""){
       if (!fatjets[ijet].PassTagger(JetTagging::StringToTagger(string(tagger)), DataEra)) continue;
     }
@@ -562,60 +577,77 @@ double  HNL_LeptonCore::GetBJetSF(AnalyzerParameter param,vector<Jet> jets, JetT
 }
 
 
-double HNL_LeptonCore::GetJetPileupIDSF(vector<Jet> jets , TString WP, AnalyzerParameter param){
+double HNL_LeptonCore::GetJetPileupIDSF(const std::vector<Jet>& jets, const TString& WP, const AnalyzerParameter& param) {
+  if (IsData || WP.IsNull() || WP == "None") return 1.0;
 
-  if(IsData) return 1.;
-  if(WP=="") return 1.;
-  if(WP=="None") return 1.;
+  double JPU_W = 1.0;
 
-  double JPU_W=1.;
-  for(auto ij: jets){
-    if(param.syst_ == AnalyzerParameter::JetPUIDUp)   JPU_W*= mcCorr->JetPileUpSF(ij, WP,1 );
-    else if(param.syst_ == AnalyzerParameter::JetPUIDDown)   JPU_W*= mcCorr->JetPileUpSF(ij, WP,-1 );
-    else JPU_W*= mcCorr->JetPileUpSF(ij, WP,0 );
+  // Determine systematics direction
+  int syst_dir = 0;
+  if (param.syst_ == AnalyzerParameter::JetPUIDUp) {
+    syst_dir = 1;
+  } else if (param.syst_ == AnalyzerParameter::JetPUIDDown) {
+    syst_dir = -1;
+  }
+
+  // Apply pileup ID SF for each jet
+  for (const auto& jet : jets) {
+    JPU_W *= mcCorr->JetPileUpSF(jet, WP, syst_dir);
   }
 
   return JPU_W;
 }
 
+double HNL_LeptonCore::GetEventFatJetSF(const std::vector<FatJet>& fatjets, const TString& label, int dir) {
+  double FatJetTau21_SF = 1.0;
+    
+  for (const auto& fatjet : fatjets) {
+    FatJetTau21_SF *= GetFatJetSF(fatjet, label, dir);
+  }
 
-double HNL_LeptonCore::GetEventFatJetSF(vector<FatJet> fatjets, TString label, int dir){
-  double FatJetTau21_SF(1);
-  for (auto ifj : fatjets)   FatJetTau21_SF*=GetFatJetSF(ifj, label,dir);
   return FatJetTau21_SF;
 }
 
-double HNL_LeptonCore::GetFatJetSF(FatJet fatjet, TString tag,  int dir){
-
-  if(IsDATA) return 1.;
-  double fsys = -1;
-  if(dir > 0) fsys =1;
-  if(dir==0) fsys=0.;
 
 
-  double loose_sf(1.);
-  if(tag.Contains("HP")){
-    if(DataYear==2016) loose_sf = 0.99  + fsys*0.11;
-    if(DataYear==2017) loose_sf = 0.974 + fsys*0.029;
-    if(DataYear==2018) loose_sf = 0.980 + fsys*0.019;
-    return loose_sf;
-  }
-  else if(tag.Contains("LP")){
 
-    if(DataYear==2016) loose_sf = 1.03 + fsys*0.14;
+double HNL_LeptonCore::GetFatJetSF(const FatJet& fatjet, const TString& tag, int dir) {
+  if (IsDATA) return 1.0;
 
-    else if(DataYear==2017) {
-      if (fatjet.PuppiTau21() < 0.45) loose_sf = 0.974 + fsys*0.029;
-      else if (fatjet.PuppiTau21() < 0.75)    loose_sf = 1.136 + fsys*0.162;
-    }
+  double fsys = (dir > 0) ? 1.0 : (dir == 0 ? 0.0 : -1.0);
+  double loose_sf = 1.0;
 
-    else if(DataYear==2018) {
-      if (fatjet.PuppiTau21() <0.45) loose_sf = 0.980 + fsys*0.019;
-      else if (fatjet.PuppiTau21() < 0.75)  loose_sf = 1.20 + fsys*0.194;
+  if (tag.Contains("HP")) {
+    switch (DataYear) {
+    case 2016: loose_sf = 0.99 + fsys * 0.11; break;
+    case 2017: loose_sf = 0.974 + fsys * 0.029; break;
+    case 2018: loose_sf = 0.980 + fsys * 0.019; break;
     }
     return loose_sf;
   }
+  else if (tag.Contains("LP")) {
+    if (DataYear == 2016) {
+      loose_sf = 1.03 + fsys * 0.14;
+    }
+    else if (DataYear == 2017) {
+      if (fatjet.PuppiTau21() < 0.45) {
+	loose_sf = 0.974 + fsys * 0.029;
+      }
+      else if (fatjet.PuppiTau21() < 0.75) {
+	loose_sf = 1.136 + fsys * 0.162;
+      }
+    }
+    else if (DataYear == 2018) {
+      if (fatjet.PuppiTau21() < 0.45) {
+	loose_sf = 0.980 + fsys * 0.019;
+      }
+      else if (fatjet.PuppiTau21() < 0.75) {
+	loose_sf = 1.20 + fsys * 0.194;
+      }
+    }
+    return loose_sf;
+  }
 
-  return 1.;
-
+  return 1.0;
 }
+
