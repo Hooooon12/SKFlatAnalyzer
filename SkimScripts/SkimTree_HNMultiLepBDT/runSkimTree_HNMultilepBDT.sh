@@ -8,6 +8,17 @@ njobs_data=200
 nmax=800
 declare  -a era_list=("2016postVFP" "2016preVFP"  "2017" "2018")
 
+
+
+if [[ $1 == "GGZZ" ]]; then
+
+
+    for i in "${era_list[@]}"
+    do
+        SKFlat.py -a $analyzer  -i GluGluToZZto4tau  -n ${njobs}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+    done
+fi
+
 if [[ $1 == "GT36" ]]; then
 
     declare  -a era_list=("2018")

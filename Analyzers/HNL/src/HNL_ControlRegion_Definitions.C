@@ -22,8 +22,6 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
 
   vector<HNL_LeptonCore::Channel> channels = {GetChannelENum(param.Channel)};
  
-  vector<Tau> TauColl;
-
   if(GetChannelENum(param.Channel) == HNL_LeptonCore::NONE){
     cout << "CHANNEL NOT SET" << endl;
     exit(EXIT_FAILURE);
@@ -32,7 +30,6 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
   if(run_Debug) cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;  
   int nlog(0);
   
-
   for(unsigned int ic = 0; ic < channels.size(); ic++){
 
     if(RunCF){
@@ -65,6 +62,34 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
     std::vector<Lepton *> LepsT       = MakeLeptonPointerVector(muons,     electrons,     param);
     std::vector<Lepton *> LepsV       = MakeLeptonPointerVector(muons_veto,electrons_veto,param);
 
+
+    std::vector<Tau>    TauColl_Uncleaned   = GetTaus("HNVeto",20., 2.3);
+    std::vector<Tau>    TauColl_Cleaned;
+    for(auto ilep : TauColl_Uncleaned) {
+      bool matched=false;
+      for(auto ilep2 : LepsV) {
+	if(ilep.DeltaR(*ilep2) < 0.4) matched=true;
+      }
+      if(matched) continue;
+      TauColl_Cleaned.push_back(ilep);
+    }
+
+    std::vector<FatJet> AK8_JetCollLoose_Uncleaned                 = GetHNLAK8Jets("Loose",param);
+    std::vector<FatJet> AK8_JetCollLoose_Cleaned;
+    for(auto ijet : AK8_JetCollLoose_Uncleaned){
+      bool matched=false;
+      for(auto ilep2 : LepsV) {
+	if(ijet.DeltaR(*ilep2) < 0.8) matched=true;
+      }
+      if(matched) continue;
+      AK8_JetCollLoose_Cleaned.push_back(ijet);
+    }
+    if(HasFlag("CleanAK8")) {
+      if(AK8_JetCollLoose_Cleaned.size() > 0) return;
+    }
+    if(HasFlag("CleanTau")) {
+      if(TauColl_Cleaned.size() > 0)  return;
+    }
 
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));
@@ -370,7 +395,7 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
       FillSSZPeakCRPlots(dilep_channel, LepsT, LepsV, JetColl, VBF_JetColl, AK8_JetColl, B_JetColl, ev, METv, param, weight_channel);
 
       //// RunMainRegionCode(false runs CR version of SR1/2/3
-      if(!HasFlag("ScanFakes")) RunMainRegionCode(false, dilep_channel, Inclusive, LepsT, LepsV,TauColl,JetColl, VBF_JetColl, AK8_JetColl, B_JetColl, ev, METv, param, weight_channel);
+      if(!HasFlag("ScanFakes")) RunMainRegionCode(false, dilep_channel, Inclusive, LepsT, LepsV,TauColl_Cleaned,JetColl, VBF_JetColl, AK8_JetColl, B_JetColl, ev, METv, param, weight_channel);
       
     }
     

@@ -20,12 +20,104 @@ void HNL_GenericObject_Studies::initializeAnalyzer(){
 void HNL_GenericObject_Studies::executeEvent(){
 
   //==== Gen for genmatching
-  AnalyzerParameter param  = InitialiseHNLParameter("SignalStudy");
+  AnalyzerParameter param  = InitialiseHNLParameter("HNL_ULIDv2");
   Event ev = GetEvent();
   double weight =SetupWeight(ev,param);
 
   FillHist ("NoCut", 1, weight, 2, 0., 2.,"");
   FillHist ("nPV" , nPV, weight, 100., 0., 100.,"");
+
+  
+  if(HasFlag("CheckEMu")){
+    
+    std::vector<FatJet> AK8_JetColl                 = GetHNLAK8Jets(param.AK8JetColl,param);
+    std::vector<Jet>    AK4_JetColl                 = GetHNLJets(param.AK4JetColl,     param);
+    std::vector<Jet>    AK4_VBF_JetColl             = GetHNLJets(param.AK4VBFJetColl,  param);
+    std::vector<Jet>    AK4_JetAllColl              = GetHNLJets("NoCut_Eta3",param);
+    std::vector<Jet>    AK4_JetCollLoose            = GetHNLJets("Loose",     param);
+    std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param);
+  
+    double Min_FakeMuon_Pt     =  5;
+    double Min_FakeElectron_Pt =  10 ;
+    
+    std::vector<Muon>       MuonTightColl_Init     = SelectMuons    ( param,param.Muon_Veto_ID,     Min_FakeMuon_Pt,     2.4,weight); 
+    std::vector<Electron>   ElectronTightColl_Init = SelectElectrons( param,param.Electron_Veto_ID, Min_FakeElectron_Pt, 2.5,weight);
+
+    std::vector<Lepton *> Leps       = MakeLeptonPointerVector(MuonTightColl_Init, ElectronTightColl_Init,     param);
+       
+    if(!PassHEMVeto(Leps,weight)) return;
+    if(!PassMETFilter())  return;
+    
+    if(!CheckLeptonFlavourForChannel(GetQuadLeptonChannel(EMu),Leps)) return;
+
+    Particle METv = GetvMET("PuppiT1xyULCorr", param, AK4_VBF_JetColl, AK8_JetColl, MuonTightColl_Init,ElectronTightColl_Init);
+
+    if(Leps.size() ==4 &&  AK4_JetColl.size() > 3){
+      cout << "Event Number = " << event << endl;
+      cout << "Number of jets = " << AK4_JetColl.size() << endl;
+      
+      std::vector<Tau>    mytaus         = GetTaus("HNVeto",20., 2.3);
+      
+      for(auto ilep : Leps) {
+	cout << ilep->GetFlavour() << " pt = " << ilep->Pt() << " eta = " << ilep->Eta() << " phi = " << ilep->Phi() << endl;
+      }
+      std::vector<Tau>    mytaus_cleaned;   
+      for(auto ilep : mytaus) {
+	bool matched=false;
+	for(auto ilep2 : Leps) {
+	  if(ilep.DeltaR(*ilep2) < 0.4) matched=true;
+	}
+	if(matched) continue;
+	mytaus_cleaned.push_back(ilep);
+	cout << " Tau pt = " << ilep.Pt() << " eta = " << ilep.Eta() << " phi = " << ilep.Phi() << endl;
+
+      }
+
+      JetTagging::Parameters param_jets = GetParamJetTagger(param);
+
+
+      for(auto ijet : AK8_JetColl){
+	cout << "AK8 Jet  pt " << ijet.Pt() << " eta = " << ijet.Eta() << " phi = " << ijet.Phi() << endl;
+	
+      }      
+
+      std::vector<FatJet> AK8_JetCollLoose                 = GetHNLAK8Jets("Loose",param);
+      for(auto ijet : AK8_JetCollLoose){
+	
+	vector<JetTagging::Tagger> Taggers = {    JetTagging::DeepCSV, JetTagging::DeepCSV_CvsL, JetTagging::DeepCSV_CvsB,
+						  JetTagging::particleNet_TvsQCD, JetTagging::particleNet_WvsQCD, JetTagging::particleNet_ZvsQCD,
+						  JetTagging::particleNet_HbbvsQCD, JetTagging::particleNet_HccvsQCD, JetTagging::particleNet_H4qvsQCD, JetTagging::particleNet_QCD,
+						  JetTagging::particleNetMD_Xbb, JetTagging::particleNetMD_Xcc, JetTagging::particleNetMD_Xqq, JetTagging::particleNetMD_QCD};
+
+	for (auto jet_tagger  : Taggers){
+	  cout << "LooseAK8 Jet  pt " << ijet.Pt() << " eta = " << ijet.Eta() << " phi = " << ijet.Phi() << " SDMass = " << ijet.SDMass() << " PNET " << JetTagging::TaggerToString(jet_tagger) << "  = " <<  ijet.GetTaggerResult(jet_tagger) << endl;
+	
+	}
+      }
+
+      cout << "################################################" << endl;
+      for(auto ijet : AK4_JetColl){
+        cout << "Jet  pt " << ijet.Pt() << " eta = " << ijet.Eta() << " phi = " << ijet.Phi() << endl;
+        cout << "BJet score =  " << ijet.GetTaggerResult(param_jets.j_Tagger) << endl;
+	cout << "PileupJetId = " << ijet.PileupJetId() << endl;
+	cout << "-------------------- Check dR overlap of jets " << endl;
+	for(auto ijet2 : AK8_JetCollLoose){
+	  if(ijet.DeltaR(ijet2) < 1.) cout << "-----> MATCHED dR AK4,8 jets = " << ijet.DeltaR(ijet2) << endl;
+	}
+	for(auto ilep : mytaus_cleaned){
+	  if(ijet.DeltaR(ilep) < 0.5) cout << "-----> MATCHED dR AK4, tau = " << ijet.DeltaR(ilep) << endl;
+	}
+	
+      }
+
+    }  
+    return;
+  }
+
+
+
+
+
   TString process="";
   if(!IsData){
     

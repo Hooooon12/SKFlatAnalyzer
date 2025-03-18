@@ -12,6 +12,7 @@ ttWToLNu
 ttZToLLNuNu
 GluGluHToZZTo4L
 GluGluToZZto2e2mu
+GluGluToZZto4tau
 GluGluToZZto4e
 GluGluToZZto4mu
 GluGluToZZto2mu2tau

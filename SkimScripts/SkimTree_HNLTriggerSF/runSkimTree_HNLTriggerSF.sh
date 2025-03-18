@@ -6,7 +6,7 @@ njobs=600
 njobs_data=600
 nmax=300
 #declare  -a era_list=("2016preVFP" "2016postVFP" "2017" "2018")
-declare  -a era_list=("2016postVFP" "2017")
+declare  -a era_list=("2017")
 if [[ $1 == "All" ]]; then
 
     for i in "${era_list[@]}"
@@ -14,11 +14,11 @@ if [[ $1 == "All" ]]; then
         #SKFlat.py -a $analyzer  -i DYJetsToMuMu_MiNNLO     -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
         #SKFlat.py -a $analyzer  -i DYJetsToEE_MiNNLO       -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
         #SKFlat.py -a $analyzer  -i TTLL_powheg             -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
-	SKFlat.py -a $analyzer  -i  DYJets            -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
+	#SKFlat.py -a $analyzer  -i  DYJets            -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
 	#SKFlat.py -a $analyzer  -i  SingleTop_tW_antitop_NoFullyHad            -n ${njobs_data}  --nmax ${nmax}   -e ${i} &	
 	#SKFlat.py -a $analyzer  -i SingleTop_tW_top_NoFullyHad             -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
 	#SKFlat.py -a $analyzer  -i ttWJets             -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
-	#SKFlat.py -a $analyzer  -i ttZJets             -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
+	SKFlat.py -a $analyzer  -i ttZJets             -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
 	#SKFlat.py -a $analyzer  -i WW_pythia             -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
 	#SKFlat.py -a $analyzer  -i WZ_pythia             -n ${njobs_data}  --nmax ${nmax}   -e ${i} &
 	#SKFlat.py -a $analyzer  -i ZZ_pythia             -n ${njobs_data}  --nmax ${nmax}   -e ${i} &

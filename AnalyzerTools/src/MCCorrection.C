@@ -5807,7 +5807,7 @@ void MCCorrection::SetJetTaggingParameters(std::vector<JetTagging::Parameters> v
   jetTaggingPars = v;
 }
 
-void MCCorrection::SetupJetTagging(){
+void MCCorrection::SetupJetTagging(TString Eff_File){
 
   if(IsDATA) return;
 
@@ -5909,7 +5909,7 @@ void MCCorrection::SetupJetTagging(){
   for(std::map< std::string, BTagCalibrationReader* >::iterator it=map_BTagCalibrationReader.begin(); it!=map_BTagCalibrationReader.end(); it++){
     cout << "[MCCorrection::SetJetTaggingParameters] key = " << it->first << endl;
   }
-  SetupMCJetTagEff();
+  SetupMCJetTagEff(Eff_File);
 
 }
 
@@ -6094,11 +6094,12 @@ double MCCorrection::GetJetTaggingCutValue(JetTagging::Tagger tagger, JetTagging
 
 }
 
-void MCCorrection::SetupMCJetTagEff(){
+void MCCorrection::SetupMCJetTagEff(TString EffFile){
   cout<<"[MCCorrection::SetupMCJetTagEff] setting MCJetTagEff"<<endl;
 
   TString datapath=getenv("DATA_DIR");
-  TString mcjetpath=datapath+"/"+DataEra+"/BTag/MeasureJetTaggingEfficiency_TTLL_TTLJ_hadded.root";
+  TString mcjetpath=datapath+"/"+DataEra+"/BTag/"+EffFile;
+  //MeasureJetTaggingEfficiency_TTLL_TTLJ_hadded.root";
   ifstream fcheck(mcjetpath);
   if(!fcheck.good()){
     cout<<"[MCCorrection::SetupMCJetTagEff] no "+mcjetpath<<endl;

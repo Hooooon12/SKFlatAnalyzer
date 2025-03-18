@@ -480,7 +480,7 @@ void HNL_LeptonCore::EvalTrigWeight(HNL_LeptonCore::Channel channel, vector<Muon
   if(p.syst_ == AnalyzerParameter::ElectronTriggerSFDown)TriggerSFSyst="SystDown";
 
   double this_trigsf =  SFKey_Trig!=""? mcCorr->GetTriggerSF(electrons, muons, SFKey_Trig, TriggerSFSyst):1.;
-  if(_jentry < 1000) cout << "this_trigsf = " << this_trigsf << " SFKey_Trig = " << SFKey_Trig << endl;
+  //  if(_jentry < 1000) cout << "this_trigsf = " << this_trigsf << " SFKey_Trig = " << SFKey_Trig << endl;
   FillWeightHist(p.ChannelDir()+"/Trig_SF", this_trigsf);
 
   w*=(this_trigsf);

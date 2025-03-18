@@ -10,34 +10,34 @@ declare  -a era_list=("2016postVFP" "2016preVFP"  "2017" "2018")
 
 
 
-if [[ $1 == "PDF" ]]; then
+if [[ $1 == "GGZZ" ]]; then
+
+    declare  -a era_list=("2016postVFP" )
+
 
     for i in "${era_list[@]}"
     do
-        SKFlat.py -a $analyzer  -i WZ_EWK  -n ${njobs}  --nmax ${nmax}   -e ${i}  &
-        SKFlat.py -a $analyzer  -i WpWp_EWK  -n ${njobs}  --nmax ${nmax} -e ${i}  &
-
+        SKFlat.py -a $analyzer  -i GluGluToZZto4tau  -n ${njobs}  --nmax ${nmax}   -e ${i}  &
     done
 fi
 
 
 
-if [[ $1 == "GT36" ]]; then
+if [[ $1 == "DATA" ]]; then
 
     declare  -a era_list=("2018")
 
     for i in "${era_list[@]}"
     do
-        #SKFlat.py -a $analyzer  -i MuonEG_GT36:A     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
-        #SKFlat.py -a $analyzer  -i MuonEG_GT36:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
-        #SKFlat.py -a $analyzer  -i MuonEG_GT36:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
-        #SKFlat.py -a $analyzer  -i MuonEG_GT36:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i MuonEG:A     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i MuonEG:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i MuonEG:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i MuonEG:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
 
-	SKFlat.py -a $analyzer  -i DoubleMuon_GT36:A     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
-        #SKFlat.py -a $analyzer  -i DoubleMuon_GT36:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
-        #SKFlat.py -a $analyzer  -i DoubleMuon_GT36:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
-        #SKFlat.py -a $analyzer  -i DoubleMuon_GT36:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
-
+	SKFlat.py -a $analyzer  -i DoubleMuon:A     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i DoubleMuon:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i DoubleMuon:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
+        SKFlat.py -a $analyzer  -i DoubleMuon:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}    &
 
     done
 fi

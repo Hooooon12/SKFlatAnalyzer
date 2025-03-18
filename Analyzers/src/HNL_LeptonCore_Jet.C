@@ -607,7 +607,7 @@ double  HNL_LeptonCore::GetBJetSF(AnalyzerParameter param,vector<Jet> jets, JetT
   else if (param.syst_ == AnalyzerParameter::BTagSFHTagUnCorrUp)   syst="SystUpHTagUnCorr";
   else if (param.syst_ == AnalyzerParameter::BTagSFHTagUnCorrDown) syst="SystDownHTagUnCorr";
   else if (param.syst_ == AnalyzerParameter::BTagSFLTagUnCorrUp)   syst="SystUpLTagUnCorr";
-  else if (param.syst_ == AnalyzerParameter::BTagSFLTagUnCorrDown) syst="SystLTagUnCorr";
+  else if (param.syst_ == AnalyzerParameter::BTagSFLTagUnCorrDown) syst="SystDownLTagUnCorr";
 
   return mcCorr->GetBTaggingReweight_1a(jets, jtp, syst);
 }

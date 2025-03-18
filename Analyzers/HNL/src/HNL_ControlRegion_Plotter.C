@@ -70,8 +70,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   else if(HasFlag("SS_CR"))      CRToRun = {"SS_CR"}; //JH
   else if(HasFlag("VBF_CR"))     CRToRun = {"VBF_CR"}; //JH
   else if(HasFlag("LLL_VR"))     CRToRun = {"LLL_VR"}; //JH
-  else if(HasFlag("SSMultiLep")) CRToRun = {"SS_CR","VBF_CR","LLL_VR"};
-
+  else if(HasFlag("SSMultiLep")) CRToRun = {"SS_CR","VBF_CR"};
 
   if(IsDATA){
     if (this->DataStream.Contains("DoubleMuon")) ChannelsToRun = {MuMu};

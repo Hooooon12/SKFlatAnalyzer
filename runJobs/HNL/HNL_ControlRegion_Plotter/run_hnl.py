@@ -161,8 +161,9 @@ if args.SSMultiLep:
 elif args.LLL:
     flags.append("LLL")     
 else:
-    print("No Flag set")
-    exit()
+    flags.append("SSMultiLep,LLL")
+    print("No Flag set.... using SSMultiLep,LLL")
+
 if args.Systematics:
     flags.append("RunSyst")
 
@@ -217,13 +218,8 @@ if args.Central or args.Systematics:
         ### Conv                                                                                                                                                                             
 
         if RunConv:
-            if args.SSMultiLep:
-                RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Conv/ConvWG.txt         -n 50        --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunConv', flags)}  &")
-                RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Conv/Conv.txt          -n 50        --nmax {nmax}   -e {era} --skim SkimTree_HNMultiLepBDT  {FlagCommand('RunConv', flags)}  &")
-            elif args.LLL:
-                RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Conv/Conv.txt          -n 50        --nmax {nmax}   -e {era} --skim SkimTree_HNMultiLepBDT  {FlagCommand('RunConv', flags)}  &")
-                RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Conv/Conv2.txt         -n 100        --nmax {nmax}   -e {era} --skim SkimTree_HNMultiLepBDT  {FlagCommand('RunConv', flags)}  &")
-
+            RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Conv/ConvWG.txt         -n 50        --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunConv', flags)}  &")
+            RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Conv/Conv.txt          -n 50        --nmax {nmax}   -e {era} --skim SkimTree_HNMultiLepBDT  {FlagCommand('RunConv', flags)}  &")
 
         if RunFake:
             ### Fakes                                                                                                                                                                            

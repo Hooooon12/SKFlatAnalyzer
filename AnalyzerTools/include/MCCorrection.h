@@ -112,14 +112,14 @@ public:
   void SetJetTaggingParameters(std::vector<JetTagging::Parameters> v);
 
   std::map< std::string, BTagCalibrationReader* > map_BTagCalibrationReader;
-  void SetupJetTagging();
+  void SetupJetTagging(TString Eff_file);
 
   TH2D *hist_JetTagEff_B;
   TH2D *hist_JetTagEff_C;
   TH2D *hist_JetTagEff_Light;
 
   std::map< TString, TH2F* > map_hist_mcjet;
-  void SetupMCJetTagEff();
+  void SetupMCJetTagEff(TString Eff_file);
   double GetMCJetTagEff(JetTagging::Tagger tagger, JetTagging::WP wp, int JetFlavor, double JetPt, double JetEta, int sys=0);
   double GetJetTaggingSF(JetTagging::Parameters jtp, int JetFlavor, double JetPt, double JetEta, double Jetdiscr, string Syst="central");
 

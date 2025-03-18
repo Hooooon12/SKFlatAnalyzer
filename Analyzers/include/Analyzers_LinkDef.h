@@ -31,6 +31,7 @@
 #pragma link C++ class SkimTree_HNFake+;
 #pragma link C++ class SkimTree_HNFakeInclusive+;
 #pragma link C++ class SkimTree_HNFakeBDT+;
+#pragma link C++ class SkimTree_ZZ+;
 #pragma link C++ class SkimTree_HNMultiLep+;
 #pragma link C++ class SkimTree_HNMultiLepBDT+;
 #pragma link C++ class SkimTree_SS2lOR3l+;
