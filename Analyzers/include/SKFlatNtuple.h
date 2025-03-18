@@ -121,6 +121,10 @@ public :
    Float_t         vertex_Y;
    Float_t         vertex_Z;
    vector<string>  *HLT_TriggerName;
+   vector<float>   *genjet_pt;
+   vector<float>   *genjet_eta;
+   vector<float>   *genjet_phi;
+   vector<float>   *genjet_mass; 
    vector<float>   *jet_pt;
    vector<float>   *jet_eta;
    vector<float>   *jet_phi;
@@ -600,6 +604,10 @@ public :
    TBranch        *b_PVy;   //!
    TBranch        *b_PVz;   //!
    TBranch        *b_HLT_TriggerName;   //!
+   TBranch        *b_genjet_pt;   //!                                                                                                                                                                                  
+   TBranch        *b_genjet_eta;   //!                                                                                                                                                                                 
+   TBranch        *b_genjet_phi;   //!                                                                                                                                                                                 
+   TBranch        *b_genjet_mass;   //!                                                                                                                                                                              
    TBranch        *b_jet_pt;   //!
    TBranch        *b_jet_eta;   //!
    TBranch        *b_jet_phi;   //!

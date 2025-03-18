@@ -271,13 +271,45 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(AnalyzerParameter param,TString id, 
 
   std::vector<Jet> jets_uncorr = All_Jets;
   std::vector<Jet> jets;
+  
+  std::unordered_map<AnalyzerParameter::Syst, std::pair<int, std::string>> syst_map = {
+    {AnalyzerParameter::JetAbsoluteStatUp, {1, "AbsoluteStat"}},       {AnalyzerParameter::JetAbsoluteStatDown, {-1, "AbsoluteStat"}},
+    {AnalyzerParameter::JetAbsoluteScaleUp, {1, "AbsoluteScale"}},     {AnalyzerParameter::JetAbsoluteScaleDown, {-1, "AbsoluteScale"}},
+    {AnalyzerParameter::JetAbsoluteMPFBiasUp, {1, "AbsoluteMPFBias"}}, {AnalyzerParameter::JetAbsoluteMPFBiasDown, {-1, "AbsoluteMPFBias"}},
+    {AnalyzerParameter::JetFragmentationUp, {1, "Fragmentation"}},     {AnalyzerParameter::JetFragmentationDown, {-1, "Fragmentation"}},
+    {AnalyzerParameter::JetSinglePionECALUp, {1, "SinglePionECAL"}},   {AnalyzerParameter::JetSinglePionECALDown, {-1, "SinglePionECAL"}},
+    {AnalyzerParameter::JetSinglePionHCALUp, {1, "SinglePionHCAL"}},   {AnalyzerParameter::JetSinglePionHCALDown, {-1, "SinglePionHCAL"}},
+    {AnalyzerParameter::JetFlavorQCDUp, {1, "FlavorQCD"}},             {AnalyzerParameter::JetFlavorQCDDown, {-1, "FlavorQCD"}},
+    {AnalyzerParameter::JetTimePtEtaUp, {1, "TimePtEta"}},             {AnalyzerParameter::JetTimePtEtaDown, {-1, "TimePtEta"}},
+    {AnalyzerParameter::JetRelativeJEREC1Up, {1, "RelativeJEREC1"}},   {AnalyzerParameter::JetRelativeJEREC1Down, {-1, "RelativeJEREC1"}},
+    {AnalyzerParameter::JetRelativeJEREC2Up, {1, "RelativeJEREC2"}},   {AnalyzerParameter::JetRelativeJEREC2Down, {-1, "RelativeJEREC2"}},
+    {AnalyzerParameter::JetRelativePtHFUp, {1, "RelativePtHF"}},       {AnalyzerParameter::JetRelativePtHFDown, {-1, "RelativePtHF"}},
+    {AnalyzerParameter::JetRelativePtBBUp, {1, "RelativePtBB"}},       {AnalyzerParameter::JetRelativePtBBDown, {-1, "RelativePtBB"}},
+    {AnalyzerParameter::JetRelativePtEC1Up, {1, "RelativePtEC1"}},     {AnalyzerParameter::JetRelativePtEC1Down, {-1, "RelativePtEC1"}},
+    {AnalyzerParameter::JetRelativePtEC2Up, {1, "RelativePtEC2"}},     {AnalyzerParameter::JetRelativePtEC2Down, {-1, "RelativePtEC2"}},
+    {AnalyzerParameter::JetRelativeBalUp, {1, "RelativeBal"}},         {AnalyzerParameter::JetRelativeBalDown, {-1, "RelativeBal"}},
+    {AnalyzerParameter::JetRelativeSampleUp, {1, "RelativeSample"}},   {AnalyzerParameter::JetRelativeSampleDown, {-1, "RelativeSample"}},
+    {AnalyzerParameter::JetRelativeFSRUp, {1, "RelativeFSR"}},         {AnalyzerParameter::JetRelativeFSRDown, {-1, "RelativeFSR"}},
+    {AnalyzerParameter::JetRelativeStatFSRUp, {1, "RelativeStatFSR"}}, {AnalyzerParameter::JetRelativeStatFSRDown, {-1, "RelativeStatFSR"}},
+    {AnalyzerParameter::JetRelativeStatECUp, {1, "RelativeStatEC"}},   {AnalyzerParameter::JetRelativeStatECDown, {-1, "RelativeStatEC"}},
+    {AnalyzerParameter::JetRelativeStatHFUp, {1, "RelativeStatHF"}},   {AnalyzerParameter::JetRelativeStatHFDown, {-1, "RelativeStatHF"}},
+    {AnalyzerParameter::JetPileUpDataMCUp, {1, "PileUpDataMC"}},       {AnalyzerParameter::JetPileUpDataMCDown, {-1, "PileUpDataMC"}},
+    {AnalyzerParameter::JetPileUpPtRefUp, {1, "PileUpPtRef"}},         {AnalyzerParameter::JetPileUpPtRefDown, {-1, "PileUpPtRef"}},
+    {AnalyzerParameter::JetPileUpPtBBUp, {1, "PileUpPtBB"}},           {AnalyzerParameter::JetPileUpPtBBDown, {-1, "PileUpPtBB"}},
+    {AnalyzerParameter::JetPileUpPtEC1Up, {1, "PileUpPtEC1"}},         {AnalyzerParameter::JetPileUpPtEC1Down, {-1, "PileUpPtEC1"}},
+    {AnalyzerParameter::JetPileUpPtEC2Up, {1, "PileUpPtEC2"}},         {AnalyzerParameter::JetPileUpPtEC2Down, {-1, "PileUpPtEC2"}},
+    {AnalyzerParameter::JetPileUpPtHFUp, {1, "PileUpPtHF"}},           {AnalyzerParameter::JetPileUpPtHFDown, {-1, "PileUpPtHF"}}
+  };
+  
   if(param.syst_ == AnalyzerParameter::JetEnUp)            jets    = ScaleJets( jets_uncorr, +1 );
   else if(param.syst_ == AnalyzerParameter::JetEnDown)     jets    = ScaleJets( jets_uncorr, -1 );
   else if(param.syst_ == AnalyzerParameter::JetResUp)      jets    = SmearJets(jets_uncorr, +1 );
   else if(param.syst_ == AnalyzerParameter::JetResDown)    jets    = SmearJets(jets_uncorr, -1 );
+  else if (syst_map.find(param.syst_) != syst_map.end()) {
+    jets = ScaleJetsIndividualSource(jets_uncorr, syst_map[param.syst_].first, syst_map[param.syst_].second);
+  }
   else jets =jets_uncorr;
-
-
+  
   std::vector<Jet> out;
   for(unsigned int i=0; i<jets.size(); i++){
     if(!( jets.at(i).Pt()> ptmin ))            continue;
@@ -291,7 +323,7 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(AnalyzerParameter param,TString id, 
         }
       }
     }
-    if(HasFlag("ScaleHEMJet")){
+    if(param.syst_ == AnalyzerParameter::HEMJet || HasFlag("ScaleHEMJet")){
       Jet this_jet = jets.at(i);
 
       if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){
@@ -568,10 +600,14 @@ double  HNL_LeptonCore::GetBJetSF(AnalyzerParameter param,vector<Jet> jets, JetT
 
   if(IsData) return 1.;
   string syst = "";
-  if(param.syst_ == AnalyzerParameter::BTagSFHTagUp)         syst="SystHTagUp";
-  else if (param.syst_ == AnalyzerParameter::BTagSFHTagDown) syst="SystHTagDown";
-  else if (param.syst_ == AnalyzerParameter::BTagSFLTagUp)   syst="SystLTagUp";
-  else if (param.syst_ == AnalyzerParameter::BTagSFLTagDown) syst="SystLTagDown";
+  if(param.syst_ == AnalyzerParameter::BTagSFHTagCorrUp)         syst="SystUpHTagCorr";
+  else if (param.syst_ == AnalyzerParameter::BTagSFHTagCorrDown) syst="SystDownHTagCorr";
+  else if (param.syst_ == AnalyzerParameter::BTagSFLTagCorrUp)   syst="SystUpLTagCorr";
+  else if (param.syst_ == AnalyzerParameter::BTagSFLTagCorrDown) syst="SystDownLTagCorr";
+  else if (param.syst_ == AnalyzerParameter::BTagSFHTagUnCorrUp)   syst="SystUpHTagUnCorr";
+  else if (param.syst_ == AnalyzerParameter::BTagSFHTagUnCorrDown) syst="SystDownHTagUnCorr";
+  else if (param.syst_ == AnalyzerParameter::BTagSFLTagUnCorrUp)   syst="SystUpLTagUnCorr";
+  else if (param.syst_ == AnalyzerParameter::BTagSFLTagUnCorrDown) syst="SystLTagUnCorr";
 
   return mcCorr->GetBTaggingReweight_1a(jets, jtp, syst);
 }

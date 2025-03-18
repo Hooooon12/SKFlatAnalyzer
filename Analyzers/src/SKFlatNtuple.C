@@ -307,6 +307,10 @@ void SKFlatNtuple::Init()
 
   // Set object pointer
   HLT_TriggerName = 0;
+  genjet_pt = 0;
+  genjet_eta = 0;
+  genjet_phi = 0;
+  genjet_mass = 0;
   jet_pt = 0;
   jet_eta = 0;
   jet_phi = 0;
@@ -768,6 +772,12 @@ void SKFlatNtuple::Init()
   fChain->SetBranchAddress("vertex_Y", &vertex_Y, &b_PVy);
   fChain->SetBranchAddress("vertex_Z", &vertex_Z, &b_PVz);
   fChain->SetBranchAddress("HLT_TriggerName", &HLT_TriggerName, &b_HLT_TriggerName);
+  if(fChain->GetBranch("genjet_pt")){
+    fChain->SetBranchAddress("genjet_pt", &genjet_pt, &b_genjet_pt);
+    fChain->SetBranchAddress("genjet_eta", &genjet_eta, &b_genjet_eta);
+    fChain->SetBranchAddress("genjet_phi", &genjet_phi, &b_genjet_phi);
+    fChain->SetBranchAddress("genjet_mass", &genjet_mass, &b_genjet_mass);
+  }
   fChain->SetBranchAddress("jet_pt", &jet_pt, &b_jet_pt);
   fChain->SetBranchAddress("jet_eta", &jet_eta, &b_jet_eta);
   fChain->SetBranchAddress("jet_phi", &jet_phi, &b_jet_phi);

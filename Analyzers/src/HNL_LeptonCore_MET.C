@@ -122,10 +122,15 @@ Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter param
   case AnalyzerParameter::ElectronEnDown:      IdxSyst = 57; break;
   case AnalyzerParameter::ElectronResUp:       IdxSyst = 58; break;
   case AnalyzerParameter::ElectronResDown:     IdxSyst = 59; break;
-  case AnalyzerParameter::BTagSFHTagUp:        IdxSyst = 60; break;
-  case AnalyzerParameter::BTagSFHTagDown:      IdxSyst = 61; break;
-  case AnalyzerParameter::BTagSFLTagUp:        IdxSyst = 62; break;
-  case AnalyzerParameter::BTagSFLTagDown:      IdxSyst = 63; break;
+  case AnalyzerParameter::BTagSFHTagCorrUp:        IdxSyst = 60; break;
+  case AnalyzerParameter::BTagSFHTagCorrDown:      IdxSyst = 61; break;
+  case AnalyzerParameter::BTagSFLTagCorrUp:        IdxSyst = 62; break;
+  case AnalyzerParameter::BTagSFLTagCorrDown:      IdxSyst = 63; break;
+  case AnalyzerParameter::BTagSFHTagUnCorrUp:        IdxSyst = 64; break;
+  case AnalyzerParameter::BTagSFHTagUnCorrDown:      IdxSyst = 65; break;
+  case AnalyzerParameter::BTagSFLTagUnCorrUp:        IdxSyst = 66; break;
+  case AnalyzerParameter::BTagSFLTagUnCorrDown:      IdxSyst = 67; break;
+
   default:                                      IdxSyst = -1; break;  // Default case in case no match is found
   }
 

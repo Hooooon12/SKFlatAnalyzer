@@ -170,8 +170,7 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param, vecto
 
   //// Change this so now Truth matching does not remove Leptons but in Definition code the GenFIlter removes events 
   //  std::vector<Muon>       MuonTightColl      =  GetLepCollByRunType    (MuonTightCollInit,    param);  
-  //std::vector<Electron>   ElectronTightColl  =  GetLepCollByRunType    (ElectronTightCollInit,param);
-
+  //  std::vector<Electron>   ElectronTightColl  =  GetLepCollByRunType    (ElectronTightCollInit,param);
 
   std::vector<FatJet> AK8_JetColl                 = GetHNLAK8Jets(param.AK8JetColl,param);
   std::vector<Jet>    AK4_JetColl                 = GetHNLJets(param.AK4JetColl,     param);

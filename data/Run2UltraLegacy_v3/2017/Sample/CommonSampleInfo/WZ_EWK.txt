@@ -1,2 +1,2 @@
 # alias PD xsec nmc sumsign sumw
-WZ_EWK	WLLJJ_WToLNu_EWK_TuneCP5_13TeV_madgraph-madspin-pythia8	0.01762	948000	948000.0	948000.0 
+WZ_EWK	WLLJJ_WToLNu_EWK_TuneCP5_13TeV_madgraph-madspin-pythia8	0.01762	951000	951000.0	951000.0 

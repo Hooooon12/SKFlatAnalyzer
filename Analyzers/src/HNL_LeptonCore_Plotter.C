@@ -456,11 +456,10 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
     }
     if(MotherPID.size() != 2 || 
        ( abs(MotherPID[0]) != 23 || abs(MotherPID[1]) != 23)) {
-      PrintGen(All_Gens);
-      cout << "PID Check " << endl;
-      for (auto i : MotherPID) cout << "PID " <<  i << endl;
-      for (auto i : leps)  PrintMatchedGen(All_Gens,*i);
-  
+      //      PrintGen(All_Gens);
+
+      //      for (auto i : MotherPID) cout << "PID " <<  i << endl;
+      //      for (auto i : leps)  PrintMatchedGen(All_Gens,*i);
     }
     for(auto ip : MotherPID) {
       FillHist( plot_dir+ region+ "/GenZZ/ZMass", All_Gens[ip].M(),  w, 500, 0, 500, "M_{ZZ} GeV");
@@ -476,6 +475,9 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
       }
     }
     FillHist( plot_dir+ region+ "/GenZZ/ZZMass", ZZ.M(),  w, 500, 0, 1000, "M_{ZZ} GeV");
+    FillHist( plot_dir+ region+ "/GenZZ/ZZPt", ZZ.Pt(),  w, 500, 0, 1000, "M_{ZZ} GeV");
+    FillHist( plot_dir+ region+ "/GenZZ/ZZMassV2", GetGenZZMass(),  w, 500, 0, 1000, "M_{ZZ} GeV");
+
   }
 
   FillHist( plot_dir+ region+ "/Leptons/SumQ", sumQ,  w, 10, -5, 5, "Q size");
@@ -523,6 +525,8 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
   if(fourlep) {
     Particle llllCand = *leps[0] + *leps[1] + *leps[2] + *leps[3] ;
     if(llllCand.M() > 70 && llllCand.M() < 170)     FillHist( plot_dir+ region+ "/Mass/M_ZZ", llllCand.M() , w, 100, 70., 170.,"M_{4l} (GeV)");
+    FillHist( plot_dir+ region+ "/Mass/M_llll_gen", GetGenZZMass(), w, 200, 0., 800.,"Pt(llll) GeV");
+    FillHist( plot_dir+ region+ "/Mass/M_llll_gen", GetGenZZPt(), w, 200, 0., 800.,"M(llll) GeV");
     FillHist( plot_dir+ region+ "/Mass/M_llll", llllCand.M() , w, 200, 0., 800.,"M(llll) GeV");
     FillHist( plot_dir+ region+ "/Mass/M_BestZ", LeptonMassBestZ(leps,LeptonPairBestZCand(leps)) , w, 200, 0., 800.,"M(Z1) GeV");
     FillHist( plot_dir+ region+ "/Mass/M_OtherZ", LeptonMassNonZ(leps,LeptonPairBestZCand(leps)) , w, 200, 0., 800.,"M(Z1) GeV");

@@ -60,6 +60,22 @@ void MeasureJetTaggingEfficiency::executeEvent(){
 
   if(!PassMETFilter()) return;
 
+  AnalyzerParameter param_signal = HNL_LeptonCore::InitialiseHNLParameter("HNL_ULIDv2");
+
+  std::vector<Muon>       MuonCollV     = SelectMuons    (param_signal,param_signal.Muon_Veto_ID,     10., 2.4);
+  std::vector<Electron>   ElectronCollV = SelectElectrons(param_signal,param_signal.Electron_Veto_ID, 10., 2.5);
+  int nV=MuonCollV.size() + ElectronCollV.size();
+  if(HasFlag("2L")){
+    if(nV !=2) return;
+  }
+  if(HasFlag("SS")){
+    if(nV !=2) return;
+    int Q = 0;
+    for(auto iq : MuonCollV) Q=Q+iq.Charge();
+    for(auto iq : ElectronCollV) Q=Q+iq.Charge();
+    if(Q != 0) return;
+  }
+
   Event ev = GetEvent();
   Particle METv = ev.GetMETVector();
 

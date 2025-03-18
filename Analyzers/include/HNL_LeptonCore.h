@@ -291,6 +291,7 @@ class HNL_LeptonCore : public AnalyzerCore {
 
   //==== Kfactors                                                                                                                              
   double GetKFactor();
+  double ZZKfactor(TString method);
 
 
   // ================= MC weight functions: HNL_LeptonCore_EvCorr.C ================= 

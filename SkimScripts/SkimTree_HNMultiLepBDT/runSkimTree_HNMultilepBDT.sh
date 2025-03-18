@@ -3,9 +3,9 @@ qrundir=runSkims
 mcpath=${SKFlat_WD}/SkimScripts/SampleLists/Bkg/
 datapath=${SKFlat_WD}/SkimScripts/SampleLists/Data/
 sigpath=${SKFlat_WD}/SkimScripts/SampleLists/Signals/
-njobs=600
-njobs_data=100
-nmax=500
+njobs=200
+njobs_data=200
+nmax=800
 declare  -a era_list=("2016postVFP" "2016preVFP"  "2017" "2018")
 
 if [[ $1 == "GT36" ]]; then
@@ -15,24 +15,28 @@ if [[ $1 == "GT36" ]]; then
     for i in "${era_list[@]}"
     do
 
-        SKFlat.py -a $analyzer  -i MuonEG_GT36:A     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
-        SKFlat.py -a $analyzer  -i MuonEG_GT36:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
-        SKFlat.py -a $analyzer  -i MuonEG_GT36:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
-        SKFlat.py -a $analyzer  -i MuonEG_GT36:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+        #SKFlat.py -a $analyzer  -i MuonEG_GT36:A     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+        #SKFlat.py -a $analyzer  -i MuonEG_GT36:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+        #SKFlat.py -a $analyzer  -i MuonEG_GT36:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+        #SKFlat.py -a $analyzer  -i MuonEG_GT36:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
 
-        SKFlat.py -a $analyzer  -i DoubleMuon_GT36:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
-        SKFlat.py -a $analyzer  -i DoubleMuon_GT36:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
-        SKFlat.py -a $analyzer  -i DoubleMuon_GT36:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+   
+	SKFlat.py -a $analyzer  -i DoubleMuon_GT36:A     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+     #SKFlat.py -a $analyzer  -i DoubleMuon_GT36:B     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+        #SKFlat.py -a $analyzer  -i DoubleMuon_GT36:C     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
+        #SKFlat.py -a $analyzer  -i DoubleMuon_GT36:D     -n ${njobs_data}  --nmax ${nmax}   -e ${i}   --skim  SkimTree_HNMultiLep &
 
     done
 fi
 
 
-if [[ $1 == "Weinberg" ]]; then
+if [[ $1 == "PDF" ]]; then
 
     for i in "${era_list[@]}"
     do
-        SKFlat.py -a $analyzer  -l ${sigpath}/Weinberg.txt    -n ${njobs}  --nmax ${nmax}   -e ${i}  &
+	SKFlat.py -a $analyzer  -i WZ_EWK  -n ${njobs}  --nmax ${nmax}   -e ${i} --skim  SkimTree_HNMultiLep &
+	SKFlat.py -a $analyzer  -i WpWp_EWK  -n ${njobs}  --nmax ${nmax} -e ${i} --skim  SkimTree_HNMultiLep &
+
     done
 fi
 
