@@ -235,48 +235,48 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
     if(MCSample.Contains("Type")){
       if(infile.good()){
   
-  TDirectory* origDir = gDirectory;
-  cout << "Acessing file " << TheoryPath << endl;
+        TDirectory* origDir = gDirectory;
+        cout << "Acessing file " << TheoryPath << endl;
 
-  TFile* GenNormFile= new TFile(TheoryPath );
+        TFile* GenNormFile= new TFile(TheoryPath );
 
-  GenNormFile->ls(); 
+        GenNormFile->ls(); 
 
-  TIter next(GenNormFile->GetListOfKeys());
-  TKey* key;
-  
-  while ((key = (TKey*)next())) {
-    if (strcmp(key->GetClassName(), "TH1F") == 0 || 
-        strcmp(key->GetClassName(), "TH1D") == 0 || 
-        strcmp(key->GetClassName(), "TH1I") == 0 || 
-        strcmp(key->GetClassName(), "TH1S") == 0) {
+        TIter next(GenNormFile->GetListOfKeys());
+        TKey* key;
+        
+        while ((key = (TKey*)next())) {
+          if (strcmp(key->GetClassName(), "TH1F") == 0 || 
+              strcmp(key->GetClassName(), "TH1D") == 0 || 
+              strcmp(key->GetClassName(), "TH1I") == 0 || 
+              strcmp(key->GetClassName(), "TH1S") == 0) {
 
-      cout << "Histogram: " << key->GetName() << endl;
+            cout << "Histogram: " << key->GetName() << endl;
 
-      TheoryDir->cd();
-      if(strcmp(key->GetName(),"sumW_PDF") == 0) {
-        cout << "Initialising sumW_PDF " << endl;
-        h_SumW_PDF = ((TH1D*) GenNormFile->Get("sumW_PDF")->Clone());
-      }
-      if(strcmp(key->GetName(),"sumW_Scale") == 0) h_SumW_Scale = ((TH1D*) GenNormFile->Get("sumW_Scale")->Clone());
-      ///if(strcmp(key->GetName(),"sumW_AlphaS") == 0)h_SumW_AlphaS = ((TH1D*) GenNormFile->Get("sumW_AlphaS")->Clone());
-      
-      origDir->cd();
+            TheoryDir->cd();
+            if(strcmp(key->GetName(),"sumW_PDF") == 0) {
+              cout << "Initialising sumW_PDF " << endl;
+              h_SumW_PDF = ((TH1D*) GenNormFile->Get("sumW_PDF")->Clone());
+            }
+            if(strcmp(key->GetName(),"sumW_Scale") == 0) h_SumW_Scale = ((TH1D*) GenNormFile->Get("sumW_Scale")->Clone());
+            ///if(strcmp(key->GetName(),"sumW_AlphaS") == 0)h_SumW_AlphaS = ((TH1D*) GenNormFile->Get("sumW_AlphaS")->Clone());
+            
+            origDir->cd();
 
-    }
-  }
+          }
+        }
 
-  GenNormFile->Close();
-  cout << "Close file" << endl;
-  delete GenNormFile;
+        GenNormFile->Close();
+        cout << "Close file" << endl;
+        delete GenNormFile;
 
-  if (h_SumW_PDF!=nullptr)    cout << "h_SumW_PDF Integral = " << h_SumW_PDF->Integral() << endl;
-  if (h_SumW_Scale!=nullptr ) cout << "h_SumW_Scale Integral = " << h_SumW_Scale->Integral() << endl;
+        if (h_SumW_PDF!=nullptr)    cout << "h_SumW_PDF Integral = " << h_SumW_PDF->Integral() << endl;
+        if (h_SumW_Scale!=nullptr ) cout << "h_SumW_Scale Integral = " << h_SumW_Scale->Integral() << endl;
 
       }
       else {
-  cout << "[HNL_LeptonCore::AccessPathName ] Theory file " << TheoryPath << " not found.." << endl;
-  exit(EXIT_FAILURE);
+        cout << "[HNL_LeptonCore::AccessPathName ] Theory file " << TheoryPath << " not found.." << endl;
+        exit(EXIT_FAILURE);
       }
     }
   }
@@ -574,58 +574,58 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
       }
 
       
-      SystList.push_back(AnalyzerParameter::JetAbsoluteStatUp);
-      SystList.push_back(AnalyzerParameter::JetAbsoluteStatDown);
-      SystList.push_back(AnalyzerParameter::JetAbsoluteScaleUp);
-      SystList.push_back(AnalyzerParameter::JetAbsoluteScaleDown);
-      SystList.push_back(AnalyzerParameter::JetAbsoluteMPFBiasUp);
-      SystList.push_back(AnalyzerParameter::JetAbsoluteMPFBiasDown);
-      SystList.push_back(AnalyzerParameter::JetFragmentationUp);
-      SystList.push_back(AnalyzerParameter::JetFragmentationDown);
-      SystList.push_back(AnalyzerParameter::JetSinglePionECALUp);
-      SystList.push_back(AnalyzerParameter::JetSinglePionECALDown);
-      SystList.push_back(AnalyzerParameter::JetSinglePionHCALUp);
-      SystList.push_back(AnalyzerParameter::JetSinglePionHCALDown);
-      SystList.push_back(AnalyzerParameter::JetFlavorQCDUp);
-      SystList.push_back(AnalyzerParameter::JetFlavorQCDDown);
-      SystList.push_back(AnalyzerParameter::JetTimePtEtaUp);
-      SystList.push_back(AnalyzerParameter::JetTimePtEtaDown);
-      SystList.push_back(AnalyzerParameter::JetRelativeJEREC1Up);
-      SystList.push_back(AnalyzerParameter::JetRelativeJEREC1Down);
-      SystList.push_back(AnalyzerParameter::JetRelativeJEREC2Up);
-      SystList.push_back(AnalyzerParameter::JetRelativeJEREC2Down);
-      SystList.push_back(AnalyzerParameter::JetRelativePtHFUp);
-      SystList.push_back(AnalyzerParameter::JetRelativePtHFDown);
-      SystList.push_back(AnalyzerParameter::JetRelativePtBBUp);
-      SystList.push_back(AnalyzerParameter::JetRelativePtBBDown);
-      SystList.push_back(AnalyzerParameter::JetRelativePtEC1Up);
-      SystList.push_back(AnalyzerParameter::JetRelativePtEC1Down);
-      SystList.push_back(AnalyzerParameter::JetRelativePtEC2Up);
-      SystList.push_back(AnalyzerParameter::JetRelativePtEC2Down);
-      SystList.push_back(AnalyzerParameter::JetRelativeBalUp);
-      SystList.push_back(AnalyzerParameter::JetRelativeBalDown);
-      SystList.push_back(AnalyzerParameter::JetRelativeSampleUp);
-      SystList.push_back(AnalyzerParameter::JetRelativeSampleDown);
-      SystList.push_back(AnalyzerParameter::JetRelativeFSRUp);
-      SystList.push_back(AnalyzerParameter::JetRelativeFSRDown);
-      SystList.push_back(AnalyzerParameter::JetRelativeStatFSRUp);
-      SystList.push_back(AnalyzerParameter::JetRelativeStatFSRDown);
-      SystList.push_back(AnalyzerParameter::JetRelativeStatECUp);
-      SystList.push_back(AnalyzerParameter::JetRelativeStatECDown);
-      SystList.push_back(AnalyzerParameter::JetRelativeStatHFUp);
-      SystList.push_back(AnalyzerParameter::JetRelativeStatHFDown);
-      SystList.push_back(AnalyzerParameter::JetPileUpDataMCUp);
-      SystList.push_back(AnalyzerParameter::JetPileUpDataMCDown);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtRefUp);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtRefDown);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtBBUp);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtBBDown);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtEC1Up);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtEC1Down);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtEC2Up);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtEC2Down);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtHFUp);
-      SystList.push_back(AnalyzerParameter::JetPileUpPtHFDown);
+      //SystList.push_back(AnalyzerParameter::JetAbsoluteStatUp);
+      //SystList.push_back(AnalyzerParameter::JetAbsoluteStatDown);
+      //SystList.push_back(AnalyzerParameter::JetAbsoluteScaleUp);
+      //SystList.push_back(AnalyzerParameter::JetAbsoluteScaleDown);
+      //SystList.push_back(AnalyzerParameter::JetAbsoluteMPFBiasUp);
+      //SystList.push_back(AnalyzerParameter::JetAbsoluteMPFBiasDown);
+      //SystList.push_back(AnalyzerParameter::JetFragmentationUp);
+      //SystList.push_back(AnalyzerParameter::JetFragmentationDown);
+      //SystList.push_back(AnalyzerParameter::JetSinglePionECALUp);
+      //SystList.push_back(AnalyzerParameter::JetSinglePionECALDown);
+      //SystList.push_back(AnalyzerParameter::JetSinglePionHCALUp);
+      //SystList.push_back(AnalyzerParameter::JetSinglePionHCALDown);
+      //SystList.push_back(AnalyzerParameter::JetFlavorQCDUp);
+      //SystList.push_back(AnalyzerParameter::JetFlavorQCDDown);
+      //SystList.push_back(AnalyzerParameter::JetTimePtEtaUp);
+      //SystList.push_back(AnalyzerParameter::JetTimePtEtaDown);
+      //SystList.push_back(AnalyzerParameter::JetRelativeJEREC1Up);
+      //SystList.push_back(AnalyzerParameter::JetRelativeJEREC1Down);
+      //SystList.push_back(AnalyzerParameter::JetRelativeJEREC2Up);
+      //SystList.push_back(AnalyzerParameter::JetRelativeJEREC2Down);
+      //SystList.push_back(AnalyzerParameter::JetRelativePtHFUp);
+      //SystList.push_back(AnalyzerParameter::JetRelativePtHFDown);
+      //SystList.push_back(AnalyzerParameter::JetRelativePtBBUp);
+      //SystList.push_back(AnalyzerParameter::JetRelativePtBBDown);
+      //SystList.push_back(AnalyzerParameter::JetRelativePtEC1Up);
+      //SystList.push_back(AnalyzerParameter::JetRelativePtEC1Down);
+      //SystList.push_back(AnalyzerParameter::JetRelativePtEC2Up);
+      //SystList.push_back(AnalyzerParameter::JetRelativePtEC2Down);
+      //SystList.push_back(AnalyzerParameter::JetRelativeBalUp);
+      //SystList.push_back(AnalyzerParameter::JetRelativeBalDown);
+      //SystList.push_back(AnalyzerParameter::JetRelativeSampleUp);
+      //SystList.push_back(AnalyzerParameter::JetRelativeSampleDown);
+      //SystList.push_back(AnalyzerParameter::JetRelativeFSRUp);
+      //SystList.push_back(AnalyzerParameter::JetRelativeFSRDown);
+      //SystList.push_back(AnalyzerParameter::JetRelativeStatFSRUp);
+      //SystList.push_back(AnalyzerParameter::JetRelativeStatFSRDown);
+      //SystList.push_back(AnalyzerParameter::JetRelativeStatECUp);
+      //SystList.push_back(AnalyzerParameter::JetRelativeStatECDown);
+      //SystList.push_back(AnalyzerParameter::JetRelativeStatHFUp);
+      //SystList.push_back(AnalyzerParameter::JetRelativeStatHFDown);
+      //SystList.push_back(AnalyzerParameter::JetPileUpDataMCUp);
+      //SystList.push_back(AnalyzerParameter::JetPileUpDataMCDown);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtRefUp);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtRefDown);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtBBUp);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtBBDown);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtEC1Up);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtEC1Down);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtEC2Up);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtEC2Down);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtHFUp);
+      //SystList.push_back(AnalyzerParameter::JetPileUpPtHFDown);
 
     }
   }

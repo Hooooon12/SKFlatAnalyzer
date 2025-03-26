@@ -10,8 +10,11 @@ export DATA_DIR=$SKFlat_WD/data/$SKFlatV
 #### use cvmfs for root ####
 export CMS_PATH=/cvmfs/cms.cern.ch
 source $CMS_PATH/cmsset_default.sh
-export SCRAM_ARCH=slc7_amd64_gcc900
-export cmsswrel='cmssw/CMSSW_11_2_5'
+#export SCRAM_ARCH=slc7_amd64_gcc900
+#export cmsswrel='cmssw/CMSSW_11_2_5'
+#export SCRAM_ARCH=el9_amd64_gcc12
+export cmsswrel='cmssw/CMSSW_14_1_0_pre4'
+#export cmsswrel='cmssw/CMSSW_15_0_1'
 
 cd /cvmfs/cms.cern.ch/$SCRAM_ARCH/cms/$cmsswrel/src
 echo "@@@@ SCRAM_ARCH = "$SCRAM_ARCH
@@ -65,6 +68,7 @@ export PATH=${MYBIN}:${PYTHONDIR}:${PATH}
 
 export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$SKFlat_WD/DataFormats/include/:$SKFlat_WD/AnalyzerTools/include/:$SKFlat_WD/Analyzers/include/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SKFlat_LIB_PATH
+#export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/bin/python2.7:$LD_LIBRARY_PATH # IF you want to use python 2.7
 
 source $SKFlat_WD/bin/BashColorSets.sh
 
@@ -74,6 +78,9 @@ source $SKFlat_WD/bin/BashColorSets.sh
 if [ "$1" = "-q" ];then
     return
 fi
+
+## PYTHON ## (no more python2...)
+alias python=python3
 
 ## Todo list ##
 python python/PrintToDoLists.py

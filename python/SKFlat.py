@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os,sys,time
 import argparse
@@ -153,7 +153,7 @@ if IsSkimTree:
   if args.NMax==0: args.NMax=100 ## Preventing from too heavy IO
   if args.NJobs==1: args.NJobs=0 ## NJobs=0 means NJobs->NFiles
   if not IsTAMSA:
-    print "Skimming only possible in SNU"
+    print("Skimming only possible in SNU")
     exit()
 
 ## Machine-dependent variables
@@ -174,7 +174,7 @@ elif args.Era == "2017":
 elif args.Era == "2018":
   AvailableDataPeriods = ["A", "B","C","D"]
 else:
-  print "[SKFlat.py] Wrong Era : "+args.Era
+  print("[SKFlat.py] Wrong Era : "+args.Era)
   exit(1)
 
 InputSamples = []
@@ -182,7 +182,7 @@ StringForHash = ""
 
 ## When using txt file for input (i.e., -l option)
 
-if args.InputSampleList is not "":
+if args.InputSampleList != "":
   lines = open(args.InputSampleList)
   for line in lines:
     if "#" in line:
@@ -256,7 +256,7 @@ if len(EventLists) > 1:
 
 if len(EventLists) > 0 and len(InputSamples) > 1:
 
-  print 'When running with --eventlist option can only run on one sample, you are running on multiple samples... exiting'
+  print('When running with --eventlist option can only run on one sample, you are running on multiple samples... exiting')
   exit()
 
 
@@ -327,17 +327,17 @@ if len(EventLists) > 0 and not args.Analyzer == 'SkimTree_EventSkim':
     for EventList in EventLists:
       if '.txt' in EventList:
         if not InputSample in  EventList:
-          print '-'*50
-          print 'Error in EventLists, since wrong input sample is listed. Please fix...'
-          print '-'*50
+          print('-'*50)
+          print('Error in EventLists, since wrong input sample is listed. Please fix...')
+          print('-'*50)
           exit()
     
     # check if skimmed sample exists
     if not  os.path.exists(event_skim_dir + SKFlatV+'/'+str(args.Era) +'/'+ _skimoutdir):
-      print '-'*50
-      print ('Skim dir ' + event_skim_dir + SKFlatV+'/'+str(args.Era) +'/'+ _skimoutdir + ' does not exist.... running skflat skim code')          
-      print '-'*50
-      print '-'*50
+      print('-'*50)
+      print('Skim dir ' + event_skim_dir + SKFlatV+'/'+str(args.Era) +'/'+ _skimoutdir + ' does not exist.... running skflat skim code')
+      print('-'*50)
+      print('-'*50)
 
       event_list_dir=GetAllFilesFromDir(args.EventLists,InputSample)
 
@@ -352,16 +352,16 @@ if len(EventLists) > 0 and not args.Analyzer == 'SkimTree_EventSkim':
 
     else:
       MadeSkims=True
-      print 'Skim is already made for ' + InputSample + '  --eventlists '+args.EventLists
+      print('Skim is already made for ' + InputSample + '  --eventlists '+args.EventLists)
 
   if not MadeSkims:    
     for r in  range(0,len(SkimList)):
       run_command = SkimList[r]
       if r < len(SkimList)-1:
         run_command +="&"
-      print '#'*50
-      print run_command
-      print '#'*50
+      print('#'*50)
+      print(run_command)
+      print('#'*50)
       os.system(run_command)
 
     for r in  range(0,len(output_skim)):
@@ -385,25 +385,25 @@ if len(EventLists) > 0 and not args.Analyzer == 'SkimTree_EventSkim':
 
       # rerun job now skims are made
       run_command = rerunList[0]
-      print '#'*50
-      print run_command
-      print '#'*50
-      print '-'*50
+      print('#'*50)
+      print(run_command)
+      print('#'*50)
+      print('-'*50)
       print ('Rerunning now skims are made with --skim=SkimTree_EventSkim and njobs=1 to debug')
-      print '-'*50
+      print('-'*50)
       os.system(run_command)
     else:
-      print '-'*50
+      print('-'*50)
       print ('Rerun now skims are made with --skim=SkimTree_EventSkim and njobs=1 to debug')
-      print rerunList[0]
-      print '-'*50
+      print(rerunList[0])
+      print('-'*50)
  
     exit()
 
     ## if skims are made for event lists and now running code, check that skim is being used
 
   if not args.Skim == 'SkimTree_EventSkim':
-    print 'Need to run with --skim=SkimTree_EventSkim option since using EventLists as input'
+    print('Need to run with --skim=SkimTree_EventSkim option since using EventLists as input')
     exit()
 
 
@@ -419,9 +419,9 @@ if len(EventLists) > 0 and args.Analyzer == 'SkimTree_EventSkim':
   for EventList in EventLists:
     if '.txt' in EventList:
       if not InputSample in  EventList:
-        print '-'*50
-        print 'Error in EventLists, since wrong input sample is listed. Please fix...'
-        print '-'*50
+        print('-'*50)
+        print('Error in EventLists, since wrong input sample is listed. Please fix...')
+        print('-'*50)
         exit()
 
 
@@ -442,7 +442,7 @@ for InputSample in InputSamples[:]: #JH
     #print tmpfilepath
 
   if not os.path.exists(tmpfilepath):
-    print (tmpfilepath + ' is missing: ==> skipping ')
+    print(tmpfilepath + ' is missing: ==> skipping ')
     print('removing ' + InputSample+ ' from list')
     if IsDATA: InputSamples.remove(tmp) #JH
     else: InputSamples.remove(InputSample) #JH removing and interating with list is problematic; e.g. MuonEG:B is deleted, then it starts from MuonEG:D. MuonEG:C remains. This invokes another error.
@@ -525,15 +525,15 @@ for InputSample in InputSamples:
   ## First nfilepjob_remainder jobs will have (nfilepjob+1) files per job
 
   for it_job in range(0,nfilepjob_remainder):
-    FileRanges.append(range(it_job*(nfilepjob+1),(it_job+1)*(nfilepjob+1)))
+    FileRanges.append(list(range(it_job*(nfilepjob+1),(it_job+1)*(nfilepjob+1))))
     temp_end_largerjob = (it_job+1)*(nfilepjob+1)
-    nfile_checksum += len(range(it_job*(nfilepjob+1),(it_job+1)*(nfilepjob+1)))
+    nfile_checksum += len(list(range(it_job*(nfilepjob+1),(it_job+1)*(nfilepjob+1))))
 
   ## Remaining NJobs-nfilepjob_remainder jobs will have (nfilepjob) files per job
 
   for it_job in range(0,NJobs-nfilepjob_remainder):
-    FileRanges.append(range(temp_end_largerjob+(it_job*nfilepjob),temp_end_largerjob+((it_job+1)*nfilepjob) ))
-    nfile_checksum += len(range(temp_end_largerjob+(it_job*nfilepjob),temp_end_largerjob+((it_job+1)*nfilepjob) ))
+    FileRanges.append(list(range(temp_end_largerjob+(it_job*nfilepjob),temp_end_largerjob+((it_job+1)*nfilepjob))))
+    nfile_checksum += len(list(range(temp_end_largerjob+(it_job*nfilepjob),temp_end_largerjob+((it_job+1)*nfilepjob))))
   SubmitOutput.write('nfile_checksum = '+str(nfile_checksum)+'\n')
   SubmitOutput.write('NTotalFiles = '+str(NTotalFiles)+'\n')
   SubmitOutput.close()
@@ -578,7 +578,7 @@ for InputSample in InputSamples:
     for flag in Userflags:
       commandsfilename += '__'+flag
     run_commands = open(base_rundir+'/'+commandsfilename+'.sh','w')
-    print>>run_commands,'''#!/bin/bash
+    print('''#!/bin/bash
 SECTION=`printf $1`
 WORKDIR=`pwd`
 
@@ -626,12 +626,12 @@ fi
 
 cat err.log >&2
 exit $EXITCODE
-'''.format(MasterJobDir, base_rundir, SCRAM_ARCH, cmsswrel)
+'''.format(MasterJobDir, base_rundir, SCRAM_ARCH, cmsswrel), file=run_commands)
     run_commands.close()
 
     submit_command = open(base_rundir+'/submit.jds','w')
     if IsUI10:
-      print>>submit_command,'''executable = {1}.sh
+      print('''executable = {1}.sh
 universe   = vanilla
 arguments  = $(Process)
 requirements = OpSysMajorVer == 6
@@ -644,10 +644,10 @@ error = job_$(Process).err
 environment = "LANG=C LC_ALL=C LC_CTYPE=C"
 transfer_output_remaps = "hists.root = output/hists_$(Process).root"
 queue {0}
-'''.format(str(NJobs), commandsfilename)
+'''.format(str(NJobs), commandsfilename), file=submit_command)
       submit_command.close()
     elif IsUI20:
-      print>>submit_command,'''executable = {1}.sh
+      print('''executable = {1}.sh
 universe   = vanilla
 requirements = ( HasSingularity == true )
 arguments  = $(Process)
@@ -663,7 +663,7 @@ accounting_group=group_cms
 +SingularityBind = "/cvmfs, /cms, /share"
 transfer_output_remaps = "hists.root = output/hists_$(Process).root"
 queue {0}
-'''.format(str(NJobs), commandsfilename)
+'''.format(str(NJobs), commandsfilename), file=submit_command)
       submit_command.close()
     elif IsTAMSA:
       concurrency_limits=''
@@ -672,7 +672,7 @@ queue {0}
       request_memory=''
       if args.Memory:
         request_memory='request_memory = '+str(args.Memory)
-      print>>submit_command,'''executable = {1}.sh
+      print('''executable = {1}.sh
 jobbatchname = {1}
 universe   = vanilla
 arguments  = $(Process)
@@ -687,7 +687,7 @@ transfer_output_remaps = "hists.root = output/hists_$(Process).root"
 {2}
 {3}
 queue {0}
-'''.format(str(NJobs), commandsfilename,concurrency_limits,request_memory)
+'''.format(str(NJobs), commandsfilename,concurrency_limits,request_memory), file=submit_command)
       submit_command.close()
 
   CheckTotalNFile=0
@@ -715,14 +715,14 @@ queue {0}
     IncludeLine = IncludeLine+'R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_2_5/external/slc7_amd64_gcc900/lib/libTMVA.so)\n'
 
     out = open(runCfileFullPath, 'w')
-    print>>out,'''{3}
+    print('''{3}
 
 void {2}(){{
 
   {0} m;
 
   m.SetTreeName("recoTree/SKFlat");
-'''.format(args.Analyzer, libdir, runfunctionname, IncludeLine)
+'''.format(args.Analyzer, libdir, runfunctionname, IncludeLine), file=out)
 
     out.write('  m.LogEvery = '+str(LogEvery)+';\n')
 
@@ -795,7 +795,7 @@ void {2}(){{
     if args.Reduction>1:
       out.write('  m.MaxEvent=m.fChain->GetEntries()/'+str(args.Reduction)+';\n')
 
-    print>>out,'''  m.Init();
+    print('''  m.Init();
   m.initializeAnalyzer();
   m.initializeAnalyzerTools();
   m.SwitchToTempDir();
@@ -803,17 +803,17 @@ void {2}(){{
 
   m.WriteHist();
 
-}'''
+}''', file=out)
 
     out.close()
 
     if IsKNU:
       run_commands = open(thisjob_dir+'commands.sh','w')
-      print>>run_commands,'''cd {0}
+      print('''cd {0}
 cp ../x509up_u{1} /tmp/
 echo "[SKFlat.py] Okay, let's run the analysis"
 root -l -b -q run.C 1>stdout.log 2>stderr.log
-'''.format(thisjob_dir,UID)
+'''.format(thisjob_dir,UID), file=run_commands)
       run_commands.close()
 
       jobname = 'job_'+str(it_job)+'_'+args.Analyzer
@@ -854,7 +854,7 @@ root -l -b -q run.C 1>stdout.log 2>stderr.log
     KillCommand.close()
 
 if args.no_exec:
-  print '- RunDir = '+base_rundir
+  print('- RunDir = '+base_rundir)
   exit()
 
 ## Set Output directory
@@ -872,27 +872,27 @@ if args.Outputdir=="":
 
 os.system('mkdir -p '+FinalOutputPath)
 
-print '##################################################'
-print 'Submission Finished'
-print '- JobID = '+str_RandomNumber
-print '- Analyzer = '+args.Analyzer
-print '- Skim = '+args.Skim
-print '- InputSamples =',
-print InputSamples
-print '- NJobs = '+str(NJobs)
-print '- Era = '+args.Era
-print '- UserFlags =',
-print Userflags
+print('##################################################')
+print('Submission Finished')
+print('- JobID = '+str_RandomNumber)
+print('- Analyzer = '+args.Analyzer)
+print('- Skim = '+args.Skim)
+print('- InputSamples =', end=' ')
+print(InputSamples)
+print('- NJobs = '+str(NJobs))
+print('- Era = '+args.Era)
+print('- UserFlags =', end=' ')
+print(Userflags)
 if IsKNU:
-  print '- Queue = '+args.Queue
-print '- RunDir = '+base_rundir
-print '- output will be send to : '+FinalOutputPath
+  print('- Queue = '+args.Queue)
+print('- RunDir = '+base_rundir)
+print('- output will be send to : '+FinalOutputPath)
 if args.EventComparison:
-  print '- EventComparisonDir = '+ev_comp_dir
+  print('- EventComparisonDir = '+ev_comp_dir)
 if len(EventLists) > 0:
-  print '- EventLists =',
-  print EventLists
-print '##################################################'
+  print('- EventLists =', end=' ')
+  print(EventLists)
+print('##################################################')
 
 ##########################
 ## Submittion all done. ##
@@ -1087,7 +1087,7 @@ try:
         statuslog.write('MaxEventRunTime = '+str(MaxEventRunTime)+'\n')
 
         t_per_event = 1
-        if EventDone is not 0:
+        if EventDone != 0:
           t_per_event = float(TotalEventRunTime)/float(EventDone)
         statuslog.write('t_per_event = '+str(t_per_event)+'\n')
 

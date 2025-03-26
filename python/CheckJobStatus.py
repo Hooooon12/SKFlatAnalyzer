@@ -8,7 +8,7 @@ def GetEventDone(l):
   nums = w.split('/')
 
   if len(nums)<2:
-    print nums
+    print (nums)
     return "0:1"
 
   return str(nums[0])+':'+str(nums[1])

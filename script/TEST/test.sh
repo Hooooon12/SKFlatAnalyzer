@@ -47,7 +47,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",true,\"MuonEG\",\"HNMultiLepBDT\",\"LLL_VR\");" | root -l 2>&1 | tee "MuonEG_LLL_VR".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"LLL_VR\");" | root -l 2>&1 | tee "DoubleEG_LLL_VR".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR\");" | root -l 2>&1 | tee "DoubleEG_SS_CR".log
-#echo -e ".L test.C\n test(\"2017\",false,\"ZZ\",\"HNMultiLepBDT\",\"LLL_VR\");" | root -l 2>&1 | tee "ZZ_LLL_VR".log
+echo -e ".L test.C\n test(\"2017\",false,\"ZZ\",\"HNMultiLepBDT\",\"LLL_VR\");" | root -l 2>&1 | tee "ZZ_LLL_VR".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR\");" | root -l 2>&1 | tee "DoubleEG_SS_CR".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake,LimitOnly\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake_LimitOnly".log
