@@ -2,8 +2,8 @@ analyzer=MeasureJetTaggingEfficiency
 rundir=MeasureJetTaggingEfficiency
 mcpath=${SKFlat_WD}/runJobs/HNL/${analyzer}/Bkg/
 njobs=200
-njobs_data=200
-nmax=400
+njobs_data=400
+nmax=600
 skim=' '
 
 declare  -a era_list=("2018" "2017" "2016postVFP" "2016preVFP")

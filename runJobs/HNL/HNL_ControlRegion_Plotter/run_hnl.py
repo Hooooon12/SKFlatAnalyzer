@@ -29,6 +29,7 @@ parser.add_argument('-skim', dest='skim', default="SkimTree_HNMultiLepBDT")
 parser.add_argument('-flags', dest='flags', default="")
 
 parser.add_argument('--RunPrompt', action='store_true')
+parser.add_argument('--RunData', action='store_true')
 parser.add_argument('--RunConv',   action='store_true')
 parser.add_argument('--RunFake',   action='store_true')
 parser.add_argument('--RunCF',     action='store_true')
@@ -199,6 +200,25 @@ if args.RunPrompt:
     RunFake=False
     RunCF=False
     RunConv=False
+
+if args.RunData:
+    RunFake=False
+    RunCF=False
+    RunConv=False
+    RunPrompt=False
+
+if args.RunCF:
+    RunData=False
+    RunFake=False
+    RunPrompt=False
+    RunConv=False
+
+if args.RunConv:
+    RunData=False
+    RunFake=False
+    RunCF=False
+    RunPrompt=False
+
 
 if args.Central or args.Systematics:
     for era in era_list:

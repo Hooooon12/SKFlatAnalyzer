@@ -16,7 +16,7 @@ class HNL_RegionDefinitions : public HNL_LeptonCore {
   
   void   RunAllSignalRegions(HNL_LeptonCore::ChargeType q, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto, std::vector<Tau> taus, std::vector<Jet> loose_jets,  std::vector<Jet> jets, std::vector<Jet> jets_vbf, std::vector<FatJet>  fatjets, std::vector<Jet> bjets, Event ev,  Particle METv, AnalyzerParameter param, int nElForRunCF,  float w);
  
-  void RunAllControlRegions(std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto, std::vector<Jet> loose_jets, std::vector<Jet> jets,  std::vector<Jet> jets_vbf, std::vector<FatJet>  fatjets, std::vector<Jet> bjets,  Event ev, Particle METv, AnalyzerParameter param,  vector<TString> CRs,int nElForRunCF, float weight);
+  void RunAllControlRegions(std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto, std::vector<Tau> taus, std::vector<Jet> loose_jets, std::vector<Jet> jets,  std::vector<Jet> jets_vbf, std::vector<FatJet>  fatjets, std::vector<Jet> bjets,  Event ev, Particle METv, AnalyzerParameter param,  vector<TString> CRs,int nElForRunCF, float weight);
   
 
   void CheckBin(TString signal, TString binvalue, TString checkbin,HNL_LeptonCore::Channel channel,AnalyzerParameter param,std::vector<Lepton *> leps,std::vector<Jet> jets,vector<FatJet>  fatjets, std::vector<Jet> bjets, Particle METv, double w);

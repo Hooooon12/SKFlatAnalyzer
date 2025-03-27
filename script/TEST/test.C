@@ -1,6 +1,5 @@
-R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/lhapdf/6.2.3/lib/libLHAPDF.so)
-R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_2_5/external/slc7_amd64_gcc900/lib/libTMVA.so)
-
+R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/el9_amd64_gcc12/external/lhapdf/6.4.0-e7c4b9323f96fa15c22775e405ec99ed/lib/libLHAPDF.so)
+R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre4/external/el9_amd64_gcc12/lib/libTMVA.so)
 
 void test(TString era, bool isdata, TString sample, TString skim, TString flag){ //echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_M500\",\"\",\"\");" | root -l 2>&1 | tee my.log
 

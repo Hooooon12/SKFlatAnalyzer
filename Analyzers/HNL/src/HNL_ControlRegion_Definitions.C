@@ -1,7 +1,7 @@
 #include "HNL_RegionDefinitions.h"
 
 
-void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electronsInitial, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto,std::vector<Jet> AK4_JetCollLoose, std::vector<Jet> JetColl, std::vector<Jet> VBF_JetColl,   std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, vector<TString> CRs, int nElRun_ForCF, float weight_ll ){
+void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electronsInitial, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto, vector<Tau> TauColl_Cleaned,std::vector<Jet> AK4_JetCollLoose, std::vector<Jet> JetColl, std::vector<Jet> VBF_JetColl,   std::vector<FatJet> AK8_JetColl, std::vector<Jet> B_JetColl,  Event ev, Particle METv, AnalyzerParameter param, vector<TString> CRs, int nElRun_ForCF, float weight_ll ){
 
   std::vector<Electron> electrons;
   if(RunCF) {
@@ -63,34 +63,6 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
     std::vector<Lepton *> LepsV       = MakeLeptonPointerVector(muons_veto,electrons_veto,param);
 
 
-    std::vector<Tau>    TauColl_Uncleaned   = GetTaus("HNVeto",20., 2.3);
-    std::vector<Tau>    TauColl_Cleaned;
-    for(auto ilep : TauColl_Uncleaned) {
-      bool matched=false;
-      for(auto ilep2 : LepsV) {
-	if(ilep.DeltaR(*ilep2) < 0.4) matched=true;
-      }
-      if(matched) continue;
-      TauColl_Cleaned.push_back(ilep);
-    }
-
-    std::vector<FatJet> AK8_JetCollLoose_Uncleaned                 = GetHNLAK8Jets("Loose",param);
-    std::vector<FatJet> AK8_JetCollLoose_Cleaned;
-    for(auto ijet : AK8_JetCollLoose_Uncleaned){
-      bool matched=false;
-      for(auto ilep2 : LepsV) {
-	if(ijet.DeltaR(*ilep2) < 0.8) matched=true;
-      }
-      if(matched) continue;
-      AK8_JetCollLoose_Cleaned.push_back(ijet);
-    }
-    if(HasFlag("CleanAK8")) {
-      if(AK8_JetCollLoose_Cleaned.size() > 0) return;
-    }
-    if(HasFlag("CleanTau")) {
-      if(TauColl_Cleaned.size() > 0)  return;
-    }
-
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));
 
@@ -144,6 +116,9 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
       continue;
 
     }
+
+    if(TauColl_Cleaned.size() > 0) continue;
+
 
     FillCutflow(CutFlow_Region, weight_channel, "LeptonFlavour",param);
 

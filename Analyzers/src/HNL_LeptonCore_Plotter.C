@@ -492,8 +492,8 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
   FillHist( plot_dir+ region+ "/DeltaEta/dEta_lep1_lep2", ll_deta  , w, 200, -5., 5., "#Delta #Phi(l1,l2)") ;
   FillHist( plot_dir+ region+"/DeltaR/dR_ll", leps[0]->DeltaR(*leps[1] ) ,w, 50,  0., 5,"#DeltaR(l,l)");
   
-  FillHist( plot_dir+ region+ "/Leptons/Lep_1_pt",  leps[0]->Pt()  ,  w, 200, 0, 2000,"l_{1} p_{T} GeV");
-  FillHist( plot_dir+ region+ "/Leptons/Lep_2_pt",  leps[1]->Pt()  ,  w, 200, 0, 1000,"1_{2} p_{T} GeV");
+  FillHist( plot_dir+ region+ "/Leptons/Lep_1_pt",  leps[0]->Pt()  ,  w, 2000, 0, 2000,"l_{1} p_{T} GeV");
+  FillHist( plot_dir+ region+ "/Leptons/Lep_2_pt",  leps[1]->Pt()  ,  w, 1000, 0, 1000,"1_{2} p_{T} GeV");
   FillHist( plot_dir+ region+ "/Leptons/Lep_1_eta", leps[0]->Eta()  , w, 60, -3., 3,"l_{1} #eta");
   FillHist( plot_dir+ region+ "/Leptons/Lep_2_eta", leps[1]->Eta()  , w, 60, -3., 3.,"l_{2} #eta");
   FillHist( plot_dir+ region+ "/Leptons/Lep_1_phi", leps[0]->Phi()  , w, 200, -10, 10.,"l_{3} #phi");
@@ -550,14 +550,23 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
     
     if( jets[i].GetTaggerResult(JPForPlots.j_Tagger) > mcCorr->GetJetTaggingCutValue(JPForPlots.j_Tagger, JPForPlots.j_WP) ) nBJet++;
     
-    FillHist( plot_dir+ region+ "/AK4Jets/Jet_pt",  jets[i].Pt() , w, 400, 0., 2000., "AK4 Jet p_{T} GeV");
-    FillHist( plot_dir+ region+ "/AK4Jets/Jet_eta",  jets[i].Eta() , w, 100, -5., 5., "AK4 Jet #eta ");
+    if(i == 0){
+      FillHist( plot_dir+ region+ "/AK4Jets/Jet_1_pt",  jets[i].Pt() , w, 2000, 0., 2000., "AK4 Jet p_{T} GeV");
+      FillHist( plot_dir+ region+ "/AK4Jets/Jet_1_eta", jets[i].Eta() , w, 100, -5., 5., "AK4 Jet #eta ");
+    }
+    if(i == 1){
+      FillHist( plot_dir+ region+ "/AK4Jets/Jet_2_pt",  jets[i].Pt() , w, 2000, 0., 2000., "AK4 Jet p_{T} GeV");
+      FillHist( plot_dir+ region+ "/AK4Jets/Jet_2_eta", jets[i].Eta() , w, 100, -5., 5., "AK4 Jet #eta ");
+    }
+    FillHist( plot_dir+ region+ "/AK4Jets/Jet_pt",  jets[i].Pt() , w, 2000, 0., 2000., "AK4 Jet p_{T} GeV");
+    FillHist( plot_dir+ region+ "/AK4Jets/Jet_eta",  jets[i].Eta() , w, 100, -5., 5., "AK4 Jet #eta "); //JH
     for(unsigned int j=1; j < jets.size(); j++){
       if(i==j)continue;
       FillHist( plot_dir+ region+"/DeltaR/Jet_dR_jj",  jets[i].DeltaR(jets[j]) ,w, 50,  0., 5,"#DeltaR(j,j)");
     }
   }
-  FillHist( plot_dir+ region+ "/NObj/N_BJet",  nBJet , w, 5, 0., 5., "PileupJetId");
+  FillHist( plot_dir+ region+ "/NObj/N_BJet",  nBJet , w, 5, 0., 5., "NBjet");
+  FillHist( plot_dir+ region+ "/NObj/N_Jet",  jets.size() , w, 10, 0., 10., "NJet"); //JH
   
   
   if(jets.size() > 1){
@@ -868,14 +877,6 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter param, TString region,  TStrin
   for(unsigned int i=0; i < jets.size(); i++){
     if(fabs(jets.at(i).Eta()) > 2.4) continue;
     
-    if(i == 0){
-      FillHist( plot_dir+ region+ "/AK4Jets/Jet_1_pt",  jets[i].Pt() , w, 400, 0., 2000., "AK4 Jet p_{T} GeV");
-      FillHist( plot_dir+ region+ "/AK4Jets/Jet_1_eta", jets[i].Eta() , w, 100, -5., 5., "AK4 Jet #eta ");
-    }
-    if(i == 1){
-      FillHist( plot_dir+ region+ "/AK4Jets/Jet_2_pt",  jets[i].Pt() , w, 400, 0., 2000., "AK4 Jet p_{T} GeV");
-      FillHist( plot_dir+ region+ "/AK4Jets/Jet_2_eta", jets[i].Eta() , w, 100, -5., 5., "AK4 Jet #eta ");
-    }
     //FillHist( plot_dir+ region+ "/AK4Jets/pileup_mva",  jets[i].PileupJetId() , w, 100, -1., 1., "PileupJetId");
     //FillHist( plot_dir+ region+ "/AK4Jets/pileup_loose", jets[i].PassPileupMVA("Loose", GetEraShort()), w, 2, 0., 2., "PileupJetId");
     //FillHist( plot_dir+ region+ "/AK4Jets/pileup_medium", jets[i].PassPileupMVA("Medium", GetEraShort()), w, 2, 0., 2., "PileupJetId");

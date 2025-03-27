@@ -18,16 +18,18 @@ if [[ $1 == "Failed" ]]; then
     
 fi
 
-if [[ $1 == "Main" ]]; then
+#if [[ $1 == "Main" ]]; then
+if [[ $1 == "" ]]; then
 
     declare  -a era_list=("2016preVFP" "2018")
+    declare  -a era_list=("2018")
 
     for i in "${era_list[@]}"
     do
         #### Data                                                                                                                                                                             	
 	SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_MuMu.txt      -n 100  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,SSMultiLep &
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EMu.txt      -n 100  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags  RunSyst,SSMultiLep &
-	SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,SSMultiLep 
+	SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,SSMultiLep &
 	
 	#### Prompt
 	SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS.txt             -n 50        --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,SSMultiLep,RunPrompt &
@@ -40,7 +42,7 @@ if [[ $1 == "Main" ]]; then
 	### Fakes
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EMu.txt      -n 100  --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,SSMultiLep,RunFake   &
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_MuMu.txt      -n 100  --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,SSMultiLep,RunFake   &
-	SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,SSMultiLep,RunFake   
+	SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,SSMultiLep,RunFake &
 	
 	### CF
 	SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 400    --nmax ${nmax}   -e ${i} --skim SkimTree_DileptonBDT  --userflags RunSyst,SSMultiLep,RunCF &
@@ -49,10 +51,10 @@ if [[ $1 == "Main" ]]; then
         #### Data                                                                                                                                                                               
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_MuMu.txt      -n 100  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,LLL &
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EMu.txt      -n 100  --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,LLL &
-        SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,LLL 
+        SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT   --userflags RunSyst,LLL &
         #### Prompt
         SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS.txt             -n 50        --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,LLL,RunPrompt &
-        SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS2.txt            -n 400       --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,LLL,RunPrompt 
+        SKFlat.py -a $analyzer  -l $mcpath/Prompt/PromptSS2.txt            -n 400       --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT --userflags  RunSyst,LLL,RunPrompt &
         
         ### Conv
         SKFlat.py -a $analyzer  -l $mcpath/Conv/Conv.txt          -n 50        --nmax ${nmax}   -e ${i} --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunConv&
@@ -61,7 +63,7 @@ if [[ $1 == "Main" ]]; then
         ### Fakes
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EMu.txt      -n 100  --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunFake   &
         SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_MuMu.txt      -n 100  --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunFake   &
-        SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunFake   
+        SKFlat.py -a $analyzer  -l $datapath/DL/${i}_DiLepton_EE.txt      -n 100    --nmax ${nmax}   -e ${i}  --skim SkimTree_HNMultiLepBDT  --userflags RunSyst,LLL,RunFake   &
 
     done
     

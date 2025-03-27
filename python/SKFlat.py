@@ -601,10 +601,13 @@ echo "@@@@ cmsswrel = "$cmsswrel
 echo "@@@@ scram..."
 eval `scramv1 runtime -sh`
 cd -
-source /cvmfs/cms.cern.ch/$SCRAM_ARCH/cms/$cmsswrel/external/$SCRAM_ARCH/bin/thisroot.sh
+#source /cvmfs/cms.cern.ch/$SCRAM_ARCH/cms/$cmsswrel/external/$SCRAM_ARCH/bin/thisroot.sh
 
 ### modifying LD_LIBRARY_PATH to use libraries in base_rundir
+
 export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH|sed 's@'$SKFlat_WD'/lib@{0}/lib@')
+export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$SKFlat_WD/DataFormats/include:$SKFlat_WD/AnalyzerTools/include:$SKFlat_WD/Analyzers/include:$SKFlat_WD/Analyzers/HNL/include
+
 
 while [ "$Trial" -lt 3 ]; do
   echo "#### running ####"
@@ -711,8 +714,8 @@ queue {0}
       os.system('mkdir -p '+thisjob_dir)
       runCfileFullPath = thisjob_dir+'run.C'
 
-    IncludeLine = 'R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/lhapdf/6.2.3/lib/libLHAPDF.so)\n'
-    IncludeLine = IncludeLine+'R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc900/cms/cmssw/CMSSW_11_2_5/external/slc7_amd64_gcc900/lib/libTMVA.so)\n'
+    IncludeLine = 'R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/el9_amd64_gcc12/external/lhapdf/6.4.0-e7c4b9323f96fa15c22775e405ec99ed/lib/libLHAPDF.so)\n'
+    IncludeLine = IncludeLine+'R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre4/external/el9_amd64_gcc12/lib/libTMVA.so)\n'         
 
     out = open(runCfileFullPath, 'w')
     print('''{3}
@@ -1165,6 +1168,7 @@ try:
 
             ## Final Outputpath
 
+            print('mv '+outputname+'.root '+FinalOutputPath)
             os.system('mv '+outputname+'.root '+FinalOutputPath)
             os.chdir(cwd)
 

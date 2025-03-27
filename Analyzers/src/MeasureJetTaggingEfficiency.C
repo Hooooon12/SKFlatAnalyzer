@@ -73,7 +73,7 @@ void MeasureJetTaggingEfficiency::executeEvent(){
     int Q = 0;
     for(auto iq : MuonCollV) Q=Q+iq.Charge();
     for(auto iq : ElectronCollV) Q=Q+iq.Charge();
-    if(Q != 0) return;
+    if(Q == 0) return;
   }
 
   Event ev = GetEvent();

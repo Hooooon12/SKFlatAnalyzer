@@ -568,6 +568,8 @@ bool  HNL_RegionDefinitions::PassPreselection(bool ApplyForSR,HNL_LeptonCore::Ch
   if (channel==EE  && (fabs(ll.M()-M_Z) < M_ZWINDOW_VETO)) return false;
 
   if(ll.M() < M_CUT_LL) return false; // TO_CHECK: IS 20 BEST OPTION
+  
+  if(TauColl.size() > 0) return false;
 
 
   if(ApplyForSR) FillCutflow(HNL_LeptonCore::SRLowMass, w, "Preselection",param);

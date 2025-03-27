@@ -189,10 +189,117 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param, vecto
   else RunEl = {-1};
 
 
-  for(auto ir : RunEl){
-    RunAllControlRegions(ElectronTightColl,ElectronVetoColl,MuonTightColl,MuonVetoColl, 
-       AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl, 
-       ev,METv, param, CRs,ir,weight);
+  ///// Scan Tau ID                                              
+
+  std::vector<Lepton *> leps_veto  = MakeLeptonPointerVector(MuonVetoColl,ElectronVetoColl);
+                                                                                                                                                                                                             
+
+  //// Add check for Taus                                                                                                                                                                                                                                                     
+  std::vector<Tau>    TauColl_Cleaned;
+
+  if(HasFlag("TauScan")){
+    vector<TString> TauIDs = {"NoCut","Default"};
+    vector<TString> TauJetIDs={"","JetVVL","JetVL"};
+    vector<TString> TauElIDs={"","ElVVL","ElVL"};
+    vector<TString> TauMuIDs={"","MuVL","MuL"};
+    for(auto ij : TauJetIDs){
+      for(auto ie: TauElIDs){
+        for(auto im: TauMuIDs){
+          TauIDs.push_back(ij+"_"+ie+"_"+im);
+        }
+      }
+    }
+
+    TString ORIGName= param.Name;
+    TString ORIGDefName= param.DefName;
+
+    for(auto id_tau : TauIDs){
+
+      param.Name= ORIGName+id_tau;
+      param.DefName=ORIGDefName +id_tau;
+
+      std::vector<Tau>   TauColl_Uncleaned  = SelectTaus   (leps_veto,id_tau,20., 2.3);
+      TauColl_Cleaned.clear();
+
+      for(auto ilep : TauColl_Uncleaned) {
+        if(id_tau == "Default") continue;
+        bool matched=false;
+        for(auto ilep2 : leps_veto) {
+          if(ilep.DeltaR(*ilep2) < 0.4) matched=true;
+        }
+        if(matched) continue;
+        TauColl_Cleaned.push_back(ilep);
+      }
+
+      /// Run Analyser with Tau ID cleaned                                                                                                                                                                                                                                    
+      RunAllControlRegions(ElectronTightColl,ElectronVetoColl,MuonTightColl,MuonVetoColl, TauColl_Cleaned,
+                           AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl,
+                           ev,METv, param, CRs,-1,weight);
+
+
+
+    }
+    return;
+  }
+
+
+
+
+  if(HasFlag("OS"))  {
+    
+    
+    if(!MCSample.Contains("DYJets_Pt")){
+
+      /// Run MiNNLO only
+      RunAllControlRegions(ElectronTightColl,ElectronVetoColl,MuonTightColl,MuonVetoColl,TauColl_Cleaned,
+         AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl,
+         ev,METv, param, CRs,-1,weight);
+      
+    }
+    
+    
+    
+    //param.Name=param.Name+"_PtBinnedDY";
+    //param.DefName=param.DefName+"_PtBinnedDY";
+
+    //
+    //if(MCSample == "DYJetsToMuMu_MiNNLO" || MCSample.Contains("DYJets_Pt") ) {
+
+    //  if(MuonTightColl.size()==2 && !(SameCharge(MuonTightColl))){
+    //    Lepton l1(MuonTightColl[0]);
+    //    Lepton l2(MuonTightColl[1]);
+
+    //    int Idx1_Closest = GenMatchedIdx(l1, All_Gens);
+    //    int Idx2_Closest = GenMatchedIdx(l2, All_Gens);
+    //    if(Idx1_Closest >=0 && Idx2_Closest >= 0){
+
+    //      if (std::abs(All_Gens[Idx1_Closest].PID()) != 13 || std::abs(All_Gens[Idx2_Closest].PID()) != 13) return;
+
+    //      Particle Z = All_Gens[Idx1_Closest] + All_Gens[Idx2_Closest];
+
+    //      if(MCSample == "DYJetsToMuMu_MiNNLO"){
+    //        if(Z.Pt() > 150) return;
+    //      }
+    //      else if(Z.Pt() <= 150) return;
+    //    }
+    //    else return;
+    //  } // DY loop                                                                                                                                                                                              
+    //}
+
+
+    //RunAllControlRegions(ElectronTightColl,ElectronVetoColl,MuonTightColl,MuonVetoColl,TauColl_Cleaned,
+    //   AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl,
+    //   ev,METv, param, CRs,-1,weight); //JH : this is to combine DY nominal and pt-binned samples in Z CR. Only for checking high-pt muon purposes. skip this
+
+  }
+  else{
+    
+    for(auto ir : RunEl){
+      RunAllControlRegions(ElectronTightColl,ElectronVetoColl,MuonTightColl,MuonVetoColl, TauColl_Cleaned,
+
+         AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl, 
+         ev,METv, param, CRs,ir,weight);
+    }
   }
 }
 

@@ -8,7 +8,7 @@ def GetEventDone(l):
   nums = w.split('/')
 
   if len(nums)<2:
-    print (nums)
+    print(nums)
     return "0:1"
 
   return str(nums[0])+':'+str(nums[1])
@@ -60,7 +60,11 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
   length_log_e = 0
   is_not_mounting_err = False
   for e_l in log_e:
-    if "WARNING: Not mounting" in e_l:
+    if "**** Following environment variables are going to be unset." in e_l:
+        continue
+    elif "PROJECT_MULTIARCH_TARGET" in e_l:
+        length_log_e -= 1
+    elif "WARNING: Not mounting" in e_l:
       length_log_e -= 1
       is_not_mounting_err = True
     else:

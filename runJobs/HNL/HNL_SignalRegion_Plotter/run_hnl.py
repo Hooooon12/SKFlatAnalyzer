@@ -29,6 +29,7 @@ parser.add_argument('-skim', dest='skim', default="SkimTree_HNMultiLepBDT")
 parser.add_argument('-flags', dest='flags', default="")
 
 parser.add_argument('--RunSignal', action='store_true')
+parser.add_argument('--RunData', action='store_true')
 parser.add_argument('--RunPrompt', action='store_true')
 parser.add_argument('--RunConv',   action='store_true')
 parser.add_argument('--RunFake',   action='store_true')
@@ -189,18 +190,25 @@ if IndividualSample:
 if args.Signal:
     for era in era_list:
         # Run the signal commands
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW.txt -n 20  --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt   -n 20  --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt  -n 20  --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW.txt -n 20  --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt   -n 20  --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt  -n 20  --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
     exit()
+
+if args.RunData:
+    for era in era_list:
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/DL/{era}_DiLepton_MuMu.txt -n 100 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunData', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/DL/{era}_DiLepton_EE.txt   -n 100 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunData', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/DL/{era}_DiLepton_EMu.txt  -n 100 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunData', flags)} &")
+
 
 if args.Central or args.Systematics:
     for era in era_list:
 
         # Running background and fake data commands
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW.txt -n 20    --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt   -n 20    --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt  -n 20    --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW.txt -n 20    --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt   -n 20    --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt  -n 20    --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
 
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/DL/{era}_DiLepton_MuMu.txt -n 100 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunFake', flags)} &")
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/DL/{era}_DiLepton_EE.txt   -n 100 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunFake', flags)} &")
@@ -219,9 +227,9 @@ if args.Cutflow:
     flags = []
     for era in era_list:
         # Run for cutflow analysis
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW.txt -n 20 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt -n 20 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt -n 20 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignals', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW.txt -n 20 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt -n 20 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt -n 20 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunSignal', flags)} &")
 
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/DL/{era}_DiLepton_MuMu.txt -n 100 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunFake', flags)} &")
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/DL/{era}_DiLepton_EE.txt -n 100 --nmax {nmax} -e {era} --skim {args.skim} {FlagCommand('RunFake', flags)} &")
