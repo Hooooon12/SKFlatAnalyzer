@@ -88,6 +88,9 @@ void test(TString era, bool isdata, TString sample, TString skim, TString flag){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/DATA_SkimTree_HNMultiLepBDT/DoubleEG/periodB/2023_09_04_143241/SKFlatNtuple_2017_DATA_7.root")) exit(EIO);
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/DATA_SkimTree_HNMultiLepBDT/DoubleEG/periodB/2023_09_04_143241/SKFlatNtuple_2017_DATA_8.root")) exit(EIO);
   }
+  else if(era=="2018" && isdata && sample=="EGamma" && skim=="HNMultiLepBDT"){
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/DATA_SkimTree_HNMultiLepBDT/EGamma/periodA/2023_09_04_143241/SKFlatNtuple_2018_DATA_1.root")) exit(EIO);
+  }
   else if(era=="2017" && isdata && sample=="DoubleEG" && skim=="DileptonBDT"){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/DATA_SkimTree_DileptonBDT/DoubleEG/periodB/2023_09_02_114749/SKFlatNtuple_2017_DATA_0.root")) exit(EIO);
   }
