@@ -53,8 +53,8 @@ void HNL_LeptonCore::DefineLimitBins(){
 
   //// Define SR 2 binning  
   
-  map_bins_labels ["SR2"]       = {"SR2_HTLTbin1",       "SR2_HTLTbin2",       "SR2_HTLTbin3",     "SR2_HTLTbin4","SR2_HTLTbin5"};
-  map_bins_labels ["CR2"] = {"CR2_HTLTbin1", "CR2_HTLTbin2", "CR2_HTLTbin3"};
+  map_bins_labels ["SR2"]       = {"SR2_HTLT_Bin1",       "SR2_HTLT_Bin2",       "SR2_HTLT_Bin3",     "SR2_HTLT_Bin4","SR2_HTLT_Bin5"};
+  map_bins_labels ["CR2"] = {"CR2_HTLT_Bin1", "CR2_HTLT_Bin2", "CR2_HTLT_Bin3"};
 
   //// Define SR 3 binning                                                                                                                              
 

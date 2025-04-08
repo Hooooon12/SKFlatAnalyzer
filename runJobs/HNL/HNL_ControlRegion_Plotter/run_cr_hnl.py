@@ -28,12 +28,16 @@ parser.add_argument('-era', dest='era', default="NULL")
 parser.add_argument('-skim', dest='skim', default="SkimTree_HNMultiLepBDT")
 parser.add_argument('-flags', dest='flags', default="")
 
-parser.add_argument('--UseGT36', action='store_true')
+parser.add_argument('--preGT36', action='store_true')
 parser.add_argument('--RunPrompt', action='store_true')
 parser.add_argument('--RunData', action='store_true')
 parser.add_argument('--RunConv',   action='store_true')
 parser.add_argument('--RunFake',   action='store_true')
 parser.add_argument('--RunCF',     action='store_true')
+
+##### Predefined Functions
+parser.add_argument('--WZ',    action='store_true')
+
 
 parser.add_argument('--Central',     action='store_true')
 parser.add_argument('--Systematics', action='store_true')
@@ -55,11 +59,13 @@ if args.era == "NULL":
 else:
     era_list = [f"{args.era}"]
 
-
+#Use GT36 samples by default
+UseGT36 = not args.preGT36
+    
 # Determine if individual sample is provided
 IndividualSample = args.samplename != "NULL"
 
-if not IndividualSample:
+if not IndividualSample and not args.WZ:
     if not args.Central and not args.Systematics:
         print ("No inputs submitted. Run either :")
         print ("add -sample X --RunPrompt to run individual sample")
@@ -193,6 +199,10 @@ if IndividualSample:
     exit()
 
 
+if args.WZ:
+    RunCommand(TestMode,f"SKFlat.py -a {analyzer} -i WZTo3LNu_mllmin4p0_powheg -n 200 --nmax {nmax} -e 2018 --skim {args.skim} {FlagCommand('RunPrompt', flags)}&")
+    exit()
+    
 RunPrompt=True
 RunData=True
 RunFake=True
@@ -230,7 +240,7 @@ if args.Central or args.Systematics:
 
         DATADir = "DL"
         
-        if RunData and args.UseGT36 and era == "2018":
+        if RunData and UseGT36 and era == "2018":
             DATADir = "DL_GT36"
 
         if RunData:

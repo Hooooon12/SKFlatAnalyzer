@@ -10,13 +10,16 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
     bool run_ee_bdt=false;
     bool run_mm_bdt=false;
     bool run_em_bdt=false;
-    
-    if (this->DataStream == "DoubleMuon") run_mm_bdt=true;
+
+
+    if (this->DataStream.Contains("DoubleMuon")) run_mm_bdt=true;
+    if (this->DataStream.Contains("MuonEG")) run_em_bdt=true;
+    if (this->DataStream.Contains("EGamma")) run_ee_bdt=true;
+
     if (this->DataStream == "SingleMuon") run_mm_bdt=true;
     if (this->DataStream == "DoubleEG") run_ee_bdt=true;
     if (this->DataStream == "SingleElectron") run_ee_bdt=true;
-    if (this->DataStream == "EGamma") run_ee_bdt=true;
-    if (this->DataStream == "MuonEG") run_em_bdt=true;
+
     
     SetupEventMVAReader("V2",run_ee_bdt,run_mm_bdt,run_em_bdt);
     
@@ -48,53 +51,77 @@ void HNL_SignalRegion_Plotter::executeEvent(){
     if(_jentry > 100) return;
   }
 
-  /// Main ID only setting
+
+  // Default ID setting
   vector<TString> LepIDs = {"HNL_ULIDv2"};
+  
+  // Override with flags (only one set of IDs will apply)
+  if(User("jalmond")){
+    LepIDs = {"HNTightV2", "POGTight", "HNL_ULIDv2"};
+  }
+  else if (RunTopID) {
+    LepIDs = {"TopHN"};
+  }
+  else if (RunPOGID) {
+    LepIDs = {"POGTight"};
+  }
+  else if (RunHighPtID) {
+    LepIDs = {"HNL_ULID", "HighPt"};
+  }
+  else if (RunPekingID) {
+    LepIDs = {"Peking"};
+  }
+
+  vector<HNL_LeptonCore::Channel> ChannelsToRun;
+  
+  // Apply overrides first, if any
+  if (RunHighPtID)     ChannelsToRun = {MuMu};
+  else {
+    if (RunEE)   ChannelsToRun.push_back(EE);
+    if (RunMuMu) ChannelsToRun.push_back(MuMu);
+    if (RunEMu)  ChannelsToRun.push_back(EMu);
+    
+    // Default fallback if no specific channel is selected
+    if (ChannelsToRun.empty()) {
+      ChannelsToRun = {EE, MuMu, EMu};
+    }
+  }
+ 
+  //// Match Channel to data stream
+  if (IsDATA) {
+    const auto& ds = this->DataStream;
+    
+    if (ds.Contains("DoubleMuon") || ds == "SingleMuon") {
+      ChannelsToRun = {MuMu};
+    }
+    else if (ds.Contains("EGamma") || ds == "DoubleEG" || ds == "SingleElectron") {
+      ChannelsToRun = {EE};
+    }
+    else if (ds.Contains("MuonEG")) {
+      ChannelsToRun = {EMu};
+    }
+  }
+  
+  // Match Channel to signal process based on MC sample
+  if (MCSample.Contains("Type")) {
+    if (MCSample.Contains("SSWWTypeI_DF")) {
+      ChannelsToRun = {EMu};
+    }
+    else if (MCSample.Contains("SSWWTypeI_SF")) {
+      ChannelsToRun = {EE, MuMu};
+    }
+    else {
+      ChannelsToRun = {EE, MuMu, EMu};
+    }
+  }
+  
+  // Override for specific flag
+  if (HasFlag("CompareTuneP")) {
+    ChannelsToRun = {MuMu};
+    LepIDs = {"HNTightV2", "POGTight", "HNL_ULIDv2"};
+  }
 
   
-  //// Allow ID setting by flags
-  if(HasFlag("AllID")) LepIDs = {"HNL_ULID","HNTightV2", "POGTight","HNL_ULIDv2"};
-  if(RunTopID) LepIDs = {"TopHN"};
-  if(RunPOGID) LepIDs = {"POGTight"};
-  if(RunHighPtID) LepIDs = {"HNL_ULID","HighPt"};
-  if(RunPekingID) LepIDs = {"Peking"};
-
-
-  //  if(strcmp(std::getenv("USER"),"jalmond")==0) LepIDs = {"HNL_ULID","POGTight","TopHN","HNTightV2","MVAPOG"};//,"HNTightV2","POGTight","TopHN","HighPt"};
-
-  vector<HNL_LeptonCore::Channel> ChannelsToRun = {};
-  if(RunEE)   ChannelsToRun.push_back(EE);
-  if(RunMuMu) ChannelsToRun.push_back(MuMu);
-  if(RunEMu)  ChannelsToRun.push_back(EMu);
-  if(ChannelsToRun.size() == 0) ChannelsToRun = {EE,MuMu,EMu};
-
-  /// Flag specific settings for channel
-  if(RunHighPtID) ChannelsToRun = {MuMu};
-  //ChannelsToRun = {MuMu}; //JH : to prepare 250113 MUO POG meeting
-
-  //// Match Channel to data stream
-  if(IsDATA){
-    if (this->DataStream == "DoubleMuon") ChannelsToRun = {MuMu};
-    if (this->DataStream == "SingleMuon") ChannelsToRun = {MuMu};
-    if (this->DataStream == "DoubleEG") ChannelsToRun = {EE};
-    if (this->DataStream == "SingleElectron") ChannelsToRun = {EE};
-    if (this->DataStream == "EGamma") ChannelsToRun = {EE};
-    if (this->DataStream == "MuonEG") ChannelsToRun = {EMu};
-  }
-
-  //// Match Channel to signal process
-  if(MCSample.Contains("Type")){
-    //// Run channel based on MC Sample
-    if(MCSample.Contains("SSWWTypeI_DF")) ChannelsToRun = {EMu};
-    else if(MCSample.Contains("SSWWTypeI_SF")) ChannelsToRun = {EE,MuMu};
-    else ChannelsToRun = {EE,MuMu,EMu};
-  }
-
-  if(HasFlag("CompareTuneP")) {
-    ChannelsToRun = {MuMu};
-    LepIDs = {"HNTightV2", "POGTight","HNL_ULIDv2"};
-  }
-
   for (auto id: LepIDs){
 
     for(auto channel : ChannelsToRun){

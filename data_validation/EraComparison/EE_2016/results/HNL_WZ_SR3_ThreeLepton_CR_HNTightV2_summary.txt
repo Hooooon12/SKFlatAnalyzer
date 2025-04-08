@@ -1,0 +1,82 @@
+
+
+========== Histogram Base: HNL_WZ_SR3_ThreeLepton_CR, ID: HNTightV2 ==========
+
+HNL_ControlRegion_Plotter_CF.root
+  2016preVFP  :  MuMuMu: --  EEE: --  EMuL: --
+  2016postVFP :  MuMuMu: --  EEE: --  EMuL: --
+  2017        :  MuMuMu: --  EEE: --  EMuL: --
+  2018        :  MuMuMu: --  EEE: --  EMuL: --
+
+HNL_ControlRegion_Plotter_Conv.root
+  2016preVFP  :  MuMuMu: Raw: -0.0, Norm: -0.00 +/- 0.01 (-0.03),  EEE: Raw: 3.2, Norm: 0.16 +/- 0.06 (1.61),  EMuL: Raw: 3.7, Norm: 0.19 +/- 0.03 (1.95),
+  2016postVFP :  MuMuMu: Raw: 0.3, Norm: 0.02 +/- 0.01 (0.94),  EEE: Raw: 2.2, Norm: 0.13 +/- 0.02 (1.30),  EMuL: Raw: 3.7, Norm: 0.22 +/- 0.09 (2.31),
+  2017        :  MuMuMu: Raw: 1.5, Norm: 0.04 +/- 0.01 (1.73),  EEE: Raw: 5.4, Norm: 0.13 +/- 0.07 (1.28),  EMuL: Raw: 5.1, Norm: 0.12 +/- 0.02 (1.28),
+  2018        :  MuMuMu: Raw: 1.3, Norm: 0.02 +/- 0.01 (1.00),  EEE: Raw: 6.0, Norm: 0.10 +/- 0.02 (1.00),  EMuL: Raw: 5.8, Norm: 0.10 +/- 0.02 (1.00),
+
+HNL_ControlRegion_Plotter_Fake.root
+  2016preVFP  :  MuMuMu: Raw: 20.8, Norm: 1.06 +/- 0.06 (0.76),  EEE: Raw: 19.4, Norm: 0.99 +/- 0.12 (0.78),  EMuL: Raw: 42.5, Norm: 2.18 +/- 0.15 (0.91),
+  2016postVFP :  MuMuMu: Raw: 21.0, Norm: 1.25 +/- 0.08 (0.89),  EEE: Raw: 19.8, Norm: 1.17 +/- 0.13 (0.92),  EMuL: Raw: 34.4, Norm: 2.05 +/- 0.14 (0.86),
+  2017        :  MuMuMu: Raw: 54.0, Norm: 1.30 +/- 0.05 (0.93),  EEE: Raw: 57.3, Norm: 1.38 +/- 0.09 (1.08),  EMuL: Raw: 97.8, Norm: 2.36 +/- 0.10 (0.99),
+  2018        :  MuMuMu: Raw: 83.9, Norm: 1.40 +/- 0.05 (1.00),  EEE: Raw: 76.2, Norm: 1.27 +/- 0.07 (1.00),  EMuL: Raw: 143.2, Norm: 2.39 +/- 0.09 (1.00),
+
+HNL_ControlRegion_Plotter_Other.root
+  2016preVFP  :  MuMuMu: Raw: 3.5, Norm: 0.18 +/- 0.03 (1.00),  EEE: Raw: 1.4, Norm: 0.07 +/- 0.02 (0.89),  EMuL: Raw: 3.6, Norm: 0.18 +/- 0.03 (0.84),
+  2016postVFP :  MuMuMu: Raw: 4.3, Norm: 0.26 +/- 0.04 (1.45),  EEE: Raw: 1.6, Norm: 0.09 +/- 0.02 (1.16),  EMuL: Raw: 3.5, Norm: 0.21 +/- 0.03 (0.95),
+  2017        :  MuMuMu: Raw: 7.2, Norm: 0.17 +/- 0.02 (0.98),  EEE: Raw: 3.6, Norm: 0.09 +/- 0.01 (1.06),  EMuL: Raw: 8.6, Norm: 0.21 +/- 0.02 (0.95),
+  2018        :  MuMuMu: Raw: 10.6, Norm: 0.18 +/- 0.02 (1.00),  EEE: Raw: 4.8, Norm: 0.08 +/- 0.01 (1.00),  EMuL: Raw: 13.2, Norm: 0.22 +/- 0.02 (1.00),
+
+HNL_ControlRegion_Plotter_TTV.root
+  2016preVFP  :  MuMuMu: Raw: 1.4, Norm: 0.07 +/- 0.00 (0.99),  EEE: Raw: 0.7, Norm: 0.04 +/- 0.00 (0.93),  EMuL: Raw: 1.9, Norm: 0.09 +/- 0.00 (1.00),
+  2016postVFP :  MuMuMu: Raw: 1.2, Norm: 0.07 +/- 0.00 (1.00),  EEE: Raw: 0.7, Norm: 0.04 +/- 0.00 (0.99),  EMuL: Raw: 1.8, Norm: 0.11 +/- 0.00 (1.12),
+  2017        :  MuMuMu: Raw: 2.9, Norm: 0.07 +/- 0.00 (0.97),  EEE: Raw: 1.3, Norm: 0.03 +/- 0.00 (0.80),  EMuL: Raw: 3.8, Norm: 0.09 +/- 0.00 (0.97),
+  2018        :  MuMuMu: Raw: 4.2, Norm: 0.07 +/- 0.00 (1.00),  EEE: Raw: 2.4, Norm: 0.04 +/- 0.00 (1.00),  EMuL: Raw: 5.7, Norm: 0.09 +/- 0.00 (1.00),
+
+HNL_ControlRegion_Plotter_VVV.root
+  2016preVFP  :  MuMuMu: Raw: 2.9, Norm: 0.15 +/- 0.00 (0.99),  EEE: Raw: 1.2, Norm: 0.06 +/- 0.00 (0.88),  EMuL: Raw: 3.6, Norm: 0.19 +/- 0.00 (0.92),
+  2016postVFP :  MuMuMu: Raw: 2.6, Norm: 0.15 +/- 0.00 (1.03),  EEE: Raw: 1.2, Norm: 0.07 +/- 0.00 (1.00),  EMuL: Raw: 3.4, Norm: 0.20 +/- 0.00 (1.00),
+  2017        :  MuMuMu: Raw: 6.6, Norm: 0.16 +/- 0.01 (1.07),  EEE: Raw: 3.2, Norm: 0.08 +/- 0.01 (1.09),  EMuL: Raw: 8.7, Norm: 0.21 +/- 0.01 (1.04),
+  2018        :  MuMuMu: Raw: 8.9, Norm: 0.15 +/- 0.00 (1.00),  EEE: Raw: 4.3, Norm: 0.07 +/- 0.00 (1.00),  EMuL: Raw: 12.1, Norm: 0.20 +/- 0.00 (1.00),
+
+HNL_ControlRegion_Plotter_WW.root
+  2016preVFP  :  MuMuMu: --  EEE: --  EMuL: --
+  2016postVFP :  MuMuMu: --  EEE: --  EMuL: --
+  2017        :  MuMuMu: --  EEE: --  EMuL: --
+  2018        :  MuMuMu: --  EEE: --  EMuL: --
+
+HNL_ControlRegion_Plotter_WZ.root
+  2016preVFP  :  MuMuMu: Raw: 260.5, Norm: 13.35 +/- 0.25 (1.04),  EEE: Raw: 98.2, Norm: 5.03 +/- 0.14 (0.86),  EMuL: Raw: 307.9, Norm: 15.78 +/- 0.26 (0.94),
+  2016postVFP :  MuMuMu: Raw: 227.6, Norm: 13.54 +/- 0.29 (1.05),  EEE: Raw: 100.3, Norm: 5.96 +/- 0.19 (1.02),  EMuL: Raw: 283.9, Norm: 16.89 +/- 0.32 (1.01),
+  2017        :  MuMuMu: Raw: 559.7, Norm: 13.50 +/- 0.19 (1.05),  EEE: Raw: 255.3, Norm: 6.16 +/- 0.12 (1.05),  EMuL: Raw: 700.7, Norm: 16.89 +/- 0.20 (1.01),
+  2018        :  MuMuMu: Raw: 770.0, Norm: 12.87 +/- 0.17 (1.00),  EEE: Raw: 349.6, Norm: 5.84 +/- 0.11 (1.00),  EMuL: Raw: 1002.4, Norm: 16.76 +/- 0.19 (1.00),
+
+HNL_ControlRegion_Plotter_ggZZ.root
+  2016preVFP  :  MuMuMu: Raw: 1.0, Norm: 0.05 +/- 0.00 (1.01),  EEE: Raw: 0.5, Norm: 0.03 +/- 0.00 (0.75),  EMuL: Raw: 1.4, Norm: 0.07 +/- 0.00 (0.85),
+  2016postVFP :  MuMuMu: Raw: 0.9, Norm: 0.06 +/- 0.00 (1.08),  EEE: Raw: 0.6, Norm: 0.03 +/- 0.00 (0.98),  EMuL: Raw: 1.4, Norm: 0.08 +/- 0.00 (0.97),
+  2017        :  MuMuMu: Raw: 2.1, Norm: 0.05 +/- 0.00 (0.99),  EEE: Raw: 1.5, Norm: 0.04 +/- 0.00 (1.01),  EMuL: Raw: 3.5, Norm: 0.08 +/- 0.00 (0.99),
+  2018        :  MuMuMu: Raw: 3.1, Norm: 0.05 +/- 0.00 (1.00),  EEE: Raw: 2.1, Norm: 0.03 +/- 0.00 (1.00),  EMuL: Raw: 5.1, Norm: 0.09 +/- 0.00 (1.00),
+
+HNL_ControlRegion_Plotter_qqZZ.root
+  2016preVFP  :  MuMuMu: Raw: 10.8, Norm: 0.55 +/- 0.00 (1.01),  EEE: Raw: 2.6, Norm: 0.13 +/- 0.00 (0.77),  EMuL: Raw: 9.5, Norm: 0.49 +/- 0.00 (0.87),
+  2016postVFP :  MuMuMu: Raw: 9.8, Norm: 0.59 +/- 0.00 (1.07),  EEE: Raw: 2.8, Norm: 0.16 +/- 0.00 (0.96),  EMuL: Raw: 9.3, Norm: 0.55 +/- 0.00 (0.98),
+  2017        :  MuMuMu: Raw: 23.3, Norm: 0.56 +/- 0.00 (1.03),  EEE: Raw: 7.0, Norm: 0.17 +/- 0.00 (0.98),  EMuL: Raw: 22.9, Norm: 0.55 +/- 0.00 (0.98),
+  2018        :  MuMuMu: Raw: 32.8, Norm: 0.55 +/- 0.00 (1.00),  EEE: Raw: 10.3, Norm: 0.17 +/- 0.00 (1.00),  EMuL: Raw: 33.6, Norm: 0.56 +/- 0.00 (1.00),
+
+TotalBackground
+  2016preVFP  :  MuMuMu: Raw: 300.8, Norm: 15.41 +/- 2.05 (1.01),  EEE: Raw: 127.2, Norm: 6.52 +/- 0.84 (0.86),  EMuL: Raw: 374.1, Norm: 19.17 +/- 2.47 (0.94),
+  2016postVFP :  MuMuMu: Raw: 267.8, Norm: 15.93 +/- 2.09 (1.04),  EEE: Raw: 129.0, Norm: 7.67 +/- 0.99 (1.01),  EMuL: Raw: 341.4, Norm: 20.31 +/- 2.63 (1.00),
+  2017        :  MuMuMu: Raw: 657.4, Norm: 15.85 +/- 2.07 (1.04),  EEE: Raw: 334.5, Norm: 8.06 +/- 1.03 (1.06),  EMuL: Raw: 851.1, Norm: 20.52 +/- 2.64 (1.01),
+  2018        :  MuMuMu: Raw: 914.8, Norm: 15.29 +/- 1.99 (1.00),  EEE: Raw: 455.7, Norm: 7.62 +/- 0.97 (1.00),  EMuL: Raw: 1220.9, Norm: 20.41 +/- 2.62 (1.00),
+
+HNL_ControlRegion_Plotter_Data.root
+  2016preVFP  :  MuMuMu: Raw: 266.0, Norm: 13.63 +/- 0.84 (0.91),  EEE: Raw: 124.0, Norm: 6.35 +/- 0.57 (0.96),  EMuL: Raw: 306.0, Norm: 15.68 +/- 0.90 (0.86),
+  2016postVFP :  MuMuMu: Raw: 256.0, Norm: 15.23 +/- 0.95 (1.01),  EEE: Raw: 130.0, Norm: 7.73 +/- 0.68 (1.17),  EMuL: Raw: 333.0, Norm: 19.81 +/- 1.09 (1.08),
+  2017        :  MuMuMu: Raw: 636.0, Norm: 15.33 +/- 0.61 (1.02),  EEE: Raw: 300.0, Norm: 7.23 +/- 0.42 (1.10),  EMuL: Raw: 830.0, Norm: 20.01 +/- 0.69 (1.09),
+  2018        :  MuMuMu: Raw: 899.0, Norm: 15.03 +/- 0.50 (1.00),  EEE: Raw: 395.0, Norm: 6.60 +/- 0.33 (1.00),  EMuL: Raw: 1096.0, Norm: 18.32 +/- 0.55 (1.00),
+
+
+============================== TotalBackground / Data (with stat error) ==============================
+2016preVFP  :  MuMuMu: 1.131 +/- 0.165  EEE: 1.026 +/- 0.161  EMuL: 1.222 +/- 0.173
+2016postVFP :  MuMuMu: 1.046 +/- 0.152  EEE: 0.992 +/- 0.155  EMuL: 1.025 +/- 0.144
+2017        :  MuMuMu: 1.034 +/- 0.141  EEE: 1.115 +/- 0.156  EMuL: 1.025 +/- 0.137
+2018        :  MuMuMu: 1.018 +/- 0.136  EEE: 1.154 +/- 0.157  EMuL: 1.114 +/- 0.147

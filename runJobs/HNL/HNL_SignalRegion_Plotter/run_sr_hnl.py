@@ -28,7 +28,7 @@ parser.add_argument('-era', dest='era', default="NULL")
 parser.add_argument('-skim', dest='skim', default="SkimTree_HNMultiLepBDT")
 parser.add_argument('-flags', dest='flags', default="")
 
-parser.add_argument('--UseGT36', action='store_true')
+parser.add_argument('--preGT36', action='store_true')
 parser.add_argument('--RunSignal', action='store_true')
 parser.add_argument('--RunData', action='store_true')
 parser.add_argument('--RunPrompt', action='store_true')
@@ -55,6 +55,10 @@ else:
     era_list = [f"{args.era}"]
 
 
+#Use GT36 samples by default                                                                                                                                                                                                                  
+UseGT36 = not args.preGT36
+
+    
 # Determine if individual sample is provided
 IndividualSample = args.samplename != "NULL"
 
@@ -200,7 +204,7 @@ if args.Signal:
 if args.RunData:
 
     DATADir = "DL"
-    if args.UseGT36 and era == "2018":
+    if UseGT36 and era == "2018":
         DATADir = "DL_GT36"
 
     for era in era_list:
@@ -213,7 +217,7 @@ if args.Central or args.Systematics:
 
     ### DATA JOBS NOT CODED YET SINCE BLINDED
     DATADir = "DL"
-    if args.UseGT36 and era == "2018":
+    if UseGT36 and era == "2018":
         DATADir = "DL_GT36"
         
 

@@ -3,165 +3,184 @@
 
 void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histname, double weight, vector<TString> bin_lables, TString fill_label){
 
-  char end_str = string(cutflow_dirname).back();
 
-  if ( end_str  == '/') {
-    cout << "[HNL_LeptonCore::FillCutflowDef ] ERROR in assiging Hist name, remove / from end " << endl;
+  // Check if the last character is a '/'
+  if (cutflow_dirname[cutflow_dirname.Length() - 1] == '/') {
+    cout << "[HNL_LeptonCore::FillCutflowDef ] ERROR in assigning Hist name, remove / from end " << endl;
     cout << cutflow_dirname << endl;
     exit(EXIT_FAILURE);
-
   }
-  TH2D *this_hist = GetHist2D(cutflow_dirname+"/"+cutflow_histname);
+  
+  // Retrieve the 2D histogram
+  TH2D* this_hist = GetHist2D(cutflow_dirname + "/" + cutflow_histname);
+  
+  // If histogram is not found, determine the cutflow name based on certain conditions
+  if (!this_hist) {
 
-  if( !this_hist ){
-    TString cf_name="Cutflows";
-    //SR_Summary                                                                                                                                                                             
-    //    cout << "cf_name = " << cf_name << " cutflow_dirname = " << cutflow_dirname << " cutflow_histname = " << cutflow_histname << endl;                                                 
-    if(cutflow_histname.Contains("SR")||cutflow_histname.Contains("MuonCR")||cutflow_histname.Contains("ElectronCR") ) cf_name="LimitBins";
-    if(cutflow_histname.Contains("SR_Cut")) cf_name="SignalCutFlow";
+    TString cf_name = "Cutflows";  // Default name
     
-    if(cutflow_histname.Contains("Limit")) cf_name="LimitBins";
-    if(!cutflow_dirname.Contains("ChannelCutFlow"))  cf_name = cutflow_dirname + "/"+cf_name;
-    else cf_name = cutflow_dirname;
-
-    //cout << "cf_name+cutflow_histname = " << cf_name+"/"+cutflow_histname << endl;                                                                                                         
-    if(IsSignal()){
-      if(cutflow_dirname.Contains("BDT")){
-	this_hist = new TH2D(cf_name+"/"+cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), 11, 0, 11);
-        for (unsigned int i=0 ; i < bin_lables.size(); i++)  this_hist->GetXaxis()->SetBinLabel(i+1,bin_lables[i]);
-        this_hist->GetYaxis()->SetBinLabel(1,"M85");
-        this_hist->GetYaxis()->SetBinLabel(2,"M90");
-        this_hist->GetYaxis()->SetBinLabel(3,"M95");
-        this_hist->GetYaxis()->SetBinLabel(4,"M100");
-        this_hist->GetYaxis()->SetBinLabel(5,"M125");
-        this_hist->GetYaxis()->SetBinLabel(6,"M150");
-        this_hist->GetYaxis()->SetBinLabel(7,"M200");
-        this_hist->GetYaxis()->SetBinLabel(8,"M250");
-        this_hist->GetYaxis()->SetBinLabel(9,"M300");
-        this_hist->GetYaxis()->SetBinLabel(10,"M400");
-        this_hist->GetYaxis()->SetBinLabel(11,"M500");
-
-      }
-      else{
-	this_hist = new TH2D(cf_name+"/"+cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), 8, 0, 8);
-	for (unsigned int i=0 ; i < bin_lables.size(); i++)  this_hist->GetXaxis()->SetBinLabel(i+1,bin_lables[i]);
-	this_hist->GetYaxis()->SetBinLabel(1,"DY_M100_250");
-	this_hist->GetYaxis()->SetBinLabel(2,"DY_M300_500");
-	this_hist->GetYaxis()->SetBinLabel(3,"DY_M600_1000");
-	this_hist->GetYaxis()->SetBinLabel(4,"DY_M1000_3000");
-	this_hist->GetYaxis()->SetBinLabel(5,"VBF_300_700");
-	this_hist->GetYaxis()->SetBinLabel(6,"VBF_800_3000");
-	this_hist->GetYaxis()->SetBinLabel(7,"SSWW");
-	this_hist->GetYaxis()->SetBinLabel(8,"Weinberg");
+    // List of substrings to check for
+    std::vector<std::string> substrings = {"SR", "MuonCR", "ElectronCR", "InvBJet", "InvMET"};
+    
+    // Check if cutflow_histname contains any of the substrings
+    for (const auto& substr : substrings) {
+      if (cutflow_histname.Contains(substr)) {
+            cf_name = "LimitBins";
+            break;  // Exit the loop once a match is found
       }
     }
-    else{
-
-      this_hist = new TH2D(cf_name+"/"+cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), 8, 0, 8);
-      for (unsigned int i=0 ; i < bin_lables.size(); i++)  this_hist->GetXaxis()->SetBinLabel(i+1,bin_lables[i]);
-      this_hist->GetYaxis()->SetBinLabel(1,"Total");
-      this_hist->GetYaxis()->SetBinLabel(2,"CF");
-      this_hist->GetYaxis()->SetBinLabel(3,"Fake");
-      this_hist->GetYaxis()->SetBinLabel(4,"Conv");
-      this_hist->GetYaxis()->SetBinLabel(5,"WZ");
-      this_hist->GetYaxis()->SetBinLabel(6,"ZZ");
-      this_hist->GetYaxis()->SetBinLabel(7,"WpWp");
-      this_hist->GetYaxis()->SetBinLabel(8,"Prompt");
+    
+    // Additional checks for specific conditions
+    if (cutflow_histname.Contains("SR_Cut")) cf_name = "SignalCutFlow";
+    
+    // Modify cf_name based on cutflow_dirname
+    if (!cutflow_dirname.Contains("ChannelCutFlow")) {
+      cf_name = cutflow_dirname + "/" + cf_name;
+    } else {
+      cf_name = cutflow_dirname;
     }
-
+    
+    // Debug output (if needed)
+    // cout << "cf_name + cutflow_histname = " << cf_name + "/" + cutflow_histname << endl;
+    
+    
+    
+    // List of Y-axis labels for different conditions
+    std::vector<std::string> yLabels;
+    
+    if (IsSignal()) {
+      if (cutflow_dirname.Contains("BDT")) {
+	// BDT case: Define Y-axis labels for the signal
+	yLabels = {"M85", "M90", "M95", "M100", "M125", "M150", "M200", "M250", "M300", "M400", "M500"};
+	this_hist = new TH2D(cf_name + "/" + cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), yLabels.size(), 0, yLabels.size());
+      } else {
+	// Non-BDT case: Define Y-axis labels for DY, VBF, etc.
+	yLabels = {"DY_M100_250", "DY_M300_500", "DY_M600_1000", "DY_M1000_3000", "VBF_300_700", "VBF_800_3000", "SSWW", "Weinberg"};
+	this_hist = new TH2D(cf_name + "/" + cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), yLabels.size(), 0, yLabels.size());
+      }
+      
+    } else {
+      // Non-signal case: Define Y-axis labels for the background processes
+      yLabels = {"Total", "CF", "Fake", "Conv", "WZ", "ZZ", "WpWp", "Prompt"};
+      this_hist = new TH2D(cf_name + "/" + cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), yLabels.size(), 0, yLabels.size());
+    }
+    
+    // Set X-axis bin labels
+    for (unsigned int i = 0; i < bin_lables.size(); i++) {
+      this_hist->GetXaxis()->SetBinLabel(i + 1, bin_lables[i]);
+    }
+    
+    // Set Y-axis bin labels
+    for (unsigned int i = 0; i < yLabels.size(); i++) {
+      this_hist->GetYaxis()->SetBinLabel(i + 1, yLabels[i].c_str());
+    }
+    
+    // Ensure the histogram is not stored in the directory
     this_hist->SetDirectory(NULL);
-
-    maphist_TH2D[cutflow_dirname+"/"+cutflow_histname] = this_hist;
+    
+    // Map the histogram with a unique key
+    maphist_TH2D[cutflow_dirname + "/" + cutflow_histname] = this_hist;
   }
-
-  TString bkg_label = "WZ";
-  if(IsSignal()){
-    if(cutflow_dirname.Contains("BDT")){
-      if(!MCSample.Contains("Type")) return;
-      if(MCSample.Contains("M85_")) bkg_label = "M85";
-      else if(MCSample.Contains("M90_")) bkg_label = "M90";
-      else if(MCSample.Contains("M95_")) bkg_label = "M95";
-      else if(MCSample.Contains("M100_")) bkg_label = "M100";
-      else if(MCSample.Contains("M125_")) bkg_label = "M125";
-      else if(MCSample.Contains("M150_")) bkg_label = "M150";
-      else if(MCSample.Contains("M200_")) bkg_label = "M200";
-      else if(MCSample.Contains("M250_")) bkg_label = "M250";
-      else if(MCSample.Contains("M300_")) bkg_label = "M300";
-      else if(MCSample.Contains("M400_")) bkg_label = "M400";
-      else if(MCSample.Contains("M500_")) bkg_label = "M500";
-      else return;
-    }
-    else{
-      if(MCSample.Contains("DYType")) {
-	if(MCSample.Contains("M85_")) bkg_label = "DY_M100_250";
-	if(MCSample.Contains("M90_")) bkg_label = "DY_M100_250";
-	if(MCSample.Contains("M95_")) bkg_label = "DY_M100_250";
-	if(MCSample.Contains("M100_")) bkg_label = "DY_M100_250";
-	if(MCSample.Contains("M125_")) bkg_label = "DY_M100_250";
-	if(MCSample.Contains("M150_")) bkg_label = "DY_M100_250";
-	if(MCSample.Contains("M200_")) bkg_label = "DY_M100_250";
-	if(MCSample.Contains("M250_")) bkg_label = "DY_M100_250";
-	if(MCSample.Contains("M300_")) bkg_label = "DY_M300_500";
-	if(MCSample.Contains("M400_")) bkg_label = "DY_M300_500";
-	if(MCSample.Contains("M500_")) bkg_label = "DY_M300_500";
-	if(MCSample.Contains("M600_")) bkg_label = "DY_M600_1000";
-	if(MCSample.Contains("M700_")) bkg_label = "DY_M600_1000";
-	if(MCSample.Contains("M800_")) bkg_label = "DY_M600_1000";
-	if(MCSample.Contains("M900_")) bkg_label = "DY_M600_1000";
-	if(MCSample.Contains("M1000_")) bkg_label = "DY_M600_1000";
-	if(MCSample.Contains("M1100_")) bkg_label = "DY_M1000_3000";
-	if(MCSample.Contains("M1200_")) bkg_label = "DY_M1000_3000";
-	if(MCSample.Contains("M1300_")) bkg_label = "DY_M1000_3000";
-	if(MCSample.Contains("M1500_")) bkg_label = "DY_M1000_3000";
-	if(MCSample.Contains("M1700_")) bkg_label = "DY_M1000_3000";
-	if(MCSample.Contains("M2000_")) bkg_label = "DY_M1000_3000";
-	if(MCSample.Contains("M2500_")) bkg_label = "DY_M1000_3000";
-	if(MCSample.Contains("M3000_")) bkg_label = "DY_M1000_3000";
+  
+  
+  TString bkg_label = "NULL";
+  
+  // Check for signal
+  if (IsSignal()) {
+    if (cutflow_dirname.Contains("BDT")) {
+      // If it's a BDT signal and MCSample contains certain values, assign the corresponding label
+      if (!MCSample.Contains("Type")) return;
+      
+      // Define mapping of MCSample to corresponding bkg_label
+      std::map<std::string, std::string> signal_map = {
+	{"M85_", "M85"}, {"M90_", "M90"}, {"M95_", "M95"}, {"M100_", "M100"},
+	{"M125_", "M125"}, {"M150_", "M150"}, {"M200_", "M200"}, {"M250_", "M250"},
+	{"M300_", "M300"}, {"M400_", "M400"}, {"M500_", "M500"}
+      };
+      
+      // Check each key in the map to see if MCSample contains it
+      for (const auto& pair : signal_map) {
+	if (MCSample.Contains(pair.first)) {
+	  bkg_label = pair.second;
+	  return; // Exit early as we've found a match
+	}
       }
-      else  if(MCSample.Contains("VBFType")) {
-	if(MCSample.Contains("M300_")) bkg_label = "VBF_300_700";
-	if(MCSample.Contains("M400_")) bkg_label = "VBF_300_700";
-	if(MCSample.Contains("M500_")) bkg_label = "VBF_300_700";
-	if(MCSample.Contains("M600_")) bkg_label = "VBF_300_700";
-	if(MCSample.Contains("M700_")) bkg_label = "VBF_300_700";
-	if(MCSample.Contains("M800_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M900_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M1000_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M1100_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M1200_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M1300_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M1500_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M1700_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M2000_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M2500_")) bkg_label = "VBF_800_3000";
-	if(MCSample.Contains("M3000_")) bkg_label = "VBF_800_3000";      
-      }
-      else if(MCSample.Contains("SSWWTypeI")) {
+      return; // If no match found, exit
+    } else {
+      // Non-BDT signal: DYType and VBFType handling
+      if (MCSample.Contains("DYType")) {
+	// Define a mapping for DYType labels
+	std::map<std::string, std::string> dy_map = {
+	  {"M85_", "DY_M100_250"}, {"M90_", "DY_M100_250"}, {"M95_", "DY_M100_250"},
+	  {"M100_", "DY_M100_250"}, {"M125_", "DY_M100_250"}, {"M150_", "DY_M100_250"},
+	  {"M200_", "DY_M100_250"}, {"M250_", "DY_M100_250"}, {"M300_", "DY_M300_500"},
+	  {"M400_", "DY_M300_500"}, {"M500_", "DY_M300_500"}, {"M600_", "DY_M600_1000"},
+	  {"M700_", "DY_M600_1000"}, {"M800_", "DY_M600_1000"}, {"M900_", "DY_M600_1000"},
+	  {"M1000_", "DY_M600_1000"}, {"M1100_", "DY_M1000_3000"}, {"M1200_", "DY_M1000_3000"},
+	  {"M1300_", "DY_M1000_3000"}, {"M1500_", "DY_M1000_3000"}, {"M1700_", "DY_M1000_3000"},
+	  {"M2000_", "DY_M1000_3000"}, {"M2500_", "DY_M1000_3000"}, {"M3000_", "DY_M1000_3000"}
+	};
+	
+	for (const auto& pair : dy_map) {
+	  if (MCSample.Contains(pair.first)) {
+	    bkg_label = pair.second;
+	    return;
+	  }
+	}
+      } else if (MCSample.Contains("VBFType")) {
+	// Define a mapping for VBFType labels
+	std::map<std::string, std::string> vbf_map = {
+	  {"M300_", "VBF_300_700"}, {"M400_", "VBF_300_700"}, {"M500_", "VBF_300_700"},
+	  {"M600_", "VBF_300_700"}, {"M700_", "VBF_300_700"}, {"M800_", "VBF_800_3000"},
+	  {"M900_", "VBF_800_3000"}, {"M1000_", "VBF_800_3000"}, {"M1100_", "VBF_800_3000"},
+	  {"M1200_", "VBF_800_3000"}, {"M1300_", "VBF_800_3000"}, {"M1500_", "VBF_800_3000"},
+	  {"M1700_", "VBF_800_3000"}, {"M2000_", "VBF_800_3000"}, {"M2500_", "VBF_800_3000"},
+	  {"M3000_", "VBF_800_3000"}
+	};
+	
+	for (const auto& pair : vbf_map) {
+	  if (MCSample.Contains(pair.first)) {
+	    bkg_label = pair.second;
+	    return;
+	  }
+	}
+      } else if (MCSample.Contains("SSWWTypeI")) {
 	bkg_label = "SSWW";
-      }
-      else{
+      } else {
 	bkg_label = "Weinberg";
       }
     }
-  }
-  else{
-   
-    ///// Non BDT plot labels
-    if(RunFake)   bkg_label = "Fake";
-    else if(RunCF)   bkg_label = "CF";
-    else{
-      if(MCSample.Contains("WZG"))   bkg_label = "Conv"; 
-      else if(MCSample.Contains("WZ"))   bkg_label = "WZ";
-      else if(MCSample.Contains("ZZ"))   bkg_label = "ZZ";
-      else if(MCSample.Contains("WpWp"))   bkg_label = "WpWp";
-      else if(MCSample.Contains("ZG"))   bkg_label = "Conv";
-      else if(MCSample.Contains("WG"))   bkg_label = "Conv";
-      else if(MCSample.Contains("TG"))   bkg_label = "Conv";
-      else  bkg_label = "Prompt";
+  } else {
+    // Non-signal (background) cases
+    if (RunFake) {
+      bkg_label = "Fake";
+    } else if (RunCF) {
+      bkg_label = "CF";
+    } else {
+      // Background process labels based on MCSample
+      std::map<std::string, std::string> background_map = {
+	{"WZG", "Conv"}, {"WZ", "WZ"}, {"ZZ", "ZZ"}, {"WpWp", "WpWp"},
+	{"ZG", "Conv"}, {"WG", "Conv"}, {"TG", "Conv"}
+      };
+      
+      // Check if MCSample contains any of these background keys
+      for (const auto& pair : background_map) {
+	if (MCSample.Contains(pair.first)) {
+	  bkg_label = pair.second;
+	  break;
+	}
+      }
+      
+      // Default case if none of the above match
+      if (bkg_label == "NULL") {
+	bkg_label = "Prompt";
+      }
     }
-    this_hist->Fill(fill_label,"Total", weight);
+    
+    // Fill the histogram for background processes
+    this_hist->Fill(fill_label, "Total", weight);
   }
-
+  
 
   this_hist->Fill(fill_label,bkg_label, weight);
 
@@ -173,42 +192,61 @@ void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histn
 
 void HNL_LeptonCore::FillCutflowDef(TString cutflow_dirname,TString cutflow_histname, double weight, vector<TString> bin_lables, TString fill_label){
 
-  //if(cutflow_dirname.Contains("MuMu") && cutflow_histname.Contains("ChannelDep") ) return;
-  //if(cutflow_dirname.Contains("EE") && cutflow_histname.Contains("ChannelDep") ) return;
-  //if(cutflow_dirname.Contains("EMu") && cutflow_histname.Contains("ChannelDep") ) return;
-  
-  char end_str = string(cutflow_dirname).back();
 
-  if ( end_str  == '/') {
-    cout << "[HNL_LeptonCore::FillCutflowDef ] ERROR in assiging Hist name, remove / from end " << endl;
+  // Check if the directory name ends with a '/'
+
+  if (cutflow_dirname[cutflow_dirname.Length() - 1] == '/') {
+    cout << "[HNL_LeptonCore::FillCutflowDef ] ERROR in assigning Hist name, remove / from end " << endl;
     cout << cutflow_dirname << endl;
     exit(EXIT_FAILURE);
-
   }
-  TH1D *this_hist = GetHist1D(cutflow_dirname+"/"+cutflow_histname);
-
-  if( !this_hist ){
-    TString cf_name="Cutflows";
-    //SR_Summary
-    //    cout << "cf_name = " << cf_name << " cutflow_dirname = " << cutflow_dirname << " cutflow_histname = " << cutflow_histname << endl;
-    if(cutflow_histname.Contains("SR")||
-       cutflow_histname.Contains("MuonCR")||
-       cutflow_histname.Contains("ElectronCR")) cf_name="LimitBins";
-    if(cutflow_histname.Contains("SR_Cut")) cf_name="SignalCutFlow";
   
-    if(cutflow_histname.Contains("Limit")) cf_name="LimitBins";
-    if(!cutflow_dirname.Contains("ChannelCutFlow"))  cf_name = cutflow_dirname + "/"+cf_name;
-    else cf_name = cutflow_dirname;
+  // Retrieve the histogram, if it doesn't exist, create it
+  TH1D* this_hist = GetHist1D(cutflow_dirname + "/" + cutflow_histname);
+  
+  if (!this_hist) {
+    // Default name for cutflow
+    TString cf_name = "Cutflows";
+    
+    // List of substrings to check for
+    std::vector<std::string> substrings = {"SR", "MuonCR", "ElectronCR", "Limit","InvBJet", "InvMET"};
+    
+    // Check if cutflow_histname contains any of the substrings
+    for (const auto& substr : substrings) {
+      if (cutflow_histname.Contains(substr.c_str())) {
+	cf_name = "LimitBins";
+	break; // Exit the loop once a match is found
+      }
+    }
+    
+    // Additional checks for specific conditions
+    if (cutflow_histname.Contains("SR_Cut")) cf_name = "SignalCutFlow";
 
-    //cout << "cf_name+cutflow_histname = " << cf_name+"/"+cutflow_histname << endl;
-    this_hist = new TH1D(cf_name+"/"+cutflow_histname, "", bin_lables.size(), 0, bin_lables.size());
-    for (unsigned int i=0 ; i < bin_lables.size(); i++)  this_hist->GetXaxis()->SetBinLabel(i+1,bin_lables[i]);
+    // Modify cf_name based on cutflow_dirname
+    if (!cutflow_dirname.Contains("ChannelCutFlow")) {
+        cf_name = cutflow_dirname + "/" + cf_name;
+    } else {
+        cf_name = cutflow_dirname;
+    }
+
+    // Create a new histogram
+    this_hist = new TH1D(cf_name + "/" + cutflow_histname, "", bin_lables.size(), 0, bin_lables.size());
+
+    // Set the X-axis labels
+    for (unsigned int i = 0; i < bin_lables.size(); i++) {
+        this_hist->GetXaxis()->SetBinLabel(i + 1, bin_lables[i]);
+    }
+
+    // Ensure the histogram is not stored in the directory
     this_hist->SetDirectory(NULL);
-
-    maphist_TH1D[cutflow_dirname+"/"+cutflow_histname] = this_hist;
+    
+    // Add the histogram to the map
+    maphist_TH1D[cutflow_dirname + "/" + cutflow_histname] = this_hist;
   }
+ 
+  // Fill the histogram with the specified weight
   this_hist->Fill(fill_label, weight);
-
+  
 }
 
 
@@ -490,35 +528,25 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
 
 vector<TString>  HNL_LeptonCore::GetLimitLabelsFromRegion(HNL_LeptonCore::SearchRegion sr, TString bin_key, TString channel){
 
-  vector<TString> labels;
+  if(sr==MuonSR1    || sr==ElectronSR1   || sr==ElectronMuonSR1)      return GetLimitLabels("SR1",channel);
+  if(sr==MuonSR2    || sr==ElectronSR2   || sr==ElectronMuonSR2)      return GetLimitLabels("SR2");
+  if(sr==MuonSR3    || sr==ElectronSR3   || sr==ElectronMuonSR3)      return GetLimitLabels("SR3",channel);
+
+  if(sr==MuonCR1    || sr==ElectronCR1   || sr==ElectronMuonCR1)      return {"CR1"};
+  if(sr==MuonCR2    || sr==ElectronCR2   || sr==ElectronMuonCR2)      return {"CR2"};
+  if(sr==MuonCR3    || sr==ElectronCR3   || sr==ElectronMuonCR3)      return GetLimitLabels("CR3");
+
+
+  if(sr==MuonInvBJetCR1 || sr==ElectronInvBJetCR1 || sr==ElectronMuonInvBJetCR1)  return  {"CR1_InvBJet"};
+  if(sr==MuonInvMETCR1 || sr==ElectronInvMETCR1 || sr==ElectronMuonInvMETCR1)  return  {"CR1_InvMET"};
   
-  //// SR1 is channel dependant
-  vector<TString> SR1labels = GetLimitLabels("SR1",channel);
-  vector<TString> SR2labels = GetLimitLabels("SR2");
-  vector<TString> SR3labels = GetLimitLabels("SR3",channel);
- 
-  vector<TString> CR1labels =  GetLimitLabels("CR1");
-  vector<TString> CR2labels =  GetLimitLabels("CR2");
-  vector<TString> CR3labels =  GetLimitLabels("CR3");
+  if(sr==MuonInvBJetCR2 || sr==ElectronInvBJetCR2 || sr==ElectronMuonInvBJetCR2)  return  {"CR2_InvBJet"};
+  if(sr==MuonInvMETCR2 || sr==ElectronInvMETCR2 || sr==ElectronMuonInvMETCR2)  return  {"CR2_InvMET_HTLT_Bin1","CR2_InvMET_HTLT_Bin2","CR2_InvMET_HTLT_Bin3"};
 
-  if(sr==MuonSR1    || sr==ElectronSR1   || sr==ElectronMuonSR1)      return SR1labels;
-  if(sr==MuonSR2    || sr==ElectronSR2   || sr==ElectronMuonSR2)      return SR2labels;
-  if(sr==MuonSR3    || sr==ElectronSR3   || sr==ElectronMuonSR3)      return SR3labels;
+  if(sr==MuonInvBJetCR3 || sr==ElectronInvBJetCR3 || sr==ElectronMuonInvBJetCR3)  return GetLimitLabels("CR3");
+  if(sr==MuonInvMETCR3 || sr==ElectronInvMETCR3 || sr==ElectronMuonInvMETCR3)  return  GetLimitLabels("CR3");
 
-  if(sr==MuonCR1    || sr==ElectronCR1   || sr==ElectronMuonCR1)      return CR1labels;
-  if(sr==MuonCR2    || sr==ElectronCR2   || sr==ElectronMuonCR2)      return CR2labels;
-  if(sr==MuonCR3    || sr==ElectronCR3   || sr==ElectronMuonCR3)      return CR3labels;
-
-  if(sr==MuonInvBJetCR1 || sr==ElectronInvBJetCR1 || sr==ElectronMuonInvBJetCR1)  return  CR1labels;
-  if(sr==MuonInvMETCR1 || sr==ElectronInvMETCR1 || sr==ElectronMuonInvMETCR1)  return  CR1labels;
   
-  if(sr==MuonInvBJetCR2 || sr==ElectronInvBJetCR2 || sr==ElectronMuonInvBJetCR2)  return  CR2labels;
-  if(sr==MuonInvMETCR2 || sr==ElectronInvMETCR2 || sr==ElectronMuonInvMETCR2)  return  CR2labels;
-
-  if(sr==MuonInvBJetCR3 || sr==ElectronInvBJetCR3 || sr==ElectronMuonInvBJetCR3)  return  CR3labels;
-  if(sr==MuonInvMETCR3 || sr==ElectronInvMETCR3 || sr==ElectronMuonInvMETCR3)  return  CR3labels;
-
-
   vector<TString> SR3BDTlabels = GetBDTLimitLabels(bin_key);
   if(sr==MuonSR3BDT || sr==ElectronSR3BDT || sr==ElectronMuonSR3BDT)  return SR3BDTlabels;
 
