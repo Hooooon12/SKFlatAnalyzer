@@ -1,6 +1,0 @@
-DoubleMuon:F
-DoubleMuon:G
-DoubleMuon:H
-SingleMuon:F
-SingleMuon:G
-SingleMuon:H

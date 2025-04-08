@@ -1,3 +1,0 @@
-DoubleMuon:F
-DoubleMuon:G
-DoubleMuon:H

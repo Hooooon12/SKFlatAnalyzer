@@ -1,0 +1,86 @@
+Results for histogram: ChannelCutFlow/HNL_ULIDv2/LL/Presel
+
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_DoubleMuon_A.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_DoubleMuon_GT36_A.root
+Bin 1 [Step0]: DoubleMuon file value = 4063.0, DoubleMuon sum = 11475.0, DoubleMuon % = 35.41%, GT36 DoubleMuon file value = 4048.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 2244.0, DoubleMuon sum = 11475.0, DoubleMuon % = 19.56%, GT36 DoubleMuon file value = 2231.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 1777.0, DoubleMuon sum = 11475.0, DoubleMuon % = 15.49%, GT36 DoubleMuon file value = 1764.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 1777.0, DoubleMuon sum = 11475.0, DoubleMuon % = 15.49%, GT36 DoubleMuon file value = 1764.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 1614.0, DoubleMuon sum = 11475.0, DoubleMuon % = 14.07%, GT36 DoubleMuon file value = 1602.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_DoubleMuon_B.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_DoubleMuon_GT36_B.root
+Bin 1 [Step0]: DoubleMuon file value = 2117.0, DoubleMuon sum = 5928.0, DoubleMuon % = 35.71%, GT36 DoubleMuon file value = 2119.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 1166.0, DoubleMuon sum = 5928.0, DoubleMuon % = 19.67%, GT36 DoubleMuon file value = 1162.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 909.0, DoubleMuon sum = 5928.0, DoubleMuon % = 15.33%, GT36 DoubleMuon file value = 912.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 909.0, DoubleMuon sum = 5928.0, DoubleMuon % = 15.33%, GT36 DoubleMuon file value = 912.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 827.0, DoubleMuon sum = 5928.0, DoubleMuon % = 13.95%, GT36 DoubleMuon file value = 830.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_DoubleMuon_C.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_DoubleMuon_GT36_C.root
+Bin 1 [Step0]: DoubleMuon file value = 2073.0, DoubleMuon sum = 5966.0, DoubleMuon % = 34.75%, GT36 DoubleMuon file value = 2065.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 1181.0, DoubleMuon sum = 5966.0, DoubleMuon % = 19.80%, GT36 DoubleMuon file value = 1178.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 935.0, DoubleMuon sum = 5966.0, DoubleMuon % = 15.67%, GT36 DoubleMuon file value = 932.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 935.0, DoubleMuon sum = 5966.0, DoubleMuon % = 15.67%, GT36 DoubleMuon file value = 932.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 842.0, DoubleMuon sum = 5966.0, DoubleMuon % = 14.11%, GT36 DoubleMuon file value = 842.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_DoubleMuon_D.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_DoubleMuon_GT36_D.root
+Bin 1 [Step0]: DoubleMuon file value = 9822.0, DoubleMuon sum = 27917.0, DoubleMuon % = 35.18%, GT36 DoubleMuon file value = 9813.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 5520.0, DoubleMuon sum = 27917.0, DoubleMuon % = 19.77%, GT36 DoubleMuon file value = 5522.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 4320.0, DoubleMuon sum = 27917.0, DoubleMuon % = 15.47%, GT36 DoubleMuon file value = 4316.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 4320.0, DoubleMuon sum = 27917.0, DoubleMuon % = 15.47%, GT36 DoubleMuon file value = 4316.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 3935.0, DoubleMuon sum = 27917.0, DoubleMuon % = 14.10%, GT36 DoubleMuon file value = 3930.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_EGamma_A.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_EGamma_GT36_A.root
+Bin 1 [Step0]: DoubleMuon file value = 2719.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 2599.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 2009.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1900.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 1634.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1624.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 923.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 925.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 876.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 879.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_EGamma_B.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_EGamma_GT36_B.root
+Bin 1 [Step0]: DoubleMuon file value = 1503.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1450.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 1140.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1092.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 934.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 941.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 539.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 535.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 504.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 501.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_EGamma_C.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_EGamma_GT36_C.root
+Bin 1 [Step0]: DoubleMuon file value = 1373.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1314.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 1025.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 973.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 835.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 838.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 454.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 454.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 426.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 424.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_EGamma_D.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_EGamma_GT36_D.root
+Bin 1 [Step0]: DoubleMuon file value = 6771.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 6447.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 5117.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 4837.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 4212.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 4225.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 2260.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 2267.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 2117.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 2124.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_MuonEG_A.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_MuonEG_GT36_A.root
+Bin 1 [Step0]: DoubleMuon file value = 4694.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 5276.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 2740.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 3059.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 2102.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 2374.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 2102.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 2374.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 1961.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 2215.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_MuonEG_B.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_MuonEG_GT36_B.root
+Bin 1 [Step0]: DoubleMuon file value = 2866.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 2824.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 1685.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1665.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 1267.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1276.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 1267.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1276.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 1180.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1188.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_MuonEG_C.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_MuonEG_GT36_C.root
+Bin 1 [Step0]: DoubleMuon file value = 2679.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 2723.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 1608.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1620.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 1242.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1275.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 1242.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1275.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 1139.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 1170.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+
+Processing: HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_MuonEG_D.root and HNL_ControlRegion_Plotter_SkimTree_HNMultiLepBDT_MuonEG_GT36_D.root
+Bin 1 [Step0]: DoubleMuon file value = 13233.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 12963.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 2 [Step1]: DoubleMuon file value = 7692.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 7515.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 3 [Step2]: DoubleMuon file value = 5835.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 5834.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 4 [Step3]: DoubleMuon file value = 5835.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 5834.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%
+Bin 5 [Step4]: DoubleMuon file value = 5400.0, DoubleMuon sum = 0, DoubleMuon % = 0.00%, GT36 DoubleMuon file value = 5400.0, GT36 DoubleMuon sum = 0, GT36 DoubleMuon % = 0.00%

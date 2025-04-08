@@ -139,8 +139,16 @@ void SKFlatNtuple::Loop(){
     if(_event_start >= _event_end ) jentry_initial = jentry_final;
   }
 
+  Long64_t nbytes = 0, nb = 0;
+
   for(Long64_t jentry=jentry_initial; jentry<jentry_final;jentry++){
 
+    ///// Suggested that if TChain has 2 or more Files LoadTree should be added.
+    if (fChain->LoadTree(jentry) < 0) {
+      std::cerr << "Failed to load tree jentry " << jentry << std::endl;
+      continue;  // Skip if there was an error
+    }    
+    
     if(jentry<NSkipEvent){
       //cout << "[SKFlatNtuple::Loop] Skipping " << jentry << "'th event" << endl;
       //exit(EXIT_FAILURE);
@@ -151,9 +159,16 @@ void SKFlatNtuple::Loop(){
       cout << "[SKFlatNtuple::Loop RUNNING] " << jentry << "/" << nentries << " ("<<100.*jentry/nentries<<" %) @ " << printcurrunttime() << endl;
     }
 
+    
     _jentry = jentry;
-    if(fChain->GetEntry(jentry)<0) exit(EIO);
 
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
+
+    //    cout << "[SKFlatNtuple::Loop RUNNING] " << jentry << "/" << nentries <<  " nb =" <<nb << " printcurrunttime()  = " << printcurrunttime()  << " GetCacheSize()  = " << fChain->GetCacheSize() << " GetPacketSize() " << fChain->GetPacketSize() << endl;
+
+    if(nb < 0) exit(EIO);
+    
     // added by jalmond: if Event lists are added then check if event should be skipped
     if(EventList.size()>0){
       if(!RunEvent(ev_list,run,event)) continue;

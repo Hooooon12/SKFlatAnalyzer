@@ -233,16 +233,19 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
   std::vector<Tau>    TauColl_Cleaned;
 
   if(HasFlag("TauScan")){
-    vector<TString> TauIDs = {"NoCut","Default"};
-    vector<TString> TauJetIDs={"","JetVVL","JetVL"};
-    vector<TString> TauElIDs={"","ElVVL","ElVL"};
-    vector<TString> TauMuIDs={"","MuVL","MuL"};
 
+    param.PlottingVerbose=0;
+    vector<TString> TauIDs = {"NoCut","Default"};
+    vector<TString> TauJetIDs={"JetVVL","JetVL","JetL","JetM","JetT","JetVT","JetVVT"};
+    vector<TString> TauElIDs={"ElVVL","ElT"};
+    vector<TString> TauMuIDs={"MuVL","MuT"};
+    
     for(auto ij : TauJetIDs){
       for(auto ie: TauElIDs){
-  for(auto im: TauMuIDs){
-    TauIDs.push_back(ij+"_"+ie+"_"+im);
-  }
+        for(auto im: TauMuIDs){
+          TauIDs.push_back(ij+"_"+ie+"_"+im);
+          TauIDs.push_back("AK8_"+ij+"_"+ie+"_"+im);
+        }
       }
     }
 
@@ -258,13 +261,21 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
       TauColl_Cleaned.clear();
      
       for(auto ilep : TauColl_Uncleaned) {
-  if(id_tau == "Default") continue;
-  bool matched=false;
-  for(auto ilep2 : leps_veto) {
-    if(ilep.DeltaR(*ilep2) < 0.4) matched=true;
-  }
-  if(matched) continue;
-  TauColl_Cleaned.push_back(ilep);
+        if(id_tau == "Default") continue;
+        bool matched=false;
+        for(auto ilep2 : leps_veto) {
+          if(ilep.DeltaR(*ilep2) < 0.4) matched=true;
+        }
+
+        if(id_tau.Contains("AK8")){
+          for(auto ijet : AK8_JetColl){
+            if(ijet.DeltaR(ilep) < 0.8) matched=true;
+          }
+        }
+        
+        if(matched) continue;
+        
+        TauColl_Cleaned.push_back(ilep);
       }
 
       /// Run Analyser with Tau ID cleaned 
@@ -276,8 +287,17 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param){
       
     }
     return;
-  }
-  
+  } //// Tau Scan code
+
+
+
+  //// Select Taus, and clean with AK8 jets and light-leptons                                                                                                                                                                                              
+
+  //TauColl_Cleaned  = SelectTaus   (leps_veto, AK8_JetColl, "JetT_MuT_ELT",20., 2.3);
+
+  TauColl_Cleaned.clear();
+
+     
   ///// PDF SCAN FOR SIGNAL 
   if(param.syst_ == AnalyzerParameter::PDF) {
     TString ORIGName= param.Name;

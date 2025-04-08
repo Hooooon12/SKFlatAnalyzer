@@ -1,3 +1,0 @@
-DoubleEG:F
-DoubleEG:G
-DoubleEG:H

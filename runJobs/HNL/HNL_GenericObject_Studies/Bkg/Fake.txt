@@ -1,2 +1,0 @@
-WJets_MG
-TTLJ_powheg

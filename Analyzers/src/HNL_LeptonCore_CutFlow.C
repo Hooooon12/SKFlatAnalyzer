@@ -351,8 +351,6 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
   if(sr==WZCR)    EVHistName= "WZCR";
   if(sr==WZBCR)   EVHistName= "WZBCR";
   if(sr==ZZCR)    EVHistName= "ZZCR";
-  if(sr==ZZVBFCR) EVHistName= "ZZVBFCR";
-  if(sr==ZZCR2)   EVHistName= "ZZCR2";
   if(sr==WGCR)    EVHistName= "WGCR";
   if(sr==ZGCR)    EVHistName= "ZGCR";
   if(sr==WZBCR)   EVHistName= "WZBCR";
@@ -364,13 +362,11 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
   if(sr==HMNPCR)  EVHistName= "HMNPCR";
   if(sr==HMBCR)   EVHistName= "HMBCR";
   if(sr==HM1JCR)   EVHistName= "HM1JCR";
-  if(sr==PreselVBF)   EVHistName= "PreselVBF";
   if(sr==Presel)   EVHistName= "Presel";
   if(sr==WWNP1CR)   EVHistName= "WWNP1CR";
   if(sr==WWNP2CR)   EVHistName= "WWNP2CR";
   if(sr==WWNP3CR)   EVHistName= "WWNP3CR";
-  if(sr==WWCR1)   EVHistName= "WWCR1";
-  if(sr==WWCR2)   EVHistName= "WWCR2";
+  if(sr==WWCR)   EVHistName= "WWCR";
   if(sr==ZAK8CR)   EVHistName= "ZAK8CR";
   if(sr==ZCR)   EVHistName= "ZCR";
   if(sr==ZNPElCR)   EVHistName= "ZNPElCR";
@@ -480,6 +476,7 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
 
     
   if(sr==CR)    EVHistName ="ControlRegions";
+  if(sr==CRFull)    EVHistName ="ControlRegions";
   if(sr==sigmm) EVHistName ="SR_CutFlow";
   if(sr==sigee) EVHistName ="SR_CutFlow";
   if(sr==sigem) EVHistName ="SR_CutFlow";
@@ -544,8 +541,6 @@ vector<TString>  HNL_LeptonCore::GetLabelsFromRegion(HNL_LeptonCore::SearchRegio
   if(sr==ZGCR)  nstep = 11;
   if(sr==WZCR)  nstep = 11;
   if(sr==ZZCR)  nstep = 6;
-  if(sr==ZZVBFCR)  nstep = 9;
-  if(sr==ZZCR2)  nstep = 9;
   if(sr==WGCR)   nstep = 10;
   if(sr==WZBCR)   nstep = 15;
   if(sr==WZVBFCR)   nstep = 7;
@@ -556,13 +551,11 @@ vector<TString>  HNL_LeptonCore::GetLabelsFromRegion(HNL_LeptonCore::SearchRegio
   if(sr==HMNPCR)   nstep = 7;
   if(sr==HMBCR)   nstep = 5;
   if(sr==HM1JCR)   nstep = 5;
-  if(sr==PreselVBF)   nstep = 5;
   if(sr==Presel)   nstep = 5; 
   if(sr==WWNP1CR)   nstep = 11; 
   if(sr==WWNP2CR)   nstep = 10; 
   if(sr==WWNP3CR)   nstep = 10; 
-  if(sr==WWCR1)   nstep = 8; 
-  if(sr==WWCR2)   nstep = 10;
+  if(sr==WWCR)   nstep = 10; 
   if(sr==ZAK8CR)   nstep = 7;
   if(sr==ZCR)   nstep = 5; 
   if(sr==ZNPElCR)   nstep = 7; 
@@ -628,17 +621,20 @@ vector<TString>  HNL_LeptonCore::GetLabelsFromRegion(HNL_LeptonCore::SearchRegio
   //// SR Labels
   if(sr==SRLowMass)    labels = {"Preselection","Inclusive_SR","SR1","SR2","SR3_LowMass"};
   if(sr==SRHighMass)   labels = {"Preselection","Inclusive_SR","SR1","SR2","SR3_HighMass"};
-  if(sr == SignalRegion)     labels = {"NoCut","Trigger", "GENMatched","HEMVeto","METFilter","LeptonFlavour","SSLepton","LepVeto","DiLepMass", "BJet","MET"};
+  if(sr == SignalRegion)     labels = {"NoCut","Trigger", "GENMatched","HEMVeto","METFilter","LeptonFlavour","TauVeto","SSLepton","LepVeto","DiLepMass", "BJet","MET"};
   /// CR lanels 
-  if(sr == ControlRegion)    labels = {"NoCut","HEMVeto","METFilter","GENMatched","LeptonFlavour","Trigger","OS_VR","VV_VR","VG_VR","SS_CR","VBF_CR"};
+  if(sr == ControlRegion)    labels = {"NoCut","HEMVeto","METFilter","GENMatched","LeptonFlavour","TauVeto","Trigger","OS_VR","VV_VR","VG_VR","SS_CR","VBF_CR"};
 
   //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  if(sr==CR)   labels = { "Z_CR","Top_CR","Top_CR2", "TopAK8_CR","ZAK8_CR",
-			  "WpWp_CR1","WpWp_CR2","WpWp_CRNP","WpWp_CRNP2","WpWp_CRNP3",
-			  "WZ_CR", "ZZ_CR","ZZVBF_CCR","ZZOffShell_CR","ZG_CR","WG_CR","WZVBF_CR","WZVBF_CR2","WZB_CR", 
-			  "ZNPEl_CR", "ZNPMu_CR", "TopNP_CR",
-			  "HighMassSR1_CR","HighMassSR2_CR","HighMassSR3_CR" ,"HighMass1Jet_CR",
-			  "HighMassBJet_CR","HighMassNP_CR", "SSPresel"};
+  if(sr==CR)   labels = {  "ZZ_CR","ZG_CR","WG_CR","WZ_SR1", "WZ_SR2", "WZ_SR3", "SR1_InvMET", "SR1_InvBJet","SR2_InvMET", "SR2_InvBJet","SR3_InvMET", "SR3_InvBJet"};			 
+
+                                                                                                                                                                                                                                                                                
+  if(sr==CRFull)   labels = { "SSPresel",  "Z_CR","Top_CR","Top_CR2", "TopAK8_CR","ZAK8_CR",
+                          "WpWp_CR","WpWp_CR_NP","WpWp_CR_NP2","WpWp_CR_NP3",
+			  "ZZ_CR","ZG_CR","WG_CR","WZ_SR1", "WZ_SR2", "WZ_SR3","WZB_CR",
+                          "ZNPEl_CR", "ZNPMu_CR", "TopNP_CR",
+                          "SR1_InvMET", "SR1_InvBJet","SR2_InvMET", "SR2_InvBJet","SR3_InvMET", "SR3_InvBJet",
+                          "HighMassBJet_CR","HighMassNP_CR"} ;
   
   
   if(sr==sigmm)  labels = {"SSNoCut", "SSGen", "SSGen2", "SSMuMuTrig", "SSMuMuTrig2", "SSMuMuTrig2L", "SSMuMu", "SSMuMu_Pt", "SSMuMu_HEMVeto","SSMuMu_LepVeto", "SSMuMu_LLMass",  "SSMuMu_vTau","SSMuMu_Jet","SSMuMu_BJet", "SSMuMu_DiJet",  "SSMuMu_SR1", "SSMuMu_SR2","SSMuMu_SR3Inclusive","SSMuMu_SR3","SSMuMu_SR4","SSMuMu_SRFail"};

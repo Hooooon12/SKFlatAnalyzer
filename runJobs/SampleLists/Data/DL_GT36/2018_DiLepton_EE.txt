@@ -1,0 +1,4 @@
+EGamma_GT36:A
+EGamma_GT36:B
+EGamma_GT36:C
+EGamma_GT36:D

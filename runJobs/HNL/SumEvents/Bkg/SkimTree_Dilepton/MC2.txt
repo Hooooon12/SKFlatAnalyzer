@@ -1,3 +1,0 @@
-DYJets_MG
-SingleTop_tW_antitop_NoFullyHad
-SingleTop_tW_top_NoFullyHad

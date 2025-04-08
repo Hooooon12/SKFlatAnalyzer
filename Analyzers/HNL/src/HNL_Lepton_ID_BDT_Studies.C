@@ -1228,7 +1228,8 @@ void HNL_Lepton_ID_BDT_Studies::MakeBDTPlots(AnalyzerParameter param,HNL_LeptonC
     
     std::vector<Tau> TauColl;
 
-    Fill_RegionPlots(param,"ZPeak" ,  TauColl, JetColl, AK8_JetColl, LeptonColl,  GetMiniAODvMET("PuppiT1xyCorr"), nPV, weight_ll);
+    Particle MET = GetMiniAODvMET("PuppiT1xyCorr");
+    Fill_RegionPlots(param,"ZPeak" ,  TauColl, JetColl, AK8_JetColl, LeptonColl, MET , nPV, weight_ll);
   }
 
   return;

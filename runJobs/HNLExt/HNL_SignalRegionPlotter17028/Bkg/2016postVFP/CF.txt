@@ -1,2 +1,0 @@
-DYJets
-TTLL_powheg

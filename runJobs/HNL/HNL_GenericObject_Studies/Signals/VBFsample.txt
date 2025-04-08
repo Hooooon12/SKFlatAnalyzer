@@ -1,3 +1,0 @@
-VBFTypeI_DF_M1000_private
-VBFTypeI_DF_M2000_private
-VBFTypeI_DF_M500_private

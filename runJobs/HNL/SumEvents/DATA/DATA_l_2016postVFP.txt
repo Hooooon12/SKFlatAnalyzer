@@ -1,6 +1,0 @@
-SingleElectron:F
-SingleElectron:G
-SingleElectron:H
-SingleMuon:F
-SingleMuon:G
-SingleMuon:H

@@ -1,4 +1,0 @@
-EGamma:A
-EGamma:B
-EGamma:C
-EGamma:D

@@ -12,7 +12,7 @@ AnalyzerParameter  HNL_LeptonCore::DefaultParam(const TString& s_setup_version, 
   param_default.CutFlowDir = "CutFlowDir";
   param_default.hprefix  = "";
   param_default.hpostfix = "";
-  param_default.PlottingVerbose = 0;
+  param_default.PlottingVerbose = 1;
 
   /// Default BKG                                                                                                                                                                                                   
   param_default.ApplyPR=false;

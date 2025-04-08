@@ -178,6 +178,8 @@ bool HNL_LeptonCore::PassMultiDatasetTriggerSelection(HNL_LeptonCore::Channel ch
 
 bool HNL_LeptonCore::PassTriggerSelection(HNL_LeptonCore::Channel channel,Event ev, std::vector<Lepton *> leps, TString selection, bool check_pd ){
 
+  if(HasFlag("NoTrigger")) return true;
+  
   bool PassTrigger(false);
   bool apply_ptcut(true);
 

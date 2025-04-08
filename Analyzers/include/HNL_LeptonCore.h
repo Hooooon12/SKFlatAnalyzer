@@ -115,14 +115,14 @@ class HNL_LeptonCore : public AnalyzerCore {
     sigmm_17028, sigee_17028, sigem_17028,
 
     // High and Low Mass Regions
-    ControlRegion, SignalRegion, SRLowMass, SRHighMass, CR,
+    ControlRegion, SignalRegion, SRLowMass, SRHighMass, CR,CRFull,
 
     // Specific CR Regions
     WGCR, ZGCR, WZCR, ZZCR, ZZVBFCR, WZBCR, WZVBFCR, WZVBFCR2, ZZCR2,
     HMCR1, HMCR2, HMCR3, HMBDTCR3, HMNPCR, HMBCR, HM1JCR, PreselVBF,
 
     // WW and Top Control Regions
-    WWNP1CR, WWNP2CR, WWNP3CR, WWCR1, WWCR2,
+    WWNP1CR, WWNP2CR, WWNP3CR, WWCR,
     ZAK8CR, ZCR, ZNPElCR, ZNPMuCR, TopCR, TopNPCR, TopAK8NPCR, TopNPCR2
   };
 
@@ -363,6 +363,7 @@ class HNL_LeptonCore : public AnalyzerCore {
 
   // Selects taus based on ID, pt minimum, eta maximum, and leptons in the collection
   std::vector<Tau> SelectTaus(std::vector<Lepton*>& leps, const TString& id, double ptmin, double fetamax);
+  std::vector<Tau> SelectTaus(std::vector<Lepton*>& leps, std::vector<FatJet> ak8jets, const TString& id, double ptmin, double fetamax);
 
   // Selects taus based on ID, pt minimum, and eta maximum from a default source
   std::vector<Tau> SelectTaus(const TString& id, double ptmin, double fetamax);
@@ -454,49 +455,42 @@ class HNL_LeptonCore : public AnalyzerCore {
   // HNL PLOTS  HNL_LeptonCore_Plotter                                                                                                                                     
 
   /// Function to check which hists to plot whening running systematics
-  bool DrawSyst(AnalyzerParameter param_sys);
+  bool DrawSyst(AnalyzerParameter& param_sys);
 
   void FillTandP(bool passProbe, TString Tag, TString ID, double pr_pt,double eta , double weight, TString binstring);
-  void FillMuonCollPlots     (bool passSel, TString sel, AnalyzerParameter param, TString cut,  std::vector<Muon> muons, double w);
-  void FillMuonCollPlots     (AnalyzerParameter param, TString cut,  std::vector<Muon> muons, double w);
-  void FillMuonPlots         (bool passSel, TString sel, AnalyzerParameter param, TString cut,  Muon muon, double w);
-  void FillMuonPlots         (AnalyzerParameter param, TString cut,  Muon muon, double w);
-  void FillMuonKinematicPlots(AnalyzerParameter param, TString cut,  Muon mu, double w);
-  void FillAllElectronPlots  (AnalyzerParameter param, TString cut,  std::vector<Electron> els, double w);
-  void FillElectronPlots     (AnalyzerParameter param, TString cut,  std::vector<Electron> els, double w);
-  void FillElectronKinematicPlots(AnalyzerParameter param, TString cut,  Electron el, double w);
-  void FillLeptonKinematicPlots  (AnalyzerParameter param, TString cut,  Lepton lep, double w);
+  void FillMuonCollPlots     (bool passSel, TString sel, AnalyzerParameter& param, TString cut,  std::vector<Muon>& muons, double w);
+  void FillMuonCollPlots     (AnalyzerParameter& param, TString cut,  std::vector<Muon>& muons, double w);
+  void FillMuonPlots         (bool passSel, TString sel, AnalyzerParameter& param, TString cut,  Muon& muon, double w);
+  void FillMuonPlots         (AnalyzerParameter& param, TString cut,  Muon& muon, double w);
+  void FillMuonKinematicPlots(AnalyzerParameter& param, TString cut,  Muon& mu, double w);
+  void FillAllElectronPlots  (AnalyzerParameter& param, TString cut,  std::vector<Electron>& els, double w);
+  void FillElectronPlots     (AnalyzerParameter& param, TString cut,  std::vector<Electron>& els, double w);
+  void FillElectronKinematicPlots(AnalyzerParameter& param, TString cut,  Electron& el, double w);
+  void FillLeptonKinematicPlots  (AnalyzerParameter& param, TString cut,  Lepton& lep, double w);
 
-  void FillLeptonPlots(AnalyzerParameter param,std::vector<Lepton *> leps, TString this_region, double weight);
-  void FillJetPlots   (AnalyzerParameter param,std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight);
+  void FillLeptonPlots(AnalyzerParameter& param,std::vector<Lepton *> &leps, TString this_region, double weight);
+  void FillJetPlots   (AnalyzerParameter& param,std::vector<Jet>& jets, std::vector<FatJet>& fatjets, TString this_region, double weight);
  
   double FillWeightHist(TString label, double _weight);
-  double FillWeightHist(TString label, AnalyzerParameter param, double _weight);
-  double FillFakeWeightHist(TString label, vector<Lepton *> Leps,AnalyzerParameter param,  double _weight);
-  void FillFakeHistograms(AnalyzerParameter param, TString Label, vector<Lepton* > Leptons, vector<Jet> JetColl, vector<FatJet> FatJetColl,vector<Jet> BJetColl, Particle MET, double w);
+  double FillFakeWeightHist(TString label, vector<Lepton *>& Leps,AnalyzerParameter& param,  double _weight);
+  void FillFakeHistograms(AnalyzerParameter& param, TString Label, vector<Lepton* >& Leptons, vector<Jet>& JetColl, vector<FatJet>& FatJetColl,vector<Jet>& BJetColl, Particle& MET, double w);
 
   
 
   //// ===============================  SR PLOTS =============================== ////                                                                                                                                                                                                                                                                                                       
-  void Fill_RegionPlots(AnalyzerParameter param, TString plot_dir,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w, int DrawConfig=0); 
-  void Fill_RegionPlots(AnalyzerParameter param, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w, int DrawConfig=0); 
+  void Fill_RegionPlots(AnalyzerParameter& param,  TString plot_dir,  std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w); 
+  void Fill_RegionPlots(AnalyzerParameter& param,  TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w); 
 
-
-  void Fill_Main_Plots(AnalyzerParameter param, TString region, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w);
+  void Fill_RegionPlotsFull(AnalyzerParameter& param, TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w, int DrawConfig=0);
   
-  void Fill_Standard_Plots(AnalyzerParameter param, TString region, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w);
 
-  void Fill_Plots(AnalyzerParameter param, TString region, TString plot_dir, vector<Tau> Taus,  std::vector<Jet> jets,    std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx,  double w); 
+  void Fill_Main_Plots(AnalyzerParameter& param, TString region, TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>&  jets,    std::vector<FatJet>&  fatjets, std::vector<Lepton *>&  leps , Particle&  met, double nvtx,  double w);
+  
+  void Fill_Standard_Plots(AnalyzerParameter& param, TString region, TString plot_dir, vector<Tau>&  Taus,  std::vector<Jet>&  jets,    std::vector<FatJet>&  fatjets, std::vector<Lepton *>&  leps , Particle&  met, double nvtx,  double w);
 
-  void Fill_PlotsAK8(AnalyzerParameter param, TString region,TString plot_dir,  std::vector<Tau> Taus, std::vector<Jet> jets,  std::vector<FatJet> fatjets,  std::vector<Lepton *> leps, Particle  met, double nvtx, double w);
+  void Fill_Plots(AnalyzerParameter& param, TString region, TString plot_dir, vector<Tau>&  Taus,  std::vector<Jet>&  jets,    std::vector<FatJet>&  fatjets, std::vector<Lepton *>&  leps , Particle&  met, double nvtx,  double w); 
 
-  void Fill_SigRegionPlots1(HNL_LeptonCore::Channel channel,TString label_1, TString label_2, TString label_3,  std::vector<Jet> jets, std::vector<FatJet> fatjets,  std::vector<Lepton *> leps, Particle  met, double nvtx, double w, double var1,  double var2, double var3, double var4, double var5, double var6, double var7);
-  void Fill_SigRegionPlots3(HNL_LeptonCore::Channel channel, TString label_1, TString label_2, TString label_3,  std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Lepton *> leps , Particle  met, double nvtx, double w, double var1,  double var2, double var3, double var4, double var5, double var6, double var7, double var8, double var9, double var10, double var11);
-  void Fill_SigRegionPlots4(HNL_LeptonCore::Channel channel,TString label_1,std::vector<Jet> jets, std::vector<FatJet> fatjets,  std::vector<Lepton *> leps, Particle  met, double nvtx, double w );
-  bool  Fill_DefSigRegionPlots3(HNL_LeptonCore::Channel channel, TString label_sr, TString label_mass, TString label_anid,  std::vector<Jet> jets, std::vector<FatJet> fatjets,  std::vector<Lepton *> leps, Particle  met, double nvtx,  double w,  double var1,  double var2, double var3, double var4, double var5, double var6, double var7, double var8, double var9, double var10, double var11);
-  void Fill_All_SignalRegion3(HNL_LeptonCore::Channel channel, TString signal_region, bool isdata, TString charge_s, TString label, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Lepton *> leps,  Particle _met,int _npv , double w , bool full);
-  void Fill_All_SignalRegion1(HNL_LeptonCore::Channel channel, TString signal_region, bool isdata, TString charge_s, TString label, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Lepton *> leps,  Particle _met,int _npv , double w , bool full);
-
+  void Fill_PlotsAK8(AnalyzerParameter& param, TString region,TString plot_dir,  std::vector<Tau>& Taus, std::vector<Jet>& jets,  std::vector<FatJet>& fatjets,  std::vector<Lepton *>& leps, Particle&  met, double nvtx, double w);
 
   // === Cut flow  HNL_LeptonCore_CutFlow                                                                                                                                                                         
   void FillTypeCutflow(TString histname, double weight, vector<TString> lables, TString label1, TString label2);

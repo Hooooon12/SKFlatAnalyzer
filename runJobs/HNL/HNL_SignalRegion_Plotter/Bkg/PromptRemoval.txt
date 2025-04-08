@@ -1,4 +1,0 @@
-TTLJ_powheg
-TTLL_powheg
-DYJets
-WJets_amcatnlo

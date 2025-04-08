@@ -1,3 +1,0 @@
-TTLJ_powheg
-DYJets
-WJets_MG

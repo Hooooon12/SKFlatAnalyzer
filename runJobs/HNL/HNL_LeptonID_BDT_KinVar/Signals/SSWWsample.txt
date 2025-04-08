@@ -1,3 +1,0 @@
-SSWWTypeI_SF_M10000_private
-SSWWTypeI_SF_M1000_private
-SSWWTypeI_SF_M500_private

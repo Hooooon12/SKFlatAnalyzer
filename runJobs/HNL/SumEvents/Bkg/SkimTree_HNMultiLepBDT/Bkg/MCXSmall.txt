@@ -1,7 +1,0 @@
-DYJets10to50_MG
-TG
-ttWToQQ
-VBFHToTauTau_M125
-VHToNonbb
-WGJJToLNu
-ZZ_pythia

@@ -573,65 +573,66 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
         SystList.push_back(AnalyzerParameter::ElectronTriggerSFDown);
       }
 
-      
-      //SystList.push_back(AnalyzerParameter::JetAbsoluteStatUp);
-      //SystList.push_back(AnalyzerParameter::JetAbsoluteStatDown);
-      //SystList.push_back(AnalyzerParameter::JetAbsoluteScaleUp);
-      //SystList.push_back(AnalyzerParameter::JetAbsoluteScaleDown);
-      //SystList.push_back(AnalyzerParameter::JetAbsoluteMPFBiasUp);
-      //SystList.push_back(AnalyzerParameter::JetAbsoluteMPFBiasDown);
-      //SystList.push_back(AnalyzerParameter::JetFragmentationUp);
-      //SystList.push_back(AnalyzerParameter::JetFragmentationDown);
-      //SystList.push_back(AnalyzerParameter::JetSinglePionECALUp);
-      //SystList.push_back(AnalyzerParameter::JetSinglePionECALDown);
-      //SystList.push_back(AnalyzerParameter::JetSinglePionHCALUp);
-      //SystList.push_back(AnalyzerParameter::JetSinglePionHCALDown);
-      //SystList.push_back(AnalyzerParameter::JetFlavorQCDUp);
-      //SystList.push_back(AnalyzerParameter::JetFlavorQCDDown);
-      //SystList.push_back(AnalyzerParameter::JetTimePtEtaUp);
-      //SystList.push_back(AnalyzerParameter::JetTimePtEtaDown);
-      //SystList.push_back(AnalyzerParameter::JetRelativeJEREC1Up);
-      //SystList.push_back(AnalyzerParameter::JetRelativeJEREC1Down);
-      //SystList.push_back(AnalyzerParameter::JetRelativeJEREC2Up);
-      //SystList.push_back(AnalyzerParameter::JetRelativeJEREC2Down);
-      //SystList.push_back(AnalyzerParameter::JetRelativePtHFUp);
-      //SystList.push_back(AnalyzerParameter::JetRelativePtHFDown);
-      //SystList.push_back(AnalyzerParameter::JetRelativePtBBUp);
-      //SystList.push_back(AnalyzerParameter::JetRelativePtBBDown);
-      //SystList.push_back(AnalyzerParameter::JetRelativePtEC1Up);
-      //SystList.push_back(AnalyzerParameter::JetRelativePtEC1Down);
-      //SystList.push_back(AnalyzerParameter::JetRelativePtEC2Up);
-      //SystList.push_back(AnalyzerParameter::JetRelativePtEC2Down);
-      //SystList.push_back(AnalyzerParameter::JetRelativeBalUp);
-      //SystList.push_back(AnalyzerParameter::JetRelativeBalDown);
-      //SystList.push_back(AnalyzerParameter::JetRelativeSampleUp);
-      //SystList.push_back(AnalyzerParameter::JetRelativeSampleDown);
-      //SystList.push_back(AnalyzerParameter::JetRelativeFSRUp);
-      //SystList.push_back(AnalyzerParameter::JetRelativeFSRDown);
-      //SystList.push_back(AnalyzerParameter::JetRelativeStatFSRUp);
-      //SystList.push_back(AnalyzerParameter::JetRelativeStatFSRDown);
-      //SystList.push_back(AnalyzerParameter::JetRelativeStatECUp);
-      //SystList.push_back(AnalyzerParameter::JetRelativeStatECDown);
-      //SystList.push_back(AnalyzerParameter::JetRelativeStatHFUp);
-      //SystList.push_back(AnalyzerParameter::JetRelativeStatHFDown);
-      //SystList.push_back(AnalyzerParameter::JetPileUpDataMCUp);
-      //SystList.push_back(AnalyzerParameter::JetPileUpDataMCDown);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtRefUp);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtRefDown);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtBBUp);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtBBDown);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtEC1Up);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtEC1Down);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtEC2Up);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtEC2Down);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtHFUp);
-      //SystList.push_back(AnalyzerParameter::JetPileUpPtHFDown);
-
+      bool RunFullJEC=false;
+      if(RunFullJEC){
+        SystList.push_back(AnalyzerParameter::JetAbsoluteStatUp);
+        SystList.push_back(AnalyzerParameter::JetAbsoluteStatDown);
+        SystList.push_back(AnalyzerParameter::JetAbsoluteScaleUp);
+        SystList.push_back(AnalyzerParameter::JetAbsoluteScaleDown);
+        SystList.push_back(AnalyzerParameter::JetAbsoluteMPFBiasUp);
+        SystList.push_back(AnalyzerParameter::JetAbsoluteMPFBiasDown);
+        SystList.push_back(AnalyzerParameter::JetFragmentationUp);
+        SystList.push_back(AnalyzerParameter::JetFragmentationDown);
+        SystList.push_back(AnalyzerParameter::JetSinglePionECALUp);
+        SystList.push_back(AnalyzerParameter::JetSinglePionECALDown);
+        SystList.push_back(AnalyzerParameter::JetSinglePionHCALUp);
+        SystList.push_back(AnalyzerParameter::JetSinglePionHCALDown);
+        SystList.push_back(AnalyzerParameter::JetFlavorQCDUp);
+        SystList.push_back(AnalyzerParameter::JetFlavorQCDDown);
+        SystList.push_back(AnalyzerParameter::JetTimePtEtaUp);
+        SystList.push_back(AnalyzerParameter::JetTimePtEtaDown);
+        SystList.push_back(AnalyzerParameter::JetRelativeJEREC1Up);
+        SystList.push_back(AnalyzerParameter::JetRelativeJEREC1Down);
+        SystList.push_back(AnalyzerParameter::JetRelativeJEREC2Up);
+        SystList.push_back(AnalyzerParameter::JetRelativeJEREC2Down);
+        SystList.push_back(AnalyzerParameter::JetRelativePtHFUp);
+        SystList.push_back(AnalyzerParameter::JetRelativePtHFDown);
+        SystList.push_back(AnalyzerParameter::JetRelativePtBBUp);
+        SystList.push_back(AnalyzerParameter::JetRelativePtBBDown);
+        SystList.push_back(AnalyzerParameter::JetRelativePtEC1Up);
+        SystList.push_back(AnalyzerParameter::JetRelativePtEC1Down);
+        SystList.push_back(AnalyzerParameter::JetRelativePtEC2Up);
+        SystList.push_back(AnalyzerParameter::JetRelativePtEC2Down);
+        SystList.push_back(AnalyzerParameter::JetRelativeBalUp);
+        SystList.push_back(AnalyzerParameter::JetRelativeBalDown);
+        SystList.push_back(AnalyzerParameter::JetRelativeSampleUp);
+        SystList.push_back(AnalyzerParameter::JetRelativeSampleDown);
+        SystList.push_back(AnalyzerParameter::JetRelativeFSRUp);
+        SystList.push_back(AnalyzerParameter::JetRelativeFSRDown);
+        SystList.push_back(AnalyzerParameter::JetRelativeStatFSRUp);
+        SystList.push_back(AnalyzerParameter::JetRelativeStatFSRDown);
+        SystList.push_back(AnalyzerParameter::JetRelativeStatECUp);
+        SystList.push_back(AnalyzerParameter::JetRelativeStatECDown);
+        SystList.push_back(AnalyzerParameter::JetRelativeStatHFUp);
+        SystList.push_back(AnalyzerParameter::JetRelativeStatHFDown);
+        SystList.push_back(AnalyzerParameter::JetPileUpDataMCUp);
+        SystList.push_back(AnalyzerParameter::JetPileUpDataMCDown);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtRefUp);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtRefDown);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtBBUp);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtBBDown);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtEC1Up);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtEC1Down);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtEC2Up);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtEC2Down);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtHFUp);
+        SystList.push_back(AnalyzerParameter::JetPileUpPtHFDown);
+      }
     }
   }
   
   if(MCSample.Contains("Type")){
-    //    SystList.push_back(AnalyzerParameter::PDF);
+    SystList.push_back(AnalyzerParameter::PDF);
     SystList.push_back(AnalyzerParameter::PDFUp);
     SystList.push_back(AnalyzerParameter::PDFDown);
     SystList.push_back(AnalyzerParameter::ScaleUp);
@@ -824,59 +825,59 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
 
     if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
     }
     else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v0"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
     }
     else{
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
     }
   }
   if(GetEra() == "2016postVFP"){
 
     if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
     }
     else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v0"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
     }
     else {
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
     }
   }
   if(GetYearString() == "2017"){
     if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
 
     }
     else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v0"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
     }
     else {
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
     }
   }
   if(GetYearString() == "2018"){
     if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
     }
     else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
       paramEv.k.Muon_FR            = "HNL_ULID_FO_v4_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_HighPt_ULID_FO_v0"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
     }
     else {
       paramEv.k.Muon_FR         = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR     = "HNL_HighPt_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Electron_FR     = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
     }
   }
 
@@ -949,7 +950,8 @@ double HNL_LeptonCore::GetKFactor(){
   else if(MCSample.Contains("ZZTo4L_powheg") or MCSample.Contains("ZZTo2L2Nu") or MCSample.Contains("ZZTo2L2Q")){
     // Physics Letters B 735 (2014) 311-313                                                                                                                                                                                                                                    
     // https://doi.org/10.1016/j.physletb.2014.06.056                                                                                                                                                                                                                           
-    weight =  1.16;
+    weight = ZZKfactor("ZZMass");
+    //    weight =  1.16;
     if(HasFlag("ZZKFMass"))  weight = ZZKfactor("ZZMass");
     if(HasFlag("ZZKFPt"))    weight = ZZKfactor("ZZPt");
     //    if(_jentry % 1000) cout << "K-Factor ZZMass = " << ZZKfactor("ZZMass") << " K-Factor ZZPt " << ZZKfactor("ZZPt") << " " << endl;

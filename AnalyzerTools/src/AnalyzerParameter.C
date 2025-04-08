@@ -177,8 +177,8 @@ AnalyzerParameter::AnalyzerParameter(){
   MCCorrrectionIgnoreNoHist = false;
   DEBUG = false;
 
-  PlottingVerbose=0;
-  WriteOutVerbose = 0;
+  PlottingVerbose=1;
+  WriteOutVerbose =1;
   SRConfig="NULL";
 
 

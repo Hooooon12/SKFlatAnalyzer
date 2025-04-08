@@ -1,5 +1,0 @@
-MuonEG:B
-MuonEG:C
-MuonEG:D
-MuonEG:E
-MuonEG:F

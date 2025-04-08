@@ -640,6 +640,7 @@ arguments  = $(Process)
 requirements = OpSysMajorVer == 6
 log = condor.log
 getenv     = True
+request_cpus = 1
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 output = job_$(Process).log
@@ -653,6 +654,7 @@ queue {0}
       print('''executable = {1}.sh
 universe   = vanilla
 requirements = ( HasSingularity == true )
+request_cpus = 1
 arguments  = $(Process)
 log = condor.log
 getenv     = True
@@ -672,7 +674,7 @@ queue {0}
       concurrency_limits=''
       if args.NMax:
         concurrency_limits='concurrency_limits = n'+str(args.NMax)+'.'+os.getenv("USER")
-      request_memory=''
+      request_memory='request_memory = 8 GB'
       if args.Memory:
         request_memory='request_memory = '+str(args.Memory)
       print('''executable = {1}.sh
@@ -680,6 +682,7 @@ jobbatchname = {1}
 universe   = vanilla
 arguments  = $(Process)
 log = condor.log
+request_cpus = 1
 getenv     = True
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT

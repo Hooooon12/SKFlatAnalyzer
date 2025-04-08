@@ -1614,7 +1614,7 @@ bool Event::IsPDForTrigger(TString trig, TString PD){
       if(trig=="HLT_OldMu100_v") return true;
       if(trig=="HLT_TkMu100_v") return true;
     }
-    if(PD=="EGamma"){
+    if(PD.Contains("EGamma")){
       
       if(trig=="HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v") return true;
       if(trig=="HLT_DiSC30_18_EIso_AND_HE_Mass70_v") return true;
