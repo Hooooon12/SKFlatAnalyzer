@@ -2,7 +2,7 @@
 # python MakeRunList.py <directories> [-e 2017 2018] [-c EMu] [-m 100 200] [-s DYVBF] <--Work or --Limit>
 
 import os, sys
-import commands as cmd
+import subprocess as cmd
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -16,8 +16,8 @@ parser.add_argument('--Limit', action='store_true', help='for limit extraction p
 args = parser.parse_args()
 
 if not args.Work and not args.Limit:
-  print "Please set --Work or --Limit;"
-  print "Exiting..."
+  print("Please set --Work or --Limit;")
+  print("Exiting...")
   sys.exit()
 
 input_path = os.getcwd()
@@ -27,14 +27,14 @@ input_path = os.getcwd()
 #CardRep = "sr3_InvMET" # new CR where Bjet and InvMET split
 #CardRep = "sronly_sr3_syst" # NoCR and Syst
 #CardRep = "sronly_sr123" # NoCR and NoSyst
-CardRep = "syst.txt" if "Run2" in args.eras else "sr3_inv"
-#CardRep = "sronly_sr3_syst" if "Run2" in args.eras else "sr3_inv"
+#CardRep = "syst.txt" if "Run2" in args.eras else "sr3_inv" # before ANv5
+CardRep = "syst.txt" if "Run2" in args.eras else "sr3_InvBJet"
 #grepRegion = ' | grep card' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick everything by grepping 'card')
 grepRegion = ' | grep card | grep '+CardRep if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick everything by grepping 'card')
 #grepRegion = ' | grep card | grep -Ev "sr123"' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick sr1, 2, 3 separate limits by grepping all but removing sr123)
 
 #tags = ["_sronly"]
-#tags = ["_syst"]
+tags = ["_syst"]
 #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = [""]
@@ -57,7 +57,7 @@ grepRegion = ' | grep card | grep '+CardRep if "Run2" in args.eras else ' | grep
 #tags = ["_sronly_sr2_syst"] # no CR, sr1, 2, 3, separate, with Syst
 
 ## CR limit test
-tags = ["_sr2_syst_Combined_OnlyWZNormToAll","_sr2_syst_Combined_WZZGNormToAll"]
+#tags = ["_sr2_syst_Combined_OnlyWZNormToAll","_sr2_syst_Combined_WZZGNormToAll"]
 
 isRun2 = ""
 if "Run2" in args.eras:
@@ -84,8 +84,8 @@ for dirName in args.dirNames:
         this = input_path+"/"+dirName+"/"+card+tag+".root\n"
         FileCheck = cmd.getstatusoutput('ls '+this.strip().replace('root','txt'))
         if FileCheck[0] !=0:
-          print "[WARNING] NO "+this.replace('root','txt').strip()
-          print "skipping..."
+          print("[WARNING] NO "+this.replace('root','txt').strip())
+          print("skipping...")
           continue
         if args.Work:
           f.write(this)

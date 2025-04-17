@@ -26,11 +26,11 @@ all_combinations=[["sr2_inv","zg_cr3","wz_cr2","zz_cr3"],["sr2_inv","zg_cr3","wz
 
 for cr_list in all_combinations:
   cmd = "python MakeDataCard_ANv3.py --CR " + ' '.join(cr_list) + " --Syst --Decorr --JetDecorr"
-  print "Running:",cmd
+  print("Running:",cmd)
   os.system(cmd)
   cmd = "python MakeDataCard_ANv3.py --Combine CR --CR " + ' '.join(cr_list) + " --Syst --Decorr --JetDecorr" if len(cr_list)!=0 else "python MakeDataCard_ANv3.py --Combine SR --Syst --Decorr --JetDecorr"
-  print "Running:",cmd
+  print("Running:",cmd)
   os.system(cmd)
   cmd = "python MakeDataCard_ANv3.py --Combine Era --CR " + ' '.join(cr_list) + " --Syst --Decorr --JetDecorr"
-  print "Running:",cmd
+  print("Running:",cmd)
   os.system(cmd)

@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
+
 # Place it at CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter
 # python create-batch.py -l RunList1.txt [RunList2.txt][RunList*.txt] --Asymptotic[--Full][--Q*][--Work][--Nuis][--pdf]
 # RunList.txt contains paths of results from text2workspace.py e.g. /data6/Users/jihkim/CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter/Workspace/card_2017_MuMu_M500_HNL_UL.root
 
 import os, sys
-import commands as cmd
+import subprocess as cmd
 import argparse
 import datetime
 
@@ -33,8 +35,8 @@ for check in ['FitDiag','Impact','Breakdown']:
     IsNuis = True
     Ncheck += 1
 if Ncheck > 1:
-  print "More than 1 Nuisance flag activated; This is not supported."
-  print "Exiting ..."
+  print("More than 1 Nuisance flag activated; This is not supported.")
+  print("Exiting ...")
   sys.exit(1)
 
 pwd = os.getcwd()
@@ -43,9 +45,9 @@ SCRAM_ARCH = os.environ['SCRAM_ARCH']
 
 failure, result = cmd.getstatusoutput('combine --help')
 if failure:
-  print "[!!ERROR!!] cannot run combine."
-  print "Please set proper cmsenv first."
-  print "Exiting ..."
+  print("[!!ERROR!!] cannot run combine.")
+  print("Please set proper cmsenv first.")
+  print("Exiting ...")
   sys.exit(1)
 
 if args.Input is not None:

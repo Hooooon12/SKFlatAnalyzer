@@ -50,13 +50,13 @@ void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histn
     
     if (IsSignal()) {
       if (cutflow_dirname.Contains("BDT")) {
-	// BDT case: Define Y-axis labels for the signal
-	yLabels = {"M85", "M90", "M95", "M100", "M125", "M150", "M200", "M250", "M300", "M400", "M500"};
-	this_hist = new TH2D(cf_name + "/" + cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), yLabels.size(), 0, yLabels.size());
+  // BDT case: Define Y-axis labels for the signal
+  yLabels = {"M85", "M90", "M95", "M100", "M125", "M150", "M200", "M250", "M300", "M400", "M500"};
+  this_hist = new TH2D(cf_name + "/" + cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), yLabels.size(), 0, yLabels.size());
       } else {
-	// Non-BDT case: Define Y-axis labels for DY, VBF, etc.
-	yLabels = {"DY_M100_250", "DY_M300_500", "DY_M600_1000", "DY_M1000_3000", "VBF_300_700", "VBF_800_3000", "SSWW", "Weinberg"};
-	this_hist = new TH2D(cf_name + "/" + cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), yLabels.size(), 0, yLabels.size());
+  // Non-BDT case: Define Y-axis labels for DY, VBF, etc.
+  yLabels = {"DY_M100_250", "DY_M300_500", "DY_M600_1000", "DY_M1000_3000", "VBF_300_700", "VBF_800_3000", "SSWW", "Weinberg"};
+  this_hist = new TH2D(cf_name + "/" + cutflow_histname, "", bin_lables.size(), 0, bin_lables.size(), yLabels.size(), 0, yLabels.size());
       }
       
     } else {
@@ -93,61 +93,61 @@ void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histn
       
       // Define mapping of MCSample to corresponding bkg_label
       std::map<std::string, std::string> signal_map = {
-	{"M85_", "M85"}, {"M90_", "M90"}, {"M95_", "M95"}, {"M100_", "M100"},
-	{"M125_", "M125"}, {"M150_", "M150"}, {"M200_", "M200"}, {"M250_", "M250"},
-	{"M300_", "M300"}, {"M400_", "M400"}, {"M500_", "M500"}
+  {"M85_", "M85"}, {"M90_", "M90"}, {"M95_", "M95"}, {"M100_", "M100"},
+  {"M125_", "M125"}, {"M150_", "M150"}, {"M200_", "M200"}, {"M250_", "M250"},
+  {"M300_", "M300"}, {"M400_", "M400"}, {"M500_", "M500"}
       };
       
       // Check each key in the map to see if MCSample contains it
       for (const auto& pair : signal_map) {
-	if (MCSample.Contains(pair.first)) {
-	  bkg_label = pair.second;
-	  return; // Exit early as we've found a match
-	}
+  if (MCSample.Contains(pair.first)) {
+    bkg_label = pair.second;
+    return; // Exit early as we've found a match
+  }
       }
       return; // If no match found, exit
     } else {
       // Non-BDT signal: DYType and VBFType handling
       if (MCSample.Contains("DYType")) {
-	// Define a mapping for DYType labels
-	std::map<std::string, std::string> dy_map = {
-	  {"M85_", "DY_M100_250"}, {"M90_", "DY_M100_250"}, {"M95_", "DY_M100_250"},
-	  {"M100_", "DY_M100_250"}, {"M125_", "DY_M100_250"}, {"M150_", "DY_M100_250"},
-	  {"M200_", "DY_M100_250"}, {"M250_", "DY_M100_250"}, {"M300_", "DY_M300_500"},
-	  {"M400_", "DY_M300_500"}, {"M500_", "DY_M300_500"}, {"M600_", "DY_M600_1000"},
-	  {"M700_", "DY_M600_1000"}, {"M800_", "DY_M600_1000"}, {"M900_", "DY_M600_1000"},
-	  {"M1000_", "DY_M600_1000"}, {"M1100_", "DY_M1000_3000"}, {"M1200_", "DY_M1000_3000"},
-	  {"M1300_", "DY_M1000_3000"}, {"M1500_", "DY_M1000_3000"}, {"M1700_", "DY_M1000_3000"},
-	  {"M2000_", "DY_M1000_3000"}, {"M2500_", "DY_M1000_3000"}, {"M3000_", "DY_M1000_3000"}
-	};
-	
-	for (const auto& pair : dy_map) {
-	  if (MCSample.Contains(pair.first)) {
-	    bkg_label = pair.second;
-	    return;
-	  }
-	}
+  // Define a mapping for DYType labels
+  std::map<std::string, std::string> dy_map = {
+    {"M85_", "DY_M100_250"}, {"M90_", "DY_M100_250"}, {"M95_", "DY_M100_250"},
+    {"M100_", "DY_M100_250"}, {"M125_", "DY_M100_250"}, {"M150_", "DY_M100_250"},
+    {"M200_", "DY_M100_250"}, {"M250_", "DY_M100_250"}, {"M300_", "DY_M300_500"},
+    {"M400_", "DY_M300_500"}, {"M500_", "DY_M300_500"}, {"M600_", "DY_M600_1000"},
+    {"M700_", "DY_M600_1000"}, {"M800_", "DY_M600_1000"}, {"M900_", "DY_M600_1000"},
+    {"M1000_", "DY_M600_1000"}, {"M1100_", "DY_M1000_3000"}, {"M1200_", "DY_M1000_3000"},
+    {"M1300_", "DY_M1000_3000"}, {"M1500_", "DY_M1000_3000"}, {"M1700_", "DY_M1000_3000"},
+    {"M2000_", "DY_M1000_3000"}, {"M2500_", "DY_M1000_3000"}, {"M3000_", "DY_M1000_3000"}
+  };
+  
+  for (const auto& pair : dy_map) {
+    if (MCSample.Contains(pair.first)) {
+      bkg_label = pair.second;
+      return;
+    }
+  }
       } else if (MCSample.Contains("VBFType")) {
-	// Define a mapping for VBFType labels
-	std::map<std::string, std::string> vbf_map = {
-	  {"M300_", "VBF_300_700"}, {"M400_", "VBF_300_700"}, {"M500_", "VBF_300_700"},
-	  {"M600_", "VBF_300_700"}, {"M700_", "VBF_300_700"}, {"M800_", "VBF_800_3000"},
-	  {"M900_", "VBF_800_3000"}, {"M1000_", "VBF_800_3000"}, {"M1100_", "VBF_800_3000"},
-	  {"M1200_", "VBF_800_3000"}, {"M1300_", "VBF_800_3000"}, {"M1500_", "VBF_800_3000"},
-	  {"M1700_", "VBF_800_3000"}, {"M2000_", "VBF_800_3000"}, {"M2500_", "VBF_800_3000"},
-	  {"M3000_", "VBF_800_3000"}
-	};
-	
-	for (const auto& pair : vbf_map) {
-	  if (MCSample.Contains(pair.first)) {
-	    bkg_label = pair.second;
-	    return;
-	  }
-	}
+  // Define a mapping for VBFType labels
+  std::map<std::string, std::string> vbf_map = {
+    {"M300_", "VBF_300_700"}, {"M400_", "VBF_300_700"}, {"M500_", "VBF_300_700"},
+    {"M600_", "VBF_300_700"}, {"M700_", "VBF_300_700"}, {"M800_", "VBF_800_3000"},
+    {"M900_", "VBF_800_3000"}, {"M1000_", "VBF_800_3000"}, {"M1100_", "VBF_800_3000"},
+    {"M1200_", "VBF_800_3000"}, {"M1300_", "VBF_800_3000"}, {"M1500_", "VBF_800_3000"},
+    {"M1700_", "VBF_800_3000"}, {"M2000_", "VBF_800_3000"}, {"M2500_", "VBF_800_3000"},
+    {"M3000_", "VBF_800_3000"}
+  };
+  
+  for (const auto& pair : vbf_map) {
+    if (MCSample.Contains(pair.first)) {
+      bkg_label = pair.second;
+      return;
+    }
+  }
       } else if (MCSample.Contains("SSWWTypeI")) {
-	bkg_label = "SSWW";
+  bkg_label = "SSWW";
       } else {
-	bkg_label = "Weinberg";
+  bkg_label = "Weinberg";
       }
     }
   } else {
@@ -159,21 +159,21 @@ void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histn
     } else {
       // Background process labels based on MCSample
       std::map<std::string, std::string> background_map = {
-	{"WZG", "Conv"}, {"WZ", "WZ"}, {"ZZ", "ZZ"}, {"WpWp", "WpWp"},
-	{"ZG", "Conv"}, {"WG", "Conv"}, {"TG", "Conv"}
+  {"WZG", "Conv"}, {"WZ", "WZ"}, {"ZZ", "ZZ"}, {"WpWp", "WpWp"},
+  {"ZG", "Conv"}, {"WG", "Conv"}, {"TG", "Conv"}
       };
       
       // Check if MCSample contains any of these background keys
       for (const auto& pair : background_map) {
-	if (MCSample.Contains(pair.first)) {
-	  bkg_label = pair.second;
-	  break;
-	}
+  if (MCSample.Contains(pair.first)) {
+    bkg_label = pair.second;
+    break;
+  }
       }
       
       // Default case if none of the above match
       if (bkg_label == "NULL") {
-	bkg_label = "Prompt";
+  bkg_label = "Prompt";
       }
     }
     
@@ -214,8 +214,8 @@ void HNL_LeptonCore::FillCutflowDef(TString cutflow_dirname,TString cutflow_hist
     // Check if cutflow_histname contains any of the substrings
     for (const auto& substr : substrings) {
       if (cutflow_histname.Contains(substr.c_str())) {
-	cf_name = "LimitBins";
-	break; // Exit the loop once a match is found
+        cf_name = "LimitBins";
+        break; // Exit the loop once a match is found
       }
     }
     
@@ -285,12 +285,12 @@ void HNL_LeptonCore::FillLimitInput(HNL_LeptonCore::SearchRegion sr, double even
   /// Fill SingleBinned                                                                                                                                                                                           
   vector<HNL_LeptonCore::SearchRegion> SingleBinned = {MuonCR1,        MuonCR2,        MuonCR3,        MuonCR3BDT, 
 
-						       MuonInvBJetCR1, MuonInvMETCR1,MuonInvBJetCR2, MuonInvMETCR2,MuonInvBJetCR3, MuonInvMETCR3,MuonInvBJetCR3BDT, MuonInvMETCR3BDT,
+                   MuonInvBJetCR1, MuonInvMETCR1,MuonInvBJetCR2, MuonInvMETCR2,MuonInvBJetCR3, MuonInvMETCR3,MuonInvBJetCR3BDT, MuonInvMETCR3BDT,
                                                        ElectronCR1,    ElectronCR2,    ElectronCR3,    ElectronCR3BDT, 
-						       ElectronInvBJetCR1, ElectronInvMETCR1,ElectronInvBJetCR2, ElectronInvMETCR2,ElectronInvBJetCR3, ElectronInvMETCR3,ElectronInvBJetCR3BDT, ElectronInvMETCR3BDT,
-						       ElectronMuonCR1,ElectronMuonCR2,ElectronMuonCR3,ElectronMuonCR3BDT, 
-						       ElectronMuonInvBJetCR1, ElectronMuonInvMETCR1,ElectronMuonInvBJetCR2, ElectronMuonInvMETCR2,ElectronMuonInvBJetCR3, ElectronMuonInvMETCR3,ElectronMuonInvBJetCR3BDT, ElectronMuonInvMETCR3BDT,
-						       MuonSR1,        MuonSR2,        MuonSR3,        MuonSR3BDT,
+                   ElectronInvBJetCR1, ElectronInvMETCR1,ElectronInvBJetCR2, ElectronInvMETCR2,ElectronInvBJetCR3, ElectronInvMETCR3,ElectronInvBJetCR3BDT, ElectronInvMETCR3BDT,
+                   ElectronMuonCR1,ElectronMuonCR2,ElectronMuonCR3,ElectronMuonCR3BDT, 
+                   ElectronMuonInvBJetCR1, ElectronMuonInvMETCR1,ElectronMuonInvBJetCR2, ElectronMuonInvMETCR2,ElectronMuonInvBJetCR3, ElectronMuonInvMETCR3,ElectronMuonInvBJetCR3BDT, ElectronMuonInvMETCR3BDT,
+                   MuonSR1,        MuonSR2,        MuonSR3,        MuonSR3BDT,
                                                        ElectronSR1,    ElectronSR2,    ElectronSR3,    ElectronSR3BDT,
                                                        ElectronMuonSR1,ElectronMuonSR2,ElectronMuonSR3,ElectronMuonSR3BDT};
 
@@ -654,12 +654,12 @@ vector<TString>  HNL_LeptonCore::GetLabelsFromRegion(HNL_LeptonCore::SearchRegio
   if(sr == ControlRegion)    labels = {"NoCut","HEMVeto","METFilter","GENMatched","LeptonFlavour","TauVeto","Trigger","OS_VR","VV_VR","VG_VR","SS_CR","VBF_CR"};
 
   //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  if(sr==CR)   labels = {  "ZZ_CR","ZG_CR","WG_CR","WZ_SR1", "WZ_SR2", "WZ_SR3", "SR1_InvMET", "SR1_InvBJet","SR2_InvMET", "SR2_InvBJet","SR3_InvMET", "SR3_InvBJet"};			 
+  if(sr==CR)   labels = {  "ZZ_CR","ZG_CR","WG_CR","WZ_SR1", "WZ_SR2", "WZ_SR3", "SR1_InvMET", "SR1_InvBJet","SR2_InvMET", "SR2_InvBJet","SR3_InvMET", "SR3_InvBJet"};       
 
                                                                                                                                                                                                                                                                                 
   if(sr==CRFull)   labels = { "SSPresel",  "Z_CR","Top_CR","Top_CR2", "TopAK8_CR","ZAK8_CR",
                           "WpWp_CR","WpWp_CR_NP","WpWp_CR_NP2","WpWp_CR_NP3",
-			  "ZZ_CR","ZG_CR","WG_CR","WZ_SR1", "WZ_SR2", "WZ_SR3","WZB_CR",
+        "ZZ_CR","ZG_CR","WG_CR","WZ_SR1", "WZ_SR2", "WZ_SR3","WZB_CR",
                           "ZNPEl_CR", "ZNPMu_CR", "TopNP_CR",
                           "SR1_InvMET", "SR1_InvBJet","SR2_InvMET", "SR2_InvBJet","SR3_InvMET", "SR3_InvBJet",
                           "HighMassBJet_CR","HighMassNP_CR"} ;
