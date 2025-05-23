@@ -55,8 +55,10 @@ channels = ["MuMu","EE","EMu"]
 #masses_EMu = ["M100","M250","M1000","M10000"]
 #masses = ["M100","M500","M1000","M1500","M5000"]
 #masses_EMu = ["M100","M500","M1000","M1500","M5000"]
-masses = ["M1500"]
+#masses = ["M1500"]
 #masses_EMu = ["M1500"]
+#masses = ["M85","M90","M95","M100"]
+#masses_EMu = ["M85","M90","M95","M100"]
 
 ## Full mass ranges
 masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
@@ -78,7 +80,8 @@ CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
 #InputWPs = ["ANv3_HNL_ULIDv2"]
 #InputWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet","HEMJet_HNL_ULIDv2_ScaleHEMJet","TuneP_HNL_ULIDv2_CompareTuneP","TuneP_HNTightV2_CompareTuneP","TuneP_POGTight_CompareTuneP"]
 #InputWPs = ["ANv4_HNL_ULIDv2_RunSyst"]
-InputWPs = ["ANv5_HNL_ULIDv2_RunSyst"]
+InputWPs = ["ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt"]
+#InputWPs = ["ANv5_HNL_ULIDv2_RunSyst"]
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
@@ -388,13 +391,12 @@ for InputWP in InputWPs:
 
       for era in eras:
         if args.Combine == "CR":
-          if "Mu" in channel: regions_cr_filtered = [cr for cr in regions_cr if "cf" not in cr]
-          else: regions_cr_filtered = regions_cr[:]
           if int(mass.strip('M'))<=100:
             regions_sr_filtered = ["sr3"]
-            regions_cr_filtered = [cr for cr in regions_cr_filtered if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr]
+            regions_cr_filtered = [cr for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr]
           else:
             regions_sr_filtered = regions_sr[:]
+            regions_cr_filtered = regions_cr[:]
           sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+sr+systTag+".txt" for sr in regions_sr_filtered])
           cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass+signal+"_"+cr+".txt" for cr in regions_cr_filtered])
           # merge all SRs

@@ -32,7 +32,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr"; // nominal working point
   //TString WP_nom = "ANv3_HNL_ULIDv2_Decorr_Run2"; // nominal working point
   //TString WP_nom = "ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr_NoCR"; // nominal working point
-  TString WP_nom = "ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"; // nominal working point
+  //TString WP_nom = "ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"; // nominal working point
+  TString WP_nom = "ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"; // nominal working point
   //TString tag_nom = "_syst"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
@@ -41,8 +42,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //TString tag_nom = "_DYVBF_sronly_sr123_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sronly_sr123_syst"; // nominal tag
-  TString tag_nom = "_syst"; // nominal tag
-  //TString tag_nom = "_sr2_syst_Combined"; // nominal tag
+  //TString tag_nom = "_syst"; // nominal tag
+  TString tag_nom = "_sr1_syst_Combined"; // nominal tag
+  //TString tag_nom = "_syst_Run23Scaled"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
   TString Name_IsXsecLimit = "_mixing";
   if(IsXsecLimit) Name_IsXsecLimit = "_xsec";
@@ -62,6 +64,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   scales.push_back(0.01);
 
   TString method = "Asym"; //"Full";
+  vector<TString> WPs = {"ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt_Decorr_JetDecorr"};
   //vector<TString> WPs = {"240505_PR46_HNTightV2","240504_PR44_HNL_ULID"};
   //vector<TString> tags = {"_sronly_Run2Scaled"};
   //vector<TString> WPs = {"240505_PR46_HNL_ULID"};
@@ -69,10 +72,11 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //vector<TString> WPs = {"rateParam_HNL_ULID_PR46"};
   //vector<TString> WPs = {"PR55_HighPt","PR55_NoMinPt_HighPt"};
   //vector<TString> WPs = {"PR48_rateParam_HNL_ULID"}; // WPs to compare
-  vector<TString> WPs = {"ANv3_HNL_ULIDv2_Decorr_Run2"}; // WPs to compare
+  //vector<TString> WPs = {"ANv3_HNL_ULIDv2_Decorr_Run2"}; // WPs to compare
   //vector<TString> tags = {"_syst_Run2Scaled"};
   //vector<TString> tags = {"_sr_Combined"};
-  vector<TString> tags = {"_syst"};
+  //vector<TString> tags = {"_syst"};
+  vector<TString> tags = {"_sr1_syst_Combined"};
   for(int i=0; i<WPs.size(); i++){
     for(int j=0; j<tags.size(); j++){
       //files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
@@ -141,23 +145,23 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
             onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) ;
             twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) ;
             twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) ;
-					}
-					else if(tag_nom.Contains("SSWW")){
+          }
+          else if(tag_nom.Contains("SSWW")){
             obs[dummyint]          = 4*obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
             limit[dummyint]        = 4*limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
             onesig_left[dummyint]  = 4*onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
             onesig_right[dummyint] = 4*onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
             twosig_left[dummyint]  = 4*twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
             twosig_right[dummyint] = 4*twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
-					}
-					else{
+          }
+          else{
             obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) + 4*obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
             limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) + 4*limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
             onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + 4*onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
             onesig_right[dummyint] = onesig_right[dummyint] * (this_DYxsec+this_VBFxsec) + 4*onesig_right[dummyint] *onesig_right[dummyint] *this_SSWWxsec;
             twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + 4*twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
             twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) + 4*twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
-					}
+          }
         }
         else{
           if(tag_nom.Contains("DYVBF")){
@@ -168,7 +172,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
             twosig_left[dummyint]  = twosig_left[dummyint]  * (this_DYxsec+this_VBFxsec) ;
             twosig_right[dummyint] = twosig_right[dummyint] * (this_DYxsec+this_VBFxsec) ;
           }
-					else if(tag_nom.Contains("SSWW")){
+          else if(tag_nom.Contains("SSWW")){
             obs[dummyint]          = obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
             limit[dummyint]        = limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
             onesig_left[dummyint]  = onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
@@ -176,7 +180,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
             twosig_left[dummyint]  = twosig_left[dummyint]  *twosig_left[dummyint]  *this_SSWWxsec;
             twosig_right[dummyint] = twosig_right[dummyint] *twosig_right[dummyint] *this_SSWWxsec;
           }
-					else{
+          else{
             obs[dummyint]          = obs[dummyint]          * (this_DYxsec+this_VBFxsec) + obs[dummyint]          *obs[dummyint]          *this_SSWWxsec;
             limit[dummyint]        = limit[dummyint]        * (this_DYxsec+this_VBFxsec) + limit[dummyint]        *limit[dummyint]        *this_SSWWxsec;
             onesig_left[dummyint]  = onesig_left[dummyint]  * (this_DYxsec+this_VBFxsec) + onesig_left[dummyint]  *onesig_left[dummyint]  *this_SSWWxsec;
@@ -245,9 +249,96 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   gr_band_2sigma_0->SetMarkerColor(kOrange);
 
   // Use when there are more than two input limits to compare
-  TGraph *gr_exp_1 = new TGraph(n_centrals[1],&masses[1][0],&limits[1][0]);
-  gr_exp_1->SetLineWidth(3);
-  gr_exp_1->SetLineColor(kViolet);
+  vector<TGraph*> gr_exp_list;
+
+  vector<int> colors = {kViolet, kMagenta, kOrange+1};
+  //vector<int> styles = {1, 2, 3, 4, 5, 6};
+  vector<TString> descrps = {"ANv5 Old ID (exp)"};
+
+  if (CompareLimits && masses.size() > 1) {
+  
+    set<double> common_masses(masses[0].begin(), masses[0].end());
+    for (size_t i = 1; i < masses.size(); ++i) {
+      set<double> this_mass(masses[i].begin(), masses[i].end());
+      set<double> temp_common;
+      set_intersection(common_masses.begin(), common_masses.end(),
+                       this_mass.begin(), this_mass.end(),
+                       inserter(temp_common, temp_common.begin()));
+      common_masses = temp_common;
+    }
+    vector<double> common_mass_list(common_masses.begin(), common_masses.end());
+    sort(common_mass_list.begin(), common_mass_list.end());
+  
+    if (common_mass_list.empty()) {
+      cout << "[ERROR] No common mass points found between inputs!" << endl;
+      return;
+    }
+
+    for (size_t i = 0; i < limits.size(); ++i) {
+      vector<double> this_mass       = masses[i];
+      vector<double> this_limit      = limits[i];
+      vector<double> this_1sig_l     = onesig_lefts[i];
+      vector<double> this_1sig_r     = onesig_rights[i];
+      vector<double> this_2sig_l     = twosig_lefts[i];
+      vector<double> this_2sig_r     = twosig_rights[i];
+  
+      vector<double> y_limit, y_1sig_l, y_1sig_r, y_2sig_l, y_2sig_r;
+  
+      for (double m : common_mass_list) {
+        auto it = find(this_mass.begin(), this_mass.end(), m);
+        if (it != this_mass.end()) {
+          int idx = distance(this_mass.begin(), it);
+          y_limit.push_back(this_limit[idx]);
+          y_1sig_l.push_back(this_1sig_l[idx]);
+          y_1sig_r.push_back(this_1sig_r[idx]);
+          y_2sig_l.push_back(this_2sig_l[idx]);
+          y_2sig_r.push_back(this_2sig_r[idx]);
+        }
+      }
+  
+      if (y_limit.size() != common_mass_list.size()) {
+        cout << "[WARNING] Limit[" << i << "] incomplete. Skipping..." << endl;
+        continue;
+      }
+  
+      //TGraphAsymmErrors* gr_band_1sigma = new TGraphAsymmErrors(
+      //  common_mass_list.size(), &common_mass_list[0], &y_limit[0],
+      //  0, 0, &y_1sig_l[0], &y_1sig_r[0]
+      //);
+      //gr_band_1sigma->SetFillColor(kGreen+1);
+      //gr_band_1sigma->SetLineColor(kGreen+1);
+      //gr_band_1sigma->SetMarkerColor(kGreen+1);
+      //gr_band_1sigma->SetLineStyle(styles[i % styles.size()]);
+      //if (i == 0) gr_band_1sigma->Draw("A3");
+      //else        gr_band_1sigma->Draw("3 SAME");
+  
+      //TGraphAsymmErrors* gr_band_2sigma = new TGraphAsymmErrors(
+      //  common_mass_list.size(), &common_mass_list[0], &y_limit[0],
+      //  0, 0, &y_2sig_l[0], &y_2sig_r[0]
+      //);
+      //gr_band_2sigma->SetFillColor(kOrange);
+      //gr_band_2sigma->SetLineColor(kOrange);
+      //gr_band_2sigma->SetMarkerColor(kOrange);
+      //gr_band_2sigma->SetLineStyle(styles[i % styles.size()]);
+      //gr_band_2sigma->Draw("3 SAME");
+  
+      TGraph* gr_limit = new TGraph(common_mass_list.size(), &common_mass_list[0], &y_limit[0]);
+      gr_limit->SetLineWidth(3);
+      gr_limit->SetLineColor(colors[i]);
+      //gr_limit->SetLineStyle(styles[i % styles.size()]);
+      gr_exp_list.push_back(gr_limit);
+      
+    }
+  
+  }
+  gr_exp_list.erase(gr_exp_list.begin()); // remove nominal
+
+  TGraph* gr_exp_1 = gr_exp_list.size() > 0 ? gr_exp_list[0] : nullptr;
+  TGraph* gr_exp_2 = gr_exp_list.size() > 1 ? gr_exp_list[1] : nullptr;
+
+  //TGraph *gr_exp_1 = new TGraph(n_centrals[1],&masses[1][0],&limits[1][0]);
+  //gr_exp_1->SetLineWidth(3);
+  //gr_exp_1->SetLineColor(kViolet);
   //gr_exp_1->SetLineColor(kRed);
 
   //TGraph *gr_exp_2 = new TGraph(n_centrals[2],&masses[2][0],&limits[2][0]);
@@ -949,7 +1040,15 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   TLegend *lg_Alt = new TLegend(0.65, 0.15, 0.93, 0.48);
   lg_Alt->SetBorderSize(0);
   lg_Alt->SetFillStyle(0);
-  if(!IsXsecLimit) lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l");
+  if(!IsXsecLimit){
+    lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l");
+    if(CompareLimits){
+      for (size_t i = 0; i < gr_exp_list.size(); ++i) {
+        if (gr_exp_list[i]) lg_Alt->AddEntry(gr_exp_list[i], descrps[i], "l");
+      }
+    }
+  }
+  
   if(channel=="MuMu"){
     //lg_Alt->AddEntry(gr_DELPHILimit, "DELPHI prompt", "l");
     //lg_Alt->AddEntry(gr_L3Limit, "L3", "l");
@@ -1013,6 +1112,16 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
     //lg_Alt->AddEntry(gr_exp_2, "PR44 HNL_ULID (exp)", "l");
     //lg_Alt->AddEntry(gr_17028_obs, "CMS 13 TeV dilepton", "l");
+
+    //==== EMu mixing theoretical limit
+    double EMu_ceil[2];
+    for(int i=0; i<2; i++){
+      EMu_ceil[i] = 0.25;
+    }
+    TGraph *gr_EMu_ceil = new TGraph(2, allxrange, EMu_ceil);
+    gr_EMu_ceil->SetLineColor(kCyan);
+    gr_EMu_ceil->SetLineStyle(2);
+    gr_EMu_ceil->SetLineWidth(3);
   }
 
   TCanvas *c_Dilep = new TCanvas("c_Dilep", "", 1000, 1000);
@@ -1070,11 +1179,11 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   }
   dummy->GetXaxis()->SetTitle("m_{N} (GeV)");
   if(CompareLimits) dummy->GetXaxis()->SetLabelSize(0);
-  //if(channel=="EMu") dummy->GetXaxis()->SetRangeUser(80., 60000); //FIXME
-  //else dummy->GetXaxis()->SetRangeUser(80., 30000); //FIXME
-  if(tag_nom.Contains("DYVBF")) dummy->GetXaxis()->SetRangeUser(80., 3000);
-	else if(tag_nom.Contains("SSWW")) dummy->GetXaxis()->SetRangeUser(400., 25000);
-	else dummy->GetXaxis()->SetRangeUser(80., 25000); //FIXME
+  if(channel=="EMu") dummy->GetXaxis()->SetRangeUser(80., 60000); //FIXME
+  else dummy->GetXaxis()->SetRangeUser(80., 30000); //FIXME
+  //if(tag_nom.Contains("DYVBF")) dummy->GetXaxis()->SetRangeUser(80., 3000);
+  //else if(tag_nom.Contains("SSWW")) dummy->GetXaxis()->SetRangeUser(400., 25000);
+  //else dummy->GetXaxis()->SetRangeUser(80., 25000); //FIXME
   if(IsXsecLimit) dummy->GetYaxis()->SetRangeUser(1e-5, 0.1); //FIXME
   else dummy->GetYaxis()->SetRangeUser(5e-5, 1.); //FIXME
   //dummy->GetXaxis()->SetRangeUser(1000, 30000); //FIXME
@@ -1085,7 +1194,14 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   gr_band_2sigma_0->Draw("3same");
   gr_band_1sigma_0->Draw("3same");
   gr_exp_0->Draw("lsame");
-  if(!IsXsecLimit) gr_17028_exp->Draw("lsame");
+  if(!IsXsecLimit){
+    gr_17028_exp->Draw("lsame");
+    if(CompareLimits){
+      for (size_t i = 0; i < gr_exp_list.size(); ++i) {
+        if (gr_exp_list[i]) gr_exp_list[i]->Draw("lsame");
+      }
+    }
+  }
   //gr_17028_obs->Draw("lsame");
   //gr_8and13TeV_obs->Draw("lsame");
   if(channel=="MuMu"){
@@ -1135,15 +1251,15 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   else if(year=="2018") lumi = "59.8";
   else if(year=="Run2") lumi = "137.9";
   if(tag_nom.Contains("Run2")) lumi = "137.9";
-  if(tag_nom.Contains("Run23")) lumi = "400";
+  if(tag_nom.Contains("Run23")) lumi = "440";
 
   latex_title.SetTextSize(0.04);
   latex_title.SetLineWidth(2);
   if(CompareLimits){
     latex_CMSPreliminary.DrawLatex(0.14, 0.93, "#scale[0.8]{CMS #bf{#it{Preliminary}}}");
     latex_Lumi.DrawLatex(0.77, 0.93, lumi+" fb^{-1} (13 TeV)");
-    latex_title.DrawLatex(0.21, 0.83, "#font[62]{CMS}");
-    latex_title.DrawLatex(0.21, 0.79, "#font[41]{95% CL upper limit}");
+    latex_title.DrawLatex(0.19, 0.83, "#scale[1.2]{#font[62]{CMS}}");
+    latex_title.DrawLatex(0.19, 0.79, "#scale[1.0]{#font[41]{95% CL upper limit}}");
     //latex_title.SetTextSize(0.05);
     //latex_title.DrawLatex(0.21, 0.83, "#font[62]{CMS}");
   }
@@ -1231,10 +1347,56 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //for(int i=0; i<25; i++) cout << ratio_PR46[i] << endl;
 
     // Use this when mass ranges are fully synchronzied;
-    double ratio_this[n_centrals[0]];
-    for(int i=0; i<n_centrals[0]; i++) ratio_this[i] = limits[1][i]/limits[0][i];
+    //double ratio_this[n_centrals[0]];
+    //for(int i=0; i<n_centrals[0]; i++) ratio_this[i] = limits[1][i]/limits[0][i];
+
+    // ratio with different conditions
+    vector<vector<double>> ratio_vs_nominal;
+    vector<vector<double>> mass_vs_nominal;
+    
+    vector<double> mass_nominal = masses[0];
+    vector<double> limit_nominal = limits[0];
+    
+    for (size_t i = 1; i < limits.size(); ++i) {
+      vector<double> this_mass = masses[i];
+      vector<double> this_limit = limits[i];
+      vector<double> ratio_i, mass_i;
+    
+      for (size_t j = 0; j < this_mass.size(); ++j) {
+        double m = this_mass[j];
+        auto it = find(mass_nominal.begin(), mass_nominal.end(), m);
+        if (it != mass_nominal.end()) {
+          int idx_nom = distance(mass_nominal.begin(), it);
+          double r = this_limit[j] / limit_nominal[idx_nom];
+          ratio_i.push_back(r);
+          mass_i.push_back(m);
+        } else {
+          cout << "[INFO] Mass " << m << " in limit[" << i << "] not found in nominal. Skipping..." << endl;
+        }
+      }
+    
+      ratio_vs_nominal.push_back(ratio_i);
+      mass_vs_nominal.push_back(mass_i);
+    }
 
     // ratio with EXO-17-028 expected //FIXME this is mass dependent.
+    vector<double> ratio_17028;
+    vector<double> mass_comp_17028;
+    
+    for (int i = 0; i < nm_17028; ++i) {
+      double m = mass_17028[i];
+      auto it = find(mass_nominal.begin(), mass_nominal.end(), m);
+      if (it != mass_nominal.end()) {
+        int idx = distance(mass_nominal.begin(), it);
+        double ratio = exp_17028[i] / limit_nominal[idx];
+        ratio_17028.push_back(ratio);
+        mass_comp_17028.push_back(m);
+      } else {
+        cout << "[INFO] Mass " << m << " not found in my limit list. Skipping..." << endl;
+      }
+    }
+
+/* OLD code
     //double mass_comp_17028[17] = {100,150,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1500,1700,2000};
     double mass_comp_17028[21] = {85,90,100,125,150,200,250,300,400,500,600,700,800,900,1000,1100,1200,1300,1500,1700,2000};
     //int index_comp_limit[17] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
@@ -1249,8 +1411,26 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //for(int i=0; i<17; i++) ratio_17028[i] = exp_17028[index_comp_17028[i]]/limits[0][index_comp_PR48_17028[i]];
     for(int i=0; i<21; i++) ratio_17028[i] = exp_17028[index_comp_17028[i]]/limits[0][index_comp_ANv3_17028[i]];
     //for(int i=0; i<21; i++) cout << ratio_17028[i] << endl;
+*/
 
     // ratio with EXO-21-003 expected //FIXME this is mass dependent.
+    vector<double> ratio_21003;
+    vector<double> mass_comp_21003;
+
+    for (int i = 0; i < n_mass_21003; ++i) {
+      double m = mass_21003[i];
+      auto it = find(mass_nominal.begin(), mass_nominal.end(), m);
+      if (it != mass_nominal.end()) {
+        int idx = distance(mass_nominal.begin(), it);
+        double ratio = exp_21003_sqrt[i] / limit_nominal[idx];
+        ratio_21003.push_back(ratio);
+        mass_comp_21003.push_back(m);
+      } else {
+        cout << "[INFO] Mass " << m << " not found in my limit list, skipping..." << endl;
+      }
+    }
+
+/* OLD code
     double mass_comp_21003[13] = {150,300,600,900,1000,1500,2000,2500,5000,7500,10000,15000,20000};
     double obs_comp_21003[13] = {0.1118, 0.0837, 0.0775, 0.0819, 0.0866, 0.099, 0.1166, 0.1375, 0.2322, 0.3288, 0.4368, 0.6341, 0.8621}; //xcheck with https://www.hepdata.net/record/131287
     double exp_comp_21003[13] = {0.14142136, 0.10583005, 0.10148892, 0.10583005, 0.11045361, 0.12688578, 0.15132746, 0.17804494, 0.30049958, 0.42567593, 0.56595053, 0.82085321, 1.1180340 };
@@ -1261,6 +1441,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //for(int i=0; i<13; i++) ratio_21003[i] = exp_comp_21003[i]/limits[0][index_comp_PR44_21003[i]];
     //for(int i=0; i<13; i++) ratio_21003[i] = exp_comp_21003[i]/limits[0][index_comp_PR48_21003[i]];
     for(int i=0; i<13; i++) ratio_21003[i] = exp_comp_21003[i]/limits[0][index_comp_ANv3_21003[i]];
+*/
 
     TH1D *dummy2 = new TH1D("hist2", "", 100000, 0., 100000.);
     dummy2->GetYaxis()->SetTitleSize(0.1);
@@ -1273,7 +1454,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     dummy2->GetXaxis()->SetTitleOffset(0.4);
     dummy2->GetXaxis()->SetTitle("m_{N} (GeV)");
     dummy2->GetXaxis()->SetLabelSize(0.12);
-    dummy2->GetXaxis()->SetRangeUser(80., 25000);
+    dummy2->GetXaxis()->SetRangeUser(80., 30000);
+    if(channel=="EMu")dummy2->GetXaxis()->SetRangeUser(80., 60000);
     if(Logy) dummy2->GetYaxis()->SetRangeUser(0.5, 20);
     //if(Logy) dummy2->GetYaxis()->SetRangeUser(0.5, 3);
     //else dummy2->GetYaxis()->SetRangeUser(0.85, 2);
@@ -1296,17 +1478,35 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //gr_ratio_target2->SetLineWidth(2);
     //gr_ratio_target2->Draw("lpsame");
 
+    vector<TGraph*> gr_ratios;
+    
+    for (size_t i = 0; i < ratio_vs_nominal.size(); ++i) {
+      TGraph* gr = new TGraph(
+        mass_vs_nominal[i].size(),
+        &mass_vs_nominal[i][0],
+        &ratio_vs_nominal[i][0]
+      );
+      gr->SetLineWidth(2);
+      gr->SetLineColor(colors[i]);
+      gr->SetMarkerColor(colors[i]);
+      gr_ratios.push_back(gr);
+    }
+
+    for (TGraph* g : gr_ratios) {
+      if (g) g->Draw("lpsame");
+    }
+
     //TGraph *gr_ratio_17028 = new TGraph(17,mass_comp_17028,ratio_17028);
-    TGraph *gr_ratio_17028 = new TGraph(21,mass_comp_17028,ratio_17028);
+    TGraph *gr_ratio_17028 = new TGraph(mass_comp_17028.size(), &mass_comp_17028[0], &ratio_17028[0]);
     gr_ratio_17028->SetMarkerColor(kRed);
     gr_ratio_17028->SetLineColor(kRed);
     gr_ratio_17028->SetLineWidth(2);
     gr_ratio_17028->Draw("lpsame");
 
-    TGraph *gr_ratio_this = new TGraph(n_centrals[0],&masses[0][0],ratio_this);
-    gr_ratio_this->SetMarkerColor(kViolet);
-    gr_ratio_this->SetLineColor(kViolet);
-    gr_ratio_this->SetLineWidth(2);
+    //TGraph *gr_ratio_this = new TGraph(n_centrals[0],&masses[0][0],ratio_this);
+    //gr_ratio_this->SetMarkerColor(kViolet);
+    //gr_ratio_this->SetLineColor(kViolet);
+    //gr_ratio_this->SetLineWidth(2);
     //gr_ratio_this->Draw("lpsame");
 
     //TGraph *gr_ratio_PR43 = new TGraph(25,mass_comp_PR43,ratio_PR43);
@@ -1354,7 +1554,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //gr_ratio_PR48->Draw("lpsame");
 
     if(channel=="MuMu"){
-      TGraph *gr_ratio_21003 = new TGraph(13,mass_comp_21003,ratio_21003);
+      TGraph *gr_ratio_21003 = new TGraph(mass_comp_21003.size(), &mass_comp_21003[0], &ratio_21003[0]);
       gr_ratio_21003->SetMarkerColor(kBlue);
       gr_ratio_21003->SetLineColor(kBlue);
       gr_ratio_21003->SetLineWidth(2);

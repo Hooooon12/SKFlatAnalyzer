@@ -751,10 +751,7 @@ for tag in tags:
           # Set channel dependent scaler first
           DYVBFscaler = 0.01 # Set the signalDYVBF scaler
           if int(mass.replace("M","")) > 3000: DYVBFscaler = 0.1 # relax the scale for SSWW impact
-          if "EMu" in channel:
-            SSWWscaler = 4.*DYVBFscaler*DYVBFscaler # Set the EMu signalSSWW scaler
-          else:
-            SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
+          SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
 
           # Mass dependent scaler, if necessary ...
           #if int(mass.replace("M","")) <= 500: DYVBFscaler = 0.01

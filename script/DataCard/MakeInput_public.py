@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description='script for creating input root fil
 parser.add_argument('-e', dest='eras', choices=['2016preVFP','2016postVFP','2017','2018','Run2'], default=['2016preVFP','2016postVFP','2017','2018'], nargs='+', help='eras to run')
 parser.add_argument('-m', dest='masses', nargs='+', help='signal masses to run')
 parser.add_argument('-c', dest='channels', nargs='+', default=["MuMu","EE","EMu"], help='lepton channels to run')
-parser.add_argument('-i', dest='inputTag', default='ANv3', help='tag attached to the input SKFlatOutput files')
+parser.add_argument('-i', dest='inputTag', default='ANv5', help='tag attached to the input SKFlatOutput files')
 parser.add_argument('-t', dest='histTag', nargs='+', default=['HNL_ULIDv2'], help='this is the param name of the SKFlatAnalyzer. Mostly IDs.')
 parser.add_argument('--Scan', action='store_true', help='scan the bin content')
 parser.add_argument('--CnC', action='store_true', help='1bin cut and count setting')
@@ -191,6 +191,7 @@ SystList = [
             "ElectronResUp","ElectronResDown",
             "MuonRecoSFUp","MuonRecoSFDown",
             "MuonIDSFUp","MuonIDSFDown",
+            "MuonTriggerSFUp","MuonTriggerSFDown",
             "ElectronRecoSFUp","ElectronRecoSFDown",
             "ElectronIDSFUp","ElectronIDSFDown",
             "ElectronTriggerSFUp","ElectronTriggerSFDown",
@@ -299,6 +300,50 @@ else:
 
 InputPath = "/data9/Users/jalmond_public/SUS-24-014/"
 
+MergeList = {}
+MergeList['RunConv'] = {}
+MergeList['RunConv']['Conv_inc']      = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGToLNuG_01J_PtG_130","WGToLNuG_01J_PtG_300","WGToLNuG_01J_PtG_500","WGJJToLNu","ZGToLLG","ZGToLLG_PtG_130","DYJets_MG","DYJets10to50_MG"] #FIXME time to time
+MergeList['RunConv']['ZG_norm']       = ["ZGToLLG","ZGToLLG_PtG_130","DYJets_MG","DYJets10to50_MG"]
+MergeList['RunConv']['Conv_others']   = [
+                                         x for x in MergeList['RunConv']['Conv_inc']
+                                         if x not in MergeList['RunConv']['ZG_norm']
+                                        ]
+MergeList['RunPrompt'] = {}
+MergeList['RunPrompt']['Prompt_inc'] = [
+                                        #VVV
+                                        'WWW','WWZ','WZZ','ZZZ',
+                                        #SingleTop : 0.1 level events
+                                        #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
+                                        #ttV
+                                        'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
+                                        #TTXX
+                                        'TTTT','TTZZ',
+                                        #tZq
+                                        'tZq',
+                                        #Higgs
+                                        'ttHToNonbb','VHToNonbb',
+                                        #VBFHiggs
+                                        'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
+                                        #ggH
+                                        'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
+                                        #minor WWs
+                                        'WWTo2L2Nu_DS',
+                                        #WW
+                                        'WpWp_QCD','WpWp_EWK',
+                                        #ZZ
+                                        'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu',
+                                        #WZ
+                                        'WZTo3LNu_mllmin4p0_powheg','WZ_EWK',
+                                       ] #FIXME time to time
+MergeList['RunPrompt']['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu"] #FIXME time to time
+MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_mllmin4p0_powheg","WZ_EWK"] #FIXME time to time
+MergeList['RunPrompt']['WW_norm']       = ["WpWp_QCD","WpWp_EWK"] #FIXME time to time
+MergeList['RunPrompt']['Prompt_others'] = [
+                                           x for x in MergeList['RunPrompt']['Prompt_inc']
+                                           if x not in MergeList['RunPrompt']['ZZ_norm']
+                                           and x not in MergeList['RunPrompt']['WZ_norm']
+                                           and x not in MergeList['RunPrompt']['WW_norm']
+                                          ]
 
 if args.CheckFiles:
   ##### Input file check #####
@@ -308,7 +353,7 @@ if args.CheckFiles:
   DataList['2017'] = []
   DataList['2018'] = []
   Streams = ["DoubleEG","DoubleMuon","MuonEG"]
-  Streams_2018 = ["EGamma_GT36","DoubleMuon_GT36","MuonEG_GT36"] if inputTag == "ANv5" else ["EGamma","DoubleMuon","MuonEG"]
+  Streams_2018 = ["EGamma_GT36","DoubleMuon_GT36","MuonEG_GT36"] if "ANv5" in inputTag else ["EGamma","DoubleMuon","MuonEG"]
   for stream in Streams:
     for period in ["B_ver2","C","D","E","F"]:
       DataList['2016preVFP'].append(stream+"_"+period)
@@ -319,33 +364,8 @@ if args.CheckFiles:
   for stream in Streams_2018:
     for period in ["A","B","C","D",]:
       DataList['2018'].append(stream+"_"+period)
-  ConvList   = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGToLNuG_01J_PtG_130","WGToLNuG_01J_PtG_300","WGToLNuG_01J_PtG_500","WGJJToLNu","ZGToLLG","ZGToLLG_PtG_130","DYJets_MG","DYJets10to50_MG"]
-  PromptList = [
-                #VVV
-                'WWW','WWZ','WZZ','ZZZ',
-                #SingleTop : 0.1 level events
-                #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
-                #ttV
-                'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
-                #TTXX
-                'TTTT','TTZZ',
-                #tZq
-                'tZq',
-                #Higgs
-                'ttHToNonbb','VHToNonbb', #'tHq'
-                #VBFHiggs
-                'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
-                #ggH
-                'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
-                #minor WWs
-                'WWTo2L2Nu_DS',
-                #WW
-                'WpWp_QCD','WpWp_EWK',
-                #ZZ
-                'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu',
-                #WZ
-                'WZTo3LNu_mllmin4p0_powheg','WZ_EWK',
-               ]
+  ConvList = MergeList['RunConv']['Conv_inc'][:]
+  PromptList = MergeList['RunPrompt']['Prompt_inc'][:]
   DefFlags = ["","MultiLepton__"]
   ConvSkim = {}
   for DefFlag in DefFlags:
@@ -414,62 +434,6 @@ if args.CheckFiles:
   exit()
 
 ##### Start merging #####
-MergeList = {}
-MergeList['RunConv'] = {}
-MergeList['RunConv']['Conv_inc']      = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGToLNuG_01J_PtG_130","WGToLNuG_01J_PtG_300","WGToLNuG_01J_PtG_500","WGJJToLNu","ZGToLLG","ZGToLLG_PtG_130","DYJets_MG","DYJets10to50_MG"] #FIXME time to time
-MergeList['RunConv']['Conv_others']   = ["TG","TTG","WZG","WWG","WGToLNuG","WGToLNuG_MG","WGToLNuG_01J_PtG_130","WGToLNuG_01J_PtG_300","WGToLNuG_01J_PtG_500","WGJJToLNu"] #FIXME time to time
-MergeList['RunConv']['ZG_norm']       = ["ZGToLLG","ZGToLLG_PtG_130","DYJets_MG","DYJets10to50_MG"]
-MergeList['RunPrompt'] = {}
-MergeList['RunPrompt']['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu"] #FIXME time to time
-MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_mllmin4p0_powheg","WZ_EWK"] #FIXME time to time
-MergeList['RunPrompt']['WW_norm']       = ["WpWp_QCD","WpWp_EWK"] #FIXME time to time
-MergeList['RunPrompt']['Prompt_others'] = [
-                                           #VVV
-                                           'WWW','WWZ','WZZ','ZZZ',
-                                           #SingleTop : 0.1 level events
-                                           #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
-                                           #ttV
-                                           'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
-                                           #TTXX
-                                           'TTTT','TTZZ',
-                                           #tZq
-                                           'tZq',
-                                           #Higgs
-                                           'ttHToNonbb','VHToNonbb',
-                                           #VBFHiggs
-                                           'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
-                                           #ggH
-                                           'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
-                                           #minor WWs
-                                           'WWTo2L2Nu_DS',
-                                          ] #FIXME time to time
-MergeList['RunPrompt']['Prompt_inc'] = [
-                                        #VVV
-                                        'WWW','WWZ','WZZ','ZZZ',
-                                        #SingleTop : 0.1 level events
-                                        #'SingleTop_sch_Lep','SingleTop_tch_antitop_Incl','SingleTop_tch_top_Incl','SingleTop_tW_antitop_NoFullyHad','SingleTop_tW_top_NoFullyHad',
-                                        #ttV
-                                        'ttWToLNu','ttZToLLNuNu', #'ttZToQQ_ll', 'ttWToQQ' : no entry
-                                        #TTXX
-                                        'TTTT','TTZZ',
-                                        #tZq
-                                        'tZq',
-                                        #Higgs
-                                        'ttHToNonbb','VHToNonbb',
-                                        #VBFHiggs
-                                        'VBF_HToZZTo4L', #'VBFHToTauTau_M125', 'VBFHToWWTo2L2Nu', : no entry
-                                        #ggH
-                                        'GluGluHToZZTo4L', #'GluGluHToTauTau_M125', 'GluGluHToWWTo2L2Nu', : no entry
-                                        #minor WWs
-                                        'WWTo2L2Nu_DS',
-                                        #WW
-                                        'WpWp_QCD','WpWp_EWK',
-                                        #ZZ
-                                        'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu',
-                                        #WZ
-                                        'WZTo3LNu_mllmin4p0_powheg','WZ_EWK',
-                                       ] #FIXME time to time
-
 if MergeData:
 
   if Blinded:
@@ -756,7 +720,7 @@ for tag in args.histTag:
       f_prompt_inc    = TFile.Open(f_path_prompt_inc)
 
       for mass in args.masses: # iterate for each mass ...
-        if "r3" not in region and (int(mass.replace("M","")) <= 100):
+        if ("r1" in region or "r2" in region) and (int(mass.replace("M","")) <= 100):
           continue # NOTE use only SR3 below M100
 
         for channel in args.channels: # ...and each channel
@@ -777,10 +741,7 @@ for tag in args.histTag:
           # Set channel dependent scaler first
           DYVBFscaler = 0.01 # Set the signalDYVBF scaler
           if int(mass.replace("M","")) > 3000: DYVBFscaler = 0.1 # relax the scale for SSWW impact
-          if "EMu" in channel:
-            SSWWscaler = 4.*DYVBFscaler*DYVBFscaler # Set the EMu signalSSWW scaler
-          else:
-            SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
+          SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
 
           #if int(mass.replace("M","")) <= 100: DYVBFscaler = 0.001 # if you want to use HybridNew without additional options, see https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844
 

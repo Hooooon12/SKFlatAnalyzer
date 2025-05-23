@@ -68,6 +68,7 @@ for RunList in args.RunLists:
       skel.write("should_transfer_files = YES\n")
       skel.write("when_to_transfer_output = ON_EXIT\n")
       skel.write("request_memory = 24000\n")
+      skel.write("request_cpus = 4\n")
   else:
     os.system('mkdir -p Batch/'+WP)
     with open('Batch/submit_skeleton.sh','w') as skel:
@@ -76,6 +77,7 @@ for RunList in args.RunLists:
       skel.write("should_transfer_files = YES\n")
       skel.write("when_to_transfer_output = ON_EXIT\n")
       skel.write("request_memory = 24000\n")
+      skel.write("request_cpus = 4\n")
   
   for i in range(0,NCARD):
   
@@ -251,8 +253,8 @@ for RunList in args.RunLists:
               #runfile.write("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf\n")
               runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_Asimov_nll -t -1\n")
               runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_nll\n")
-              runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=201 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod\n")
-              runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=1001 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod_rRange100\n")
+              runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod\n")
+              runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod_rRange100\n")
               runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_MDfit\n")
               runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod_rRange100.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_rRange100_MDfit\n")
             elif args.Breakdown:
@@ -293,8 +295,8 @@ for RunList in args.RunLists:
               runfile.write("combineTool.py -M FastScan -w "+shortcard+".root:w -o "+shortcard+"_Asimov_nll -t -1\n")
               runfile.write("combineTool.py -M FastScan -w "+shortcard+".root:w -o "+shortcard+"_nll\n")
               runfile.write("echo Running multi-dimensional fit...\n")
-              runfile.write("combineTool.py -M MultiDimFit "+shortcard+".root --algo grid --points=201 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"\n")
-              runfile.write("combineTool.py -M MultiDimFit "+shortcard+".root --algo grid --points=1001 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_rRange100\n") # original code
+              runfile.write("combineTool.py -M MultiDimFit "+shortcard+".root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"\n")
+              runfile.write("combineTool.py -M MultiDimFit "+shortcard+".root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_rRange100\n") # original code
               runfile.write("echo Summarizing the result into 1D...\n")
               runfile.write("plot1DScan.py higgsCombine."+shortcard+".MultiDimFit.mH120.root -o "+shortcard+"_MDfit\n")
               runfile.write("plot1DScan.py higgsCombine."+shortcard+"_rRange100.MultiDimFit.mH120.root -o "+shortcard+"_rRange100_MDfit\n")
@@ -330,8 +332,8 @@ for RunList in args.RunLists:
             #runfile.write("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf\n")
             runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_Asimov_nll -t -1\n")
             runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_nll\n")
-            runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=201 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod\n")
-            runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=1001 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod_rRange100\n")
+            runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod\n")
+            runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod_rRange100\n")
             runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_MDfit\n")
             runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod_rRange100.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_rRange100_MDfit\n")
           elif args.Breakdown:

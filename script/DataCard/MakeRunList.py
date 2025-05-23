@@ -61,7 +61,7 @@ tags = ["_syst"]
 
 isRun2 = ""
 if "Run2" in args.eras:
-  #tags = ["_syst"]
+  tags = ["_syst"]
   #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
   #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
   #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]

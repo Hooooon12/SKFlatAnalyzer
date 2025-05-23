@@ -23,16 +23,17 @@ channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
 #channels = ["EE"]
 #channels = ["MuMu"]
+#channels = ["EMu"]
 #masses = ["100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000"]
 #masses = ["90","100","150","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["100","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["100","200","300","400","1000","10000"]
-#masses = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000","25000","30000"]
-#masses_EMu = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000","25000","30000","40000","50000","60000"]
-masses = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
-masses_EMu = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
+masses = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000","25000","30000"]
+masses_EMu = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000","25000","30000","40000","50000","60000"]
+#masses = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
+#masses_EMu = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000"]
 #masses = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000"]
 #masses_EMu = ["85","90","95","100","125","150","200","250","300","400","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000"]
 
@@ -62,7 +63,9 @@ IDs = [""] #["_ID"]
 #myWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet_NoCR_NoSyst","HEMJet_HNL_ULIDv2_ScaleHEMJet_NoCR_NoSyst","TuneP_HNL_ULIDv2_CompareTuneP_NoCR_NoSyst","TuneP_HNTightV2_CompareTuneP_NoCR_NoSyst","TuneP_POGTight_CompareTuneP_NoCR_NoSyst"]
 #myWPs = ["ANv3_HNL_ULIDv2_Decorr_NoCR_NoSyst"]
 #myWPs = ["ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr_NoCR"]
-myWPs = ["ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
+#myWPs = ["ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
+#myWPs = ["ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
+myWPs = ["ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt_Decorr_JetDecorr","ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
@@ -87,14 +90,14 @@ for WP in myWPs:
   
         for mass in (masses if channel!="EMu" else masses_EMu):
           this_name = year+"_"+channel+"_M"+mass+ID+tag
-          print this_name
+          print(this_name)
           path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic.root"
   
-          f_Asym = TFile.Open(path)
-          try: tree_Asym = f_Asym.Get("limit")
-          except ReferenceError:
+          try: f_Asym = TFile.Open(path)
+          except OSError:
             f.write("\n")
             continue
+          tree_Asym = f_Asym.Get("limit")
   
           try: tree_Asym.GetEntry(2) # substitute for obs. limit for now
           except AttributeError:
@@ -104,6 +107,7 @@ for WP in myWPs:
           #f.write(mass+"\t"+str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
           #f.write(mass+"\t"+str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
           #f.write(mass+"\t"+str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
+          #f.write(mass+"\t"+str(round(tree_Asym.limit/1.77,3))+"\t") # FIXME estimating full Run2+3 from Run2
   
           for i in range(5): # expected limits
             tree_Asym.GetEntry(i)
@@ -111,8 +115,9 @@ for WP in myWPs:
             #f.write(str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
             #f.write(str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
             #f.write(str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
+            #f.write(str(round(tree_Asym.limit/1.77,3))+"\t") # FIXME estimating full Run2+3 from Run2
           f.write("\n")
-          print "done."
+          print("done.")
   
     if args.Full:
       with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Full_limit.txt", 'w') as f:
