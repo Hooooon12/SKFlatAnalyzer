@@ -294,6 +294,10 @@ public:
   inline double UncorrectedPt() const { return j_unCorrPt;}
   void SetUncorrectedPt(double d);
 
+  //// MiniAOD level pt
+  void SetMiniAODPt(double d);
+  inline double MiniAODPt() const {return j_MiniAODPt;}
+  
   inline double ElScEta() const {return j_elSCeta;};
   void SetElSCEta(double sceta);
   
@@ -867,8 +871,7 @@ private:
   double j_lep_mva;
   double j_dZ, j_dZerr;
   double j_IP3D, j_IP3Derr;
-  double j_unCorrPx;
-  double j_unCorrPy;
+  double j_MiniAODPt;
   double j_unCorrPt,j_elSCeta;
   double j_jetntracks,j_jetntracks_mva;
   double j_RelIso, j_MiniRelIso;

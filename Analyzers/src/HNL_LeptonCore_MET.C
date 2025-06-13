@@ -3,7 +3,7 @@
 
 Particle HNL_LeptonCore::GetvCorrMET(const TString& METType, const std::vector<Muon>& tight_muons, AnalyzerParameter param, Particle METUncorr){
 
-  //// THIS FUNCTION UPDATES MET BASED ON JET Smearing / muon rocc  
+  //// THIS FUNCTION UPDATES MET BASED ON JET Smearing / muon rocc. corrections  
   //// Follows https://twiki.cern.ch/twiki/bin/view/CMS/MissingETRun2Corrections                                                                                                                                                                                               
   //// Jets in simulation can be smeared (as shown in JetResolution twiki) to achieve better agreement with data. This is done by default in GetAllJets().....  This correction is a propagation of the smeared such jets to MET. The Smeared MET correction replaces the vector sum of transverse momenta of particles which can be clustered as jets with the vector sum of the transverse momenta of the jets to which smearing is applied.                                                                                                                                                               
   //// Jets pt > 15 GeV not near PF muon OR electrons                                                                                                                                                                                                                                                                         
@@ -14,41 +14,78 @@ Particle HNL_LeptonCore::GetvCorrMET(const TString& METType, const std::vector<M
   
   if(SmearBoth || SmearJets) {
     
-    std::vector<Jet>  Jets        = GetHNLJets("SmearCorr",param); //// GetvCorrMEToly called for Syst==Cental so get jets == cebtral jets always                                                                                                                                                                             
+    //// Loose AK8 Jets (no overlap removal )
+    std::vector<FatJet>  FatJets  = GetHNLAK8Jets("SmearCorr",param);
+    
+    std::vector<Jet>  Jets        = GetHNLJets("SmearCorr",param);
     std::vector<Muon> loose_muons = GetMuons("POGLoose",     10.,  2.4);
     
     std::vector<Jet> jets_corr;
     for(auto ij : Jets){
-     if(ij.Pt() < 15.) continue;
-     if(fabs(ij.Eta()) > 2.5) continue;
-     bool overlap_mu(false);
-     for(auto imu : loose_muons) {
-       if(imu.DeltaR(ij) < 0.4) {
-   overlap_mu=true;
-   break;
-       }
-     }
-     if(overlap_mu) continue;
-     double jetEMFrac = ij.ChargedEmEnergyFraction() + ij.NeutralEmEnergyFraction();
-     if (jetEMFrac > 0.9) continue;
-     jets_corr.push_back(ij);
-   }
-   
+      if(ij.Pt() < 15.) continue;
 
-   Particle UpdatedMET = UpdateMETSmearedJet(METUncorr,jets_corr);
-   if(SmearJets) return UpdatedMET;
+      //// Same Selection as Type-1 MET correction
+      bool overlap_mu(false);
+      for(auto imu : loose_muons) {
+	if(imu.DeltaR(ij) < 0.4) {
+	  overlap_mu=true;
+	  break;
+	}
+      }
+      if(overlap_mu) continue;
+      double jetEMFrac = ij.ChargedEmEnergyFraction() + ij.NeutralEmEnergyFraction();
+      if (jetEMFrac > 0.9) continue;
 
-   //   std::vector<Muon> tight_muons = SelectMuons(param, param.Muon_Tight_ID, 10.,  2.4);
+      //// Since we use AK8 Jets veto AK4 overlap
+      
+      bool overlap_ak8(false);
+      for(auto ifatjet : FatJets) {
+	if(ij.Pt() < 200.) continue;
+        if(ifatjet.DeltaR(ij) < 0.8) {
+          overlap_ak8=true;
+          break;
+        }
+      }
+      if(overlap_ak8) continue;
+      
+      jets_corr.push_back(ij);
+    }
+  
 
-   Particle UpdatedMET2 = UpdateMET(UpdatedMET,tight_muons);
-   return UpdatedMET2;
+    //// propgate fatjet smear/energy change
+    /// - no mu/AK8 overlap
+    Particle UpdatedMET = UpdateMETSmearedJet(METUncorr,jets_corr);
+    
+    std::vector<FatJet> fatjets_corr;
+    for(auto ij : FatJets){
+      if(ij.Pt() < 200.) continue;
+      bool overlap_mu(false);
+      for(auto imu : loose_muons) {
+        if(imu.DeltaR(ij) < 0.4) {
+          overlap_mu=true;
+          break;
+        }
+      }
+      if(overlap_mu) continue;
+      
+      fatjets_corr.push_back(ij);
+    }
 
- }
- else   if(SmearMuons ) {
-   //   std::vector<Muon> tight_muons = SelectMuons(param, param.Muon_Tight_ID, 10.,  2.4);
-   Particle UpdatedMET = UpdateMET(METUncorr,tight_muons);
-   return UpdatedMET;
- }
+    Particle UpdatedMET_Jet = UpdateMETSmearedFatJet(UpdatedMET,fatjets_corr);
+
+    if(SmearJets) return UpdatedMET_Jet;
+
+    //   std::vector<Muon> tight_muons = SelectMuons(param, param.Muon_Tight_ID, 10.,  2.4);
+    
+    Particle UpdatedMET3 = UpdateMET(UpdatedMET_Jet,tight_muons);
+    return UpdatedMET3;
+    
+  }
+  else   if(SmearMuons ) {
+    //   std::vector<Muon> tight_muons = SelectMuons(param, param.Muon_Tight_ID, 10.,  2.4);
+    Particle UpdatedMET = UpdateMET(METUncorr,tight_muons);
+    return UpdatedMET;
+  }
 
  return METUncorr;
 }
@@ -75,14 +112,12 @@ Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter& para
 
 
 
-Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter param, const std::vector<Jet>& jets, const std::vector<FatJet>& fatjets,
+Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter param, 
 				 const std::vector<Muon>& muons, const std::vector<Electron>& electrons, bool propsmear ){
 
 
   ////// This function is used to get MET both central and systematic                                                                                                                                                                                                                                                         
-
   bool ApplySyst      = (!IsDATA) && (param.syst_ != AnalyzerParameter::Central);
-  
 
   Particle vStandMET = GetMiniAODvMET(METType);
 
@@ -92,9 +127,6 @@ Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter param
   if(HasFlag("ScanSystematic")) {
     Particle a = GetvCorrMET(METType,muons,param,vStandMET) ;
     cout << "GetvMET smear = " << a.Pt() << " " << vStandMET.Pt()<<endl;
-
-    Particle b = GetvCorrMET(METType,muons,param,vStandMET) ;
-    cout << "GetvMET smear2 = " << b.Pt() << " " << vStandMET.Pt()<<endl;
 
   }
   
@@ -122,15 +154,6 @@ Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter param
   case AnalyzerParameter::ElectronEnDown:      IdxSyst = 57; break;
   case AnalyzerParameter::ElectronResUp:       IdxSyst = 58; break;
   case AnalyzerParameter::ElectronResDown:     IdxSyst = 59; break;
-  case AnalyzerParameter::BTagSFHTagCorrUp:        IdxSyst = 60; break;
-  case AnalyzerParameter::BTagSFHTagCorrDown:      IdxSyst = 61; break;
-  case AnalyzerParameter::BTagSFLTagCorrUp:        IdxSyst = 62; break;
-  case AnalyzerParameter::BTagSFLTagCorrDown:      IdxSyst = 63; break;
-  case AnalyzerParameter::BTagSFHTagUnCorrUp:        IdxSyst = 64; break;
-  case AnalyzerParameter::BTagSFHTagUnCorrDown:      IdxSyst = 65; break;
-  case AnalyzerParameter::BTagSFLTagUnCorrUp:        IdxSyst = 66; break;
-  case AnalyzerParameter::BTagSFLTagUnCorrDown:      IdxSyst = 67; break;
-
   default:                                      IdxSyst = -1; break;  // Default case in case no match is found
   }
 
@@ -140,8 +163,8 @@ Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter param
 
   Particle vMETFinal;
   
-  if(IdxSyst >= 100 ) vMETFinal = vMETCorr; /// Jet smearing  already propagated
-  else if(IdxSyst >= 20 )  vMETFinal = UpdateMETSyst(param, vMETCorr, jets, fatjets, muons, electrons);
+  if(IdxSyst >= 100 )      vMETFinal = vMETCorr; /// Jet/Muon smear/scale  already propagated
+  else if(IdxSyst >= 20 )  vMETFinal = UpdateMETSyst(param, vMETCorr,electrons);
   else if(IdxSyst>=0){
 
     if(UsePuppi) {

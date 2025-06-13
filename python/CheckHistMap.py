@@ -10,21 +10,21 @@ for histmap in histmaps:
         words=line.split()
         if "PileUp" in histmap:
             if len(words)<3:
-                print histmap+": Wrong format"
-                print words
+                print(histmap+": Wrong format")
+                print(words)
                 continue
             filename=words[2]
             histname=words[0]+"_"+words[1]
         else:
             if len(words)<5:
-                print histmap+": Wrong format"
-                print words
+                print(histmap+": Wrong format")
+                print(words)
                 continue
             filename=words[3]
             histname=words[4]
         f=ROOT.TFile(os.path.dirname(histmap)+"/"+filename)
         h=f.Get(histname)
         if not h:
-            print ":".join([histmap,filename,histname])+": Not found"
+            print(":".join([histmap,filename,histname])+": Not found")
 
     

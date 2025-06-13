@@ -427,7 +427,7 @@ double HNL_LeptonCore::GetZptWeight(double pt,double rapidity,double mass) const
   if(mass==0) return sf;
   if(pt<0) pt=0;
   if(pt>=650) pt=649.9;
-  double y=fabs(rapidity);
+
   double m=mass;
   if(m<fZptWeightMaxis->GetXmin()) m=fZptWeightMaxis->GetXmin();
   if(m>=fZptWeightMaxis->GetXmax()) m=fZptWeightMaxis->GetXmax()-1e-6;

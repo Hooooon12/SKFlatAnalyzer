@@ -319,7 +319,8 @@ std::vector<Electron> AnalyzerCore::GetAllElectrons(){
     el.SetPtEtaPhiE(1., electron_eta->at(i), electron_phi->at(i), electron_Energy->at(i));
     double el_theta = el.Theta();
     double el_pt = electron_Energy->at(i) * TMath::Sin( el_theta );
-    el.SetPtEtaPhiE( el_pt, electron_eta->at(i), electron_phi->at(i), electron_Energy->at(i));
+    el.SetPtEtaPhiE(el_pt, electron_eta->at(i), electron_phi->at(i), electron_Energy->at(i));
+    el.SetMiniAODPt(el_pt);
     el.SetUncorrectedPt(electron_EnergyUnCorr->at(i) * TMath::Sin( el_theta ));
 
     el.SetUncorrE(electron_EnergyUnCorr->at(i));
@@ -874,7 +875,7 @@ std::vector<Jet> AnalyzerCore::GetAllJets(bool applySmear){
 	jet *= jet_smearedRes->at(i);
 	jet.SetIsSmeared(true);
       }
-      jet.SetResShift( jet_smearedResUp->at(i)/jet_smearedRes->at(i), jet_smearedResDown->at(i)/jet_smearedRes->at(i) );
+      jet.SetResShift(jet_smearedResUp->at(i)/jet_smearedRes->at(i), jet_smearedResDown->at(i)/jet_smearedRes->at(i) );
       jet.SetRes(jet_smearedRes->at(i));
       jet.SetGenFlavours(jet_partonFlavour->at(i), jet_hadronFlavour->at(i));
       jet.SetGenHFHadronMatcher(jet_GenHFHadronMatcher_flavour->at(i),jet_GenHFHadronMatcher_origin->at(i));

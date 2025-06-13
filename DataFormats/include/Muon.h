@@ -23,7 +23,6 @@ public:
     cout << "PFNH04 " << j_PFNH04 << endl;
     cout << "PFPH04 " << j_PFPH04 << endl;
     cout << "PU04 " << j_PU04  << endl;
-    cout << "MiniAODPt " << j_MiniAODPt << endl;
     cout << "MomentumScaleUp " << j_MomentumScaleUp << endl;
     cout << "MomentumScaleDown " << j_MomentumScaleDown << endl;
     cout << "TunePPtError " << j_TunePPtError << endl;
@@ -111,9 +110,7 @@ public:
   void SetChi2(double chi2);
   inline double Chi2() const { return j_chi2; }
 
-  void SetMiniAODPt(double d);
   void SetMiniAODTunePPt(double d);
-  inline double MiniAODPt() const {return j_MiniAODPt;}
   inline double MiniAODTunePPt() const {return j_MiniAODTunePPt;}
 
   void SetMomentumScaleUpDown(double pt_up, double pt_down);
@@ -222,7 +219,7 @@ private:
   bool j_ismedium_nohip;
   double j_chi2;
   double j_PFCH04, j_PFNH04, j_PFPH04, j_PU04;
-  double j_MiniAODPt, j_MiniAODTunePPt, j_MomentumScaleUp, j_MomentumScaleDown;
+  double j_MiniAODTunePPt, j_MomentumScaleUp, j_MomentumScaleDown;
   Particle j_TuneP4;
   double j_TunePPtError;
   double j_MVA, j_lowptMVA, j_softMVA;

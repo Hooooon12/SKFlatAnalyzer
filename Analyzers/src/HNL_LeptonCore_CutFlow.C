@@ -389,6 +389,7 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
   if(sr==WZCR)    EVHistName= "WZCR";
   if(sr==WZBCR)   EVHistName= "WZBCR";
   if(sr==ZZCR)    EVHistName= "ZZCR";
+  if(sr==ZZVBFCR)    EVHistName= "ZZVBFCR";
   if(sr==WGCR)    EVHistName= "WGCR";
   if(sr==ZGCR)    EVHistName= "ZGCR";
   if(sr==WZBCR)   EVHistName= "WZBCR";
@@ -528,7 +529,10 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
 
 vector<TString>  HNL_LeptonCore::GetLimitLabelsFromRegion(HNL_LeptonCore::SearchRegion sr, TString bin_key, TString channel){
 
-  if(sr==MuonSR1    || sr==ElectronSR1   || sr==ElectronMuonSR1)      return GetLimitLabels("SR1",channel);
+  if(sr==MuonSR1    || sr==ElectronSR1   || sr==ElectronMuonSR1)      {
+    if(bin_key == "SR1_PlotVersion")    return GetLimitLabels("SR1_PlotVersion",channel);
+    else   return GetLimitLabels("SR1",channel);
+  }
   if(sr==MuonSR2    || sr==ElectronSR2   || sr==ElectronMuonSR2)      return GetLimitLabels("SR2");
   if(sr==MuonSR3    || sr==ElectronSR3   || sr==ElectronMuonSR3)      return GetLimitLabels("SR3",channel);
 
@@ -569,6 +573,7 @@ vector<TString>  HNL_LeptonCore::GetLabelsFromRegion(HNL_LeptonCore::SearchRegio
   if(sr==ZGCR)  nstep = 11;
   if(sr==WZCR)  nstep = 11;
   if(sr==ZZCR)  nstep = 6;
+  if(sr==ZZVBFCR)  nstep = 10;
   if(sr==WGCR)   nstep = 10;
   if(sr==WZBCR)   nstep = 15;
   if(sr==WZVBFCR)   nstep = 7;

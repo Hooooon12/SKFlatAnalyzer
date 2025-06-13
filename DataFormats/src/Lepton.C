@@ -6,7 +6,10 @@ Lepton::Lepton() : Particle() {
   
   j_run_era=""; /// SetEra
   j_run_year=0; /// SetEra
- 
+
+  j_MiniAODPt = -999.;
+
+  
   mu_mva_cut_fake_2016 = 0.72;
   mu_mva_cut_fake_2017 = 0.64;
   mu_mva_cut_fake_2018 = 0.64;
@@ -36,8 +39,6 @@ Lepton::Lepton() : Particle() {
   j_IP3D = -999.;
   j_IP3Derr = -999.;
   j_unCorrPt = -999;
-  j_unCorrPx = -999;
-  j_unCorrPy = -999;
   j_elSCeta= -999;
   j_RelIso = -999.;
   j_MiniRelIso = -999.;
@@ -105,6 +106,11 @@ Lepton::Lepton() : Particle() {
   j_lep_mva_hnl_ed_cf_v5Pt=-999;
 
 }
+
+void Lepton::SetMiniAODPt(double d){
+  j_MiniAODPt = d;
+}
+
 
 void Lepton::PrintObject(TString label){
   cout << "------------------------------" << endl;

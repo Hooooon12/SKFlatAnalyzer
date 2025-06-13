@@ -13,7 +13,7 @@ Muon::Muon() : Lepton() {
   j_PFPH04 = -999.;
   j_PU04 = -999.;
   this->SetLeptonFlavour(MUON);
-  j_MiniAODPt = -999.;
+
   j_MomentumScaleUp = -999.;
   j_MomentumScaleDown = -999.;
   j_TunePPtError = -999.;
@@ -87,9 +87,6 @@ double Muon::EA(){
 
 }
 
-void Muon::SetMiniAODPt(double d){
-  j_MiniAODPt = d;
-}
 void Muon::SetMiniAODTunePPt(double d){
   j_MiniAODTunePPt = d;
 }

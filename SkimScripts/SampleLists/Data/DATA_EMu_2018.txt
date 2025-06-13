@@ -1,4 +1,4 @@
-MuonEG:A
-MuonEG:B
-MuonEG:C
-MuonEG:D
+MuonEG_GT36:A
+MuonEG_GT36:B
+MuonEG_GT36:C
+MuonEG_GT36:D

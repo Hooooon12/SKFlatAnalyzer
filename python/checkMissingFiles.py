@@ -10,4 +10,4 @@ if __name__=="__main__":
         if "SkimTree" in samplename: last+=1
         num=int(os.popen("cat {} | wc -l".format(sample)).read())
         if last!=num:
-            print era,samplename,":",num,"/",last
+            print(era,samplename,":",num,"/",last)

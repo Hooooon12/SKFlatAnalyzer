@@ -1,6 +1,12 @@
 *~
-data_validation/EraComparison/EE_2016/results_LL*
-data_validation/EraComparison/EE_2016/201*
+data_validation/analysis_validation/region_comparison/FlavourSplitPlots/*/results_*
+data_validation/analysis_validation/region_comparison/Plots/*/results*
+data_validation/analysis_validation/merged_samples
+data_validation/analysis_validation/region_comparison/ANv5/results*
+data_validation/analysis_validation/merged_samples/AN*
+data_validation/analysis_validation/merged_samples/*log
+data_validation/analysis_validation/era_comparison/EE_2016/results*
+data_validation/analysis_validation/era_comparison/EE_2016/201*
 Tag_Probe/Results
 data/Run2UltraLegacy_v3/*/*/copyFiles.sh
 TMVA/LeptonID/BATCHSubmit

@@ -236,25 +236,26 @@ std::vector<Tau> HNL_LeptonCore::SelectTaus(const std::vector<Tau>& taus, const 
 }
 
 
-std::vector<Tau> HNL_LeptonCore::SelectTaus(std::vector<Lepton*>& leps, std::vector<FatJet> AK8Jets, const TString& id, double ptmin, double fetamax) {
+std::vector<Tau> HNL_LeptonCore::SelectTaus(std::vector<Lepton*>& leps, std::vector<FatJet> AK8Jets, const TString& id, double ptmin, double fetamax, bool cleanAK8) {
   std::vector<Tau> Taus = SelectTaus(id, ptmin, fetamax);
   std::vector<Tau> out;
 
   for (auto& tau : Taus) {
     bool pass = true;
     for (auto* lep : leps) {
-      if (lep->DeltaR(tau) <= 0.4) {
+      if (lep->DeltaR(tau) <= 0.2) {
         pass = false;
         break;
       }
     }
-    for (auto ijet : AK8Jets) {
-      if (ijet.DeltaR(tau) <= 0.8) {
-        pass = false;
-        break;
+    if(cleanAK8){
+      for (auto ijet : AK8Jets) {
+	if (ijet.DeltaR(tau) <= 0.8) {
+	  pass = false;
+	  break;
+	}
       }
     }
-
     if (pass) {
       out.push_back(tau);
     }

@@ -148,8 +148,8 @@ void HNL_LeptonCore::SetupTriggerLists(){
   for(auto itrig : TrigList_Full_EG)      TrigList_Full_MuEG.push_back(itrig);
   for(auto itrig : TrigList_HNL_EGMu)     TrigList_Full_EGMu.push_back(itrig);
 
-  for(auto itrig : TrigList_Full_Mu)   cout << "TrigList_Full_Mu  : "<< itrig << endl;
-  for(auto itrig : TrigList_Full_EG)   cout << "TrigList_Full_EG  : "<< itrig << endl;
+  //for(auto itrig : TrigList_Full_Mu)   cout << "TrigList_Full_Mu  : "<< itrig << endl;
+  //for(auto itrig : TrigList_Full_EG)   cout << "TrigList_Full_EG  : "<< itrig << endl;
   
   return;
   

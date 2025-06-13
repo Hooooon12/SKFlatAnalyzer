@@ -1,0 +1,277 @@
+#include "SkimTree_AK8.h"
+
+void SkimTree_AK8::initializeAnalyzer(){
+
+  HNL_LeptonCore::initializeAnalyzer(false,false);
+
+  outfile->cd();
+  cout << "[SkimTree_AK8::initializeAnalyzer()] gDirectory = " << gDirectory->GetName() << endl;
+  newtree = fChain->CloneTree(0);
+
+  triggers_dimu.clear();
+
+  triggers.clear();
+
+  if(GetEraShort()=="2016a"){
+    triggers_dimu = {
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+    };
+    
+    triggers_emu = {
+      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",      
+      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v",
+    };
+  }
+
+  if(GetEraShort()=="2016b"){
+    triggers_dimu = {
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+    };
+
+    triggers_emu = {
+      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v",
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
+    };
+  }
+
+  if(DataYear==2016){
+
+    triggers_di_el = {
+      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+    };
+
+    triggers = {
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+      "HLT_IsoMu24_v",
+      "HLT_IsoTkMu24_v",
+      "HLT_Mu50_v",
+      "HLT_TkMu50_v",
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+      "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+      "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",              // H
+      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",     // B-G
+      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v",
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",    // B-G
+      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v",  // H
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",  // H
+      "HLT_Ele27_WPTight_Gsf_v",
+      "HLT_Ele25_eta2p1_WPTight_Gsf_v" ,
+      "HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
+      "HLT_Photon175_v",
+      "HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v",
+      "HLT_Photon175_v",
+      "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v",
+      "HLT_Photon175_v",
+      "HLT_DoubleEle33_CaloIdL_MW_v",
+      "HLT_DoubleEle37_Ele27_CaloIdL_GsfTrkIdVL_v",
+      "HLT_Photon175_v",
+      "HLT_DoublePhoton60_v"   
+    };
+  }
+  else if(DataYear==2017){
+    triggers_dimu = {
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v",
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v"
+
+    };
+    triggers_di_el = {
+      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v"
+    };
+
+    triggers_emu = {
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v",
+    };
+    triggers = {
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",                  // B
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v",
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v",
+      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+      "HLT_Mu50_v",
+      "HLT_TkMu50_v",
+      "HLT_IsoMu27_v",
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",      // C-F
+      "HLT_Ele32_WPTight_Gsf_v",
+      "HLT_Ele32_WPTight_Gsf_L1DoubleEG_v",
+      "HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
+      "HLT_Photon200_v",
+      "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v",
+      "HLT_Photon200_v",
+      "HLT_DoubleEle33_CaloIdL_MW_v",
+      "HLT_Ele35_WPTight_Gsf_v",
+      "HLT_Ele32_WPTight_Gsf_v", 
+      "HLT_Ele32_WPTight_Gsf_L1DoubleEG_v",
+      "HLT_Photon200_v",
+      "HLT_DoublePhoton70_v",
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v",
+
+    };
+  }
+  else if(DataYear==2018){
+    triggers_dimu = {
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"
+    };
+    
+    triggers_di_el = {
+      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v"
+    };
+    triggers_emu = {			 
+      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v",
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
+    };
+
+
+    triggers = {
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v",
+      "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+      "HLT_Mu50_v",
+      "HLT_TkMu50_v",
+      "HLT_IsoMu24_v",
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v",
+      "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+      "HLT_Ele32_WPTight_Gsf_v",
+      "HLT_DoubleEle25_CaloIdL_MW_v" ,
+      "HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
+      "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v",
+      "HLT_Photon200_v", 
+      "HLT_DoublePhoton70_v"
+    };
+  }
+  else{
+    cout << "[SkimTree_AK8::initializeAnalyzer] DataYear is wrong : " << DataYear << endl;
+  }
+
+  cout << "[SkimTree_AK8::initializeAnalyzer] triggers to skim = " << endl;
+  for(unsigned int i=0; i<triggers.size(); i++){
+    cout << "[SkimTree_AK8::initializeAnalyzer]   " << triggers.at(i) << endl;
+  }
+
+}
+
+void SkimTree_AK8::executeEvent(){
+
+  Event ev;
+  ev.SetTrigger(*HLT_TriggerName);
+  
+
+  //==== Skim 1 ) trigger
+  if(! (ev.PassTrigger(triggers)) ) return;
+
+  if(this->DataStream == "SingleElectron" && (ev.PassTrigger(triggers_di_el))) return;
+
+  std::vector<Muon>     muonPreColl     = GetMuons("HNLoosest", 5., 2.4);
+  std::vector<Electron> electronPreColl = GetElectrons("HNLoosest", 8., 2.5);
+
+  std::sort(muonPreColl.begin(), muonPreColl.end(), PtComparing);
+  std::sort(electronPreColl.begin(), electronPreColl.end(), PtComparing);
+
+
+  if(this->DataStream == "SingleMuon" && (ev.PassTrigger(triggers_dimu))) {
+    int imuPt15=0;
+    for(auto imu : muonPreColl){
+      if(imu.Pt() > 15.) imuPt15++;
+    }
+    if(imuPt15 > 1) return;
+  }
+
+  
+  int NEl  = electronPreColl.size();
+  int NMu  = muonPreColl.size();
+  int NLep = NEl+NMu;
+  bool HasSS2lOR3l = false;
+  bool LeadLepPt = false;
+
+  bool HasFatJet(false);
+  
+  vector<FatJet> allfatjets = puppiCorr->Correct( GetFatJets("tight", 200., 2.7) ); //==== corret SDMass                                                     
+
+  HasFatJet = (allfatjets.size() > 0);
+
+  //// Require AK8 Jet
+  if (!HasFatJet)  return;
+  
+  std::vector<Lepton *> leps;
+  for(unsigned int i=0; i<electronPreColl.size(); i++){
+    Electron& el = electronPreColl.at(i);
+    leps.push_back( &el );
+  }
+  for(unsigned int i=0; i<muonPreColl.size(); i++){
+    Muon& mu = muonPreColl.at(i);
+    leps.push_back( &mu );
+  }
+
+  if      ( NLep >= 3 ){ 
+    HasSS2lOR3l = true; 
+    if(NMu==0 ){
+      if(electronPreColl.at(0).Pt() > 23.) LeadLepPt = true;
+    }  
+    else if(NEl==0){
+      if(muonPreColl.at(0).Pt() > 17.) LeadLepPt = true;
+    }
+    else if((electronPreColl.at(0).Pt() > 23.) || (muonPreColl.at(0).Pt() > 17.))LeadLepPt = true;
+    
+  }
+  else if ( NLep == 2 ){
+    if(muonPreColl.size()==2){
+      if (muonPreColl[0].Charge() == muonPreColl[1].Charge())   HasSS2lOR3l = true;
+    }
+    else if(electronPreColl.size()==2){
+      if(IsData) HasSS2lOR3l = true; /// For CF need OS
+      else{
+	if( electronPreColl[0].Charge() == electronPreColl[1].Charge() ) HasSS2lOR3l = true;
+      }
+    }
+
+    else if(electronPreColl.size() == 1 &&  muonPreColl.size() == 1){
+      if(IsData) HasSS2lOR3l = true; /// For CF need OS
+      else{
+	if( electronPreColl[0].Charge() ==  muonPreColl[0].Charge()) HasSS2lOR3l = true;
+      }
+    }
+    
+    if(NMu==2 && muonPreColl.at(0).Pt()>  17.    ) LeadLepPt = true;
+    if(NEl==2 && electronPreColl.at(0).Pt()>23 ) LeadLepPt = true;
+    if(NMu==1 && NEl==1 && electronPreColl.at(0).Pt()>23 ) LeadLepPt = true;
+    if(NMu==1 && NEl==1 && muonPreColl.at(0).Pt()>23 ) LeadLepPt = true;
+  }
+
+  if( !(HasSS2lOR3l && LeadLepPt) ) return;
+
+  //=============================
+  //==== If survived, fill tree
+  //=============================
+
+  newtree->Fill();
+
+}
+
+void SkimTree_AK8::executeEventFromParameter(AnalyzerParameter param){
+
+}
+
+SkimTree_AK8::SkimTree_AK8(){
+
+  newtree = NULL;
+
+}
+
+SkimTree_AK8::~SkimTree_AK8(){
+
+}
+
+void SkimTree_AK8::WriteHist(){
+
+  outfile->mkdir("recoTree");
+  outfile->cd("recoTree");
+  newtree->Write();
+  outfile->cd();
+
+}

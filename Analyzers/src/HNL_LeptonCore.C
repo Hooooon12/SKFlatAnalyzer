@@ -18,6 +18,8 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
   cfEst           = new CFBackgroundEstimator();
   pdfReweight     = new PDFReweight();
 
+  runCutCounts.clear(); 
+  
 
   //=== VERBOSE                                                                                                                                        
   run_Debug = HasFlag("DEBUG");
@@ -69,10 +71,43 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
   cout << "HNL_LeptonCore::initializeAnalyzer : Analyzer = " << Analyzer << endl;
   if(!IsDATA){
     mcCorr->ReadHistograms();
-    if(HasFlag("Use_TT_JetEff_2L"))    mcCorr->SetupJetTagging("MeasureJetTaggingEfficiency_TTLL_TTLJ_2L_hadded.root");
-    else if(HasFlag("Use_TT_JetEff_SS"))    mcCorr->SetupJetTagging("MeasureJetTaggingEfficiency_TTLL_TTLJ_SS_hadded.root");
-    else if(HasFlag("Use_DY_JetEff_2L"))    mcCorr->SetupJetTagging("MeasureJetTaggingEfficiency_DY_2L_hadded.root");
-    else mcCorr->SetupJetTagging("MeasureJetTaggingEfficiency_TTLL_TTLJ_hadded.root");
+
+    TString tagEffFile = "";
+    
+    if (HasFlag("Use_TT_JetEff_2L"))
+      tagEffFile = "MeasureJetTaggingEfficiency_TTLL_TTLJ_2L_hadded.root";
+    else if (HasFlag("Use_TT_JetEff_SS"))
+      tagEffFile = "MeasureJetTaggingEfficiency_TTLL_TTLJ_SS_hadded.root";
+    else if (HasFlag("Use_DY_JetEff_2L"))
+      tagEffFile = "MeasureJetTaggingEfficiency_DY_2L_hadded.root";
+    else if (MCSample.Contains("WZ"))
+      tagEffFile = "MeasureJetTaggingEfficiency_WZ_2L_hadded.root";
+    else if (MCSample.Contains("WW"))
+      tagEffFile = "MeasureJetTaggingEfficiency_WW_2L_hadded.root";
+    else if (MCSample.Contains("ZZ"))
+      tagEffFile = "MeasureJetTaggingEfficiency_ZZ_2L_hadded.root";
+    else if (MCSample.Contains("ZG"))
+      tagEffFile = "MeasureJetTaggingEfficiency_ZG_2L_hadded.root";
+    else if (MCSample.Contains("ttW") || MCSample.Contains("ttZ"))
+      tagEffFile = "MeasureJetTaggingEfficiency_TTV_2L_hadded.root";
+    else if (MCSample.Contains("WG"))
+      tagEffFile = "MeasureJetTaggingEfficiency_WG_2L_hadded.root";
+    else if (MCSample.Contains("DYType"))
+      tagEffFile = "MeasureJetTaggingEfficiency_HNL_DY_2L_hadded.root";
+    else if (MCSample.Contains("VBFType"))
+      tagEffFile = "MeasureJetTaggingEfficiency_HNL_VBF_2L_hadded.root";
+    else if (MCSample.Contains("SSWW"))
+      tagEffFile = "MeasureJetTaggingEfficiency_HNL_SSWW_2L_hadded.root";
+    else
+      tagEffFile = "MeasureJetTaggingEfficiency_TTLL_TTLJ_2L_hadded.root"; // default fallback
+
+    // Optional: log what is being loaded
+    cout << "[JetEff] Using file: " << tagEffFile << endl;
+    
+    // Apply
+    mcCorr->SetupJetTagging(tagEffFile);
+    
+
   }
 
   puppiCorr->SetEra(GetEra());
@@ -529,8 +564,11 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
     
     if(IsData) return {};
     
-    if(HasFlag("ScanSystematicMET")) {
-      SystList = {AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown};
+    if(HasFlag("ScanSystematic")) {
+      SystList = {AnalyzerParameter::METUnclUp,AnalyzerParameter::METUnclDown,
+	AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,
+	AnalyzerParameter::JetEnUp, AnalyzerParameter::JetEnDown};
+      
       return SystList;
     }
     if(HasFlag("RunSyst")){
@@ -648,8 +686,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
 //====================================================/====================================================
 
 AnalyzerParameter HNL_LeptonCore::InitialiseHNLParameter(const TString& s_setup){
-  AnalyzerParameter p = SetupHNLParameter(s_setup,"Default");
-  return p;  
+  return SetupHNLParameter(s_setup,"Default");
 }
 
 AnalyzerParameter HNL_LeptonCore::InitialiseHNLParameter(const TString& s_setup, HNL_LeptonCore::Channel channel){
@@ -745,7 +782,7 @@ AnalyzerParameter HNL_LeptonCore::SetupFakeParameter(AnalyzerParameter::Syst Sys
 
   param.AK4JetColl       = "TightPUL";
   param.AK4VBFJetColl    = "VBFTightPUL";
-  param.AK8JetColl       = "HNL_PN";
+  param.AK8JetColl       = "HNL_ParticleNet";
   param.BJetColl         = "Tight";
 
   //// Weights                                                                                                                                              
@@ -888,29 +925,31 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
 
 AnalyzerParameter HNL_LeptonCore::SetupHNLParameter(const TString& s_setup_version, const TString& channel_str_name){
 
-  
-  AnalyzerParameter param  =  DefaultParam(s_setup_version, channel_str_name);
+  /// Main IDs
+  if (s_setup_version=="HNL_ULID")   return Setup_Param_HNL_ULID(s_setup_version,channel_str_name);
+  if (s_setup_version=="HNL_ULIDv2") return Setup_Param_HNL_ULIDv2(s_setup_version,channel_str_name);
+  if (s_setup_version=="POGTight")   return Setup_Param_POGTight(s_setup_version,channel_str_name);
+  if (s_setup_version=="HNTightV2")  return Setup_Param_HNTightV2(s_setup_version,channel_str_name);
 
+  /// Other configurations
+  if (s_setup_version=="MVAPOG")     return Setup_Param_MVAPOG(s_setup_version,channel_str_name);
+  if (s_setup_version=="HighPt")     return Setup_Param_HighPt(s_setup_version,channel_str_name);
+  if (s_setup_version=="EXO17028")   return Setup_Param_HNL16(s_setup_version,channel_str_name);
+  if (s_setup_version=="TopHN")      return Setup_Param_HNLTopID(s_setup_version,channel_str_name);
+  if (s_setup_version=="Peking")     return Setup_Param_Peking(s_setup_version,channel_str_name);
+  if (s_setup_version=="HNL_Opt")    return Setup_Param_HNLOpt(s_setup_version,channel_str_name);
+  if (s_setup_version=="BDT")        return Setup_Param_BDT(s_setup_version,channel_str_name);
+  
+  /// Other non defined setups
+  AnalyzerParameter param  =  DefaultParam(s_setup_version, channel_str_name);
   if (s_setup_version=="")      return param;
   if (s_setup_version=="Basic") return param;
 
-  if (s_setup_version=="POGTight")  GetSetup_POGTight(param);
-  if (s_setup_version=="MVAPOG")    GetSetup_MVAPOG(param);
-  if (s_setup_version=="HighPt")    GetSetup_HighPt(param);
-
-  if (s_setup_version=="HNTightV2") GetSetup_HNTightV2(param);  
-  if (s_setup_version=="EXO17028")  GetSetup_HNL16(param);
-  if (s_setup_version=="TopHN")     GetSetup_HNLTopID(param);
-  if (s_setup_version=="HNL_ULID")  GetSetup_HNLID(param);
-  if (s_setup_version=="HNL_ULIDv2")  GetSetup_HNLHPTID(param);
-  if (s_setup_version=="Peking")  GetSetup_Peking(param);
-  if (s_setup_version=="HNL_Opt") GetSetup_HNLOpt(param);
-  if (s_setup_version=="BDT")     GetSetup_BDT(param);
-
   if (s_setup_version == "FakeRate" ){
     param.Apply_Weight_LumiNorm = false;
-    return param;  }
-
+    return param;
+  }
+  
   if (s_setup_version=="SignalStudy" || s_setup_version=="MCBkg"){
     param.FakeMethod = "MC";
     param.CFMethod   = "MC";
@@ -930,7 +969,6 @@ AnalyzerParameter HNL_LeptonCore::SetupHNLParameter(const TString& s_setup_versi
 
   cout << "[HNL_LeptonCore::InitialiseHNLParameters ] ID not found.." << endl;
   exit(EXIT_FAILURE);
-  
   
 }
 
@@ -996,10 +1034,10 @@ double HNL_LeptonCore::GetKFactor(){
 }
 
 double HNL_LeptonCore::ZZKfactor(TString method){
-  
+
   // finalState=1 : 4e/4mu/4tau
   // finalState=2 : 2e2mu/2mutau/2e2tau
-  
+
   int finalState = GetZZFinalState();
   float k=0.0;
   //  cout << "GetGenZZPt() = " << GetGenZZPt() << "  " << GetGenZZMass() << endl;
@@ -1325,6 +1363,13 @@ HNL_LeptonCore::~HNL_LeptonCore(){
     cout << "Cutflow key = " <<  mapit->first << " = " << mapit->second << endl;
   }
 
+  // Printing results for each run
+  cout << "Print cut count "<< endl;
+  for (const auto& entry : runCutCounts) {
+    entry.second.printCounts(entry.first);  // Print counts for each run
+  }
+
+  
   //==== Tools                         
   if(mcCorr) delete mcCorr;
   if(puppiCorr) delete puppiCorr;

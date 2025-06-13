@@ -922,7 +922,7 @@ void HNL_LeptonCore::SetupEventBDTVariables(std::vector<Lepton *> LepTColl,
 double HNL_LeptonCore::EvaluateEventMVA(TString mN, TString bkgType, TString NCut, TString NTree, HNL_LeptonCore::Channel channel,
                                         std::vector<Lepton *> LepTColl, Event ev, Particle METv, AnalyzerParameter param, double weight, bool isVarPlots){
 
-  std::vector<FatJet> FatjetColl                  = GetHNLAK8Jets("HNL_PN",param);
+  std::vector<FatJet> FatjetColl                  = GetHNLAK8Jets("HNL_ParticleNet",param);
   std::vector<Jet> All_JetColl                    = GetHNLJets("TightPUL",param);
   std::vector<Jet> B_JetColl                      = GetHNLJets("BJet",param);
   std::vector<Jet> JetColl                        = GetHNLJets("TightPUL",param);

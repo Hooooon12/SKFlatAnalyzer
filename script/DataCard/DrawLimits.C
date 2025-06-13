@@ -42,8 +42,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //TString tag_nom = "_DYVBF_sronly_sr123_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sronly_sr123_syst"; // nominal tag
-  //TString tag_nom = "_syst"; // nominal tag
-  TString tag_nom = "_sr1_syst_Combined"; // nominal tag
+  TString tag_nom = "_syst"; // nominal tag
+  //TString tag_nom = "_sr1_syst_Combined"; // nominal tag
   //TString tag_nom = "_syst_Run23Scaled"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
   TString Name_IsXsecLimit = "_mixing";
@@ -75,8 +75,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //vector<TString> WPs = {"ANv3_HNL_ULIDv2_Decorr_Run2"}; // WPs to compare
   //vector<TString> tags = {"_syst_Run2Scaled"};
   //vector<TString> tags = {"_sr_Combined"};
-  //vector<TString> tags = {"_syst"};
-  vector<TString> tags = {"_sr1_syst_Combined"};
+  vector<TString> tags = {"_syst"};
+  //vector<TString> tags = {"_sr1_syst_Combined"};
   for(int i=0; i<WPs.size(); i++){
     for(int j=0; j<tags.size(); j++){
       //files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically

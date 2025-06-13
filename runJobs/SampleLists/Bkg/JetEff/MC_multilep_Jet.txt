@@ -1,0 +1,10 @@
+GluGluToZZto2e2mu
+GluGluToZZto4e
+GluGluToZZto4mu
+WpWp_EWK
+WpWp_QCD
+ttWToLNu
+ttWToQQ
+ttZToLLNuNu
+WZ_EWK
+WZTo3LNu_amcatnlo

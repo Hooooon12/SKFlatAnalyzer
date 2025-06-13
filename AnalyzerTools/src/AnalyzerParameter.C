@@ -37,6 +37,7 @@ void AnalyzerParameter::Clear(){
   JetPUID           = "Default";
   Jet_ID            = "Default";
   FatJet_ID         = "Default";
+  FatJet_CleaningColl= "Default";
   AK4JetColl        = "Default";
   AK4VBFJetColl     = "Default";
   AK8JetColl        = "Default";
@@ -394,7 +395,7 @@ TString  AnalyzerParameter::ChannelType(){
   if(Channel == "EE"   || Channel =="MuMu"       || Channel == "EMu"   || Channel == "MuE" ) return "Dilepton";
   if(Channel == "EEE"  || Channel =="MuMuMu"     || Channel == "EMuL"  || Channel == "MuEL" ) return "Trilepton";
   if(Channel == "EEEE" || Channel =="MuMuMuMu"   || Channel == "EMuLL" || Channel == "MuELL" ) return "Quadlepton";
-
+  
   return "Lepton";
 
 }

@@ -475,3 +475,68 @@ double HNL_LeptonCore::GetIsolationCutFromID(Lepton lep, TString id){
   return -999999999.;
 
 }
+
+
+
+void HNL_LeptonCore::FillFakeHistograms(AnalyzerParameter& param, TString plot_dir,std::vector<Lepton *>& Leptons, std::vector<Jet>& jets,   std::vector<FatJet>& fatjets, vector<Jet>& BJetColl, Particle& met,  double w){
+
+  if(!DrawSyst(param)) return;
+
+  for(auto ilep : Leptons){
+
+    if(!IsData && !ilep->IsFake()) continue;
+
+    TString LorT = (ilep->PassLepID()) ? "Tight" : "LooseNotTight";
+    TString MotherJetFlavour = (IsData) ? "Data" :  ilep->MotherJetFlavour();
+
+    vector<TString> PassLabels;
+    PassLabels.push_back(plot_dir+"/"+ilep->GetFlavour());
+    if(ilep->Pt() < 15)           PassLabels.push_back(plot_dir+"/Pt0to15_"+ilep->GetFlavour());
+    else if(ilep->Pt() < 25)      PassLabels.push_back(plot_dir+"/Pt15to25_"+ilep->GetFlavour());
+    else     PassLabels.push_back(plot_dir+"/Pt25toInf_"+ilep->GetFlavour());
+
+    if(ilep->CloseJet_BScore()  <  0.02)  PassLabels.push_back(plot_dir+"/BScore0to0p02_"+ilep->GetFlavour());
+    else if(ilep->CloseJet_BScore()  <  0.05)  PassLabels.push_back(plot_dir+"/BScore0p02to0p05_"+ilep->GetFlavour());
+    else if(ilep->CloseJet_BScore()  <  0.2)  PassLabels.push_back(plot_dir+"/BScore0p05to0p2_"+ilep->GetFlavour());
+    else  PassLabels.push_back(plot_dir+"/BScore0p2toInf_"+ilep->GetFlavour());
+
+    if(ilep->CloseJet_BScore()  <  0.9 && ilep->CloseJet_CvsBScore() > 0.1 && ilep->CloseJet_CvsLScore() < 0.6)  PassLabels.push_back(plot_dir+"/DeepJetCuts_"+ilep->GetFlavour());
+
+
+    for(auto ilab : PassLabels){
+
+      if(ilep->GetFlavour() == "Electron"){
+        FillHist((ilab+"_HF_MVA_"+MotherJetFlavour+"_"+param.Name +"_"+LorT).Data(),ilep->HNL_MVA_Fake("HF") ,  w, 200, -1, 1 );
+        FillHist((ilab+"_HNL_Fake_MVA_"+MotherJetFlavour+"_"+param.Name +"_"+LorT).Data(),ilep->HNL_MVA_Fake("HNL") ,  w, 200, -1, 1 );
+        FillHist((ilab+"_HNL_CF_MVA_"  +MotherJetFlavour+"_"+param.Name +"_"+LorT).Data(),ilep->HNL_MVA_CF("EDv5") ,  w, 200, -1, 1 );
+        FillHist((ilab+"_HNL_Conv_MVA_"+MotherJetFlavour+"_"+param.Name +"_"+LorT).Data(),ilep->HNL_MVA_Conv("EDv5") ,  w, 200, -1, 1 );
+      }
+
+
+      FillHist((ilab+"_LF_MVA_"+MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(),ilep->HNL_MVA_Fake("LF") ,  w, 200, -1, 1 );
+      FillHist((ilab+"_ISO_"+   MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->RelIso() ,  w, 60, 0, 0.6 );
+      FillHist((ilab+"_QCD_LFvsHF_"+MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->HNL_MVA_Fake("QCD_LFvsHF_v5") ,  w, 200,-1, 1);
+      FillHist((ilab+"_QCD_BvsC_"+  MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->HNL_MVA_Fake("QCD_BvsC_v5") ,  w, 200, -1, 1 );
+      FillHist((ilab+"_BScore_"+    MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->CloseJet_BScore() ,  w, 200, -1, 1 );
+      FillHist((ilab+"_CvsB_"+      MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->CloseJet_CvsBScore() ,  w, 200, -1, 1 );
+      FillHist((ilab+"_CvsL_"+      MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->CloseJet_CvsLScore() ,  w, 200, -1, 1);
+      FillHist((ilab+"_PtRatio_"+   MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->CloseJet_Ptratio() ,   w, 200, 0, 5 );
+      FillHist((ilab+"_PtRel_"+     MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->CloseJet_Ptrel() ,     w, 50, 0, 200  );
+      FillHist((ilab+"_Pt_"+   MotherJetFlavour+"_"+ilep->sRegion()+"_"+param.Name +"_"+LorT).Data(), ilep->PtMaxed(200.) ,  w, 100, 0, 200);
+
+      FillHist((ilab+"_LF_MVA_"+param.Name +"_"+LorT).Data(),ilep->HNL_MVA_Fake("LF") ,  w, 200, -1, 1 );
+      FillHist((ilab+"_ISO_"+   param.Name +"_"+LorT).Data(), ilep->RelIso() ,  w, 60, 0, 0.6 );
+      FillHist((ilab+"_QCD_LFvsHF_"+param.Name +"_"+LorT).Data(), ilep->HNL_MVA_Fake("QCD_LFvsHF_v5") ,  w, 200,-1, 1);
+      FillHist((ilab+"_QCD_BvsC_"+  param.Name +"_"+LorT).Data(), ilep->HNL_MVA_Fake("QCD_BvsC_v5") ,  w, 200, -1, 1 );
+      FillHist((ilab+"_BScore_"+    param.Name +"_"+LorT).Data(), ilep->CloseJet_BScore() ,  w, 200, -1, 1 );
+      FillHist((ilab+"_CvsB_"+      param.Name +"_"+LorT).Data(), ilep->CloseJet_CvsBScore() ,  w, 200, -1, 1 );
+      FillHist((ilab+"_CvsL_"+      param.Name +"_"+LorT).Data(), ilep->CloseJet_CvsLScore() ,  w, 200, -1, 1);
+      FillHist((ilab+"_PtRatio_"+   param.Name +"_"+LorT).Data(), ilep->CloseJet_Ptratio() ,   w, 200, 0, 5 );
+      FillHist((ilab+"_PtRel_"+     param.Name +"_"+LorT).Data(), ilep->CloseJet_Ptrel() ,     w, 50, 0, 200  );
+      FillHist((ilab+"_Pt_"+   param.Name +"_"+LorT).Data(), ilep->PtMaxed(200.) ,  w, 100, 0, 200);
+
+    }
+  }
+
+  return;
+}

@@ -154,9 +154,6 @@ double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, in
 
 double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TString BinningMethod, TString BinningParam,double eta, double pt, TString FakeTagger, int sys){
 
-  bool IsMC = false;
-
-
   double ApplyHighPtCorr;
 
   if(sys==10)    {
@@ -174,7 +171,6 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
 
   TString PtType = "pt_eta_";
   if(key.Contains("MC")){
-    IsMC=true;
     key=key.ReplaceAll("MC_","");
     if(BinningParam.Contains("PtCone" ))  PtType = "ptcone_eta_";
     if(BinningParam == "PtParton") PtType= "ptparton_eta_";
@@ -240,11 +236,10 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
 
 double FakeBackgroundEstimator::GetMuonFakeRate(TString ID, TString key, TString BinningMethod, TString BinningParam,  double eta, double pt, TString FakeTagger, int sys){
 
-  bool IsMC = false;
-
+  if(fabs(sys)==10)  sys=0;
+    
   TString PtType = "pt_eta_";
   if(key.Contains("MC")){
-    IsMC=true;
     key=key.ReplaceAll("MC_","");
     if(BinningParam.Contains("PtCone" ))  PtType = "ptcone_eta_";
     if(BinningParam == "PtParton") PtType= "ptparton_eta_";
@@ -307,7 +302,6 @@ double FakeBackgroundEstimator::GetMuonFakeRate(TString ID, TString key, TString
   }
 
   int this_bin (0);
-  //  if(IsMC ) this_bin = (mapit->second)->FindBin(pt);
   this_bin = (mapit->second)->FindBin(pt,eta);
 
   value = (mapit->second)->GetBinContent(this_bin);

@@ -64,19 +64,19 @@ IDs = [""] #["_ID"]
 #myWPs = ["ANv3_HNL_ULIDv2_Decorr_NoCR_NoSyst"]
 #myWPs = ["ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr_NoCR"]
 #myWPs = ["ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
-#myWPs = ["ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
-myWPs = ["ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt_Decorr_JetDecorr","ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
+myWPs = ["ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
+#myWPs = ["ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt_Decorr_JetDecorr","ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
-#tags = ["_syst"]
+tags = ["_syst"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_sronly_sr123_syst"]
 #tags = ["_sronly_sr123"]
 #tags = ["_DYVBF_sronly_sr123_syst"]
 #tags = ["_DYVBF_syst"]
 #tags = ["_SSWW_syst"]
-tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+#tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 
 for WP in myWPs:
   this_workdir = workdir+WP

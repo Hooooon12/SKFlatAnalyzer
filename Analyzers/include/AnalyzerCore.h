@@ -272,7 +272,8 @@ public:
   bool IsCF(Electron el, std::vector<Gen> gens, bool checcloseel=true);
   bool IsCF(Muon mu, std::vector<Gen> gens);
   bool HasPromptConv(Electron el);
-
+  bool PassGenFilterPhotonPt();
+  
   double GetGenJJMass();
   double GetGenZZMass();
   double GetGenZZPt();
@@ -290,6 +291,7 @@ public:
   vector<TString> GetGenListPlot();
 
   void PrintGen(const std::vector<Gen>& gens);
+  void PrintMatchedGen(std::vector<Gen>& gens,Particle p);
   void PrintMatchedGen(std::vector<Gen>& gens,const Lepton& Lep);
   int  HotFixLeptonType(Lepton lep);
 
@@ -350,7 +352,8 @@ public:
   Particle UpdateMET(const Particle& METv, const std::vector<Muon>& muons);
   Particle UpdateMETTuneP(const Particle& METv, const std::vector<Muon>& muons);
   Particle UpdateMETSmearedJet(const Particle& METv, const std::vector<Jet>& jets);
-  Particle UpdateMETSyst(AnalyzerParameter param, const Particle& METv, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Muon> muons, std::vector<Electron> electrons);
+  Particle UpdateMETSmearedFatJet(const Particle& METv, const std::vector<FatJet>& jets);
+  Particle UpdateMETSyst(AnalyzerParameter param, const Particle& METv, std::vector<Electron> electrons);
   Particle UpdateMETSyst(double met_pt, double met_phi, double met_shift_pt, double met_shift_phi, const Particle& METv);
   Particle UpdateMETCF(const Particle METv, const std::vector<Electron> electrons, const std::vector<Electron> electrons_shifted);
 

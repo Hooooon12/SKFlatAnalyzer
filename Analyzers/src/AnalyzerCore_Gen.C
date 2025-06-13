@@ -581,6 +581,26 @@ TString AnalyzerCore::MatchGenDef(std::vector<Gen>& gens,const Lepton& Lep, bool
 }
 
 
+void AnalyzerCore::PrintMatchedGen(std::vector<Gen>& gens,Particle p){
+
+  cout << "===========================================================" << endl;
+  cout << "RunNumber:EventNumber = " << run << ":" << event << endl;
+  cout << "index\tPID\tStatus\tMIdx\tMPID\tStart\tPt\tEta\tPhi\tM" << endl;
+
+  for(unsigned int i=2; i<gens.size(); i++){
+
+    Gen gen = gens.at(i);
+
+    if(p.DeltaR(gen) < 0.4)  {
+      vector<int> history = TrackGenSelfHistory(gen, gens);
+      cout <<  i << "\t" << gen.SPID() << "\t" << gen.Status() << "\t" << gen.MotherIndex() << "\t" << gens.at(gen.MotherIndex()).SPID()<< "\t" << history[0] << "\t";
+      printf("%.2f\t%.2f\t%.2f\t%.2f =======> DrMatched %.2f\t \n",gen.Pt(), gen.Eta(), gen.Phi(), gen.M(),p.DeltaR(gen));
+      
+    }
+  }
+  return;
+}
+
 
 
 void AnalyzerCore::PrintMatchedGen(std::vector<Gen>& gens,const Lepton& Lep){
@@ -770,12 +790,72 @@ bool AnalyzerCore::IsCF(Muon mu, std::vector<Gen> truthColl){
   return false;
 }
 
+
+bool AnalyzerCore::PassGenFilterPhotonPt(){
+
+  //// Only filter if in list
+  std::vector<TString> List = {
+    "WGToLNuG", "ZGToLLG"
+  };
+  
+  if (std::find(List.begin(), List.end(), MCSample) == List.end()) return true;
+
+  
+  int NearPhotonIdx = -1;
+  
+  // Step 1: Look for status 23 photon                                                                                                                                                                                                                                      
+  for (unsigned int i = 2; i < All_Gens.size(); ++i) {
+    const Gen& gen = All_Gens[i];
+    if (gen.MotherIndex() < 0) continue;
+    if (gen.PID() == 22 && gen.Status() == 23) {
+      NearPhotonIdx = static_cast<int>(i);
+      break; // Found status 23 photon, use first one                                                                                                                                                                                                                       
+    }
+  }
+  
+  // Step 2: Fallback to highest-pt status 1 prompt photon                                                                                                                                                                                                                  
+  if (NearPhotonIdx < 0) {
+    double maxPt = 0;
+    for (unsigned int i = 2; i < All_Gens.size(); ++i) {
+      const Gen& gen = All_Gens[i];
+      if (gen.MotherIndex() < 0) continue;
+      if (gen.PID() != 22 || gen.Status() != 1) continue;
+      if (gen.isPromptFinalState() && gen.Pt() > maxPt) {
+	NearPhotonIdx = static_cast<int>(i);
+	maxPt = gen.Pt();
+      }
+    }
+  }
+
+  
+  if (NearPhotonIdx <= 0)  return false;
+  
+  double phPt = All_Gens[NearPhotonIdx].Pt();
+  if(MCSample == "WGToLNuG"){
+    if(phPt < 130) return true;
+    else return false;
+  }
+
+  if(MCSample == "ZGToLLG") {
+    if(phPt < 130) return true;
+    else return false;
+  }
+
+
+  return true;
+}
+
+
+
 bool AnalyzerCore::ConversionSplitting(std::vector<Lepton *> leps, bool RunConvMode,  int nlep, AnalyzerParameter param){
 
   if(!RunConvMode) return true;
   if(IsData) return true;
 
-
+  //// Apply Gen Pt Cut on WG/ZG Photon to add to PtBinned samples
+  if(!PassGenFilterPhotonPt()) return false;
+  
+  
   bool IsSampleConvSplit = false;
   vector<TString> ConvSamples  = {"ZGTo","DYJet","WGToLNuG"};
   for(auto i : ConvSamples) if (MCSample.Contains(i)) IsSampleConvSplit=true;

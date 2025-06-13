@@ -1,2 +1,0 @@
-# alias PD xsec nmc sumsign sumw
-WGToLNuG_01J_5f_Pt10_resub	WGToLNuG_01J_5f_Pt10_resub	681.4	26334319	17242819.0	22326251253.8 

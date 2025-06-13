@@ -427,7 +427,7 @@ void AnalyzerCore::WriteHist(){
     TString this_suffix=this_fullname(0,this_fullname.Last('/'));
     TDirectory *dir = outfile->GetDirectory(this_suffix);
     if(!dir){
-      cout << "Making outdir  " << this_suffix << endl;
+      //cout << "Making outdir  " << this_suffix << endl;
       outfile->mkdir(this_suffix);
     }
     outfile->cd(this_suffix);

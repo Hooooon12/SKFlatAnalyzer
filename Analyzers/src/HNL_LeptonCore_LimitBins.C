@@ -3,41 +3,49 @@
 void HNL_LeptonCore::DefineLimitBins(){
   
   //// Define SR 1 binning to allow nevents >= 1 per bin per era
-  
+
+  vector<double> sr1bins_ll = {0.,  500, 750,  2000.};
+
   vector<double> sr1bins_mm;
   vector<double> sr1bins_ee;
   vector<double> sr1bins_em;
 
   //// Define CR1 binning      
-  vector<double> cr1bins = { 0.,400, 500,   2000.};
-
+  vector<double> cr1bins = { 0.,400, 500,600, 2000.};
+  
   if(DataEra == "2016preVFP") {
-    sr1bins_mm = { 0., 400, 550,  2000.};
-    sr1bins_ee = { 0., 450, 600,  2000.};
-    sr1bins_em = { 0., 400, 500,  750, 2000.};
+    //sr1bins_mm = { 0., 400, 550,  2000.}; ANv4
+    sr1bins_mm = { 0.,450, 750, 2000.}; // ANv5
+    sr1bins_ee = { 0.,450, 600, 800,  2000.};
+    sr1bins_em = { 0.,450, 600, 800, 2000.};
   }
   if(DataEra == "2016postVFP") {
-    sr1bins_mm = { 0., 400,  500, 2000.};
-    sr1bins_ee = { 0., 500,  750,  2000.};
-    sr1bins_em = { 0., 350,450,  600, 2000.};
+    sr1bins_mm = { 0., 400, 550, 2000.};
+    sr1bins_ee = { 0., 450, 650,  800,  2000.};
+    sr1bins_em = { 0., 450, 550,  800, 2000.};
   }
   if(DataEra == "2017") {
-    sr1bins_mm  = { 0., 450,  700,  2000.};
-    sr1bins_ee  = { 0., 500,  800., 2000.};
-    sr1bins_em  = { 0., 500,  600, 800., 2000.};
+    sr1bins_mm  = { 0., 450, 550,  800,  2000.};
+    sr1bins_ee  = { 0., 500, 600,  800., 2000.};
+    sr1bins_em  = { 0., 500, 650, 850., 2000.};
   }
   if(DataEra == "2018") {
-    sr1bins_mm = { 0.,   450., 700., 2000.};
-    sr1bins_ee = { 0.,   500., 800., 2000.};
-    sr1bins_em = { 0.,   500., 700,  1000., 2000.};
+    sr1bins_mm = { 0.,   450., 550, 750., 2000.};
+    sr1bins_ee = { 0.,   500., 700, 900., 2000.};
+    sr1bins_em = { 0.,   500., 650, 900., 2000.};
   }
 
-  vector<TString> MuMu_SR1_BinTags, EE_SR1_BinTags ,EMu_SR1_BinTags, CR1_BinTags;
-  for(unsigned int i_d =1 ; i_d <  sr1bins_mm.size(); i_d++)  MuMu_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
-  for(unsigned int i_d =1 ; i_d <  sr1bins_ee.size(); i_d++)  EE_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
-  for(unsigned int i_d =1 ; i_d <  sr1bins_em.size(); i_d++)  EMu_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
+  vector<TString> MuMu_SR1_BinTags,  EE_SR1_BinTags ,EMu_SR1_BinTags, CR1_BinTags;
+  for(unsigned int i_d =1 ; i_d <  sr1bins_mm.size()+3; i_d++)  MuMu_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
+  for(unsigned int i_d =1 ; i_d <  sr1bins_ee.size()+3; i_d++)  EE_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
+  for(unsigned int i_d =1 ; i_d <  sr1bins_em.size()+3; i_d++)  EMu_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
   for(unsigned int i_d =1 ; i_d <  cr1bins.size(); i_d++)     CR1_BinTags.push_back("CR1_MNbin"+to_string(i_d));
 
+  //// EE/EMu have most bins
+  map_bins_labels ["SR1_PlotVersion_MuMu"]= EE_SR1_BinTags;
+  map_bins_labels ["SR1_PlotVersion_EE"]  = EE_SR1_BinTags;
+  map_bins_labels ["SR1_PlotVersion_EMu"] = EE_SR1_BinTags;
+  
   map_bins_labels ["SR1_MuMu"]= MuMu_SR1_BinTags;
   map_bins_labels ["SR1_EE"]  = EE_SR1_BinTags;
   map_bins_labels ["SR1_EMu"] = EMu_SR1_BinTags;
@@ -46,6 +54,7 @@ void HNL_LeptonCore::DefineLimitBins(){
   map_bins_boundaries  ["SR1_EE"]   = sr1bins_ee;
   map_bins_boundaries  ["SR1_EMu"]  = sr1bins_em;
 
+  
   //// CR
   map_bins_labels ["CR1"]       = CR1_BinTags;
 
@@ -135,7 +144,8 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
   double binLimit1 = 0.0, binLimit2 = 0.0, binLimit3 = 0.0, binLimit4 = 0.0, binLimit5 = 0.0;
   
   if (channel == "MuMu") {
-    if (DataYear == 2016) {
+
+    if(DataEra == "2016preVFP") {
       if (LowJet) {
 	// LowJet Bins
 	if (met2_st < met2_st_boundary) {
@@ -146,12 +156,30 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
       } else {
 	// HighJet Bins
 	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 175; binLimit2 = 200; binLimit3 = 225; binLimit4 = 275; binLimit5 = 350;
+	  binLimit1 = 160; binLimit2 = 180; binLimit3 = 200; binLimit4 = 225; binLimit5 = 275;
 	} else {
-	  binLimit1 = 200; binLimit2 = 250; binLimit3 = 300; 
+	  binLimit1 = 175; binLimit2 = 200; binLimit3 = 250; 
 	}
       }
-    } else if (DataYear == 2017) {
+    }
+    else   if(DataEra == "2016postVFP") {
+      if (LowJet) {
+        // LowJet Bins                                                                                                 
+        if (met2_st < met2_st_boundary) {
+          binLimit1 = 130; binLimit2 = 150; binLimit3 = 200; binLimit4 = 300;
+        } else {
+          binLimit1 = 175; binLimit2 = 250;
+        }
+      } else {
+        // HighJet Bins                                                                                                
+        if (met2_st < met2_st_boundary) {
+          binLimit1 = 130; binLimit2 = 150; binLimit3 = 175; binLimit4 = 200; binLimit5 = 275;
+        } else {
+          binLimit1 = 150; binLimit2 = 175; binLimit3 = 225;
+        }
+      }
+    }
+    else if (DataYear == 2017) {
       if (LowJet) {
 	// LowJet Bins
 	if (met2_st < met2_st_boundary) {
@@ -162,23 +190,23 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
       } else {
 	// HighJet Bins
 	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 200; binLimit2 = 250; binLimit3 = 300; binLimit4 = 350; binLimit5 = 450;
+	  binLimit1 = 175; binLimit2 = 200; binLimit3 = 250; binLimit4 = 300; binLimit5 = 375;
 	} else {
-	  binLimit1 = 200; binLimit2 = 300; binLimit3 = 400; 
+	  binLimit1 = 200; binLimit2 = 275; binLimit3 = 350; 
 	}
       }
     } else if (DataYear == 2018) {
       if (LowJet) {
 	// LowJet Bins
 	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 200; binLimit2 = 250; binLimit3 = 300; binLimit4 = 350;
+	  binLimit1 = 200; binLimit2 = 250; binLimit3 = 300; binLimit4 = 375;
 	} else {
 	  binLimit1 = 200; binLimit2 = 400; 
 	}
       } else {
 	// HighJet Bins
 	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 225; binLimit2 = 275; binLimit3 = 325; binLimit4 = 400; binLimit5 = 500;
+	  binLimit1 = 200; binLimit2 = 225; binLimit3 = 275; binLimit4 = 325; binLimit5 = 400;
 	} else {
 	  binLimit1 = 200; binLimit2 = 350; binLimit3 = 450; 
 	}
@@ -209,14 +237,14 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
 	if (met2_st < met2_st_boundary) {
 	  binLimit1 = 200; binLimit2 = 400; binLimit3 = 600; binLimit4 = 900;
 	} else {
-	  binLimit1 = 200; binLimit2 = 500; 
+	  binLimit1 = 180; binLimit2 = 500; 
 	}
       } else {
 	// HighJet Bins
 	if (met2_st < met2_st_boundary) {
 	  binLimit1 = 300; binLimit2 = 375; binLimit3 = 450; binLimit4 = 550; binLimit5 = 700;
 	} else {
-	  binLimit1 = 300; binLimit2 = 500; binLimit3 = 600;
+	  binLimit1 = 300; binLimit2 = 450; binLimit3 = 550;
 	}
       }
     } else if (DataYear == 2018) {
@@ -250,7 +278,7 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
       } else {
 	// HighJet Bins
 	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 250; binLimit2 = 300; binLimit3 = 350; binLimit4 = 400; binLimit5 = 500;
+	  binLimit1 = 250; binLimit2 = 290; binLimit3 = 340; binLimit4 = 400; binLimit5 = 500;
 	} else {
 	  binLimit1 = 200; binLimit2 = 300; binLimit3 = 400; 
 	}
@@ -282,7 +310,7 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
       } else {
 	// HighJet Bins
 	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 300; binLimit2 = 350; binLimit3 = 450; binLimit4 = 600; binLimit5 = 700;
+	  binLimit1 = 300; binLimit2 = 350; binLimit3 = 425; binLimit4 = 500; binLimit5 = 700;
 	} else {
 	  binLimit1 = 250; binLimit2 = 400; binLimit3 = 500;
 	}

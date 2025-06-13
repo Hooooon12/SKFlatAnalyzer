@@ -74,14 +74,16 @@ signals = [""]
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_ANv3/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
-SRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
-CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
+#SRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
+#CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
+SRpath = "/data9/Users/HNL_public/SUS-24-014//LimitInputs/"
+CRpath = "/data9/Users/HNL_public/SUS-24-014//LimitInputs/"
 
 #InputWPs = ["ANv3_HNL_ULIDv2"]
 #InputWPs = ["HEMJet_HNL_ULIDv2_RemoveHEMJet","HEMJet_HNL_ULIDv2_ScaleHEMJet","TuneP_HNL_ULIDv2_CompareTuneP","TuneP_HNTightV2_CompareTuneP","TuneP_POGTight_CompareTuneP"]
 #InputWPs = ["ANv4_HNL_ULIDv2_RunSyst"]
-InputWPs = ["ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt"]
-#InputWPs = ["ANv5_HNL_ULIDv2_RunSyst"]
+#InputWPs = ["ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt"]
+InputWPs = ["ANv5_HNL_ULIDv2_RunSyst"]
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 

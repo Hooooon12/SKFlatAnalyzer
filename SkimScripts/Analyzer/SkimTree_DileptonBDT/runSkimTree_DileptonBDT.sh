@@ -1,17 +1,63 @@
-analyzer=SkimTree_DileptonBDT
-rundir=runSkims
-mcpath=${SKFlat_WD}/SkimScripts/SampleLists/Bkg/
-datapath=${SKFlat_WD}/SkimScripts/SampleLists/Data/
+#!/bin/bash
+
+# Exit on error, undefined variable, or failed pipeline
+set -euo pipefail
+
+# Variables
+analyzer="SkimTree_DileptonBDT"
+qrundir="runSkims"
+mcpath="${SKFlat_WD}/SkimScripts/SampleLists/Bkg/"
+datapath="${SKFlat_WD}/SkimScripts/SampleLists/Data/"
+sigpath="${SKFlat_WD}/SkimScripts/SampleLists/Signals/"
 njobs=600
-njobs_data=600
-nmax=400
-#declare  -a era_list=("2018" "2017"  "2016preVFP" "2016postVFP")
-declare  -a era_list=("2018")
-if [[ $1 == "All" ]]; then
+njobs_data=100
+nmax=350
+era_list=("2016postVFP" "2016preVFP" "2017" "2018")
 
-    for i in "${era_list[@]}"
-    do
-	SKFlat.py -a $analyzer  -i GluGluToZZto4tau   -n ${njobs_data}  --nmax ${nmax}   -e ${i}  &
-
+# Helper function to run SKFlat for a given era
+run_new_samples() {
+    echo "Running new samples for analyzer: ${analyzer}"
+    for era in "${era_list[@]}"; do
+        echo "Launching jobs for era: ${era}"
+        SKFlat.py -a "${analyzer}" -i "DYJets10to50" -n "${njobs}" --nmax "${nmax}" -e "${era}" &
+        SKFlat.py -a "${analyzer}" -i "ZGToLLG_PtG_130" -n "${njobs}" --nmax "${nmax}" -e "${era}" &
+	SKFlat.py -a "${analyzer}" -i "WGToLNuG_01J_PtG_130" -n "${njobs}" --nmax "${nmax}" -e "${era}" &
+	SKFlat.py -a "${analyzer}" -i "WGToLNuG_01J_PtG_300" -n "${njobs}" --nmax "${nmax}" -e "${era}" &
+	SKFlat.py -a "${analyzer}" -i "WGToLNuG_01J_PtG_500" -n "${njobs}" --nmax "${nmax}" -e "${era}" &
+	
     done
-fi
+    wait  # Ensure all background jobs finish before the script exits
+    echo "All SKFlat jobs launched for new samples."
+}
+
+# Help message
+print_help() {
+    echo "Usage: $0 [option]"
+    echo ""
+    echo "Available options:"
+    echo "  New     Run new samples (GluGluToZZto4tau for all eras)"
+    echo "  help    Show this message"
+    echo ""
+}
+
+# Main logic
+case "${1:-}" in
+    New)
+        run_new_samples
+        ;;
+    help|-h|--help)
+        print_help
+        ;;
+    "")
+        echo "No option provided."
+        print_help
+        ;;
+    *)
+        echo "Unknown option: $1"
+        print_help
+        exit 1
+        ;;
+esac
+
+
+

@@ -57,6 +57,10 @@ public:
   void SetPxUnSmeared(double px);
   void SetPyUnSmeared(double py);
 
+  inline double UnsmearedPt() const{
+    return sqrt(j_PxUnSmeared*j_PxUnSmeared + j_PyUnSmeared *j_PyUnSmeared);
+  }
+  
   inline double JECfactor(){
     double RAWE = sqrt(j_PxUnSmeared*j_PxUnSmeared + j_PyUnSmeared *j_PyUnSmeared) / j_jec_full ;
     
@@ -99,7 +103,7 @@ public:
   bool Pass_HNTight() const;
 
   bool PassID(TString ID) const;
-  bool PassPileupMVA(TString WP, TString era) const;
+  bool PassPileupMVA(TString WP, TString era, bool UseUnsmearedPt=true) const;
 
 
   double GetTaggerResult(JetTagging::Tagger tg) const;

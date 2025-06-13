@@ -21,7 +21,7 @@ SKFlatV = os.environ['SKFlatV']
 SAMPLE_DATA_DIR = SKFlat_WD+'/data/'+SKFlatV+'/'+args.Era+'/Sample/'
 filelistpath = SAMPLE_DATA_DIR+'/ForSNU/'+SkimString+args.InputSample+'.txt'
 if not os.path.exists(filelistpath):
-    print "No file "+filelistpath
+    print("No file "+filelistpath)
     exit(1)
 filepaths = os.popen("sed 's/#.*//' "+filelistpath+"|grep '.root'").read().split()
 analyzer=ROOT.AnalyzerCore()
@@ -32,9 +32,9 @@ analyzer.AddFile(filepaths[0])
 analyzer.Init()
 analyzer.initializeAnalyzer()
 analyzer.initializeAnalyzerTools()
-print "========= file:"+filepaths[0]+" ============="
+print("========= file:"+filepaths[0]+" =============")
 for i in range(0,args.n):
-    print "----------- entry "+str(i)+" -------------"
+    print("----------- entry "+str(i)+" -------------")
     analyzer.GetEntry(i)
     analyzer.beginEvent()
     lhes=analyzer.GetLHEs()

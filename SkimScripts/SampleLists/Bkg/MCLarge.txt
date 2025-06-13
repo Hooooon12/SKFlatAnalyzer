@@ -1,7 +1,5 @@
-ZZTo4L_m_1toInf_powheg
-WZTo3LNu_mllmin0p1_powheg
 WZTo3LNu_amcatnlo
-WJets_Sherpa
+ZGToLLG_PtG_130
 WGToLNuG_01J_PtG_130
 WGToLNuG_01J_PtG_300
 WGToLNuG_01J_PtG_500
@@ -9,7 +7,6 @@ WGToLNuG
 tZq
 ttWJets
 ttZJets
-DYJets
 DYJets_MG_HT-100to200
 DYJets_MG_HT-1200to2500
 DYJets_MG_HT-200to400

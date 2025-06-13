@@ -127,9 +127,8 @@ int  Electron::PassHNLTight(TString ID) const{
   if(ID.Contains("HNL_HighPt_ULID_FO_")){
 
     ///// V0 ID is BASIC loose ID with NO DEEPJET cuts                                                                                                                                                                                     
-                                                                                                                                                                                                                                            
     double BJetDeepJetCut = GetDeepJetFromID(ID,"HNL_HighPt_ULID_FO_") ;
-
+    
     bool ApplyCloseJet_CvsBScore=ApplyCvsB(ID);
     bool ApplyCloseJet_CvsLScore=ApplyCvsB(ID);
     double CBJetDeepJetCut = GetCvsBCut(ID);

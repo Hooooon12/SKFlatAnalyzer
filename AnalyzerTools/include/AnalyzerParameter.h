@@ -28,7 +28,7 @@ class AnalyzerParameter{
   TString Muon_FR_ID, Muon_CF_ID;
   TString JetPUID,TriggerSelection;
   TString Tau_Tight_ID, Tau_Loose_ID, Tau_Veto_ID;
-  TString Jet_ID, FatJet_ID;
+  TString Jet_ID, FatJet_ID,FatJet_CleaningColl;
 
   bool   Electron_UseMini, Electron_UsePtCone;
   bool   Muon_UseMini, Muon_UsePtCone, Muon_UseTuneP;

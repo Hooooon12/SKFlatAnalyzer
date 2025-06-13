@@ -4,4 +4,3 @@ ttWToQQ
 VBFHToTauTau_M125
 VHToNonbb
 WGJJToLNu
-ZZ_pythia

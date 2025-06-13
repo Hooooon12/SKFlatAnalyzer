@@ -606,7 +606,7 @@ cd -
 ### modifying LD_LIBRARY_PATH to use libraries in base_rundir
 
 export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH|sed 's@'$SKFlat_WD'/lib@{0}/lib@')
-export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$SKFlat_WD/DataFormats/include:$SKFlat_WD/AnalyzerTools/include:$SKFlat_WD/Analyzers/include:$SKFlat_WD/Analyzers/HNL/include
+export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$SKFlat_WD/DataFormats/include:$SKFlat_WD/AnalyzerTools/include:$SKFlat_WD/Analyzers/include:$SKFlat_WD/Analyzers/HNLRegions/include/:$SKFlat_WD/Analyzers/Utils/include/
 
 
 while [ "$Trial" -lt 3 ]; do
