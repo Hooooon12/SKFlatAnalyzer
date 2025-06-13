@@ -1,4 +1,4 @@
-all: DataFormats AnalyzerTools GEScaleSyst Analyzers AnalyzersHNLRegions AnalyzersUtil Archive
+all: DataFormats AnalyzerTools GEScaleSyst Analyzers AnalyzersHNLRegions AnalyzersUtils Archive
 
 DataFormats::
 	(cd DataFormats; make)
@@ -25,10 +25,10 @@ AnalyzersHNLRegions::
 	(mvexist.sh Analyzers/HNLRegions/src/HNLRegionsAnalyzers_Dict_rdict.pcm lib/)
 	(mvexist.sh Analyzers/HNLRegions/libHNLRegionsAnalyzers.rootmap lib/)
 
-AnalyzersUtil::
+AnalyzersUtils::
 	(cd Analyzers/Utils; make)
-	(mvexist.sh Analyzers/Utils/src/UtilAnalyzers_Dict_rdict.pcm lib/)
-	(mvexist.sh Analyzers/Utils/libUtilAnalyzers.rootmap lib/)
+	(mvexist.sh Analyzers/Utils/src/UtilsAnalyzers_Dict_rdict.pcm lib/)
+	(mvexist.sh Analyzers/Utils/libUtilsAnalyzers.rootmap lib/)
 
 Archive::
 	(tar -zcf lib/DataFormats.tar.gz DataFormats)

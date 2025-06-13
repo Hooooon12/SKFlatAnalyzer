@@ -271,10 +271,7 @@ if args.Central or args.Systematics:
             RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {datapath}/{DATADir}/{era}_DiLepton_EE.txt      -n 100    --nmax {nmax}   -e {era}  --skim SkimTree_HNMultiLepBDT  {FlagCommand('RunFake', flags)} ")
             
         if RunCF:
-            ### CF                                                                                                                                                                               
-            if args.SSMultiLep:
-                RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {datapath}/{DATADir}/{era}_DiLepton_EE.txt      -n 100    --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunCF', flags)} ") 
-            elif args.MultiLep:
-                RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {datapath}/{DATADir}/{era}_DiLepton_EMu.txt      -n 100    --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunCF', flags)} ")
-                RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {datapath}/{DATADir}/{era}_DiLepton_EE.txt      -n 100    --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunCF', flags)} ")
+            ### CF                                                                                                                  a                                                             
+            RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {datapath}/{DATADir}/{era}_DiLepton_EMu.txt      -n 100    --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunCF', flags)} ")
+            RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {datapath}/{DATADir}/{era}_DiLepton_EE.txt      -n 100    --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunCF', flags)} ")
 
