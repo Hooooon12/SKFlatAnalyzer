@@ -43,7 +43,7 @@ class AnalyzerParameter{
 
   bool ApplyPR;
   /// Weights
-  bool   Apply_Weight_LumiNorm, Apply_Weight_MCSign,Apply_Weight_Norm1Ipb, Apply_Weight_SumQ,  Apply_Weight_PileUp, Apply_Weight_PreFire ,Apply_Weight_kFactor, Apply_Weight_IDSF , Apply_Weight_TriggerSF, Apply_Weight_RECOSF, Apply_Weight_Z0, Apply_Weight_TopCorr,Apply_Weight_DYCorr, Apply_Weight_BJetSF, Apply_Weight_PNETSF,Apply_Weight_MuonTrackerSF,Apply_Weight_JetPUID, Apply_Weight_PDF; //JH
+  bool   Apply_Weight_LumiNorm, Apply_Weight_MCSign,Apply_Weight_Norm1Ipb, Apply_Weight_SumQ,  Apply_Weight_PileUp, Apply_Weight_PreFire ,Apply_Weight_kFactor, Apply_Weight_IDSF , Apply_Weight_TriggerSF, Apply_Weight_RECOSF, Apply_Weight_Z0, Apply_Weight_TopCorr,Apply_Weight_DYCorr, Apply_Weight_BJetSF, Apply_Weight_PNETSF,Apply_Weight_MuonTrackerSF,Apply_Weight_JetPUID;
 
 
   /// Other

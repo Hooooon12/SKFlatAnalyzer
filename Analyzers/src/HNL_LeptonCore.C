@@ -1185,23 +1185,6 @@ double HNL_LeptonCore::SetupWeight(Event ev, AnalyzerParameter& param){
     FillWeightHist(param.ChannelDir()+"/PileupWeight",pileup_weight);
   }
 
-  if(param.Apply_Weight_PDF){
-    if(MCSample.Contains("private")){ // signal only
-      for(unsigned int i=0; i<weight_PDF->size(); i++){
-        FillWeightHist(param.ChannelDir()+"/PDFError_"+TString::Itoa(i,10), weight_PDF->at(i));
-      }
-      if(weight_AlphaS->size()==2){
-        FillWeightHist(param.ChannelDir()+"/PDFAlphaS_Down", weight_AlphaS->at(0));
-        FillWeightHist(param.ChannelDir()+"/PDFAlphaS_Up", weight_AlphaS->at(1));
-      }
-      for(unsigned int i=0; i<weight_Scale->size(); i++){                                                                                                                                            //==== i=5 and 7 are unphysical
-        if(i==5) continue;
-        if(i==7) continue;
-        FillWeightHist(param.ChannelDir()+"/PDFScale_"+TString::Itoa(i,10), weight_Scale->at(i));
-      }
-    }
-  }
-
   double this_mc_weight =  MCweight(param.Apply_Weight_SumQ, param.Apply_Weight_Norm1Ipb);
   FillWeightHist(param.ChannelDir()+"/MCWeight",    this_mc_weight);
   

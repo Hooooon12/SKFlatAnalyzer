@@ -108,7 +108,6 @@ void AnalyzerParameter::Clear(){
   Apply_Weight_BJetSF    = true;
   Apply_Weight_PNETSF    = true;
   Apply_Weight_JetPUID   = true;
-  Apply_Weight_PDF       = false; //JH
 
   Set_ElIDW=false;
   Set_MuIDW=false;
@@ -213,7 +212,6 @@ AnalyzerParameter::AnalyzerParameter(){
   Apply_Weight_BJetSF    = true;
   Apply_Weight_PNETSF    = true;
   Apply_Weight_JetPUID   = true;
-  Apply_Weight_PDF       = false; //JH
 
 
   syst_ = Central;
@@ -563,7 +561,6 @@ void AnalyzerParameter::PrintParameters(){
   cout << "Apply_Weight_BJetSF    = " << Apply_Weight_BJetSF    << endl;
   cout << "Apply_Weight_PNETSF    = " << Apply_Weight_PNETSF    << endl;
   cout << "Apply_Weight_JetPUID   = " << Apply_Weight_JetPUID   << endl;
-  cout << "Apply_Weight_PDF       = " << Apply_Weight_PDF       << endl; //JH
   return;
 }
 
