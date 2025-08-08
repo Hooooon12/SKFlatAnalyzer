@@ -30,7 +30,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_SF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M1000".log
 #echo -e ".L test.C\n test(\"2018\",false,\"SSWWTypeI_SF_M30000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M30000".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"RunConv\");" | root -l 2>&1 | tee "2018_ZG_RunConv".log
-#echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"RunSyst,LimitOnly\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_RunSyst_LimitOnly".log
+echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"RunSyst\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_RunSyst".log
 
 # HNL_SignalRegionPlotter (fake closure)
 #echo -e ".L test.C\n test(\"2017\",false,\"TTLJ\",\"HNMultiLepBDT\",\"RunFakeClosurePred\");" | root -l 2>&1 | tee "TTLJ_ClosPred".log
@@ -52,7 +52,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake".log
 #echo -e ".L test.C\n test(\"2017\",true,\"DoubleEG\",\"HNMultiLepBDT\",\"SS_CR,RunFake,LimitOnly\");" | root -l 2>&1 | tee "DoubleEG_SS_CR_RunFake_LimitOnly".log
 #echo -e ".L test.C\n test(\"2018\",true,\"EGamma\",\"HNMultiLepBDT\",\"SSMultiLep,RunFake\");" | root -l 2>&1 | tee "DoubleEG_SSMultiLep_RunFake".log
-echo -e ".L test.C\n test(\"2018\",true,\"EGamma\",\"HNMultiLepBDT\",\"RunSyst,SSMultiLep,RunFake\");" | root -l 2>&1 | tee "DoubleEG_RunSyst_SSMultiLep_RunFake".log
+#echo -e ".L test.C\n test(\"2018\",true,\"EGamma\",\"HNMultiLepBDT\",\"RunSyst,SSMultiLep,RunFake\");" | root -l 2>&1 | tee "DoubleEG_RunSyst_SSMultiLep_RunFake".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR,RunConv,SaveIntConv\");" | root -l 2>&1 | tee "2018_ZG_SS_CR_RunConv_SaveIntConv".log
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"DileptonBDT\",\"SS_CR,RunConv\");" | root -l 2>&1 | tee "2018_ZG_SS_CR_RunConv".log # RunConv uses Dilepton skim from PR97
 #echo -e ".L test.C\n test(\"2018\",false,\"ZG\",\"HNMultiLepBDT\",\"SS_CR,SaveIntConv\");" | root -l 2>&1 |         tee "2018_ZG_SS_CR_SaveIntConv".log

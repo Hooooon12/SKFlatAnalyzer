@@ -4,8 +4,8 @@ R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre4/e
 void test(TString era, bool isdata, TString sample, TString skim, TString flag){ //echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_M500\",\"\",\"\");" | root -l 2>&1 | tee my.log
 
   //HNL_LeptonFakeRate m;
-  //HNL_SignalRegion_Plotter m;
-  HNL_ControlRegion_Plotter m;
+  HNL_SignalRegion_Plotter m;
+  //HNL_ControlRegion_Plotter m;
   //SkimTree_EGammaTnP_HighPt m;
 
   m.SetTreeName("recoTree/SKFlat");

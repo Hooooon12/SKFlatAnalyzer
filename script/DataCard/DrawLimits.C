@@ -16,7 +16,57 @@ double GetDYxsec(int mass, TString channel);
 double GetVBFxsec(int mass, TString channel);
 double GetSSWWxsec(int mass, TString channel);
 
-void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, bool IsXsecLimit=false, bool Logy=true){
+void print_ratio_table(const vector<vector<double>>& mass_vs_nominal,
+                       const vector<vector<double>>& ratio_vs_nominal,
+                       const vector<double>& mass_nominal,
+                       const vector<TString>& descrps,
+                       const TString& filename,
+                       const TString& table_title,
+                       bool append=false
+                       )
+{
+    ofstream fout(filename, append ? ios::app : ios::trunc); // append or truncate (recreate)
+    if (!fout.is_open()) {
+        cerr << "[ERROR] Cannot open file: " << filename << endl;
+        return;
+    }
+
+    // Write channel name first
+    fout << "[" << table_title << " channel]" << "\n";
+
+    // BDTver 100 200 300 ...
+    fout << left << setw(20) << "BDT version";
+    for (double m : mass_nominal)
+        fout << setw(10) << fixed << setprecision(0) << m;
+    fout << "\n";
+
+    for (size_t i = 0; i < ratio_vs_nominal.size(); ++i) {
+        ostringstream BDTStream;
+        BDTStream << "<" << descrps[i] << ">";
+        fout << left << setw(20) << BDTStream.str();
+        for (double m : mass_nominal) {
+            auto it = find(mass_vs_nominal[i].begin(), mass_vs_nominal[i].end(), m);
+            if (it != mass_vs_nominal[i].end()) {
+                int idx = distance(mass_vs_nominal[i].begin(), it);
+                double ratio = ratio_vs_nominal[i][idx];
+                double percent = (ratio - 1.0) * 100.0;
+                ostringstream PercentStream;
+                PercentStream << showpos << fixed << setprecision(1) << percent << "%";
+                fout << setw(10) << PercentStream.str();
+            } else {
+                fout << setw(10) << "-";
+            }
+        }
+        fout << "\n";
+    }
+    fout << "\n";
+
+    fout.close();
+    cout << "[INFO] Ratio table written to " << filename << endl;
+}
+
+
+void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, bool AppendLimitTable=false, bool IsXsecLimit=false, bool Logy=true){
 
   bool DrawObserved = false;
 
@@ -64,7 +114,10 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   scales.push_back(0.01);
 
   TString method = "Asym"; //"Full";
-  vector<TString> WPs = {"ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt_Decorr_JetDecorr"};
+  vector<TString> WPs = {"ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_StrictBin_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_LooseBin_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_BugFix_HNL_ULIDv2_V4_StrictBin_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_BugFix_HNL_ULIDv2_V4_LooseBin_RunSyst_Decorr_JetDecorr"};
+  //vector<TString> WPs = {"ANv5_BDTV3_StrictBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_LooseBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_BugFix_HNL_ULIDv2_V4_StrictBin_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_BugFix_HNL_ULIDv2_V4_LooseBin_RunSyst_Decorr_JetDecorr"};
+  //vector<TString> WPs = {"ANv5_BDTV3_StrictBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_LooseBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_StrictBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_LooseBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_VeryLooseBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"};
+  //vector<TString> WPs = {"ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt_Decorr_JetDecorr"};
   //vector<TString> WPs = {"240505_PR46_HNTightV2","240504_PR44_HNL_ULID"};
   //vector<TString> tags = {"_sronly_Run2Scaled"};
   //vector<TString> WPs = {"240505_PR46_HNL_ULID"};
@@ -251,9 +304,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   // Use when there are more than two input limits to compare
   vector<TGraph*> gr_exp_list;
 
-  vector<int> colors = {kViolet, kMagenta, kOrange+1};
+  vector<int> colors = {kOrange+7, kGreen+3, kMagenta+2, kCyan+2, kViolet+7};
   //vector<int> styles = {1, 2, 3, 4, 5, 6};
-  vector<TString> descrps = {"ANv5 Old ID (exp)"};
+  vector<TString> descrps = {"BDTV3_Strict","BDTV3_Loose","BDTV4_Strict","BDTV4_Loose","BDTV4_VeryLoose"};
 
   if (CompareLimits && masses.size() > 1) {
   
@@ -274,7 +327,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       return;
     }
 
-    for (size_t i = 0; i < limits.size(); ++i) {
+    //for (size_t i = 0; i < limits.size(); ++i) {
+    for (size_t i = 1; i < limits.size(); ++i) {
       vector<double> this_mass       = masses[i];
       vector<double> this_limit      = limits[i];
       vector<double> this_1sig_l     = onesig_lefts[i];
@@ -324,17 +378,17 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   
       TGraph* gr_limit = new TGraph(common_mass_list.size(), &common_mass_list[0], &y_limit[0]);
       gr_limit->SetLineWidth(3);
-      gr_limit->SetLineColor(colors[i]);
+      gr_limit->SetLineColor(colors[i-1]);
       //gr_limit->SetLineStyle(styles[i % styles.size()]);
       gr_exp_list.push_back(gr_limit);
       
     }
   
   }
-  gr_exp_list.erase(gr_exp_list.begin()); // remove nominal
+  //gr_exp_list.erase(gr_exp_list.begin()); // remove nominal
 
-  TGraph* gr_exp_1 = gr_exp_list.size() > 0 ? gr_exp_list[0] : nullptr;
-  TGraph* gr_exp_2 = gr_exp_list.size() > 1 ? gr_exp_list[1] : nullptr;
+  //TGraph* gr_exp_1 = gr_exp_list.size() > 0 ? gr_exp_list[0] : nullptr;
+  //TGraph* gr_exp_2 = gr_exp_list.size() > 1 ? gr_exp_list[1] : nullptr;
 
   //TGraph *gr_exp_1 = new TGraph(n_centrals[1],&masses[1][0],&limits[1][0]);
   //gr_exp_1->SetLineWidth(3);
@@ -1565,6 +1619,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.pdf");
     if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp_Logy.png");
     else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.png");
+    print_ratio_table(mass_vs_nominal,ratio_vs_nominal,mass_nominal,descrps,this_plotpath+"/"+year+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.txt",channel,AppendLimitTable);
   }
   else{
     if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.pdf");

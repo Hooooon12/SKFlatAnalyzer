@@ -430,8 +430,8 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       
       //// Region1 only limit
       if(IsSR){
-	FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
-	FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction_PlotVersion/"+param.Name,"SR1_PlotVersion",channel_string);
+        FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
+        FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction_PlotVersion/"+param.Name,"SR1_PlotVersion",channel_string);
       }
       else{
         FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
@@ -832,15 +832,15 @@ TString HNL_RegionDefinitions::RunSignalRegionWWString(bool ApplyForSR,HNL_Lepto
       if(DataYear == 2016) sr2_pt = 80;
       //// Try same cuts for all eras
       if(ll_dphi > 2.) {
-	if(HTOverPT < 2.){
-	  if (leps[1]->Pt() > sr2_pt)      return RegionTag+"_HTLT_Bin1";
-	  else return RegionTag+"_HTLT_Bin2";
-	}
-	else return RegionTag+"_HTLT_Bin3";
+  if(HTOverPT < 2.){
+    if (leps[1]->Pt() > sr2_pt)      return RegionTag+"_HTLT_Bin1";
+    else return RegionTag+"_HTLT_Bin2";
+  }
+  else return RegionTag+"_HTLT_Bin3";
       }
       else{
-	if(HTOverPT < 3.)  return RegionTag+"_HTLT_Bin4";
-	else return RegionTag+"_HTLT_Bin5";
+  if(HTOverPT < 3.)  return RegionTag+"_HTLT_Bin4";
+  else return RegionTag+"_HTLT_Bin5";
       }
     }
   }

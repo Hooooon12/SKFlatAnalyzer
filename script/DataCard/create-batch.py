@@ -87,14 +87,14 @@ for RunList in args.RunLists:
  
     if args.pdf:
       os.chdir(pwd+"/"+WP+"/"+shortcard)
-      if float(shortcard.split('_')[2].replace("M","")) <= 3000.:
+      if "Weinberg" not in shortcard.split('_')[2] and float(shortcard.split('_')[2].replace("M","")) <= 3000.:
         if "SSWW" in shortcard:
           os.system("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf")
           os.system("cp "+shortcard+"_DefMod_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
         else:
           os.system("pdfseparate "+shortcard+".pdf -f 1 -l 1 "+shortcard+"_1.pdf")
           os.system("cp "+shortcard+"_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
-      else: # mass is above 3000 GeV so that it only contains SSWW --> get impact with default physics model
+      else: # mass is above 3000 GeV or Weinberg so that it only contains SSWW --> get impact with default physics model
         os.system("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf")
         os.system("cp "+shortcard+"_DefMod_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
       os.chdir(pwd)
@@ -215,12 +215,15 @@ for RunList in args.RunLists:
         runfile.write("echo Setting cmsenv environment...\n")
         runfile.write("cmsenv\n")
         card = card.replace(".root",".txt") # The Runlist contains card_name.root by default.
-        if "EMu" in shortcard:
-          runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu "+card+" -o "+shortcard+".root\n")
+        if "Weinberg" in shortcard:
+          runfile.write("text2workspace.py "+card+" -o "+shortcard+".root\n") # For Weinberg, run with default physics model
         else:
-          runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel "+card+" -o "+shortcard+".root\n")
-        if float(shortcard.split('_')[2].replace("M","")) > 3000. or "SSWW" in shortcard: # mass is above 3000 GeV --> it only contains SSWW
-          runfile.write("text2workspace.py "+card+" -o "+shortcard+"_DefMod.root\n") # check the impact with default physics model with SSWW: see https://cms-talk.web.cern.ch/t/0-impact-on-poi-negative-bin-issue/42793
+          if "EMu" in shortcard:
+            runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu "+card+" -o "+shortcard+".root\n")
+          else:
+            runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel "+card+" -o "+shortcard+".root\n")
+          if float(shortcard.split('_')[2].replace("M","")) > 3000. or "SSWW" in shortcard: # mass is above 3000 GeV so it only contains SSWW, or SSWW only --> add DefMod for impact check
+            runfile.write("text2workspace.py "+card+" -o "+shortcard+"_DefMod.root\n") # impact with default physics model with SSWW: see https://cms-talk.web.cern.ch/t/0-impact-on-poi-negative-bin-issue/42793
       with open(WP+"/"+shortcard+"/submit_Workspace.sh",'a') as submitfile:
         submitfile.write("executable = MakeWorkspace.sh\n")
         submitfile.write("log = "+shortcard+"_Workspace.log\n")
@@ -240,7 +243,7 @@ for RunList in args.RunLists:
         runfile.write("pushd "+pwd+"/"+WP+"/"+shortcard+"\n")
         runfile.write("echo Setting cmsenv environment...\n")
         runfile.write("cmsenv\n")
-        if float(shortcard.split('_')[2].replace("M","")) <= 3000.:
+        if "Weinberg" not in shortcard.split('_')[2] and float(shortcard.split('_')[2].replace("M","")) <= 3000.:
           if "SSWW" in shortcard:
             if args.FitDiag:
               runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose Asimov or not
@@ -320,7 +323,7 @@ for RunList in args.RunLists:
               else:
                 runfile.write("plot1DScan.py higgsCombine."+shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec+cf\":14 higgsCombine."+shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":15 --output "+shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf,rest,stat\"\n")
 
-        else: # mass is above 3000 GeV so that it only contains SSWW --> get impact with default physics model
+        else: # mass is above 3000 GeV so that it only contains SSWW, or Weinberg --> get impact with default physics model
           if args.FitDiag:
             runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose Asimov or not
             runfile.write("combine -M FitDiagnostics "+shortcard+".root --rMin -10 --rMax 10 --saveShapes --saveWithUncertainties -n _"+shortcard+" --plots -t -1\n") # FIXME maybe shortcard+"_DefMod.root? No?
