@@ -542,7 +542,7 @@ float MCCorrection::DZEfficiency(TString SFKey, bool ReturnDataEff, TString Opti
   if(SFKey.Contains("DiMuIso")){
     if(DataEra=="2016postVFP") Eff = ReturnDataEff? 0.9798:0.9969;
     else if(DataEra=="2017"  ) Eff = ReturnDataEff? 0.9963:0.9959;
-    else if(DataEra=="2018"  ) Eff = ReturnDataEff? 0.9988:0.9959;
+    else if(DataEra=="2018"  ) Eff = ReturnDataEff? 0.9988:0.9998;
     else                       Eff = 1.;
   }
   else if(SFKey.Contains("DiElIso")){
@@ -551,9 +551,9 @@ float MCCorrection::DZEfficiency(TString SFKey, bool ReturnDataEff, TString Opti
     else                            Eff = 1.;
   }
   else if(SFKey.Contains("EMuIso")){
-    if(DataEra=="2016postVFP") Eff = ReturnDataEff? 0.9691:0.9890;
-    //else if(DataEra=="2017"  ) Eff = ReturnDataEff? 0.9938:0.9954; // Included in Mu leg efficiency
-    else if(DataEra=="2018"  ) Eff = ReturnDataEff? 0.9961:0.9984;
+    if(DataEra=="2016postVFP") Eff = ReturnDataEff? 0.9687:0.9888;
+    //else if(DataEra=="2017"  ) Eff = ReturnDataEff? 0.9937:0.9953; // Included in Mu leg efficiency
+    else if(DataEra=="2018"  ) Eff = ReturnDataEff? 0.9960:0.9984;
     else                       Eff = 1.;
   }
 

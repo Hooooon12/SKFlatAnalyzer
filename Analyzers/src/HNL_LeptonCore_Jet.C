@@ -110,8 +110,8 @@ std::vector<FatJet> HNL_LeptonCore::GetHNLAK8Jets(const TString& JetType, Analyz
 
   /// No lepton veto in  jets used for MET smearing
   if(JetType=="SmearCorr")  return SelectFatJets(param, "tightLepVeto", param.FatJet_MinPt, param.FatJet_MaxEta);
-
-    std::vector<Electron>   ElectronCollV = GetElectrons(param.Electron_Veto_ID, param.Electron_MinPt, param.Electron_MaxEta);
+  
+  std::vector<Electron>   ElectronCollV = GetElectrons(param.Electron_Veto_ID, param.Electron_MinPt, param.Electron_MaxEta);
   std::vector<Muon>       MuonCollV     = GetMuons    (param.Muon_Veto_ID,     param.Muon_MinPt,  param.Muon_MaxEta);
 
   bool private_lepton_cleaning = true;

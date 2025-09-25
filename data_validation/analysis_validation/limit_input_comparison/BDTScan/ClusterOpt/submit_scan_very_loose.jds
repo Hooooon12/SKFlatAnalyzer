@@ -1,0 +1,15 @@
+universe        = vanilla
+executable      = run_from_scan_very_loose.sh
+transfer_input_files = merge_very_loose_fom.py
+arguments       = $(MASS) $(FLAV) $(ERA) $(NBINS) $(NBINMINS)
+log             = logs/scan_very_loose_$(MASS)_$(FLAV)_$(ERA)_$(NBINMINS)_$(NBINS).log
+output          = logs/scan_very_loose_$(MASS)_$(FLAV)_$(ERA)_$(NBINMINS)_$(NBINS).out
+error           = logs/scan_very_loose_$(MASS)_$(FLAV)_$(ERA)_$(NBINMINS)_$(NBINS).err
+request_cpus    = 1
+request_memory  = 4 GB
+getenv          = True
++JobFlavour     = "longlunch"
+concurrency_limits = n600.jalmond
+
+
+queue MASS, FLAV, ERA, NBINS, NBINMINS from fom_scan_list.txt

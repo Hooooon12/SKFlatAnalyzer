@@ -3,7 +3,7 @@
 void HNL_CrossCheck::initializeAnalyzer(){
 
 HNL_LeptonCore::initializeAnalyzer();
-  SetupEventMVAReader("V2");
+  SetupEventMVAReader("V3");
 
   nLog = 100000;
 }

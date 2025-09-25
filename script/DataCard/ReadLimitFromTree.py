@@ -68,12 +68,34 @@ IDs = [""] #["_ID"]
 #myWPs = ["ANv5_HNL_ULIDv2_RunSyst_BeforeJetIDLepPt_Decorr_JetDecorr","ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"]
 #myWPs = ["ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_StrictBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_LooseBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_StrictBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_LooseBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_VeryLooseBinning_HNL_ULIDv2_RunSyst_Decorr_JetDecorr",]
 #myWPs = ["ANv5_BDTV4_BugFix_HNL_ULIDv2_V4_LooseBin_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_BugFix_HNL_ULIDv2_V4_StrictBin_RunSyst_Decorr_JetDecorr",]
-myWPs = ["ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_LooseBin_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_StrictBin_RunSyst_Decorr_JetDecorr"]
+#myWPs = ["ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_LooseBin_RunSyst_Decorr_JetDecorr","ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_StrictBin_RunSyst_Decorr_JetDecorr"]
+#myWPs = [
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V2_StrictBin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_StrictBin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_Strict_10_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_Strict_20_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V4_Strict_10_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V4_Strict_15_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V4_Strict_20_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V2_StrictBin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V3_StrictBin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V3_Strict_10_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V3_Strict_20_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V4_Strict_10_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V4_Strict_15_Bin_RunSyst_Decorr_JetDecorr",
+#         "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V4_Strict_20_Bin_RunSyst_Decorr_JetDecorr",
+#]
+#myWPs = ["ANv5_BDTV3_UpdateSRBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_UpdateSRBinning_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
+#myWPs = ["ANv5_BDTV3_AltSR1_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
+#myWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
+myWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
-tags = ["_syst"]
-#tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+#tags = ["_syst"]
+tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_sronly_sr123_syst"]
 #tags = ["_sronly_sr123"]
 #tags = ["_DYVBF_sronly_sr123_syst"]

@@ -5,9 +5,16 @@
 # python MakeDataCard_ANv5.py --Combine Era --Syst [--Decorr]
 # python MakeDataCard_ANv5.py --Syst [--Decorr]; python MakeDataCard_ANv5.py --Combine SR --Syst [--Decorr] <-- without rateParam ("sronly" setting)
 
-
-import os, sys, argparse
+import os, sys, argparse, re
 from collections import OrderedDict
+#print("CWD:", os.getcwd())
+#print("__file__:", __file__)
+#print("sys.path[0]:", sys.path[0])
+#print("exceptions_auto.py exists?:", os.path.exists(os.path.join(os.path.dirname(__file__), "exceptions_auto.py"))) # It shows that this python file is ran at SKFlatAnalyzer/script
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+  sys.path.insert(0, HERE)
+from exceptions_auto import apply_auto_exceptions
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--CnC', action='store_true', help='Cut and count limit')
@@ -34,43 +41,27 @@ pwd = os.getcwd()
 #eras = ["2017"]
 #eras = ["2018"]
 eras = ["2016preVFP","2016postVFP","2017","2018"]
+#eras = ["2016preVFP"]
 
 channels = ["MuMu","EE","EMu"]
 #channels = ["MuMu","EE"]
 #channels = ["EE"]
 #channels = ["EE","EMu"]
 #channels = ["MuMu"]
-#masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses = ["M100","M1000","M10000"]
-#masses = ["M500","M1000","M5000"]
-#masses = ["M3000"]
-#masses = ["M90","M100","M150","M200","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses = ["M85","M90","M95","M100"]#"M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses = ["M100","M500","M1000","M3000","M10000"]
-#masses = ["M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses = ["M100"]
-#masses = ["M250","M1000","M10000"]
-#masses_EMu = ["M250","M1000","M10000"]
-#masses = ["M100","M250","M1000","M10000"]
-#masses_EMu = ["M100","M250","M1000","M10000"]
-#masses = ["M100","M500","M1000","M1500","M5000"]
-#masses_EMu = ["M100","M500","M1000","M1500","M5000"]
-#masses = ["M1500"]
-#masses_EMu = ["M1500"]
-#masses = ["M85","M90","M95","M100"]
-#masses_EMu = ["M85","M90","M95","M100"]
-#masses = ["Weinberg"]
-#masses_EMu = ["Weinberg"]
 
 ## Full mass ranges
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000"]
-masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000"]
+masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","Weinberg"]
+masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"]
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 
+#masses = ["M150"]
+#masses_EMu = ["M150"]
+
 ## signal processes
 #signals = ["_DYVBF","_SSWW"]
-signals = [""]
+signals = ["","_Weinberg"]
+#signals = [""]
 #signals = ["_DYVBF","_SSWW",""]
 #signals = ["_SSWW"]
 #signals = ["_Weinberg"]
@@ -79,7 +70,7 @@ signals = [""]
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
 #SRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
 #CRpath = "/data9/Users/jalmond_public/SUS-24-014/LimitInputs/"
-SRpath = "/data9/Users/HNL_public/SUS-24-014//LimitInputs/"
+SRpath = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/"
 CRpath = SRpath
 
 #InputWPs = ["ANv3_HNL_ULIDv2"]
@@ -91,7 +82,32 @@ CRpath = SRpath
 #InputWPs = ["ANv5_BDTV4_LooseBinning_HNL_ULIDv2_RunSyst","ANv5_BDTV4_StrictBinning_HNL_ULIDv2_RunSyst"]
 #InputWPs = ["ANv5_BDTV4_VeryLooseBinning_HNL_ULIDv2_RunSyst"]
 #InputWPs = ["ANv5_BDTV4_BugFix_HNL_ULIDv2_V4_LooseBin_RunSyst","ANv5_BDTV4_BugFix_HNL_ULIDv2_V4_StrictBin_RunSyst"]
-InputWPs = ["ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_LooseBin_RunSyst","ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_StrictBin_RunSyst"]
+#InputWPs = ["ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_LooseBin_RunSyst","ANv5_BDTV4_BugFix_HNL_ULIDv2_V3_StrictBin_RunSyst"]
+#InputWPs = [
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V2_StrictBin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_StrictBin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_Strict_10_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_Strict_15_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_Strict_20_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V4_Strict_10_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V4_Strict_15_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V4_Strict_20_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V2_StrictBin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V3_StrictBin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V3_Strict_10_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V3_Strict_15_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V3_Strict_20_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V4_Strict_10_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V4_Strict_15_Bin_RunSyst",
+#            "ANv5_BDTV2to4_HNL_ULIDv2_WZ_powheg_V4_Strict_20_Bin_RunSyst",
+#]
+#InputWPs = ["ANv5_BDTV3_UpdateSRBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"]
+#InputWPs = ["ANv5_BDTV3_UpdateSRBinning_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"]
+#InputWPs = ["ANv5_BDTV3_SR1_Binning_Update_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"]
+#InputWPs = ["ANv5_BDTV3_SR1_Binning_Update_HNL_ULIDv2_FixPDFerror_V3_Strict_15_Bin_RunSyst"]
+#InputWPs = ["ANv5_BDTV3_AltSR1_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst","ANv5_BDTV3_AltSR1_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"]
+#InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"]
+InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"] # This is tentative nominal @250909
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
@@ -107,11 +123,18 @@ if args.Syst:
 else:
   InputWPs = [WP+"_Decorr_JetDecorr" for WP in InputWPs] # FIXME use syst input as a default; can be changed later
 
+OutputTag = ""
+
 #OutputTag = "_AN"
 #OutputTag = "_SUScomment"
-OutputTag = ""
 #OutputTag = "_BD"
 #OutputTag = "_Run2"
+
+#OutputTag += "_AutoMCStatThres0"
+#OutputTag += "_AutoMCStatThres10_1_1"
+#OutputTag += "_NoExcRule"
+#OutputTag += "_NoPDFsyst"
+OutputTag += "_NewRP"
 
 if args.Combine is None:
   if not args.CR: OutputTag+="_NoCR" # SR only
@@ -123,6 +146,12 @@ regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_InvBJet","sr2_InvBJet"
 #regions_cr = args.CR # input from the user
 regions_sr = ["sr1","sr2","sr3"]
 regions_tot = regions_cr+regions_sr
+
+proc_rateRegion_map = {}
+proc_rateRegion_map['WZ'] = regions_sr + [cr for cr in regions_cr if "wz" in cr]
+proc_rateRegion_map['WW'] = regions_sr + [cr for cr in regions_cr if "InvMET" in cr]
+proc_rateRegion_map['ZG'] = regions_sr + [cr for cr in regions_cr if "zg" in cr]
+proc_rateRegion_map['ZZ'] = regions_sr + [cr for cr in regions_cr if "zz" in cr]
 
 #if args.CR: # TEST purposes, to compare the impact of each CRs to limits
 #  if any("sr1_inv" in region for region in regions_cr ): OutputTag+="_Inv1"
@@ -142,47 +171,74 @@ def Initialize_Process():
         ('fake', '-1'),
         ('cf', '-1'),
         ('zg', '-1'),
-        ('conv_others', '-1'), # FIXME conv_others + prompt_others = mc_others later
+        #('conv_others', '-1'), # FIXME deprecated. only preservation purposes
+        ('mc_others', '-1'), # conv_others + prompt_others
         ('wz', '-1'),
         ('zz', '-1'),
         ('ww', '-1'),
-        ('prompt_others', '-1'),
-        ('signalDYVBF', '-1'),
+        #('prompt_others', '-1'), # FIXME deprecated. only preservation purposes
+        #('signalDYVBF', '-1'),
+        ('signalDY', '-1'),
+        ('signalVBF', '-1'),
         ('signalSSWW', '-1'),
         ('signalWeinberg', '-1'),
     ])
 
-def MakeRateString(region, mass, channel, signal):
+def MakeRateString(region, era, channel, mass, signal, WP):
   this_process = Initialize_Process()
 
   if "Mu" in channel:
     this_process['cf'] = '0'
 
+  if mass.startswith("M") and mass[1:].isdigit():
+    mass_int = int(mass[1:])
+  else:
+    mass_int = 999999 # Weinberg
+
+  exceptionTag = WP
+
+  this_process = apply_auto_exceptions(this_process, region, era, channel, mass, mass_int, exceptionTag)
+
+  #print(region)
+  #print(exceptionTag)
+  #print(this_process)
+
   is_Weinberg = (mass == "Weinberg")
 
-  #FIXME separate out DY and VBF later
   if not is_Weinberg:
     this_process['signalWeinberg'] = '0'
 
-    this_mass_value = int(mass.replace("M", ""))
-    if this_mass_value < 500:
+    if mass_int < 300:
+      this_process['signalVBF'] = '0'
       this_process['signalSSWW'] = '0'
-    elif 500 <= this_mass_value <= 3000:
+    elif mass_int <= 500:
+      this_process['signalSSWW'] = '0'
+    elif 500 < mass_int <= 3000:
       if "DY" in signal or "VBF" in signal:
         this_process['signalSSWW'] = '0'
       elif "SSWW" in signal:
-        this_process['signalDYVBF'] = '0'
+        #this_process['signalDYVBF'] = '0'
+        this_process['signalDY'] = '0'
+        this_process['signalVBF'] = '0'
     else:  # mass_value > 3000
-      this_process['signalDYVBF'] = '0'
+      #this_process['signalDYVBF'] = '0'
+      this_process['signalDY'] = '0'
+      this_process['signalVBF'] = '0'
   else:
-    this_process['signalDYVBF'] = '0'
+    #this_process['signalDYVBF'] = '0'
+    this_process['signalDY'] = '0'
+    this_process['signalVBF'] = '0'
     this_process['signalSSWW'] = '0'
 
   #FIXME current setting: No signal in CR
   if region in regions_cr:
-    this_process['signalDYVBF'] = '0'
+    #this_process['signalDYVBF'] = '0'
+    this_process['signalDY'] = '0'
+    this_process['signalVBF'] = '0'
     this_process['signalSSWW'] = '0'
     this_process['signalWeinberg'] = '0'
+
+  #print(this_process)
 
   formatted_values = [
       value.ljust(13)
@@ -201,6 +257,7 @@ def is_rateParam_line(line):
 def CardSetting(isCR, WP, era, channel, mass, signal):
 
   with open("card_skeleton_ANv5.txt",'r') as f: # open skeleton
+  #with open("card_skeleton_tmp.txt",'r') as f: # FIXME open tmp skeleton for conv_others, prompt_others
     lines = f.readlines()
 
   new_lines_common = []
@@ -215,15 +272,23 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
 
     # preprocess lines
     this_lines[4] = "shapes * *  "+CRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n" if region in regions_cr else "shapes * *  "+SRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
-    this_lines[17] = MakeRateString(region, mass, channel, signal)
+    this_lines[17] = MakeRateString(region, era, channel, mass, signal, WP)
     for i in range(len(this_lines)):
       this_lines[i] = this_lines[i].replace('bin1',region)
     for i in range(18):
       new_lines.append(this_lines[i])
 
     # handle each syst
-    if args.Syst:
-      for line in this_lines[18:]:
+    for line in this_lines[18:]:
+
+      if args.Syst:
+        if "CMS_fake_syst" in line:
+          # channel-dependent fake syst
+          if channel=="EMu":
+            line = line.replace('1.2','1.25')
+          elif channel=="EE":
+            line = line.replace('1.2','1.3')
+
         if is_syst_line(line):
           syst_name = line.split()[0]
 
@@ -240,11 +305,18 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
             if ("eff_e_" in syst_name) or ("scale_e" in syst_name) or ("res_e" in syst_name) or ("fake_highpt" in syst_name): continue
           elif channel=="EE":
             if ("eff_m_" in syst_name) or (syst_name == "CMS_scale_m") or ("res_m" in syst_name): continue
+ 
+      if is_rateParam_line(line):
+        this_region = line.split()[0].split('_')[-1] if len(line.split()[0].split('_')) == 2 else None # "srx" if it's not ZGNorm or ZZNorm which is shared across all srs
+        sr_filtered = mass_to_srs(mass)
+        if this_region and ((this_region not in sr_filtered) or (this_region[1:] not in region)): # filter out "srx" not allowed by sr_filtered and not matched to the region
+          continue
+        this_proc = line.split('Norm')[0]
+        if region not in proc_rateRegion_map[this_proc]:
+          continue
+        line = line.replace("Norm",f"Norm_{era}").replace("REGION",region)
 
-        elif is_rateParam_line(line):
-          line = line.replace("Norm", f"Norm{era}")
-          
-        new_lines.append(line)
+      new_lines.append(line)
 
     # finally do the region decorrelation
     if args.Decorr:
@@ -268,13 +340,12 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
           else: # zg_cr, zz_cr
             new_lines[i] = new_lines[i].replace(this_syst,this_syst+'_sr3') # correlate to sr3
 
-    ####### finally adjust columns using ljust ########
-
+    ####### finally adjust columns using ljust ######## # TODO?
 
     if region in regions_cr:
-      lines_cr[region] = new_lines
+      lines_cr[region] = new_lines[:]
     elif region in regions_sr:
-      lines_sr[region] = new_lines
+      lines_sr[region] = new_lines[:]
       # no rateParam setting
       for i in range(18,len(new_lines)):
         if is_rateParam_line(new_lines[i]):
@@ -302,7 +373,7 @@ def ValidMassSignal(mass, signal):
         return True
       else:
         return False
-    elif int(mass.strip('M'))<500:
+    elif int(mass.strip('M'))<=500:
       if "DY" in signal or "VBF" in signal:
         return True
       else:
@@ -314,6 +385,42 @@ def ValidMassSignal(mass, signal):
         return False
       else:
         return True
+
+def mass_to_srs(mass_str):
+  if mass_str == "Weinberg":
+    return ["sr2", "sr3"] #NOTE 0.25 (sr1) vs 20 (others)
+  m = int(mass_str.strip("M"))
+  if m <= 100:
+    return ["sr3"]
+  #elif m < 300:
+  #  return ["sr2","sr3"] # FIXME tmp setting with ANv5_BDTV3_SR1_Binning_Update
+  elif m > 3000:
+    return ["sr2", "sr3"] #NOTE 0.0001 (sr1) vs 0.007 (sr2) for M30000 EE
+  else:
+    return ["sr1", "sr2", "sr3"]
+
+def filter_crs(regions_cr_all, valid_srs):
+
+  all_srs = ["sr1", "sr2", "sr3"]
+  invalid_srs = [sr for sr in all_srs if sr not in valid_srs]
+  invalid_srs_crs = []
+  for invalid_sr in invalid_srs:
+    this_idx = invalid_sr[-1]
+    invalid_srs_crs.append(invalid_sr)
+    invalid_srs_crs.append("cr"+str(this_idx))
+
+  return [cr for cr in regions_cr_all if not any(tok in cr for tok in invalid_srs_crs)]
+
+def make_sr_cardname(era, channel, mass_signal, sr_list, tag, sronly):
+  base = f"card_{era}_{channel}_{mass_signal}"
+  if sronly:
+    return [f"{sr}={base}_sronly_{sr}{tag}.txt" for sr in sr_list]
+  else:
+    return [f"{sr}={base}_{sr}{tag}.txt" for sr in sr_list]
+
+def make_cr_cardname(era, channel, mass_signal, cr_list, tag=""):
+    base = f"card_{era}_{channel}_{mass_signal}"
+    return [f"{cr}={base}_{cr}{tag}.txt" for cr in cr_list]
 
 def NuisanceGrouping(this_card):
   print("Grouping",this_card,"...")
@@ -373,6 +480,29 @@ def NuisanceGrouping(this_card):
 
   return
 
+def combineCards(out_path, parts):
+  os.system("combineCards.py " + " ".join(parts) + f" > {out_path}")
+  if getattr(args,"Syst"):
+    NuisanceGrouping(os.path.abspath(out_path)) #FIXME comment out this for the faster run
+
+def era_tag_map():
+    return {
+        "2016preVFP": "year16a",
+        "2016postVFP": "year16b",
+        "2017": "year17",
+        "2018": "year18",
+    }
+
+def combine_run2(out_path, card_per_era):
+  tag_map = era_tag_map()
+  assigns = []
+  for card in card_per_era:
+    era = card.split("_")[1]
+    assigns.append(f"{tag_map[era]}={card}")
+  os.system("combineCards.py " + " ".join(assigns) + f" > {out_path}")
+  if getattr(args,"Syst"):
+    NuisanceGrouping(os.path.abspath(out_path)) #FIXME comment out this for the faster run
+
 #########################################
 #
 # MAIN
@@ -423,93 +553,48 @@ for InputWP in InputWPs:
       if not ValidMassSignal(mass, signal): continue
 
       mass_signal = mass if signal.strip('_') in mass else mass + signal # Remove duplication like Weinberg_Weinberg
+      sr_filtered = mass_to_srs(mass)
+      cr_filtered = filter_crs(regions_cr, sr_filtered)
 
       for era in eras:
         if args.Combine == "CR":
-          if mass!="Weinberg" and int(mass.strip('M'))<=100:
-            regions_sr_filtered = ["sr3"]
-            regions_cr_filtered = [cr for cr in regions_cr if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr]
-          else:
-            regions_sr_filtered = regions_sr[:]
-            regions_cr_filtered = regions_cr[:]
-          sr_combine = " ".join([sr+"=card_"+era+"_"+channel+"_"+mass_signal+"_"+sr+systTag+".txt" for sr in regions_sr_filtered])
-          cr_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass_signal+"_"+cr+".txt" for cr in regions_cr_filtered])
-          # merge all SRs
-          os.system("combineCards.py "+sr_combine+" "+cr_combine+" > card_"+era+"_"+channel+"_"+mass_signal+systTag+".txt")
+          sr_combine = make_sr_cardname(era, channel, mass_signal, sr_filtered, tag=systTag, sronly=False)
+          cr_combine = make_cr_cardname(era, channel, mass_signal, cr_filtered)
+          full_combine = f"card_{era}_{channel}_{mass_signal}{systTag}.txt"
+          combineCards(full_combine, sr_combine+cr_combine)
 
-          # Now make limit from each SRs
-          ## make SR3 first which always exist regardless of mass
-          sr3_combine = "sr3=card_"+era+"_"+channel+"_"+mass_signal+"_sr3"+systTag+".txt"
-          cr3_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass_signal+"_"+cr+".txt" for cr in regions_cr_filtered if 'sr1' not in cr and 'sr2' not in cr and 'cr1' not in cr and 'cr2' not in cr])
-          os.system("combineCards.py "+sr3_combine+" "+cr3_combine+" > card_"+era+"_"+channel+"_"+mass_signal+"_sr3"+systTag+"_Combined.txt")
+          for sr in sr_filtered:
+            cr_for_sr = filter_crs(regions_cr, [sr])
+            sr_each = make_sr_cardname(era, channel, mass_signal, [sr], tag=systTag, sronly=False)
+            cr_each = make_cr_cardname(era, channel, mass_signal, cr_for_sr)
+            combine_each = f"card_{era}_{channel}_{mass_signal}_{sr}{systTag}_Combined.txt"
+            combineCards(combine_each, sr_each+cr_each)
 
-          if args.Syst:
-            NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass_signal+systTag+".txt"))
-            NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass_signal+"_sr3"+systTag+"_Combined.txt"))
-
-          if mass=="Weinberg" or int(mass.strip('M'))>100:
-            # SR1, SR2 exists only for M(N) > 100 GeV
-            sr1_combine = "sr1=card_"+era+"_"+channel+"_"+mass_signal+"_sr1"+systTag+".txt"
-            cr1_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass_signal+"_"+cr+".txt" for cr in regions_cr_filtered if 'sr2' not in cr and 'sr3' not in cr and 'cr2' not in cr and 'cr3' not in cr])
-            #print(regions_cr)
-            #print(cr1_combine)
-            os.system("combineCards.py "+sr1_combine+" "+cr1_combine+" > card_"+era+"_"+channel+"_"+mass_signal+"_sr1"+systTag+"_Combined.txt")
-            sr2_combine = "sr2=card_"+era+"_"+channel+"_"+mass_signal+"_sr2"+systTag+".txt"
-            cr2_combine = " ".join([cr+"=card_"+era+"_"+channel+"_"+mass_signal+"_"+cr+".txt" for cr in regions_cr_filtered if 'sr1' not in cr and 'sr3' not in cr and 'cr1' not in cr and 'cr3' not in cr])
-            os.system("combineCards.py "+sr2_combine+" "+cr2_combine+" > card_"+era+"_"+channel+"_"+mass_signal+"_sr2"+systTag+"_Combined.txt")
-
-            if args.Syst:
-              NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass_signal+"_sr1"+systTag+"_Combined.txt"))
-              NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass_signal+"_sr2"+systTag+"_Combined.txt"))
-
-        elif args.Combine == "SR": # Combine SR1 only, SR2 only, SR3 only (no rateParam)
-          if mass!="Weinberg" and int(mass.strip('M'))<=100:
-            os.system("combineCards.py \
-                                       sr3=card_"+era+"_"+channel+"_"+mass_signal+"_sronly_sr3"+systTag+".txt \
-                                       > card_"+era+"_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt")
-          else:
-            os.system("combineCards.py \
-                                       sr1=card_"+era+"_"+channel+"_"+mass_signal+"_sronly_sr1"+systTag+".txt \
-                                       sr2=card_"+era+"_"+channel+"_"+mass_signal+"_sronly_sr2"+systTag+".txt \
-                                       sr3=card_"+era+"_"+channel+"_"+mass_signal+"_sronly_sr3"+systTag+".txt \
-                                       > card_"+era+"_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt")
-
-          if args.Syst:
-            NuisanceGrouping(os.path.abspath("card_"+era+"_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt"))
+        elif args.Combine == "SR":
+          sr_combine = make_sr_cardname(era, channel, mass_signal, sr_filtered, tag=systTag, sronly=True)
+          full_combine = f"card_{era}_{channel}_{mass_signal}_sronly_sr123{systTag}.txt"
+          combineCards(full_combine, sr_combine)
 
       if args.Combine == "Era":
         if args.CR: # with CR
-          # Full SR limit
-          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass_signal+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass_signal+systTag+".txt year17=card_2017_"+channel+"_"+mass_signal+systTag+".txt year18=card_2018_"+channel+"_"+mass_signal+systTag+".txt > card_Run2_"+channel+"_"+mass_signal+systTag+".txt")
-          # SR3 limit
-          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass_signal+"_sr3"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass_signal+"_sr3"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass_signal+"_sr3"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass_signal+"_sr3"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass_signal+"_sr3"+systTag+"_Combined.txt")
-          if args.Syst:
-            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass_signal+systTag+".txt")) # Full
-            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass_signal+"_sr3"+systTag+"_Combined.txt")) # SR3
+          per_era_full = [f"card_{era}_{channel}_{mass_signal}{systTag}.txt" for era in eras]
+          run2_full = f"card_Run2_{channel}_{mass_signal}{systTag}.txt"
+          combine_run2(run2_full, per_era_full)
 
-          if mass=="Weinberg" or int(mass.strip('M'))>100:
-            # SR1, 2 limit
-            os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass_signal+"_sr1"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass_signal+"_sr1"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass_signal+"_sr1"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass_signal+"_sr1"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass_signal+"_sr1"+systTag+"_Combined.txt")
-            os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass_signal+"_sr2"+systTag+"_Combined.txt year16b=card_2016postVFP_"+channel+"_"+mass_signal+"_sr2"+systTag+"_Combined.txt year17=card_2017_"+channel+"_"+mass_signal+"_sr2"+systTag+"_Combined.txt year18=card_2018_"+channel+"_"+mass_signal+"_sr2"+systTag+"_Combined.txt > card_Run2_"+channel+"_"+mass_signal+"_sr2"+systTag+"_Combined.txt")
-            if args.Syst:
-              NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass_signal+"_sr1"+systTag+"_Combined.txt"))
-              NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass_signal+"_sr2"+systTag+"_Combined.txt"))
-        else: # SR only
-          # Full SR limit
-          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt year17=card_2017_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt year18=card_2018_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt > card_Run2_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt")
-          # SR3 limit
-          os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass_signal+"_sronly"+"_sr3"+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass_signal+"_sronly"+"_sr3"+systTag+".txt year17=card_2017_"+channel+"_"+mass_signal+"_sronly"+"_sr3"+systTag+".txt year18=card_2018_"+channel+"_"+mass_signal+"_sronly"+"_sr3"+systTag+".txt > card_Run2_"+channel+"_"+mass_signal+"_sronly"+"_sr3"+systTag+".txt")
-          if args.Syst:
-            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass_signal+"_sronly_sr123"+systTag+".txt")) # Full
-            NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass_signal+"_sronly"+"_sr3"+systTag+".txt")) # SR3
+          for sr in sr_filtered:
+            per_era_each = [f"card_{era}_{channel}_{mass_signal}_{sr}{systTag}_Combined.txt" for era in eras]
+            run2_each = f"card_Run2_{channel}_{mass_signal}_{sr}{systTag}_Combined.txt"
+            combine_run2(run2_each, per_era_each)
 
-          if mass=="Weinberg" or int(mass.strip('M'))>100:
-            # SR1, 2 limit
-            os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass_signal+"_sronly"+"_sr1"+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass_signal+"_sronly"+"_sr1"+systTag+".txt year17=card_2017_"+channel+"_"+mass_signal+"_sronly"+"_sr1"+systTag+".txt year18=card_2018_"+channel+"_"+mass_signal+"_sronly"+"_sr1"+systTag+".txt > card_Run2_"+channel+"_"+mass_signal+"_sronly"+"_sr1"+systTag+".txt")
-            os.system("combineCards.py year16a=card_2016preVFP_"+channel+"_"+mass_signal+"_sronly"+"_sr2"+systTag+".txt year16b=card_2016postVFP_"+channel+"_"+mass_signal+"_sronly"+"_sr2"+systTag+".txt year17=card_2017_"+channel+"_"+mass_signal+"_sronly"+"_sr2"+systTag+".txt year18=card_2018_"+channel+"_"+mass_signal+"_sronly"+"_sr2"+systTag+".txt > card_Run2_"+channel+"_"+mass_signal+"_sronly"+"_sr2"+systTag+".txt")
-            if args.Syst:
-              NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass_signal+"_sronly"+"_sr1"+systTag+".txt"))
-              NuisanceGrouping(os.path.abspath("card_Run2_"+channel+"_"+mass_signal+"_sronly"+"_sr2"+systTag+".txt"))
+        else:
+          per_era_full = [f"card_{era}_{channel}_{mass_signal}_sronly_sr123{systTag}.txt" for era in eras]
+          run2_full = f"card_Run2_{channel}_{mass_signal}_sronly_sr123{systTag}.txt"
+          combine_run2(run2_full, per_era_full)
+
+          for sr in sr_filtered:
+            per_era_each = [f"card_{e}_{channel}_{mass_signal}_sronly_{sr}{systTag}.txt" for era in eras]
+            run2_each = f"card_Run2_{channel}_{mass_signal}_sronly_{sr}{systTag}.txt"
+            combine_run2(run2_each, per_era_each)
 
     os.system('echo \'Done.\'')
     os.chdir(pwd)

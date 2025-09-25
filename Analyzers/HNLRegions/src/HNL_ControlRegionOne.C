@@ -328,15 +328,15 @@ void HNL_ControlRegionOne::RunControlRegions(AnalyzerParameter param_cr, vector<
 
   std::vector<Lepton *> leps_veto  = MakeLeptonPointerVector(MuonVetoColl,ElectronVetoColl);
 
-  if(param_cr.SRConfig = "AK8LooseVeto1"){
+  if(param_cr.SRConfig == "AK8LooseVeto1"){
     std::vector<FatJet> AK8_LooseJetColl          = GetHNLAK8Jets("HNL_Loose",param_cr);
     if(AK8_LooseJetColl.size() > 1) return;
   }
-  if(param_cr.SRConfig = "AK8LooseVeto2"){
+  if(param_cr.SRConfig == "AK8LooseVeto2"){
     std::vector<FatJet> AK8_LooseJetColl          = GetHNLAK8Jets("HNL",param_cr);
     if(AK8_LooseJetColl.size() > 1) return;
   }
-  if(param_cr.SRConfig = "AK8LooseVeto3"){
+  if(param_cr.SRConfig == "AK8LooseVeto3"){
     std::vector<FatJet> AK8_LooseJetColl          = GetHNLAK8Jets("HNL_NoMass",param_cr);
     if(AK8_LooseJetColl.size() > 1) return;
   }

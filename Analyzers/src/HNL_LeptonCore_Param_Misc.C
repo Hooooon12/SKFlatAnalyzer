@@ -57,12 +57,21 @@ AnalyzerParameter HNL_LeptonCore::Setup_Param_BDT(const TString& s_setup_version
   param_default.Muon_Veto_ID      = "HNVetoMVA";
   param_default.Muon_Tight_ID     = "HNL_ULID_"+GetYearString();
   param_default.Electron_Veto_ID  = "HNVetoMVA";
-  param_default.Electron_Tight_ID = "HNL_ULID_"+GetYearString();
+  param_default.Electron_Tight_ID = "HNL_HighPt_ULID_"+GetYearString();
 
-  param_default.k.Electron_ID_SF  = "TmpHNL_ULID_"+GetYearString();
-  param_default.k.Muon_ID_SF      = "TmpHNL_ULID_"+GetYearString();
+  param_default.k.Muon_ID_SF         = "NUM_HNL_ULID_"+GetYearString();
+  param_default.k.Muon_ISO_SF        = "Default";
+  param_default.k.Electron_ID_SF     = "passHNL_ULIDv2_"+GetYearString();
+
   param_default.Muon_FR_ID        = "HNL_ULID_FO";
-  param_default.Electron_FR_ID    = "HNL_ULID_FO";
+  param_default.Electron_FR_ID    = "HNL_HighPt_ULID_FO";
+ 
+  param_default.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_HNL_HighPt_ULID";
+  
+  param_default.TriggerSelection = "Dilep";
+  if(param_default.Channel.Contains("EE"))   param_default.k.Electron_Trigger_SF = "DiElIso_HNL_ULIDv2";
+  if(param_default.Channel.Contains("MuMu")) param_default.k.Muon_Trigger_SF = "DiMuIso_HNL_ULIDv2";
+  if(param_default.Channel.Contains("EMu"))  param_default.k.EMu_Trigger_SF = "EMuIso_HNL_ULIDv2";
 
   return param_default;
 

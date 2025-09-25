@@ -450,6 +450,8 @@ def main():
     
     args = parser.parse_args()
 
+
+
     Plots = [
         ["AK8/AK8J_Mass/l1J","M_l1J",[10],0,4000],
         ["AK8/AK8J_Mass/llJ","M_llJ",[10],0,4000],
@@ -465,13 +467,45 @@ def main():
         ["Standard/M_ll","Lepton mass",[2],0,300],
         ["Standard/N_AK4J","N_AK4J",[1],0,10],
         ["DeltaR/dR_ll","Lepton mass",[2],0,5],
+        ["AK8/AK8J_DeltaR/AK8J_AK4J","",[2],0,5],
+        ["AK8/AK8J_Eta","",[4],-5,5],
+        ["AK8/AK8J_Pt","",[2],0,1000],
+        ["AK8/AK8J_SDMass","",[4],0,500],
+        ["AK8/AK8J_Tagger_particleNet_WvsQCD","",[2],0,1],
+        ["AK8/AK8J_tau21","",[4],0,1],
+        ["AK8/AK8Jet_dR_Muon","",[1],0,5],
+        ["AK8/AK8Jets/CEMFracCJ","",[4],0,1],
+        ["AK8/AK8Jets/CHFracCJ","",[10],0,1],
+        ["AK8/AK8Jets/Multiplicity","",[4],0,50],
+        ["AK8/AK8Jets/MuonEnergyFraction","",[4],0,1],
+        ["AK8/AK8Jets/NEMFracCJ","",[4],0,1],
+        ["AK8/AK8Jets/NFracCJ","",[4],0,1],
+        ["AK8/AK8Jets/PileupJetId_Central","",[4],0,1],
+        ["AK8/AK8Jets/PileupJetId_Endcap","",[4],0,1],
+        ["AK8J_DeltaR/AK8LooseJ_lep","",[2],0,5],
+        ["AK8J_DeltaR/AK8J_AK8LooseJ","",[4],0,5],
+        ["DeltaEta/dEta_lep1_lep2","",[4],0,5],
+        ["DiLepton/ll_Pt","",[20],0,1000],
+        ["Jets/CEMFracCJ","",[4],0,1],
+        ["Jets/CHFracCJ","",[10],0,1],
+        ["Jets/Multiplicity","",[2],0,50],
+        ["Jets/MuonEnergyFraction","",[1],0,1],
+        ["Jets/NEMFracCJ","",[4],0,1],
+        ["Jets/NFracCJ","",[4],0,1],
+        ["Jets/PileupJetId_Central","",[2],0,1],
+        ["Jets/PileupJetId_Endcap","",[5],0,1],
+
+        ["Leptons/SumQ","",[1],-3,3],
+        ["MainPlots/Ev_MET2_ST","",[20],0,60],
+        ["Mass/M_minOSSF","",[5],0,500],
+        ["SKEvent/HToLepPt1","",[1],0,10],
         ["NObj/N_ak8_loose_jet","N_AK4J",[1],0,10]]
-    
-    IDs = ["HNL_ULIDv2_bjet_noak8","HNL_ULIDv2_ANv4","HNL_ULIDv2_TauVeto","HNL_ULIDv2_veto_id_one","HNL_ULIDv2_veto_id_two","HNL_ULIDv2_TauVeto2","HNL_ULIDv2_TauVeto3","HNL_ULIDv2_presel","HNL_ULIDv2_NoOverlap","HNL_ULIDv2_presel_bjetmod","HNL_ULIDv2_presel_bjetmod_ak8_tight"]
 
-    IDs = ["HNL_ULIDv2_AK8_Veto1","HNL_ULIDv2_AK8_Veto2","HNL_ULIDv2_AK8_Veto3"]
 
-    
+    IDs = [ "HNL_ULIDv2_ANv4","HNL_ULIDv2_AK8_Veto1","HNL_ULIDv2_AK8_Veto2","HNL_ULIDv2_AK8_Veto3", "HNL_ULIDv2_presel_mod","HNL_ULIDv2_presel","HNL_ULIDv2_bjet_noak8","HNL_ULIDv2_veto_id_one","HNL_ULIDv2_veto_id_two","HNL_ULIDv2_bjet_noak8_hnlveto", "TauVeto","HNL_ULIDv2_TauVeto2","HNL_ULIDv2_TauVeto3","HNL_ULIDv2_NoOverlap","HNL_ULIDv2_presel_bjetlepclean","HNL_ULIDv2_presel_bjetmod","HNL_ULIDv2_presel_ak8_tight","HNL_ULIDv2_presel_bjetmod_ak8_tight","HNL_ULIDv2_presel_bjetmodx"]
+
+
+    IDs = ["HNL_ULIDv2_presel_mod"]
     
     Flavours = ["MuMu","EE","EMu","LL"]
     

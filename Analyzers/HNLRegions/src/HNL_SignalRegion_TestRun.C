@@ -17,10 +17,10 @@ void HNL_SignalRegion_TestRun::initializeAnalyzer(){
     if (this->DataStream == "DoubleEG")       run_ee_bdt=true;
     if (this->DataStream == "SingleElectron") run_ee_bdt=true;
     
-    SetupEventMVAReader("V2",run_ee_bdt,run_mm_bdt,run_em_bdt);
+    SetupEventMVAReader("V3",run_ee_bdt,run_mm_bdt,run_em_bdt);
 
   }
-  else SetupEventMVAReader("V2");
+  else SetupEventMVAReader("V3");
 
   nLog = 100000;
 }
@@ -56,7 +56,7 @@ void HNL_SignalRegion_TestRun::executeEvent(){
   }
   
   // Match Channel to signal process based on MC sample
-  if (MCSample.Contains("Type")) {
+  if (IsSignal()){
     if (MCSample.Contains("SSWWTypeI_DF")) {
       ChannelsToRun = {EMu};
     }
@@ -72,7 +72,7 @@ void HNL_SignalRegion_TestRun::executeEvent(){
     for(auto iconfig : Run_Config){
       for(auto channel : ChannelsToRun){
 	
-	if(MCSample.Contains("Type")&& !SelectChannel(channel)) continue;
+	if(IsSignal() && !SelectChannel(channel)) continue;
 
 
 	if(iconfig=="SR1_Pt15"){

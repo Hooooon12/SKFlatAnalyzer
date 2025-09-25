@@ -1,4 +1,4 @@
-# Run first: python MakeInput_public.py -e 2018 --CheckFiles -i HEMJet --PreFlag RemoveHEMJet
+#rgs.Merge Run first: python MakeInput_public.py -e 2018 --CheckFiles -i HEMJet --PreFlag RemoveHEMJet
 # python MakeInput_public.py --Merge -e 2018 -i HEMJet --PreFlag RemoveHEMJet \ python MakeInput_public.py --CR --Merge -e 2018 -i HEMJet --PreFlag RemoveHEMJet \
 # python MakeInput_public.py [--Syst] [--Decorr] -i HEMJet --PreFlag RemoveHEMJet \ python MakeInput_public.py --CR [--Syst] [--Decorr] -i HEMJet --PreFlag RemoveHEMJet
 
@@ -15,6 +15,9 @@ parser.add_argument('-e', dest='eras', choices=['2016preVFP','2016postVFP','2017
 parser.add_argument('-m', dest='masses', nargs='+', help='signal masses to run')
 parser.add_argument('-c', dest='channels', nargs='+', default=["MuMu","EE","EMu"], help='lepton channels to run')
 parser.add_argument('-i', dest='inputTag', default='ANv5', help='tag attached to the input SKFlatOutput files')
+parser.add_argument('-o', dest='outputTag', default='', help='tag attached to the output files')
+parser.add_argument('-x', dest='exceptionTag', default='', help='tag attached to the exception rules')
+parser.add_argument('-s', dest='saveException', choices=['Print','Write','Add'], default='Print', help='how to save the exception rule')
 parser.add_argument('-t', dest='histTag', nargs='+', default=['HNL_ULIDv2'], help='this is the param name of the SKFlatAnalyzer. Mostly IDs.')
 parser.add_argument('--Scan', action='store_true', help='scan the bin content')
 parser.add_argument('--CnC', action='store_true', help='1bin cut and count setting')
@@ -53,16 +56,14 @@ if not args.channels:
   print("Please specify the lepton channels; e.g. MuMu .")
   exit()
 
-HistChannelMap = {'MuMu':'Muon', 'EE':'Electron', 'EMu':'ElectronMuon'}
-## Ugly region maps ##
+## region maps ##
 RegionToDefFlagMap = {}
 RegionToChannelMap = {}
 RegionToHistSuffixMap = {}
 
 inputTag = args.inputTag
+outputTag = args.outputTag if args.outputTag == '' else "_"+args.outputTag
 
-#MatchBDTver = re.search(r'BDTV(\d+)', inputTag) # ANv5_BDTV4 : testing different BDT scores
-#BDTver = "_V"+MatchBDTver.group(1) if MatchBDTver else ""
 BDTver = args.BDTver
 
 if not args.histTag:
@@ -80,12 +81,11 @@ if args.Decorr:
   if args.JetDecorr:
     outputTagSuffix += '_JetDecorr'
 
-# Skim
+# Skim (except ConvSkim, PromptSkim)
 DataSkim = "_SkimTree_HNMultiLepBDT_"
 FakeSkim = "_SkimTree_HNMultiLepBDT_"
 #CFSkim = "_SkimTree_HNMultiLepBDT_" #FIXME MC CF
 CFSkim = "_SkimTree_DileptonBDT_" #FIXME Data CF
-MCSkim = "_SkimTree_HNMultiLepBDT_"
 SignalSkim = "_SkimTree_HNMultiLepBDT_"
 
 # This will do necessary hadd for you.
@@ -93,7 +93,8 @@ MergeData   = True if args.Merge else False
 MergeFake   = True if args.Merge else False  # RunFake
 MergeCF     = True if args.Merge else False  # RunCF
 MergeConv   = True if args.Merge else False  # RunConv
-MergeMC     = True if args.Merge else False  # RunPrompt
+MergePrompt = True if args.Merge else False  # RunPrompt
+MergeMC     = True if args.Merge else False  # MergeMC (Conv+Prompt)
 MergeSignal = True if args.Merge else False
 #MergeDYVBF = True if args.Merge else False
 #MergeSSWW  = True if args.Merge else False
@@ -180,15 +181,6 @@ else:
   RegionToHistSuffixMap['sr2'] = {'MuMu':'LimitBins/MuonSR2', 'EE':'LimitBins/ElectronSR2', 'EMu':'LimitBins/ElectronMuonSR2'}
   RegionToHistSuffixMap['sr3'] = {'MuMu':'LimitBins/MuonSR3', 'EE':'LimitBins/ElectronSR3', 'EMu':'LimitBins/ElectronMuonSR3'}
 
-# Region dependent RunConv skim
-ConvSkim = {}
-for DefFlag in DefFlags:
-  ConvSkim[DefFlag] = {}
-  for this_conv in ["TG","TTG","WZG","WWG","ZGToLLG","ZGToLLG_PtG_130","DYJets_MG","DYJets10to50_MG"]:
-    ConvSkim[DefFlag][this_conv] = "_SkimTree_HNMultiLepBDT_"
-  for this_conv in ["WGToLNuG","WGToLNuG_MG","WGToLNuG_01J_PtG_130","WGToLNuG_01J_PtG_300","WGToLNuG_01J_PtG_500","WGJJToLNu"]:
-    ConvSkim[DefFlag][this_conv] = "_SkimTree_DileptonBDT_"
-
 
 SystList = [
             "JetResUp","JetResDown",
@@ -216,7 +208,7 @@ SystList = [
             #"CFSFUp","CFSFDown",
             "FRUp","FRDown",
             "FRHighPtUp","FRHighPtDown",
-            "PDFUp","PDFDown", #FIXME Weinberg has no PDF errors Currently
+            "PDFUp","PDFDown",
             "ScaleUp","ScaleDown",
            ]
 
@@ -344,17 +336,49 @@ MergeList['RunPrompt']['Prompt_inc'] = [
                                         #ZZ
                                         'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu',
                                         #WZ
-                                        'WZTo3LNu_amcatnlo','WZ_EWK', # 'WZTo3LNu_mllmin4p0_powheg' : amcatnlo gives better control in WZ CRs
+                                        'WZTo3LNu_amcatnlo','WZ_EWK', # 'WZTo3LNu_mllmin4p0_powheg' : amcatnlo gives better control in Inverted CR3
                                        ] #FIXME time to time
 MergeList['RunPrompt']['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu"] #FIXME time to time
 MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] #FIXME time to time
+MergeList['RunPrompt']['WZ_norm_powheg']         = ["WZTo3LNu_mllmin4p0_powheg","WZ_EWK"] #FIXME time to time
+MergeList['RunPrompt']['WZ_norm_amcatnlo']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] #FIXME time to time
 MergeList['RunPrompt']['WW_norm']       = ["WpWp_QCD","WpWp_EWK"] #FIXME time to time
 MergeList['RunPrompt']['Prompt_others'] = [
                                            x for x in MergeList['RunPrompt']['Prompt_inc']
                                            if x not in MergeList['RunPrompt']['ZZ_norm']
                                            and x not in MergeList['RunPrompt']['WZ_norm']
+                                           and x not in MergeList['RunPrompt']['WZ_norm_powheg']
+                                           and x not in MergeList['RunPrompt']['WZ_norm_amcatnlo']
                                            and x not in MergeList['RunPrompt']['WW_norm']
                                           ]
+
+MergeList['MC'] = {}
+MergeList['MC']['MC_inc']    = MergeList['RunConv']['Conv_inc'] + MergeList['RunPrompt']['Prompt_inc']
+MergeList['MC']['MC_others'] = MergeList['RunConv']['Conv_others'] + MergeList['RunPrompt']['Prompt_others']
+
+MCFlag = {}
+for this_conv in MergeList['RunConv']['Conv_inc']:
+  MCFlag[this_conv] = "RunConv__"
+for this_prompt in MergeList['RunPrompt']['Prompt_inc']:
+  MCFlag[this_prompt] = "RunPrompt__"
+
+# Region dependent MC skims
+ConvSkim = {}
+for DefFlag in DefFlags:
+  ConvSkim[DefFlag] = {}
+  for this_conv in ["TG","TTG","WZG","WWG","ZGToLLG","ZGToLLG_PtG_130","DYJets_MG","DYJets10to50_MG"]:
+    ConvSkim[DefFlag][this_conv] = "_SkimTree_HNMultiLepBDT_"
+  for this_conv in ["WGToLNuG","WGToLNuG_MG","WGToLNuG_01J_PtG_130","WGToLNuG_01J_PtG_300","WGToLNuG_01J_PtG_500","WGJJToLNu"]:
+    ConvSkim[DefFlag][this_conv] = "_SkimTree_DileptonBDT_"
+PromptSkim = {}
+for DefFlag in DefFlags:
+  PromptSkim[DefFlag] = {}
+  for this_prompt in [*(x for x in MergeList['RunPrompt']['Prompt_inc'] if x != "ZZTo4L_powheg"), "WZTo3LNu_mllmin4p0_powheg"]:
+    PromptSkim[DefFlag][this_prompt] = "_SkimTree_HNMultiLepBDT_"
+  for this_prompt in ["ZZTo4L_powheg"]:
+    PromptSkim[DefFlag][this_prompt] = "_SkimTree_SSDileptonBDT_"
+MCSkim = {DefFlag: {**ConvSkim[DefFlag], **PromptSkim[DefFlag]} for DefFlag in DefFlags}
+
 
 if args.CheckFiles:
   ##### Input file check #####
@@ -378,13 +402,6 @@ if args.CheckFiles:
   ConvList = MergeList['RunConv']['Conv_inc'][:]
   PromptList = MergeList['RunPrompt']['Prompt_inc'][:]
   DefFlags = ["","MultiLepton__"]
-  ConvSkim = {}
-  for DefFlag in DefFlags:
-    ConvSkim[DefFlag] = {}
-    for this_conv in ["TG","TTG","WZG","WWG","ZGToLLG","ZGToLLG_PtG_130","DYJets_MG","DYJets10to50_MG"]:
-      ConvSkim[DefFlag][this_conv] = "_SkimTree_HNMultiLepBDT_"
-    for this_conv in ["WGToLNuG","WGToLNuG_MG","WGToLNuG_01J_PtG_130","WGToLNuG_01J_PtG_300","WGToLNuG_01J_PtG_500","WGJJToLNu"]:
-      ConvSkim[DefFlag][this_conv] = "_SkimTree_DileptonBDT_"
   DefFlags_CR = ["MultiLepton__"]
   SRPath = "/data9/Users/HNL_public/SUS-24-014/SKFlatOutput/Systematic_Run/HNL_SignalRegion_Plotter_"+inputTag
   CRPath = "/data9/Users/HNL_public/SUS-24-014/SKFlatOutput/Systematic_Run/HNL_ControlRegion_Plotter_"+inputTag
@@ -409,8 +426,9 @@ if args.CheckFiles:
         this_path=SRPath + "/" + era + "/" + PreFlag+"RunConv__"+PostFlag+"/HNL_SignalRegion_Plotter"+ConvSkim[""][this_proc]+this_proc+".root"
         if not os.path.exists(this_path):
           print(this_path,"-->",os.path.exists(this_path))
-      for this_proc in PromptList:
-        this_path=SRPath + "/" + era + "/" + PreFlag+"RunPrompt__"+PostFlag+"/HNL_SignalRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
+      #for this_proc in PromptList:
+      for this_proc in PromptList+["WZTo3LNu_mllmin4p0_powheg"]: # FIXME to test WZ_powheg and WZ_amcatnlo
+        this_path=SRPath + "/" + era + "/" + PreFlag+"RunPrompt__"+PostFlag+"/HNL_SignalRegion_Plotter"+PromptSkim[""][this_proc]+this_proc+".root"
         if not os.path.exists(this_path):
           print(this_path,"-->",os.path.exists(this_path))
     else:
@@ -543,30 +561,56 @@ if MergeConv:
             os.system("rm " + OutFile)
           os.system("hadd " + OutFile + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/" +era+"/" + PreFlag+DefFlag + "RunConv__"+PostFlag+"/"+Analyzer+ConvSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunConv'][OutProc]]))
 
-if MergeMC:
+if MergePrompt:
 
   for era in args.eras:
     if era=="Run2":
       for DefFlag in DefFlags:
         os.system("mkdir -p "+MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag)
         for OutProc in list(MergeList['RunPrompt'].keys()):
-          OutFile=MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+OutProc+".root"
+          OutFile=MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+"_"+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
           os.system("hadd " + OutFile
-                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2016preVFP/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])
-                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2016postVFP/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])
-                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2017/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])
-                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2018/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])
+                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2016preVFP/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+PromptSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])
+                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2016postVFP/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+PromptSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])
+                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2017/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+PromptSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])
+                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2018/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+PromptSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]])
           )
     else:
       for DefFlag in DefFlags:
         os.system("mkdir -p "+MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag)
         for OutProc in list(MergeList['RunPrompt'].keys()):
-          OutFile=MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+OutProc+".root"
+          OutFile=MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+"_"+OutProc+".root"
           if os.path.exists(OutFile):
             os.system("rm " + OutFile)
-          os.system("hadd " + OutFile + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/" +era+"/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]]))
+          os.system("hadd " + OutFile + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/" +era+"/" + PreFlag+DefFlag + "RunPrompt__"+PostFlag+"/"+Analyzer+PromptSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['RunPrompt'][OutProc]]))
+
+
+if MergeMC:
+
+  for era in args.eras:
+    if era=="Run2":
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/" + PreFlag+DefFlag + "MergeMC__"+PostFlag)
+        for OutProc in list(MergeList['MC'].keys()):
+          OutFile=MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/" + PreFlag+DefFlag + "MergeMC__"+PostFlag+"/"+Analyzer+"_"+OutProc+".root"
+          if os.path.exists(OutFile):
+            os.system("rm " + OutFile)
+          os.system("hadd " + OutFile
+                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2016preVFP/" + PreFlag+DefFlag+MCFlag[ThisProc]+PostFlag+"/"+Analyzer+MCSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['MC'][OutProc]])
+                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2016postVFP/" + PreFlag+DefFlag+MCFlag[ThisProc]+PostFlag+"/"+Analyzer+MCSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['MC'][OutProc]])
+                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2017/" + PreFlag+DefFlag+MCFlag[ThisProc]+PostFlag+"/"+Analyzer+MCSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['MC'][OutProc]])
+                                      + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/2018/" + PreFlag+DefFlag+MCFlag[ThisProc]+PostFlag+"/"+Analyzer+MCSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['MC'][OutProc]])
+          )
+    else:
+      for DefFlag in DefFlags:
+        os.system("mkdir -p "+MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "MergeMC__"+PostFlag)
+        for OutProc in list(MergeList['MC'].keys()):
+          OutFile=MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "MergeMC__"+PostFlag+"/"+Analyzer+"_"+OutProc+".root"
+          if os.path.exists(OutFile):
+            os.system("rm " + OutFile)
+          os.system("hadd " + OutFile + " " + ' '.join([SKFlatOutputPath + "/"+ Analyzer+"_"+inputTag+ "/" +era+"/" + PreFlag+DefFlag+MCFlag[ThisProc]+PostFlag+"/"+Analyzer+MCSkim[DefFlag][ThisProc]+ThisProc+".root" for ThisProc in MergeList['MC'][OutProc]]))
 
 if MergeSignal:
 
@@ -689,14 +733,14 @@ def CheckFile(f_path):
   f_root = None
 
   try:
-    print("opening",f_path,"...")
+    print("[CheckFile] opening",f_path,"...")
     f_root = TFile.Open(f_path)
   except OSError:
-    print("[!!WARNING!!] There is no file "+f_path+" .")
-    print("Skipping...")
+    print("[CheckFile] [!!WARNING!!] There is no file "+f_path+" .")
+    print("[CheckFile] return None ...")
     return None
   else:
-    print("Good!")
+    print("[CheckFile] Good!")
     return f_root
 
 def CheckHist(f_root,h_path,hist_name):
@@ -704,48 +748,196 @@ def CheckHist(f_root,h_path,hist_name):
   this_hist = None
 
   try:
-    print("getting",h_path,"from",f_root,"...")
+    print("[CheckHist] getting",h_path,"from",f_root,"...")
     this_hist = f_root.Get(h_path)
     this_hist.GetEntries()
   except AttributeError:
-    print("[!!WARNING!!] There is no hist named",h_path,"in",f_root,".")
-    print("Skipping "+hist_name+"...")
+    print("[CheckHist] [!!WARNING!!] There is no hist named",h_path,"in",f_root,".")
+    print("[CheckHist] return None for "+hist_name+"...")
     return None
   else:
-    print("Good!")
+    print("[CheckHist] Good!")
     return this_hist
 
+########### Exception rules snippets ###############
+from collections import defaultdict
+
+SR_KEYWORDS = {"sr1", "sr2", "sr3"}
+
+def region_key(region: str, cr_mode: bool = args.CR):
+    if cr_mode:
+        return ("equals", region)
+    else:
+        for kw in SR_KEYWORDS:
+            if kw in region:
+                return ("sr_pair", kw)
+
+def mass_condition(mass: str):
+    if mass == "highmass":
+        return '(mass_int >= 600 or mass == "Weinberg")'
+    elif mass.startswith("M") and mass[1:].isdigit():
+        return f"(mass_int == {mass[1:]})"
+    else:
+        return f'(mass == "{mass}")'
+
+def generate_exception_code(excepts):
+    """
+    excepts: list of tuples like (tag, proc, region, era, channel, mass)
+    """
+    bucket = defaultdict(lambda: defaultdict(set))
+    # bucket[(proc, channel, mass)][(mode, rk)] = {era1, era2, ...}
+
+    for _, proc, region, era, channel, mass in excepts:
+        mode, rk = region_key(region)
+        bucket[(proc, channel, mass)][(mode, rk)].add(era)
+
+    lines = []
+    for (proc, channel, mass), rk_to_eras in bucket.items():
+        for eras in {tuple(sorted(v)) for v in rk_to_eras.values()}:
+            # group region conditions with same era conditions
+            region_conds = []
+            for (mode, rk), e_set in rk_to_eras.items():
+                if tuple(sorted(e_set)) != eras:
+                    continue
+                if mode == "sr_pair":
+                    crx = rk.replace("sr", "cr")  # srx to crx
+                    region_conds.append(f'("{rk}" in region) or ("{crx}" in region)')
+                else:
+                    region_conds.append(f'(region == "{rk}")')
+
+            # era
+            eras_sorted = sorted(eras)
+            if len(eras_sorted) == 1:
+                era_cond = f'(era == "{eras_sorted[0]}")'
+            else:
+                era_cond = "(" + " or ".join([f'(era == "{e}")' for e in eras_sorted]) + ")"
+
+            # channel, mass
+            conds = [" or ".join(region_conds), era_cond, f'(channel == "{channel}")', mass_condition(mass)]
+            cond_str = " and ".join([f"({c})" for c in conds])
+
+            lines.append(
+                f'if {cond_str}:\n'
+                f'    this_process["{proc}"] = "0"  # auto-generated from MakeInput_public.py'
+            )
+
+    lines.sort()
+    return "\n\n".join(lines)
+
+def write_exceptions_module(path, code_str, save, exceptionTag):
+
+    add = True if save == "Add" else False
+
+    region_tag = "CR" if args.CR else "SR"
+
+    start_tag = f"# --- {region_tag} RULES START ---"
+    end_tag   = f"# --- {region_tag} RULES END ---"
+
+    if (not add) or (not os.path.exists(path)): # write
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("# Auto-generated; DO NOT EDIT BY HAND\n")
+            f.write("def apply_auto_exceptions(this_process, region, era, channel, mass, mass_int, tag):\n")
+            f.write("    # BEGIN AUTO RULES\n")
+
+            block_lines = []
+            if exceptionTag:
+                block_lines.append("\n")
+                block_lines.append(f"    if tag == '{exceptionTag}':\n")
+                block_lines.append(f"        {start_tag}\n")
+                for line in code_str.splitlines():
+                    block_lines.append(f"        {line}\n" if line.strip() else "\n")
+                block_lines.append(f"        {end_tag}\n")
+            else:
+                block_lines.append("\n")
+                block_lines.append(f"    {start_tag}\n")
+                for line in code_str.splitlines():
+                    block_lines.append(f"    {line}\n" if line.strip() else "\n")
+                block_lines.append(f"    {end_tag}\n")
+            f.writelines(block_lines)
+            f.write("\n")
+            f.write("    # END AUTO RULES\n")
+            f.write("    return this_process\n")
+        return
+    else: # add
+        with open(path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        new_lines = []
+        inserted = False
+        for line in lines:
+            if line.strip() == "# END AUTO RULES" and not inserted:
+                if exceptionTag:
+                    new_lines.append("\n")
+                    new_lines.append(f"    if tag == '{exceptionTag}':\n")
+                    new_lines.append(f"        {start_tag}\n")
+                    for l in code_str.splitlines():
+                        new_lines.append(f"        {l}\n" if l.strip() else "\n")
+                    new_lines.append(f"        {end_tag}\n")
+                else:
+                    new_lines.append("\n")
+                    new_lines.append(f"    {start_tag}\n")
+                    for l in code_str.splitlines():
+                        new_lines.append(f"    {l}\n" if l.strip() else "\n")
+                    new_lines.append(f"    {end_tag}\n")
+                inserted = True
+            new_lines.append(line)
+
+        with open(path, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+
+
 ##### Main job starts #####
+Except_list = []
+
 for tag in args.histTag:
   for era in args.eras:
     for region in regions: # ...and even each region to control!!
       print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-      OutputPath = MainPath+'/LimitInputs/'+inputTag+"_"+tag+outputTagSuffix+'/'
+      OutputName = inputTag+"_"+tag+outputTag+outputTagSuffix
+      OutputPath = MainPath+'/LimitInputs/'+OutputName+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
   
-      f_path_data          = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + PostFlag + "/DATA/"+Analyzer+DataSkim+"DATA.root"
-      f_path_fake          = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunFake__"+PostFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
-      f_path_cf            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunCF__"+PostFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
-      f_path_zg            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunConv__"+PostFlag+"/"+Analyzer+"_ZG_norm.root"
-      f_path_conv_others   = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunConv__"+PostFlag+"/"+Analyzer+"_Conv_others.root"
-      f_path_conv_inc      = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunConv__"+PostFlag+"/"+Analyzer+"_Conv_inc.root"
-      f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"WZ_norm.root"
-      f_path_zz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"ZZ_norm.root"
-      f_path_ww            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"WW_norm.root"
-      f_path_prompt_others = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"Prompt_others.root"
-      f_path_prompt_inc    = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region] + "RunPrompt__"+PostFlag+"/"+Analyzer+MCSkim+"Prompt_inc.root"
+      f_path_data          = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+PostFlag + "/DATA/"+Analyzer+DataSkim+"DATA.root"
+      f_path_fake          = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunFake__"+PostFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
+      f_path_cf            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunCF__"+PostFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
+      f_path_zg            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunConv__"+PostFlag+"/"+Analyzer+"_ZG_norm.root"
+      f_path_conv_inc      = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunConv__"+PostFlag+"/"+Analyzer+"_Conv_inc.root"
+      f_path_conv_others   = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunConv__"+PostFlag+"/"+Analyzer+"_Conv_others.root"
+      if 'WZ_powheg' in outputTag:
+        f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_norm_powheg.root"
+      elif 'WZ_amcatnlo' in outputTag:
+        f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_norm_amcatnlo.root"
+      else:
+        if args.CR: #FIXME this is due to old CR...
+          f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_SkimTree_HNMultiLepBDT_WZ_norm.root"
+        else:
+          f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_norm.root"
+      if args.CR: #FIXME this is due to old CR...
+        f_path_zz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_SkimTree_HNMultiLepBDT_ZZ_norm.root"
+        f_path_ww            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_SkimTree_HNMultiLepBDT_WW_norm.root"
+        f_path_prompt_inc    = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_SkimTree_HNMultiLepBDT_Prompt_inc.root"
+        f_path_prompt_others = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_SkimTree_HNMultiLepBDT_Prompt_others.root"
+      else:
+        f_path_zz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_ZZ_norm.root"
+        f_path_ww            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WW_norm.root"
+        f_path_prompt_inc    = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_Prompt_inc.root"
+        f_path_prompt_others = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_Prompt_others.root"
+      f_path_mc_inc        = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"MergeMC__"+PostFlag+"/"+Analyzer+"_MC_inc.root"
+      f_path_mc_others     = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"MergeMC__"+PostFlag+"/"+Analyzer+"_MC_others.root"
       
       if not Blinded: f_data = TFile.Open(f_path_data)
       f_fake          = TFile.Open(f_path_fake)
       f_cf            = TFile.Open(f_path_cf)
       f_zg            = TFile.Open(f_path_zg)
-      f_conv_others   = TFile.Open(f_path_conv_others)
       f_conv_inc      = TFile.Open(f_path_conv_inc)
+      f_conv_others   = TFile.Open(f_path_conv_others)
       f_wz            = TFile.Open(f_path_wz)
       f_zz            = TFile.Open(f_path_zz)
       f_ww            = TFile.Open(f_path_ww)
-      f_prompt_others = TFile.Open(f_path_prompt_others)
       f_prompt_inc    = TFile.Open(f_path_prompt_inc)
+      f_prompt_others = TFile.Open(f_path_prompt_others)
+      f_mc_inc        = TFile.Open(f_path_mc_inc)
+      f_mc_others     = TFile.Open(f_path_mc_others)
 
       for mass in args.masses: # iterate for each mass ...
         is_Weinberg = (mass == "Weinberg")
@@ -755,6 +947,8 @@ for tag in args.histTag:
 
           if ("r1" in region or "r2" in region) and (mass_int <= 100):
             continue # NOTE use only SR3 below M100
+          if ("r1" in region) and (mass_int > 3000):
+            continue # NOTE skip SR1 above M3000
 
         for channel in args.channels: # ...and each channel
 
@@ -767,22 +961,27 @@ for tag in args.histTag:
               InputHistMass = mass+"/"
               if 'BDT' not in RegionToHistSuffixMap[region][channel]:
                 RegionToHistSuffixMap[region][channel] += 'BDT'
-              #if MatchBDTver:
-              #  if BDTver not in RegionToChannelMap[region][channel]:
-              #    RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel]+BDTver
               if BDTver:
                 if args.CR:
-                  if BDTver.split('_')[0] not in RegionToChannelMap[region][channel]:
+                  if BDTver.split('_')[0] not in RegionToChannelMap[region][channel]: # BDTver == V3_Strict_15_Bin; CR histo path: V3_EE/M100/LimitBins
                     RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel]+"_"+BDTver.split('_')[0]
                 else:
                   if BDTver not in RegionToChannelMap[region][channel]:
                     RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel]+"_"+BDTver
             else:
-              LimitDir = "LimitExtraction"
-              InputHistMass = ""
+              #if region=='sr2' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR2 alternative optimization : use the same binning for all era, flavor. (deprecated)
+              #else: LimitDir = "LimitExtraction"
+              if region=='sr1' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR1 alternative optimization : bin optimized with sqrt-removed-FOM.
+              else: LimitDir = "LimitExtraction"
+
+              if (region=="sr1") and (mass_int <= 3000):
+                if mass_int <= 400: InputHistMass = "M400/"
+                elif mass_int >= 900: InputHistMass = "M900/"
+                else: InputHistMass = mass+"/"
+              else:
+                InputHistMass = ""
+
               RegionToHistSuffixMap[region][channel] = RegionToHistSuffixMap[region][channel].replace('BDT','')
-              #if MatchBDTver:
-              #  RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel].replace(BDTver,'')
               if BDTver:
                 if args.CR:
                   RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel].replace("_"+BDTver.split('_')[0],'')
@@ -796,20 +995,16 @@ for tag in args.histTag:
 
             #if mass_int <= 100: DYVBFscaler = 0.001 # if you want to use HybridNew without additional options, see https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844
 
-            # Mass dependent scaler, if necessary ...
-            #if mass_int <= 500: DYVBFscaler = 0.01
-            #elif mass_int <= 3000: DYVBFscaler = 0.1
-            ##else: DYVBFscaler = 1.
-            #else: DYVBFscaler = 0.3
-            #SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
-
-          else:
-            LimitDir = "LimitExtraction"
+          else: # TODO let's merge Weinberg and other signals later, e.g. setting mass_int = 999999 for the Weinberg
+            #if region=='sr2' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR2 alternative optimization : use the same binning for all era, flavor. (deprecated)
+            #else: LimitDir = "LimitExtraction"
+            if region=='sr1' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR1 alternative optimization : bin optimized with sqrt-removed-FOM.
+            else: LimitDir = "LimitExtraction"
             InputHistMass = ""
             RegionToHistSuffixMap[region][channel] = RegionToHistSuffixMap[region][channel].replace('BDT','')
+            Weinbergscaler = 10000. # Set the signalWeinberg scaler
 
           print("f_cf :",f_path_cf)
-          print("f_prompt_inc:",f_prompt_inc)
           print("input_hist :", LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel])
           input_hist = LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
           
@@ -818,13 +1013,15 @@ for tag in args.histTag:
           h_fake          = f_fake.Get(input_hist)
           h_cf            = f_cf.Get(input_hist) if "EE" in channel else ""
           h_zg            = f_zg.Get(input_hist)
-          h_conv_others   = f_conv_others.Get(input_hist)
           h_conv_inc      = f_conv_inc.Get(input_hist)
+          h_conv_others   = f_conv_others.Get(input_hist)
           h_wz            = f_wz.Get(input_hist)
           h_zz            = f_zz.Get(input_hist)
           h_ww            = f_ww.Get(input_hist)
-          h_prompt_others = f_prompt_others.Get(input_hist)
           h_prompt_inc    = f_prompt_inc.Get(input_hist)
+          h_prompt_others = f_prompt_others.Get(input_hist)
+          h_mc_inc        = f_mc_inc.Get(input_hist)
+          h_mc_others     = f_mc_others.Get(input_hist)
           print("##### histo done.")
  
           # Make list of [file path, histogram, histo name]
@@ -832,14 +1029,21 @@ for tag in args.histTag:
                         [f_path_fake, h_fake, "fake"],
                         [f_path_cf, h_cf, "cf"],
                         [f_path_zg, h_zg, "zg"],
+                        [f_path_conv_inc,    h_conv_inc,    "conv_inc"],
                         [f_path_conv_others, h_conv_others, "conv_others"],
-                        [f_path_conv_inc, h_conv_inc, "conv_inc"],
                         [f_path_wz, h_wz, "wz"],
                         [f_path_zz, h_zz, "zz"],
                         [f_path_ww, h_ww, "ww"],
+                        [f_path_prompt_inc,    h_prompt_inc,    "prompt_inc"],
                         [f_path_prompt_others, h_prompt_others, "prompt_others"],
-                        [f_path_prompt_inc, h_prompt_inc, "prompt_inc"],
+                        [f_path_mc_inc,    h_mc_inc,    "mc_inc"],
+                        [f_path_mc_others, h_mc_others, "mc_others"],
                        ]
+
+          #### Remove CF if not EE
+          if "EE" not in channel:
+            print("This is",channel,"channel --> Remove CF item:")
+            print(input_list.pop(1))
 
           #### Treat 0 fakes: see v) of https://hypernews.cern.ch/HyperNews/CMS/get/EXO-21-002/25
           try:
@@ -850,37 +1054,39 @@ for tag in args.histTag:
                 h_fake.SetBinContent(i+1,0.15*0.645)
                 h_fake.SetBinError(i+1,0.15*0.645)
           except AttributeError:
-            print("[!!WARNING!!] There is no hist named "+input_hist+" in "+f_path_fake+" .")
-            print("Skipping treatment on zero fakes...")
+            print("[!!WARNING!!] There is no hist named "+input_hist+" in "+f_path_fake+":"," .")
+            print("Skipping treatment on zero fakes...") #NOTE This means, if there is no fake hist in this region, just skip this mass/channel
             continue
 
-          if "EE" not in channel:
-            print("This is",channel,"channel --> Remove CF item:")
-            print(input_list.pop(1))
+          this_nbins = h_fake.GetNbinsX()
+          Nproc = len(input_list) # The number of processes = the length of the input list before adding systematics
 
           if args.Scan:
             print("##### Scan initiated. #####")
-            h_scan = TH2D("Nominal","Nominal",h_fake.GetNbinsX(),0,h_fake.GetNbinsX(),len(input_list)+2,0,len(input_list)+2) # There is no automatic merging from many TH1s... see https://root-forum.cern.ch/t/filling-a-th2-from-two-existing-th1/14575; +2 is to secure space for 2 signals. I was going to extend the axis, but... (below)
+            h_scan = TH2D("Nominal","Nominal",this_nbins,0,this_nbins,Nproc+2,0,Nproc+2) # There is no automatic merging from many TH1s... see https://root-forum.cern.ch/t/filling-a-th2-from-two-existing-th1/14575; +2 is to secure space for 2 signals. I was going to extend the axis, but... (below)
             #h_scan.GetYaxis().SetCanExtend(1) # This seems not resolved... https://root-forum.cern.ch/t/extending-axis-for-th1-vs-th2/20964
-            print("h_scan for Nominal created; this should be empty:",h_scan.Integral(0,h_fake.GetNbinsX(),1,1))
-            if h_scan.Integral(0,h_fake.GetNbinsX(),1,1)!=0.: sys.exit()
+            print("h_scan for Nominal created; this should be empty:",h_scan.Integral(0,this_nbins,1,1))
+            if h_scan.Integral(0,this_nbins,1,1)!=0.: sys.exit()
             h_scan.SetDirectory(0)
             scan_list = []
 
-            for i in range(len(input_list)):
+            for i in range(Nproc):
               print("##### Making 2D hist for",input_list[i][2],"#####")
               FillScan(h_scan,input_list[i][1],input_list[i][2]) # out, in, name
           
           if Blinded:
             print("##### This analysis is blinded.")
             print("##### Creating Asimov data...")
-            print("Adding prompt...")
-            h_data = h_prompt_inc.Clone()
+            #print("Adding prompt...")
+            #h_data = h_prompt_inc.Clone() #NOTE deprecated. only preservation purposes
+            print("Adding MCs...")
+            h_data = h_mc_inc.Clone()
 
-            bkg_list = [ #bkg except prompt (already added above)
+            bkg_list = [ #bkg except mc (which was already added above)
                         [f_path_fake, h_fake, "fake"],
                         [f_path_cf, h_cf, "cf"],
-                        [f_path_conv_inc, h_conv_inc, "conv_inc"],
+                        #[f_path_conv_inc, h_conv_inc, "conv_inc"], #NOTE deprecated. only preservation purposes
+                        [f_path_mc_inc, h_mc_inc, "mc_inc"],
                        ]
           
             if "Mu" in channel:
@@ -888,21 +1094,22 @@ for tag in args.histTag:
               print(bkg_list.pop(1))
 
             total_number = 0 # to cross check
-            total_number += h_prompt_inc.GetEntries()
+            #total_number += h_prompt_inc.GetEntries() #NOTE deprecated. only preservation purposes
+            total_number += h_mc_inc.GetEntries()
           
             for bkg in bkg_list:
               try:
                 bkg[1].GetEntries()
               except AttributeError:
                 print("[!!WARNING!!] There is no hist named "+input_hist+" in "+bkg[0]+" .")
-                print("Skipping "+bkg[2]+"...")
+                print("Skipping "+bkg[2]+" in total background...")
                 continue
               print("Adding "+bkg[2]+"...")
               h_data.Add(bkg[1]) # Add each bkg while iterating
               total_number += bkg[1].GetEntries()
           
             #print h_data.GetEntries(), total_number
-            if h_data.GetEntries() == total_number: pass #NOTE Only valid when blinded.
+            if h_data.GetEntries() == total_number: pass #NOTE valid only when blinded.
             else:
               print("[!!ERROR!!] Cross check failed. Exiting...")
               sys.exit()
@@ -919,6 +1126,8 @@ for tag in args.histTag:
           else:
             if not is_Weinberg:
               f_path_signalDYVBF = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+              f_path_signalDY = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
+              f_path_signalVBF = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
               f_path_signalSSWW  = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
   
               f_signalDYVBF = CheckFile(f_path_signalDYVBF)
@@ -931,6 +1140,28 @@ for tag in args.histTag:
                 if args.Scan:
                   print("##### Making 2D hist for","signalDYVBF","#####")
                   FillScan(h_scan,h_signalDYVBF,"signalDYVBF") # out, in, name
+
+              f_signalDY = CheckFile(f_path_signalDY)
+              if f_signalDY:
+                h_signalDY = CheckHist(f_signalDY,input_hist,"signalDY")
+                if h_signalDY:
+                  h_signalDY.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
+                  input_list.append([f_path_signalDY, h_signalDY, "signalDY"])
+                  #print("Scaled signalDY :", h_signalDY.Integral())
+                if args.Scan:
+                  print("##### Making 2D hist for","signalDY","#####")
+                  FillScan(h_scan,h_signalDY,"signalDY") # out, in, name
+
+              f_signalVBF = CheckFile(f_path_signalVBF)
+              if f_signalVBF:
+                h_signalVBF = CheckHist(f_signalVBF,input_hist,"signalVBF")
+                if h_signalVBF:
+                  h_signalVBF.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
+                  input_list.append([f_path_signalVBF, h_signalVBF, "signalVBF"])
+                  #print("Scaled signalVBF :", h_signalVBF.Integral())
+                if args.Scan:
+                  print("##### Making 2D hist for","signalVBF","#####")
+                  FillScan(h_scan,h_signalVBF,"signalVBF") # out, in, name
 
               f_signalSSWW = CheckFile(f_path_signalSSWW)
               if f_signalSSWW:
@@ -949,6 +1180,7 @@ for tag in args.histTag:
               if f_signalWeinberg:
                 h_signalWeinberg = CheckHist(f_signalWeinberg,input_hist,"signalWeinberg")
                 if h_signalWeinberg:
+                  h_signalWeinberg.Scale(Weinbergscaler) # Scaling the signal due to Impact
                   input_list.append([f_path_signalWeinberg, h_signalWeinberg, "signalWeinberg"])
                   #print("signalWeinberg :", h_signalWeinberg.Integral())
                 if args.Scan:
@@ -959,21 +1191,49 @@ for tag in args.histTag:
               scan_list.append(h_scan)
 
             print("##### Signal done.")
-  
+
+          Nproc = len(input_list) # Update the Nproc to include signals
+          NoNOMs = set()
+          #### Treat negative events for nominal histograms ####
+          for iProc in range(Nproc):
+            try:
+              for j in range(this_nbins):
+                if input_list[iProc][1].GetBinContent(j+1) <= 0.:
+                  print("!!!!!! Negative events detected in",input_list[iProc][2],input_list[iProc][0],input_hist,"!!!!!!")
+                  print("!!!!!! bin",j+1,":",input_list[iProc][1].GetBinContent(j+1),"!!!!!!")
+                  print("!!!!!! Setting this bin to 0 ...")
+                  input_list[iProc][1].SetBinContent(j+1,0.)
+            except AttributeError:
+              print("[!!WARNING!!] There is no NOMINAL hist named "+input_hist+" in "+input_list[iProc][0]+" .")
+              print("[!!WARNING!!] Please delete this in the datacard ...")
+              NoNOMs.add(iProc)
+            else:
+              if input_list[iProc][1].Integral()<=0.:
+                print("!!!!!! Zero norm detected in",input_list[iProc][2],input_list[iProc][0],input_hist,"!!!!!!")
+                print("Please delete this in the datacard ...")
+                NoNOMs.add(iProc)
   
           if args.Syst:
             print("##### Systematics activated.")
   
-            Nproc = len(input_list) # The number of processes = the length of the input list before adding systematics
-  
             for i in range(Nproc):
 
               if "fake_data_path" in input_list[i][0]: continue # There is no file like "fake_data_path" so pass this in the iteration
+              if i in NoNOMs:
+                print("No nominal hist for",input_list[i][2],"in",tag,era,region,mass,channel,".")
+                print("Making exception list ...") # TODO better to make exception list outside of the Syst iteration later
+                if "signal" in input_list[i][2]:
+                  Except_list.append((tag, input_list[i][2], region, era, channel, mass))
+                elif "conv" in input_list[i][2] or "prompt" in input_list[i][2]: pass # We don't use conv or prompt anymore. We use mc_others
+                else:
+                  Except_list.append((tag, input_list[i][2], region, era, channel, mass)) if (not is_Weinberg and mass_int < 600) else Except_list.append((tag, input_list[i][2], region, era, channel, "highmass"))
+                print("Pass systematics ...")
+                continue
 
               if args.Scan:
-                h_scan = TH2D(input_list[i][2],input_list[i][2],h_fake.GetNbinsX(),0,h_fake.GetNbinsX(),len(SystList),0,len(SystList))
-                print("h_scan for",input_list[i][2],"syst created; this should be empty:",h_scan.Integral(0,h_fake.GetNbinsX(),1,1))
-                if h_scan.Integral(0,h_fake.GetNbinsX(),1,1)!=0.: sys.exit()
+                h_scan = TH2D(input_list[i][2],input_list[i][2],this_nbins,0,this_nbins,Nproc,0,Nproc)
+                print("h_scan for",input_list[i][2],"syst created; this should be empty:",h_scan.Integral(0,this_nbins,1,1))
+                if h_scan.Integral(0,this_nbins,1,1)!=0.: sys.exit()
                 h_scan.SetDirectory(0)
 
               f_syst = CheckFile(input_list[i][0]) # Get each process's file
@@ -982,7 +1242,7 @@ for tag in args.histTag:
                 sys.exit()
 
               ###### Now treat PDF error sets ######
-              if "PDFUp" in SystList: # Define new input_hist with each syst name
+              if "PDFUp" in SystList: # Calculate PDF variation first
                 hist_pdfUp = h_data.Clone()
                 hist_pdfUp.Reset()
                 hist_pdfDown = h_data.Clone()
@@ -994,15 +1254,27 @@ for tag in args.histTag:
                     this_pdf_hist = LimitDir+"/Syst_PDF"+tag+"_Syst_PDF"+str(it_rep)+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
                     #print(this_pdf_hist)
                     #CheckHist(f_syst,this_pdf_hist,"PDF"+str(it_rep))
-                    pdf_hists.append(f_syst.Get(this_pdf_hist))
-                  this_nbins = pdf_hists[0].GetNbinsX()
+                    h_pdf = f_syst.Get(this_pdf_hist)
+                    # apply the same scale to the pdf variations
+                    if 'DY' in input_list[i][2] or 'VBF' in input_list[i][2]:
+                      h_pdf.Scale(DYVBFscaler)
+                    elif 'SSWW' in input_list[i][2]:
+                      h_pdf.Scale(SSWWscaler)
+                    elif 'Weinberg' in input_list[i][2]:
+                      h_pdf.Scale(Weinbergscaler)
+                    else:
+                      print("[ERROR] in PDF uncertainty calculation: There is no hist",this_pdf_hist,".")
+                      print("[ERROR] Exiting ...")
+                      exit()
+                    pdf_hists.append(h_pdf)
                   for it_bin in range(1, this_nbins + 1):
                     bin_values = [pdf_hists[it_rep].GetBinContent(it_bin) for it_rep in range(Nreplica)]
-                    mean = np.mean(bin_values)
-                    std  = np.std(bin_values, ddof=1)
+                    std = np.std(bin_values, ddof=1)
+                    nom = input_list[i][1].GetBinContent(it_bin)
+                    if nom < 0.: print("[ERROR] signal",input_list[i][2],"has negative events!!! Check bin",it_bin,":",nom)
                   
-                    hist_pdfUp.SetBinContent(it_bin, mean + std)
-                    hist_pdfDown.SetBinContent(it_bin, mean - std)
+                    hist_pdfUp.SetBinContent(it_bin, nom + std)
+                    hist_pdfDown.SetBinContent(it_bin, max(nom - std, 0.))
 
               for this_syst in SystList: # Define new input_hist with each syst name
 
@@ -1013,7 +1285,11 @@ for tag in args.histTag:
                   if 'signal' not in input_list[i][2]: continue
                   elif 'PDF' in this_syst or 'Scale' in this_syst:
                     if "DYVBF" in input_list[i][2]:
-                      this_name_syst = this_name_syst.replace('pdf','pdf_DYVBF').replace('scale','scale_DYVBF') #TODO : DYVBF should be separated into DY and VBF later
+                      this_name_syst = this_name_syst.replace('pdf','pdf_DYVBF').replace('scale','scale_DYVBF')
+                    elif "DY" in input_list[i][2]:
+                      this_name_syst = this_name_syst.replace('pdf','pdf_DY').replace('scale','scale_DY')
+                    elif "VBF" in input_list[i][2]:
+                      this_name_syst = this_name_syst.replace('pdf','pdf_VBF').replace('scale','scale_VBF')
                     elif "SSWW" in input_list[i][2]:
                       this_name_syst = this_name_syst.replace('pdf','pdf_SSWW').replace('scale','scale_SSWW')
                     elif "Weinberg" in input_list[i][2]:
@@ -1054,88 +1330,56 @@ for tag in args.histTag:
                   h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
                   #### Treat 0 fakes: see v) of https://hypernews.cern.ch/HyperNews/CMS/get/EXO-21-002/25
                   if input_list[i][2] == "fake" and "FR" in this_syst and "CF" not in this_syst:
-                    for j in range(h_syst.GetNbinsX()):
+                    for j in range(this_nbins):
                       if h_syst.GetBinContent(j+1) <= 0.:
-                        print("!!!!!! zero fakes detected in ",input_list[i][0],input_hist,"!!!!!!")
+                        print("!!!!!! zero fakes detected in ",input_list[i][0],input_hist,"with syst:",name_syst,"!!!!!!")
                         print("!!!!!! bin",j+1,":",h_syst.GetBinContent(j+1),"!!!!!!")
                         h_syst.SetBinContent(j+1,0.15*0.645)
                         h_syst.SetBinError(j+1,0.15*0.645)
+                  else:
+                  #### Treat negative events for systematic histograms ####
+                    for j in range(this_nbins):
+                      if h_syst.GetBinContent(j+1) <= 0.:
+                        print("!!!!!! Negative events detected in",input_list[i][2],input_hist,"with syst:",name_syst,"!!!!!!")
+                        print("!!!!!! bin",j+1,":",h_syst.GetBinContent(j+1),"!!!!!!")
+                        print("!!!!!! Setting this bin to 0 ...")
+                        h_syst.SetBinContent(j+1,0.)
+                  #### Now check zero norm ... ####
+                  if h_syst.Integral()<=0.:
+                    print("!!!!!! Zero norm detected in",input_list[i][2],input_hist,"with syst:",name_syst,"!!!!!!")
+                    print("Making a makeup hist(=cc of nominal)...") # Sometimes there is no hist with syst variation and Combine complains. This is to makeup this.
+                    h_syst = input_list[i][1].Clone()
+                    h_syst.SetDirectory(0)
+
                 else:
                   if args.Scan: # Do the scan before any treatment (empty hist makeup)
                     print("##### Making 2D hist for",name_syst,"#####")
                     FillScan(h_scan,h_syst,name_syst) # out, in, name
 
-                  print("Making an empty hist...") # Sometimes there is no hist with syst variation and Combine complains. This is to makeup this.
-                  if args.CR:
-                    h_syst = h_prompt_inc.Clone() # CR --> h_prompt_inc: expected to have the largest Nevents so least likely that there is no hist
-                  else:
-                    h_syst = h_data.Clone() # SR --> h_Data = total Nbkg so least likely that there is no hist
-                  for j in range(h_syst.GetNbinsX()):
-                    h_syst.SetBinContent(j+1,0)
-                    h_syst.SetBinError(j+1,0)
-                  h_syst.SetBinContent(1,0.001) # to avoid Combine complaining for empty hist.
-                  h_syst.SetBinError(1,0.000001)
-                  h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
-
-                #try:
-                #  h_syst = f_syst.Get(input_hist)
-
-                #except ReferenceError:
-                #  print("[!!WARNING!!] There is no file "+input_list[i][0]+" .")
-                #  if args.Scan:
-                #    print("##### Making 2D hist for",name_syst,"#####")
-                #    FillScan(h_scan,h_syst,name_syst) # out, in, name
-                #  if "signal" in input_list[i][2]:
-                #    print("Skipping...")
-                #  else:
-                #    print("Making an empty hist...")
-                #    if args.CR:
-                #      h_syst = h_prompt_inc.Clone() # I could use data here, but data could have no entry due to stats so just use prompt_inc here.
-                #    else:
-                #      h_syst = h_data.Clone() # SR --> data = total bkg, lowest possibility of no stats
-                #    for j in range(h_syst.GetNbinsX()):
-                #      h_syst.SetBinContent(j+1,0)
-                #      h_syst.SetBinError(j+1,0)
-                #    h_syst.SetBinContent(1,0.001) # to avoid Combine complaining for empty hist.
-                #    h_syst.SetBinError(1,0.000001)
-                #    h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
-                #else:
-                #  if args.Scan:
-                #    print("##### Making 2D hist for",name_syst,"#####")
-                #    FillScan(h_scan,h_syst,name_syst) # out, in, name
-                #  try:
-                #    h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
-                #    #### Treat 0 fakes: see v) of https://hypernews.cern.ch/HyperNews/CMS/get/EXO-21-002/25
-                #    if input_list[i][2] == "fake" and "FR" in this_syst and "CFRate" not in this_syst:
-                #      for j in range(h_syst.GetNbinsX()):
-                #        if h_syst.GetBinContent(j+1) <= 0.:
-                #          print("!!!!!! zero fakes detected in ",input_list[i][0],input_hist,"!!!!!!")
-                #          print("!!!!!! bin",j+1,":",h_syst.GetBinContent(j+1),"!!!!!!")
-                #          h_syst.SetBinContent(j+1,0.15*0.645)
-                #          h_syst.SetBinError(j+1,0.15*0.645)
-                #  except AttributeError:
-                #    print("[!!WARNING!!] There is no hist named "+input_hist+" in "+input_list[i][0]+" .")
-                #    if "signal" in input_list[i][2]:
-                #      print("Skipping...")
-                #    else:
-                #      print("Making an empty hist...")
-                #      if args.CR:
-                #        h_syst = h_prompt_inc.Clone()
-                #      else:
-                #        h_syst = h_data.Clone()
-                #      for j in range(h_syst.GetNbinsX()):
-                #        h_syst.SetBinContent(j+1,0)
-                #        h_syst.SetBinError(j+1,0)
-                #      h_syst.SetBinContent(1,0.001) # to avoid Combine complaining for empty hist.
-                #      h_syst.SetBinError(1,0.000001)
-                #      h_syst.SetDirectory(0) # Store h_syst in memory so that it cannot be deleted during the iteration
-
+                  print("No hist for",name_syst,".") # Sometimes there is no hist with syst variation and Combine complains. This is to makeup this.
+                  print("Making a makeup hist(=cc of nominal)...") # Sometimes there is no hist with syst variation and Combine complains. This is to makeup this.
+                  try:
+                    h_syst = input_list[i][1].Clone()
+                    h_syst.SetDirectory(0)
+                  except ReferenceError:
+                    print("Failed. There is no NOMINAL. Please check ...")
                 # Now h_systs are fully made-up.
-                if not is_Weinberg:
-                  if "signalDYVBF" in input_list[i][2]: # Scale the syst variated signals
-                    h_syst.Scale(DYVBFscaler)
-                  elif "signalSSWW" in input_list[i][2]:
-                    h_syst.Scale(SSWWscaler)
+
+                # scale signal systs except the pdf variations (which are already done)
+                if 'PDFUp' in this_syst or 'PDFDown' in this_syst: pass
+                else:
+                  if not is_Weinberg:
+                    if "signalDYVBF" in input_list[i][2]: # Scale the syst variated signals
+                      h_syst.Scale(DYVBFscaler)
+                    elif "signalDY" in input_list[i][2]: # Scale the syst variated signals
+                      h_syst.Scale(DYVBFscaler)
+                    elif "signalVBF" in input_list[i][2]: # Scale the syst variated signals
+                      h_syst.Scale(DYVBFscaler)
+                    elif "signalSSWW" in input_list[i][2]:
+                      h_syst.Scale(SSWWscaler)
+                  else:
+                    if "signalWeinberg" in input_list[i][2]: # Scale the syst variated signals
+                      h_syst.Scale(Weinbergscaler)
                 print("Appending "+name_syst+"...")
                 input_list.append([input_list[i][0], h_syst, name_syst]) # Append each syst histogram while iterating
   
@@ -1146,7 +1390,11 @@ for tag in args.histTag:
                 #print scan_list
 
             print("##### Systematics done.")
-  
+
+          ### Now remove NoNOMs
+          for i in sorted(NoNOMs, reverse=True): # pop up in reverse order, to prevent index mismatch
+            print("Erase nominal zero norm:")
+            print(input_list.pop(i))
   
           print("##### Now creating a limit input root file...")
           outName = OutputPath+era+"/"+region+"/"+mass+"_"+channel
@@ -1156,52 +1404,27 @@ for tag in args.histTag:
           for item in input_list: # Remember, item = [path,hist,name]
             try:
               item[1].SetName(item[2])
+
+              if item[1].Integral() <=0 : # treat -ve bins #FIXME Must check bin-by-bin in principle..
+                print("[!!WARNING!!] Negative events "+str(item[1].Integral())+" in "+item[2]+" ------------------------------------")
+
+              if args.CnC:
+                print("!!Cut and count option activated!!")
+                print("!!Merging all into 1 bin...!!")
+                
+                item[1].Rebin(item[1].GetNbinsX())
+                CnChist = TH1D(item[2],item[2],1,0,1)
+                CnChist.SetBinContent(1,item[1].GetBinContent(1))
+                CnChist.SetBinError(1,item[1].GetBinError(1))
+
+              print("Writing "+item[2]+"...")
+              if args.CnC: CnChist.Write()
+              else: item[1].Write() # Write each histogram while iterating
+
             except AttributeError:
-              print("[!!WARNING!!] There is no hist",item[2],"in",region,item[0],".") # Final check
-              #print("[!!WARNING!!] There is no hist corresponding to "+item[2]+" in "+region+" "+item[0]+" .") # Final check
-              if "signal" in item[2]:
-                print("Skipping...")
-                continue
-              else:
-                print("Making an empty hist...")
-                if args.CnC:
-                   h_missing = TH1D(item[2],item[2],1,0,1)
-                else:
-                  if args.CR:
-                    h_missing = h_prompt_inc.Clone()
-                  else:
-                    h_missing = h_data.Clone()
-                for i in range(h_missing.GetNbinsX()):
-                  h_missing.SetBinContent(i+1,0)
-                  h_missing.SetBinError(i+1,0)
-                h_missing.SetBinContent(1,0.001) # to avoid Combine complaining for empty hist.
-                h_missing.SetBinError(1,0.000001)
-                h_missing.SetName(item[2])
-                print("Writing "+item[2]+"...")
-                h_missing.Write() # Write empty histogram
-                continue
-
-            if item[1].Integral() <=0 : # treat -ve bins #FIXME Must check bin-by-bin in principle..
-              print("[!!WARNING!!] Negative events "+str(item[1].Integral())+" in "+item[2]+" ------------------------------------")
-              print("Creating a makeup hist...")
-              for i in range(item[1].GetNbinsX()):
-                item[1].SetBinContent(i+1,0)
-                item[1].SetBinError(i+1,0)
-              item[1].SetBinContent(1,0.001) # to avoid Combine complaining for empty hist.
-              item[1].SetBinError(1,0.000001)
-
-            if args.CnC:
-              print("!!Cut and count option activated!!")
-              print("!!Merging all into 1 bin...!!")
-              
-              item[1].Rebin(item[1].GetNbinsX())
-              CnChist = TH1D(item[2],item[2],1,0,1)
-              CnChist.SetBinContent(1,item[1].GetBinContent(1))
-              CnChist.SetBinError(1,item[1].GetBinError(1))
-
-            print("Writing "+item[2]+"...")
-            if args.CnC: CnChist.Write()
-            else: item[1].Write() # Write each histogram while iterating
+              print("[!!WARNING!!] Final check: There is no hist",item[2],"in",region,mass,channel,item[0],".") # Final check
+              #print("Making a makeup hist(=cc of nominal)...") # NOTE in principle, this shouldn't lead to any error. No meaning to make e.g. fake_MuonSFUp
+              #h_syst = input_list[i][1].Clone()
           
           outfile.Close()
           print(outName+"_card_input.root has been created.")
@@ -1226,3 +1449,16 @@ for tag in args.histTag:
               elif i==(len(scan_list)-1): canvas.Print(outName+"_card_scan.pdf)", "Title: "+this_proc)
               else: canvas.Print(outName+"_card_scan.pdf", "Title: "+this_proc) # https://root-forum.cern.ch/t/problem-with-saving-multiple-canvases-to-a-single-pdf/57145/3
             print(outName+"_card_scan.pdf has been created.")
+
+  # Finally, save the exception rules
+  exceptionTag = args.exceptionTag if args.exceptionTag else OutputName
+
+  code = generate_exception_code(Except_list)
+  save_path = "/data6/Users/jihkim/LatestCombine/CMSSW_14_1_0_pre4/src/DilepHN/exceptions_auto.py"
+  
+  if args.saveException == "Print":
+    print("Printing exception rules ...")
+    print(code)
+  else:
+    write_exceptions_module(save_path, code, args.saveException, exceptionTag)
+    print("Exception rules are saved into ---------->",save_path)

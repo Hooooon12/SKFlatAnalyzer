@@ -3,6 +3,9 @@
 void HNL_ControlRegion_Plotter::initializeAnalyzer(){
 
   HNL_LeptonCore::initializeAnalyzer();
+  
+  /// Select BDT versions to plot                                                                                                       
+  BDTVersions_to_run ={"V3","V4"};
 
 
   if(IsDATA){
@@ -17,10 +20,10 @@ void HNL_ControlRegion_Plotter::initializeAnalyzer(){
     if (this->DataStream == "SingleElectron") run_ee_bdt=true;
 
 
-    SetupEventMVAReader("V2",run_ee_bdt,run_mm_bdt,run_em_bdt);
+    SetupEventMVAReaders(BDTVersions_to_run,run_ee_bdt,run_mm_bdt,run_em_bdt);
 
   }
-  else SetupEventMVAReader("V2");
+  else SetupEventMVAReaders(BDTVersions_to_run);
 }
 
 
@@ -45,7 +48,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   
   if(HasFlag("SSMultiLep"))  CRToRun = {"SS_CR","VBF_CR"};
   if(HasFlag("LLL")) CRToRun.push_back("LLL_VR");
-  
+  if(HasFlag("SSDilepBDT")) CRToRun = {"SS_CR"};
 
   if(IsDATA){
     if (this->DataStream.Contains("DoubleMuon")) ChannelsToRun = {MuMu};

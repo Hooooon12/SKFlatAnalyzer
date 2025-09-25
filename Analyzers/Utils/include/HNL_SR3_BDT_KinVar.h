@@ -17,10 +17,10 @@ class HNL_SR3_BDT_KinVar : public HNL_RegionDefinitions {
   vector<TString> TrigList_DblMu, TrigList_DblEG, TrigList_MuEG;
 
   void MakeTreeSS2L(HNL_LeptonCore::Channel, vector<Lepton *>  LepTColl,
-                    vector<Jet>& JetAllColl,
+                    vector<Jet>& JetColl_All,
                     vector<Jet>& JetColl, 
-		    vector<Jet>& JetVBFColl,
-                    vector<Jet>& JetBTagColl, 
+		    vector<Jet>& JetColl_VBF,
+                    vector<Jet>& JetColl_BTag, 
 		    Particle& vMET, float weight, TString Label);
 
   TTree *tree_mm;

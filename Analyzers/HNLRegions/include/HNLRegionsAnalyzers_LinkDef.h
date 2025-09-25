@@ -9,6 +9,7 @@
 #pragma link C++ class HNL_ControlRegion_Plotter+;
 #pragma link C++ class HNL_ControlRegionOne+;
 #pragma link C++ class HNL_ControlRegionTwo+;
+#pragma link C++ class HNL_ControlRegionLLL+;
 #pragma link C++ class HNL_SignalRegion_Plotter+;
 #pragma link C++ class HNL_ControlRegion_TestRun+;
 #pragma link C++ class HNL_SignalRegion_TestRun+;

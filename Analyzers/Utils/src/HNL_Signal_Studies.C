@@ -50,13 +50,27 @@ void HNL_Signal_Studies::executeEvent(){
   std::vector<Muon>       MuonCollV1     = GetMuons    (param1.Muon_Veto_ID, 5., 2.4);
   
 
-  vector<HNL_LeptonCore::Channel> channels = {EE,MuMu};
+  vector<HNL_LeptonCore::Channel> channels = {EE,MuMu,EMu};
   
   for(auto dilep_channel : channels){
     
-    if(MCSample.Contains("Type")){
-      if (!SelectChannel(dilep_channel)) continue;
+    //    if(MCSample.Contains("Type")){
+    // if (!SelectChannel(dilep_channel)) continue;
+    //}
+
+    if( process.Contains("Mu+Mu+") or   process.Contains("Mu-Mu-")  or process.Contains("MuMu")) {
+      if(dilep_channel != MuMu) continue; 
     }
+    else if(process.Contains("E+E+") or   process.Contains("E-E-")  or process.Contains("EE")) {
+      if(dilep_channel != EE) continue;
+    }
+    else       if(dilep_channel != EMu) continue;
+    
+
+     
+    FillHist ("ObjectCount/TEST", 1, weight, 2, 0., 2.,"");
+
+    
     AnalyzerParameter param  = InitialiseHNLParameter("HNL_ULID",dilep_channel);
     
     param.Channel  = GetChannelString(dilep_channel);
@@ -70,7 +84,7 @@ void HNL_Signal_Studies::executeEvent(){
     if(HasFlag("PlotBDT")){
       if(dilep_channel == MuMu) PlotBDTVariablesMuon(param);
       if(dilep_channel == EE)   PlotBDTVariablesElectron(param);
-      return;
+      continue;
     }
 
     
@@ -81,11 +95,12 @@ void HNL_Signal_Studies::executeEvent(){
 
     if(HasFlag("SignalKinematics")){
       
-      if(MCSample.Contains("DYType")   && MCSample.Contains("private"))  MakeType1SignalPlots(channel, false);
-      if(MCSample.Contains("VBFType")  && MCSample.Contains("private"))  MakeType1VBFSignalPlots(channel, false);
-      if(MCSample.Contains("SSWWType") && MCSample.Contains("private"))  MakeType1SSWWSignalPlots(channel, false);
-      
+      if(MCSample.Contains("DYType") )  MakeType1SignalPlots(channel, false);
+      if(MCSample.Contains("VBFType") )  MakeType1VBFSignalPlots(channel, false);
+      if(MCSample.Contains("SSWWType"))  MakeType1SSWWSignalPlots(channel, false);
+
     }
+    
     
     std::vector<Electron>   ElectronCollV = GetElectrons(param.Electron_Veto_ID, 10., 2.5);
     std::vector<Muon>       MuonCollV     = GetMuons    (param.Muon_Veto_ID, 5., 2.4);
@@ -867,18 +882,18 @@ void HNL_Signal_Studies::MakeType1VBFSignalPlots(TString process, bool apply_rec
   
   FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_eta", j1.Eta(),  1.,100, -5., 5,"J #eta");
   FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_eta", j2.Eta(),  1.,100, -5., 5,"J #eta");
-  FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_pt",  j1.Pt(), 1., 200, 0., 400.,"J p_{T} (GeV)");
-  FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_pt",  j2.Pt(), 1., 200, 0., 400.,"J p_{T} (GeV)");
-  FillHist( "SignalProcess/SignalGen"+process+"/W_Dijet_mass",  W2.M(),  1., 200, 0., 200.,"W(jj) Mass (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_pt",  j1.Pt(), 1., 200, 0., 1000.,"J p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_pt",  j2.Pt(), 1., 200, 0., 1000.,"J p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/W_Dijet_mass",  W2.M(),  1., 200, 0., 1000.,"W(jj) Mass (GeV)");
 
   FillHist( "SignalProcess/SignalGen"+process+"/InitialQ_Jet_eta", J.Eta(),  1.,100, -5., 5,"VBF_J #eta");
-  FillHist( "SignalProcess/SignalGen"+process+"/InitialQ_Jet_pt",  J.Pt(), 1., 200, 0., 400.,"VBF_J p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/InitialQ_Jet_pt",  J.Pt(), 1., 200, 0., 1000.,"VBF_J p_{T} (GeV)");
 
-  FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_pt", N.Pt(), 1., 200, 0., 400.,"N p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_pt", N.Pt(), 1., 200, 0., 1000.,"N p_{T} (GeV)");
   FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_mass", N.M(), 1., 200, 0., 2000.,"m_N (GeV)");
   FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_eta", N.Eta(), 1.,100, -5., 5,"N #eta");
 
-  FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_pt",  LepFromN.Pt(), 1., 200, 0., 400.,"#ell_N p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_pt",  LepFromN.Pt(), 1., 200, 0., 1000.,"#ell_N p_{T} (GeV)");
   FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_eta", LepFromN.Eta(),  1.,100, -5., 5,"#ell_N #eta");
   FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_DeltaR_W_From_Neutrino", W2.DeltaR(LepFromN), 1., 100, 0., 10.,"#Delta R(ln,W2)");
   FillHist( "SignalProcess/SignalGen"+process+"/Mass_"+LepFl_l1+"_From_Neutrino_AND_W_FromNeutrino", (W2 + LepFromN).M(), 1., 150, 0., 1500.,"M(ln+W2) GeV");
@@ -887,18 +902,18 @@ void HNL_Signal_Studies::MakeType1VBFSignalPlots(TString process, bool apply_rec
 
     FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Jet_FromW_eta", j1.Eta(),  1.,100, -5., 5,"J #eta");
     FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Jet_FromW_eta", j2.Eta(),  1.,100, -5., 5,"J #eta");
-    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Jet_FromW_pt",  j1.Pt(), 1., 200, 0., 400.,"J p_{T} (GeV)");
-    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Jet_FromW_pt",  j2.Pt(), 1., 200, 0., 400.,"J p_{T} (GeV)");
-    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/W_Dijet_mass",  W2.M(),  1., 200, 0., 200.,"W(jj) Mass (GeV)");
+    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Jet_FromW_pt",  j1.Pt(), 1., 200, 0., 1000.,"J p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Jet_FromW_pt",  j2.Pt(), 1., 200, 0., 1000.,"J p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/W_Dijet_mass",  W2.M(),  1., 200, 0., 500.,"W(jj) Mass (GeV)");
 
     FillHist( "SignalProcess/SignalGenPlusQ"+process+"/InitialQ_Jet_eta", J.Eta(),  1.,100, -5., 5,"VBF_J #eta");
-    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/InitialQ_Jet_pt",  J.Pt(), 1., 200, 0., 400.,"VBF_J p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/InitialQ_Jet_pt",  J.Pt(), 1., 200, 0., 1000.,"VBF_J p_{T} (GeV)");
 
-    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Neutrino_pt", N.Pt(), 1., 200, 0., 400.,"N p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Neutrino_pt", N.Pt(), 1., 200, 0., 1000.,"N p_{T} (GeV)");
     FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Neutrino_mass", N.M(), 1., 200, 0., 2000.,"m_N (GeV)");
     FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Neutrino_eta", N.Eta(), 1.,100, -5., 5,"N #eta");
 
-    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_pt",  LepFromN.Pt(), 1., 200, 0., 400.,"#ell_N p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_pt",  LepFromN.Pt(), 1., 1000, 0., 400.,"#ell_N p_{T} (GeV)");
     FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_eta", LepFromN.Eta(),  1.,100, -5., 5,"#ell_N #eta");
     FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_DelaR_W_From_Neutrino", W2.DeltaR(LepFromN), 1., 100, 0., 10.,"#Delta R(ln,W)");
     FillHist( "SignalProcess/SignalGenPlusQ"+process+"/Mass_"+LepFl_l1+"_From_Neutrino_AND_W_FromNeutrino", (W2 + LepFromN).M(), 1., 150, 0., 1500.,"M(ln+W2) GeV");
@@ -907,24 +922,24 @@ void HNL_Signal_Studies::MakeType1VBFSignalPlots(TString process, bool apply_rec
   else{
     FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Jet_FromW_eta", j1.Eta(),  1.,100, -5., 5,"J #eta");
     FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Jet_FromW_eta", j2.Eta(),  1.,100, -5., 5,"J #eta");
-    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Jet_FromW_pt",  j1.Pt(), 1., 200, 0., 400.,"J p_{T} (GeV)");
-    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Jet_FromW_pt",  j2.Pt(), 1., 200, 0., 400.,"J p_{T} (GeV)");
-    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/W_Dijet_mass",  W2.M(),  1., 200, 0., 200.,"W(jj) Mass (GeV)");
+    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Jet_FromW_pt",  j1.Pt(), 1., 200, 0., 1000.,"J p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Jet_FromW_pt",  j2.Pt(), 1., 200, 0., 1000.,"J p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/W_Dijet_mass",  W2.M(),  1., 200, 0., 1000.,"W(jj) Mass (GeV)");
 
     FillHist( "SignalProcess/SignalGenMinusQ"+process+"/InitialQ_Jet_eta", J.Eta(),  1.,100, -5., 5,"VBF_J #eta");
-    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/InitialQ_Jet_pt",  J.Pt(), 1., 200, 0., 400.,"VBF_J p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/InitialQ_Jet_pt",  J.Pt(), 1., 200, 0., 1000.,"VBF_J p_{T} (GeV)");
 
-    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Neutrino_pt", N.Pt(), 1., 200, 0., 400.,"N p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Neutrino_pt", N.Pt(), 1., 200, 0., 1000.,"N p_{T} (GeV)");
     FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Neutrino_mass", N.M(), 1., 200, 0., 2000.,"m_N (GeV)");
     FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Neutrino_eta", N.Eta(), 1.,100, -5., 5,"N #eta");
 
-    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_pt",  LepFromN.Pt(), 1., 200, 0., 1000.,"#ell_N p_{T} (GeV)");
+    FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_pt",  LepFromN.Pt(), 1., 1000, 0., 1000.,"#ell_N p_{T} (GeV)");
     FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_eta", LepFromN.Eta(),  1.,100, -5., 5,"#ell_N #eta");
     FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_DelaR_W_From_Neutrino", W2.DeltaR(LepFromN), 1., 100, 0., 10.,"#Delta R(ln,W)");
     FillHist( "SignalProcess/SignalGenMinusQ"+process+"/Mass_"+LepFl_l1+"_From_Neutrino_AND_W_FromNeutrino", (W2 + LepFromN).M(), 1., 150, 0., 1500.,"M(ln+W2) GeV");
   }
 
-  FillHist( "SignalProcess/SignalGen"+process+"/" + mu_ch+"Lep_"+LepFl_l2+"_FromW_pt", LepFromW.Pt(), 1., 200, 0., 400.,"#ell_w p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/" + mu_ch+"Lep_"+LepFl_l2+"_FromW_pt", LepFromW.Pt(), 1., 200, 0., 1000.,"#ell_w p_{T} (GeV)");
   FillHist( "SignalProcess/SignalGen"+process+"/" + mu_ch+"Lep_"+LepFl_l2+"_FromW_eta", LepFromW.Eta(),  1.,100, -5., 5,"#ell_w #eta");
 
   FillHist("SignalProcess/SignalGen"+process+"/Nlep_Wlep_pt", LepFromN.Pt(), LepFromW.Pt(), 1., 500,0., 2000.,500, 0.,2000.);
@@ -933,6 +948,7 @@ void HNL_Signal_Studies::MakeType1VBFSignalPlots(TString process, bool apply_rec
   FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromN_W",  W2.DeltaR(LepFromN), 1., 200, 0., 5.,"#DeltaR(W2,ln)");
   FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromW_N",  N.DeltaR(LepFromW), 1., 200, 0., 5.,"#DeltaR(N,lw)");
   FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromW_W",  W2.DeltaR(LepFromW), 1., 200, 0., 5.,"#DeltaR(W2,lw)");
+  FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromJ1_J2",  j1.DeltaR(j2), 1., 200, 0., 5.,"#DeltaR(j1,j2)");
   FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromN_J1",  j1.DeltaR(LepFromN), 1., 200, 0., 5.,"#DeltaR(j1,ln)");
   FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromN_J2",  j2.DeltaR(LepFromN), 1., 200, 0., 5.,"#DeltaR(j2,ln)");
   FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromW_LepFromN",  LepFromW.DeltaR(LepFromN), 1., 200, 0., 5.,"#DeltaR(lw,ln)");
@@ -1111,22 +1127,22 @@ void HNL_Signal_Studies::MakeType1SignalPlots(TString process, bool apply_reco_c
 
   FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_eta", j1.Eta(),  1.,100, -5., 5,"J #eta");
   FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_eta", j2.Eta(),  1.,100, -5., 5,"J #eta");
-  FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_pt",  j1.Pt(), 1., 200, 0., 400.,"J p_{T} (GeV)");
-  FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_pt",  j2.Pt(), 1., 200, 0., 400.,"J p_{T} (GeV)");
-  FillHist( "SignalProcess/SignalGen"+process+"/W_Dijet_mass",  W2.M(),  1., 200, 0., 200.,"W(jj) Mass (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_pt",  j1.Pt(), 1., 200, 0., 1000.,"J p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Jet_FromW_pt",  j2.Pt(), 1., 200, 0., 1000.,"J p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/W_Dijet_mass",  W2.M(),  1., 200, 0., 500.,"W(jj) Mass (GeV)");
 
 
-  FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_pt", N.Pt(), 1., 200, 0., 400.,"N p_{T} (GeV)");
-  FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_mass", N.M(), 1., 200, 0., 2000.,"m_N (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_pt", N.Pt(), 1., 200, 0., 1000.,"N p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_mass", N.M(), 1., 200, 0., 4000.,"m_N (GeV)");
   FillHist( "SignalProcess/SignalGen"+process+"/Neutrino_eta", N.Eta(), 1.,100, -5., 5,"N #eta");
 
-  FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_pt",  LepFromN.Pt(), 1., 200, 0., 400.,"#ell_N p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_pt",  LepFromN.Pt(), 1., 200, 0., 1000.,"#ell_N p_{T} (GeV)");
   FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_eta", LepFromN.Eta(),  1.,100, -5., 5,"#ell_N #eta");
   FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l1+"_From_Neutrino_DeltaR_W_From_Neutrino", W2.DeltaR(LepFromN), 1., 100, 0., 10.,"#Delta R(ln,W2)");
   FillHist( "SignalProcess/SignalGen"+process+"/Mass_"+LepFl_l1+"_From_Neutrino_AND_W_FromNeutrino", (W2 + LepFromN).M(), 1., 150, 0., 1500.,"M(ln+W2) GeV");
 
   
-  FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l2+"_FromW_pt", LepFromW.Pt(), 1., 200, 0., 400.,"#ell_w p_{T} (GeV)");
+  FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l2+"_FromW_pt", LepFromW.Pt(), 1., 200, 0., 1000.,"#ell_w p_{T} (GeV)");
   FillHist( "SignalProcess/SignalGen"+process+"/Lep_"+LepFl_l2+"_FromW_eta", LepFromW.Eta(),  1.,100, -5., 5,"#ell_w #eta ");
   
   
@@ -1175,8 +1191,7 @@ void HNL_Signal_Studies::MakeType1SignalPlots(TString process, bool apply_reco_c
   if(W2.DeltaR(LepFromW) > W2.DeltaR(LepFromN)) FillHist("SignalProcess/SignalGen"+process+"/DPhiW_NOrder_",1, 1, 2, 0, 2);
   else FillHist("SignalProcess/SignalGen"+process+"/DPhiW_NOrder_",0, 1, 2, 0, 2);
 
-  
-
+ 
 
   FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromN_N",  N.DeltaR(LepFromN), 1., 200, 0., 5.,"#DeltaR(N,ln)");
   FillHist("SignalProcess/SignalGen"+process+"/DeltaR_Lep_FromN_W",  W2.DeltaR(LepFromN), 1., 200, 0., 5.,"#DeltaR(W2,ln)");

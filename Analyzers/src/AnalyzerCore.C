@@ -2094,7 +2094,7 @@ bool AnalyzerCore::IsFinalPhotonSt23_Public(const std::vector<Gen>& TruthColl){
 
 bool AnalyzerCore::RunBDT(){
   
-  if(!MCSample.Contains("Type")) return true;
+  if(!IsSignal()) return true;
   
   vector<TString> BDTMasses = {"M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500"};
   
@@ -2110,11 +2110,17 @@ bool AnalyzerCore::RunBDT(){
 TString AnalyzerCore::GetBDTSignalMass(TString bdt_mass){
 
   /// For bkg return original string
-  if(!MCSample.Contains("Type")) return bdt_mass;
   
   /// For signal return mass of signal 
   vector<TString> BDTMasses = {"85","90","95","100","125","150","200","250","300","400","500"};
 
+
+  if(!IsSignal()){
+    for (auto it : BDTMasses){
+      if(bdt_mass.Contains(it)) return it;
+    }
+  }
+  
   for (auto it : BDTMasses){
     TString postfix = "M"+it+"_private";
     if(MCSample.Contains(postfix))  {

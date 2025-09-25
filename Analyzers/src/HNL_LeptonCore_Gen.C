@@ -16,7 +16,7 @@ bool HNL_LeptonCore::PassGenMatchFilter(vector<Lepton *> leps, AnalyzerParameter
   if(RunCF   && param.CFMethod   != "MC") return false;
   if(RunConv && param.ConvMethod != "MC") return false;
 
-  if(MCSample.Contains("Type")) return true;
+  if(IsSignal()) return true;
 
   if(RunPromptTLRemoval) return true;
 

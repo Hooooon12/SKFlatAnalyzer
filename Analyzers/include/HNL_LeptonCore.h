@@ -298,6 +298,9 @@ class HNL_LeptonCore : public AnalyzerCore {
   //---- BDT Related    HNL_LeptonCore_BDT                                                                                                                                                                                           
   void initializeAnalyzer(bool READBKGHISTS=true, bool SETUPIDBDT=true);
   void SetupEventMVAReader(TString version, bool ee=true, bool mm=true, bool emu=true);
+  void SetupEventMVAReaders(vector<TString> version, bool ee=true, bool mm=true, bool emu=true);
+  void SetupEventMVAReaderInit(TString version, bool ee=true, bool mm=true, bool emu=true);
+  void SetupEventMVAReaderXML(TString version, bool ee=true, bool mm=true, bool emu=true);
   void SetupEvMVA();
   void DeleteEvMVA();
 
@@ -553,7 +556,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   void InitializeTreeVars();
   void SetupEventBDTVariables(std::vector<Lepton *> LepTColl,    std::vector<Jet> JetAllColl,std::vector<Jet> JetColl, std::vector<Jet> JetVBFColl, std::vector<Jet> B_JetColl, Event  ev, Particle METv, AnalyzerParameter param);
 
-  double EvaluateEventMVA(TString mN, TString bkgType, TString NCut, TString NTree, HNL_LeptonCore::Channel channel,
+  double EvaluateEventMVA(TString mN, TString bkgType, TString version, TString NCut, TString NTree, HNL_LeptonCore::Channel channel,
                           std::vector<Lepton *> LepTColl,
                           Event ev, Particle METv, AnalyzerParameter param, double weight=1., bool isVarPlots=false);
 

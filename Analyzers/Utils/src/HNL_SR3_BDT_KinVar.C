@@ -141,40 +141,53 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
   double weight = SetupWeight(ev, param_bdt);
   
   //FillHist("CutFlow", 0., weight, 20, 0., 20.);
-  FillHist("CutFlow_MuMu", 0.5, 1., 10, 0., 10.);
-  FillHist("CutFlow_EE", 0.5, 1., 10, 0., 10.);
-  FillHist("CutFlow_EMu", 0.5, 1., 10, 0., 10.);
+  FillHist("CutFlow_MuMu", 0.5, 1., 12, 0., 12.);
+  FillHist("CutFlow_EE", 0.5, 1., 12, 0., 12.);
+  FillHist("CutFlow_EMu", 0.5, 1., 12, 0., 12.);
 
   if(!PassMETFilter()) return;
 
-  FillHist("CutFlow_MuMu", 1.5, 1., 10, 0., 10.);
-  FillHist("CutFlow_EE", 1.5, 1., 10, 0., 10.);
-  FillHist("CutFlow_EMu", 1.5, 1., 10, 0., 10.);
+  FillHist("CutFlow_MuMu", 1.5, 1., 12, 0., 12.);
+  FillHist("CutFlow_EE", 1.5, 1., 12, 0., 12.);
+  FillHist("CutFlow_EMu", 1.5, 1., 12, 0., 12.);
 
   vector<HNL_LeptonCore::Channel> channels = {EE, MuMu, EMu};
 
-  std::vector<Muon>       MuonCollT     = GetLepCollByRunType    ( GetMuons    (param_bdt.Muon_Tight_ID, 10., 2.4)    , param_bdt, "");
-  std::vector<Electron>   ElectronCollT = GetLepCollByRunType    ( GetElectrons(param_bdt.Electron_Tight_ID, 10., 2.5), param_bdt, "");
+  //==== Lepton ID
 
-  std::vector<Electron>   ElectronCollV = GetElectrons(param_bdt.Electron_Veto_ID, 10., 2.5);
-  std::vector<Muon>       MuonCollV     = GetMuons    (param_bdt.Muon_Veto_ID, 5., 2.4);
+  vector<Muon>            MuonColl_Pre     = GetMuons("NOCUT", 5., 2.4);
+  vector<Electron>        ElectronColl_Pre = GetElectrons("NOCUT", 5., 2.5);
 
-  std::vector<Lepton *> LepsT  = MakeLeptonPointerVector(MuonCollT,ElectronCollT);
-  std::vector<Lepton *> LepsV  = MakeLeptonPointerVector(MuonCollV,ElectronCollV);
+  //=== V2
+  //std::vector<Muon>       MuonCollT        = GetLepCollByRunType    ( GetMuons    (param_bdt.Muon_Tight_ID, 10., 2.4)    , param_bdt, "");
+  //std::vector<Electron>   ElectronCollT    = GetLepCollByRunType    ( GetElectrons(param_bdt.Electron_Tight_ID, 10., 2.5), param_bdt, "");
+  //std::vector<Muon>       MuonCollV        = GetMuons    (param_bdt.Muon_Veto_ID, 5., 2.4);
+  //std::vector<Electron>   ElectronCollV    = GetElectrons(param_bdt.Electron_Veto_ID, 10., 2.5);
 
-  if(!PassHEMVeto(LepsV,weight)) return;
+  //=== V3
+  std::vector<Muon>        MuonCollT       = SelectMuons(MuonColl_Pre,         param_bdt.Muon_Tight_ID, 10., 2.4);
+  std::vector<Electron>    ElectronCollT   = SelectElectrons(ElectronColl_Pre, param_bdt.Electron_Tight_ID, 15., 2.5);
+  std::vector<Muon>        MuonCollV       = SelectMuons(MuonColl_Pre,         param_bdt.Muon_Veto_ID, 5., 2.4);
+  std::vector<Electron>    ElectronCollV   = SelectElectrons(ElectronColl_Pre, param_bdt.Electron_Veto_ID, 10., 2.5);
 
-  FillHist("CutFlow_MuMu", 2.5, 1., 10, 0., 10.);
-  FillHist("CutFlow_EE", 2.5, 1., 10, 0., 10.);
-  FillHist("CutFlow_EMu", 2.5, 1., 10, 0., 10.);
+  std::vector<Lepton *> LepsT  = MakeLeptonPointerVector(MuonCollT, ElectronCollT);
+  std::vector<Lepton *> LepsV  = MakeLeptonPointerVector(MuonCollV, ElectronCollV);
+
+  //==== Event selection
+
+  if(!PassHEMVeto(LepsV, weight)) return;
+
+  FillHist("CutFlow_MuMu", 2.5, 1., 12, 0., 12.);
+  FillHist("CutFlow_EE", 2.5, 1., 12, 0., 12.);
+  FillHist("CutFlow_EMu", 2.5, 1., 12, 0., 12.);
 
   if(!(LepsT.size() == 2)) return;
 
   if(!(LepsV.size() == 2)) return;
 
-  FillHist("CutFlow_MuMu", 3.5, 1., 10, 0., 10.);
-  FillHist("CutFlow_EE", 3.5, 1., 10, 0., 10.);
-  FillHist("CutFlow_EMu", 3.5, 1., 10, 0., 10.);
+  FillHist("CutFlow_MuMu", 3.5, 1., 12, 0., 12.);
+  FillHist("CutFlow_EE", 3.5, 1., 12, 0., 12.);
+  FillHist("CutFlow_EMu", 3.5, 1., 12, 0., 12.);
 
   for(auto dilep_channel : channels){
 
@@ -189,9 +202,9 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
 
     if(!CheckLeptonFlavourForChannel(dilep_channel, LepsT)) continue;
 
-    if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 4.5, 1., 10, 0., 10.);
-    if(dilep_channel == EE) FillHist("CutFlow_EE", 4.5, 1., 10, 0., 10.);
-    if(dilep_channel == EMu) FillHist("CutFlow_EMu", 4.5, 1., 10, 0., 10.);
+    if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 4.5, 1., 12, 0., 12.);
+    if(dilep_channel == EE) FillHist("CutFlow_EE", 4.5, 1., 12, 0., 12.);
+    if(dilep_channel == EMu) FillHist("CutFlow_EMu", 4.5, 1., 12, 0., 12.);
 
     if(!PassGenMatchFilter(LepsT, param_bdt)) continue;
 
@@ -212,45 +225,78 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
       }
       if(DataEra=="2017"){
 
-        //if(!ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v")){
-        //  if(ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v")) weight = weight*4803.366325775/ev.GetTriggerLumi("Full");
+        //=== V2
+        //if(!ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v")){
+        //   if(ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v")) weight = weight*ev.GetTriggerLumi("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v")/ev.GetTriggerLumi("Full");
         //}
-        if(!ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v")){
-           if(ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v")) weight = weight*ev.GetTriggerLumi("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v")/ev.GetTriggerLumi("Full");
+
+        //=== V3
+        if(!ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v")){
+          //if(ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v")) weight = weight*4803.366325775/ev.GetTriggerLumi("Full");
+          if(ev.PassTrigger("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v")) weight = weight*ev.GetTriggerLumi("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v")/ev.GetTriggerLumi("Full");
         }
 
       }
 
     }
 
-    if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 5.5, 1., 10, 0., 10.);
-    if(dilep_channel == EE) FillHist("CutFlow_EE", 5.5, 1., 10, 0., 10.);
-    if(dilep_channel == EMu) FillHist("CutFlow_EMu", 5.5, 1., 10, 0., 10.);
+    if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 5.5, 1., 12, 0., 12.);
+    if(dilep_channel == EE) FillHist("CutFlow_EE", 5.5, 1., 12, 0., 12.);
+    if(dilep_channel == EMu) FillHist("CutFlow_EMu", 5.5, 1., 12, 0., 12.);
 
     //std::vector<Tau>    mytaus         = GetTaus("HNVeto",20., 2.3);
+
+    //==== Jet ID
  
-    std::vector<FatJet> fatjets_tmp    = GetFatJets("tight", 200., 5);
-    std::vector<Jet>    jets_tmp       = GetJets("tight", 15., 5);
+    //=== V2
+    //std::vector<FatJet> fatjets_tmp    = GetFatJets("tight", 200., 5);
+    //std::vector<Jet>    jets_tmp       = GetJets("tight", 15., 5);
 
-    //std::vector<Jet>    AK4_JetAllColl = GetJets("NoID", 10., 3.0);
-    //std::vector<FatJet> AK8_JetColl    = SelectAK8Jets(fatjets_tmp, 200., 2.7, true, 1., false, -999, false, 40., 130., ElectronCollV, MuonCollV);
-    //std::vector<Jet>    AK4_JetColl    = SelectAK4Jets(jets_tmp,     20., 2.7, true, 0.4, 0.8, "", ElectronCollV, MuonCollV, AK8_JetColl);
-    //std::vector<Jet>    AK4_JetVBFColl = SelectAK4Jets(jets_tmp,     30., 4.7, true, 0.4, 0.8, "", ElectronCollV, MuonCollV, AK8_JetColl);
+    //=== V3
+    std::vector<FatJet> fatjets_tmp    = SelectFatJets(param_bdt, "tightLepVeto", 200., 5.); // Loose ID
+    std::vector<Jet>    jets_tmp       = GetJets("tightLepVeto", 15., 5);
+    std::vector<Jet>    jets_tight     = GetJets("tight", 15., 5);
 
-    std::vector<FatJet> AK8_JetColl    = SelectAK8Jets(fatjets_tmp,   200., 2.7, true, 1., false, -999, true, 40., 130., "particleNet_WvsQCD", ElectronCollV, MuonCollV);
-    std::vector<Jet>    AK4_JetColl    = SelectAK4Jets(jets_tmp,      20., 2.7, true, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, AK8_JetColl);
-    std::vector<Jet>    AK4_JetVBFColl = SelectAK4Jets(jets_tmp,      30., 4.7, true, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, AK8_JetColl);
-    std::vector<Jet>    AK4_JetAllColl = SelectAK4Jets(jets_tmp,      20., 2.7, true, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, AK8_JetColl);
+    //=== V1
+    //std::vector<FatJet> AK8_JetColl     = SelectAK8Jets(fatjets_tmp,  200., 2.7, true, 1., false, -999, false, 40., 130., ElectronCollV, MuonCollV);
+    //std::vector<Jet>    AK4_JetColl     = SelectAK4Jets(jets_tmp,     20.,  2.7, true, 0.4, 0.8, "", ElectronCollV, MuonCollV, AK8_JetColl);
+    //std::vector<Jet>    AK4_JetColl_VBF = SelectAK4Jets(jets_tmp,     30.,  4.7, true, 0.4, 0.8, "", ElectronCollV, MuonCollV, AK8_JetColl);
+    //std::vector<Jet>    AK4_JetColl_All = GetJets("NoID", 10., 3.0);
 
+    //=== V2
+    //std::vector<FatJet> AK8_JetColl     = SelectAK8Jets(fatjets_tmp,   200., 2.7, true, 1., false, -999, true, 40., 130., "particleNet_WvsQCD", ElectronCollV, MuonCollV);
+    //std::vector<Jet>    AK4_JetColl     = SelectAK4Jets(jets_tmp,      20.,  2.7, true, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, AK8_JetColl);
+    //std::vector<Jet>    AK4_JetColl_VBF = SelectAK4Jets(jets_tmp,      30.,  4.7, true, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, AK8_JetColl);
+    //std::vector<Jet>    AK4_JetColl_All = SelectAK4Jets(jets_tmp,      20.,  2.7, true, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, AK8_JetColl);
+
+    //=== V3
+    //=== https://github.com/jalmond/SKFlatAnalyzer/blob/HNL_Run2UltraLegacy-shared/Analyzers/src/HNL_LeptonCore_Param.C#L74-L77
+    std::vector<FatJet> AK8_JetColl       = SelectAK8Jets(fatjets_tmp,   200., 2.4, false, 1., false, -999, false, 0., 20000., "particleNet_WvsQCD", ElectronCollV, MuonCollV);
+    std::vector<Jet>    AK4_JetColl       = SelectAK4Jets(jets_tmp,      20.,  2.7, false, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, fatjets_tmp);
+    std::vector<Jet>    AK4_JetColl_VBF   = SelectAK4Jets(jets_tmp,      30.,  4.7, false, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, fatjets_tmp);
+    std::vector<Jet>    AK4_JetColl_All   = SelectAK4Jets(jets_tmp,      20.,  2.7, false, 0.4, 0.8, "Loose",  ElectronCollV, MuonCollV, fatjets_tmp);
+
+    //=== V1
     //Particle METv = GetMiniAODvMET("PuppiT1xyULCorr");
-    Particle METv = GetvMET("PuppiT1xyULCorr", param_bdt); 
 
-    std::vector<Jet> bjets_tmp         = SelectAK4Jets(jets_tmp,      20., 2.4, true, 0.4, 0.8, "", ElectronCollV, MuonCollV, AK8_JetColl);
+    //=== V2
+    //Particle METv = GetvMET("PuppiT1xyULCorr", param_bdt); 
+
+    //=== V3
+    Particle METv = GetvMET("PuppiT1xyULCorr", param_bdt, MuonCollT, ElectronCollT);
+
+    //=== V1, V2
+    //std::vector<Jet> bjets_tmp         = SelectAK4Jets(jets_tmp,      20., 2.4, true, 0.4, 0.8, "", ElectronCollV, MuonCollV, AK8_JetColl);
+
+    //=== V3
+    std::vector<Jet> bjets_tmp         = SelectAK4Jets(jets_tmp,      20., 2.4, false, 0.4, 0.8, "", ElectronCollV, MuonCollV, {});
 
     JetTagging::Parameters param_jets  = JetTagging::Parameters(JetTagging::DeepJet, JetTagging::Medium, JetTagging::incl, JetTagging::mujets);
-    std::vector<Jet> BJetColl          = SelectBJets(param_bdt, bjets_tmp, param_jets);
-    double sf_btag                     = GetBJetSF(param_bdt, bjets_tmp, param_jets);
-    if(!IsData) weight *= sf_btag;
+    std::vector<Jet> AK4_JetColl_BTag  = SelectBJets(param_bdt, bjets_tmp, param_jets);
+    //double sf_btag                     = GetBJetSF(param_bdt, bjets_tmp, param_jets);
+    //if(!IsData) weight *= sf_btag;
+
+    EvalJetWeight(AK4_JetColl, AK4_JetColl_VBF, AK8_JetColl, weight, param_bdt);
 
     //==== Removing Z peak events in ee channel
     bool passNonZ = true;
@@ -258,30 +304,45 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
       if(fabs(GetLLMass(LepsT)-M_Z) < M_ZWINDOW_VETO) passNonZ = false;
     }
 
-    //==== Merging OS+SS for signal    
+    //==== Merging OS+SS events (signal, fake, WG)
+
     bool passCharge = false;
+
     if(MCSample.Contains("TypeI")) passCharge = true;
-    if(RunFake) passCharge = true;
+    else if(MCSample.Contains("WGToLNuG") || MCSample.Contains("WGJJ")) passCharge = true;
+    else if(RunFake) passCharge = true;
     else{
       if(SameCharge(LepsT)) passCharge = true;
     }
 
-    //==== Merging multiple datasets for signal and DY Z
-    double weightCharge = 1., weightDYZ = 1.;
+    //==== Applying weights for merging OS+SS events
 
-    if(RunFake || MCSample.Contains("DYTypeI")) weightCharge = 0.5;
+    double weightCharge = 1.;
+
+    if(RunFake) weightCharge = 0.5;
+    else if(RunConv){
+      if(MCSample.Contains("WGToLNuG") || MCSample.Contains("WGJJ")) weightCharge = 0.5;
+    }
+    else weightCharge = 1.;
+
     weight *= weightCharge;
 
-    if(MCSample.Contains("DYJets")){
-      if(RunConv) weightDYZ = 1.; // DYJets_MG only
-      if(RunFake || RunCF){
-        if(MCSample.Contains("MiNNLO")) weightDYZ = 1.;
-        else weightDYZ = 0.5; // DYJets_MG, DYJets
-      }
+    //==== Applying weights for multiple MC
+
+    double weightDYSignal = 1., weightDYZ = 1.;
+
+    if(MCSample.Contains("DYTypeI")) weightDYSignal = 0.5;
+    else weightDYSignal = 1.;
+
+    if(MCSample=="DYJets" || MCSample=="DYJets_MG"){
+      if(RunFake || RunCF) weightDYZ = 0.5; // DYJets_MG, DYJets
+      else weightDYZ = 1.;
     }
-    weight *= weightDYZ;
+
+    weight *= weightDYSignal*weightDYZ;
 
     //==== Applying CF SF
+
     double avgSF = 1.;
 
     if(RunCF){
@@ -290,39 +351,55 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
 
     weight *= avgSF;
 
-    //==== Applying Conv SF
-
     //==== Event selection : SR3
-    bool EventCand = false;
+
+    bool passVBFHighMass = true, EventCand = false;
 
     if(passCharge){
 
-      if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 6.5, 1., 10, 0., 10.);
-      if(dilep_channel == EE) FillHist("CutFlow_EE", 6.5, 1., 10, 0., 10.);
-      if(dilep_channel == EMu) FillHist("CutFlow_EMu", 6.5, 1., 10, 0., 10.);
+      if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 6.5, 1., 12, 0., 12.);
+      if(dilep_channel == EE) FillHist("CutFlow_EE", 6.5, 1., 12, 0., 12.);
+      if(dilep_channel == EMu) FillHist("CutFlow_EMu", 6.5, 1., 12, 0., 12.);
 
       if(GetLLMass(LepsT) > M_CUT_LL){
         if(passNonZ){
 
-          if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 7.5, 1., 10, 0., 10.);
-          if(dilep_channel == EE) FillHist("CutFlow_EE", 7.5, 1., 10, 0., 10.);
-          if(dilep_channel == EMu) FillHist("CutFlow_EMu", 7.5, 1., 10, 0., 10.);
+          if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 7.5, 1., 12, 0., 12.);
+          if(dilep_channel == EE) FillHist("CutFlow_EE", 7.5, 1., 12, 0., 12.);
+          if(dilep_channel == EMu) FillHist("CutFlow_EMu", 7.5, 1., 12, 0., 12.);
 
           if(AK8_JetColl.size() == 0){
 
-            if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 8.5, 1., 10, 0., 10.);
-            if(dilep_channel == EE) FillHist("CutFlow_EE", 8.5, 1., 10, 0., 10.);
-            if(dilep_channel == EMu) FillHist("CutFlow_EMu", 8.5, 1., 10, 0., 10.);
+            if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 8.5, 1., 12, 0., 12.);
+            if(dilep_channel == EE) FillHist("CutFlow_EE", 8.5, 1., 12, 0., 12.);
+            if(dilep_channel == EMu) FillHist("CutFlow_EMu", 8.5, 1., 12, 0., 12.);
 
-            //if(!PassVBFInitial(AK4_JetVBFColl)){
-            if(!PassVBF(AK4_JetVBFColl, LepsT, 750., true)){
+            //if(!PassVBFInitial(AK4_JetColl_VBF)){
+            //if(!PassVBF(AK4_JetColl_VBF, LepsT, 0., true)){ // Used for V3
+            if(!PassVBF(AK4_JetColl_VBF, LepsT, 750., true)){
 
-              if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 9.5, 1., 10, 0., 10.);
-              if(dilep_channel == EE) FillHist("CutFlow_EE", 9.5, 1., 10, 0., 10.);
-              if(dilep_channel == EMu) FillHist("CutFlow_EMu", 9.5, 1., 10, 0., 10.);
+              if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 9.5, 1., 12, 0., 12.);
+              if(dilep_channel == EE) FillHist("CutFlow_EE", 9.5, 1., 12, 0., 12.);
+              if(dilep_channel == EMu) FillHist("CutFlow_EMu", 9.5, 1., 12, 0., 12.);
 
-              EventCand=true;
+              /*if(LepsT[1]->Pt() > 15.){
+                if(AK4_JetColl_VBF.size() >= 2){
+                  if(fabs(AK4_JetColl_VBF[0].Eta() - AK4_JetColl_VBF[1].Eta()) > 2.5){
+                    if((AK4_JetColl_VBF[0] + AK4_JetColl_VBF[1]).M() < 750.) passVBFHighMass = false;
+                    else passVBFHighMass = true;
+                  }
+                }
+              }*/ // Used for V3
 
+              if(passVBFHighMass){
+
+                if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 10.5, 1., 12, 0., 12.);
+                if(dilep_channel == EE) FillHist("CutFlow_EE", 10.5, 1., 12, 0., 12.);
+                if(dilep_channel == EMu) FillHist("CutFlow_EMu", 10.5, 1., 12, 0., 12.);
+
+                EventCand=true;
+
+              }
 	    }
           }
 	}
@@ -331,17 +408,17 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
 
     //if(!EventCand) return;
 
-    if(EventCand) MakeTreeSS2L(dilep_channel, LepsT, AK4_JetAllColl, AK4_JetColl, AK4_JetVBFColl, BJetColl, METv, weight, "");
+    if(EventCand) MakeTreeSS2L(dilep_channel, LepsT, AK4_JetColl_All, AK4_JetColl, AK4_JetColl_VBF, AK4_JetColl_BTag, METv, weight, "");
 
   }
 
 }
 
 void HNL_SR3_BDT_KinVar::MakeTreeSS2L(HNL_LeptonCore::Channel lep_channel,vector<Lepton *>  LepTColl, 
-                                 vector<Jet>& JetAllColl,
+                                 vector<Jet>& JetColl_All,
 				 vector<Jet>& JetColl, 
-				 vector<Jet>& JetVBFColl,
-                                 vector<Jet>& JetBTagColl, 
+				 vector<Jet>& JetColl_VBF,
+                                 vector<Jet>& JetColl_BTag, 
 				 Particle& vMET, float weight, TString Label)
 {
   
@@ -365,8 +442,8 @@ void HNL_SR3_BDT_KinVar::MakeTreeSS2L(HNL_LeptonCore::Channel lep_channel,vector
   InitializeTreeVars();
   
   Nj      = JetColl.size();
-  Nvbfj   = JetVBFColl.size();
-  Nb      = JetBTagColl.size();
+  Nvbfj   = JetColl_VBF.size();
+  Nb      = JetColl_BTag.size();
 
   LQ      = LepTColl[0]->Charge();
   Ptl1    = LepTColl[0]->Pt();
@@ -437,21 +514,21 @@ void HNL_SR3_BDT_KinVar::MakeTreeSS2L(HNL_LeptonCore::Channel lep_channel,vector
   int IdxMatchAwayJetl1=-1, IdxMatchAwayJetl2=-1;
   float maxdPhi1=-999., maxdPhi2=-999.;
 
-  for(unsigned int ij=0; ij<JetAllColl.size(); ij++){
+  for(unsigned int ij=0; ij<JetColl_All.size(); ij++){
 
-    float dPhi1 = fabs(TVector2::Phi_mpi_pi(LepTColl.at(0)->Phi() - JetAllColl.at(ij).Phi()));
+    float dPhi1 = fabs(TVector2::Phi_mpi_pi(LepTColl.at(0)->Phi() - JetColl_All.at(ij).Phi()));
     if(dPhi1>maxdPhi1){ maxdPhi1=dPhi1; IdxMatchAwayJetl1=ij; }
-    //float dR1=LepTColl.at(0)->DeltaR(JetAllColl.at(ij));
+    //float dR1=LepTColl.at(0)->DeltaR(JetColl_All.at(ij));
     //if(dR1>0.4) continue;
     //if(dR1<mindR1){ mindR1=dR1; IdxMatchJetl1=ij; }
 
   }
 
-  for(unsigned int ij=0; ij<JetAllColl.size(); ij++){
+  for(unsigned int ij=0; ij<JetColl_All.size(); ij++){
 
-    float dPhi2 = fabs(TVector2::Phi_mpi_pi(LepTColl.at(1)->Phi() - JetAllColl.at(ij).Phi()));
+    float dPhi2 = fabs(TVector2::Phi_mpi_pi(LepTColl.at(1)->Phi() - JetColl_All.at(ij).Phi()));
     if(dPhi2>maxdPhi2){ maxdPhi2=dPhi2; IdxMatchAwayJetl2=ij; }
-    //float dR2=LepTColl.at(1)->DeltaR(JetAllColl.at(ij));
+    //float dR2=LepTColl.at(1)->DeltaR(JetColl_All.at(ij));
     //if(dR2>0.4) continue;
     //if(dR2<mindR2){ mindR2=dR2; IdxMatchJetl2=ij; }
 
@@ -459,17 +536,17 @@ void HNL_SR3_BDT_KinVar::MakeTreeSS2L(HNL_LeptonCore::Channel lep_channel,vector
 
   /*if(IdxMatchJetl1!=-1){
 
-    PtRatiol1   = LepTColl.at(0)->Pt()/JetAllColl.at(IdxMatchJetl1).Pt();
-    TLorentzVector JetNoLep1(JetAllColl.at(IdxMatchJetl1));
+    PtRatiol1   = LepTColl.at(0)->Pt()/JetColl_All.at(IdxMatchJetl1).Pt();
+    TLorentzVector JetNoLep1(JetColl_All.at(IdxMatchJetl1));
     JetNoLep1  -= *LepTColl.at(0);
-    PtRelv0l1   = LepTColl.at(0)->Perp(JetAllColl.at(IdxMatchJetl1).Vect());
+    PtRelv0l1   = LepTColl.at(0)->Perp(JetColl_All.at(IdxMatchJetl1).Vect());
     PtRelv1l1   = LepTColl.at(0)->Perp(JetNoLep1.Vect());
-    CEMFracCJl1 = JetAllColl.at(IdxMatchJetl1).ChargedEmEnergyFraction();
-    NEMFracCJl1 = JetAllColl.at(IdxMatchJetl1).NeutralEmEnergyFraction();
-    CHFracCJl1  = JetAllColl.at(IdxMatchJetl1).ChargedHadEnergyFraction();
-    NHFracCJl1  = JetAllColl.at(IdxMatchJetl1).NeutralHadEnergyFraction();
-    MuFracCJl1  = JetAllColl.at(IdxMatchJetl1).MuonEnergyFraction();
-    JetDiscCJl1 = JetAllColl.at(IdxMatchJetl1).GetTaggerResult(JetTagging::DeepJet);
+    CEMFracCJl1 = JetColl_All.at(IdxMatchJetl1).ChargedEmEnergyFraction();
+    NEMFracCJl1 = JetColl_All.at(IdxMatchJetl1).NeutralEmEnergyFraction();
+    CHFracCJl1  = JetColl_All.at(IdxMatchJetl1).ChargedHadEnergyFraction();
+    NHFracCJl1  = JetColl_All.at(IdxMatchJetl1).NeutralHadEnergyFraction();
+    MuFracCJl1  = JetColl_All.at(IdxMatchJetl1).MuonEnergyFraction();
+    JetDiscCJl1 = JetColl_All.at(IdxMatchJetl1).GetTaggerResult(JetTagging::DeepJet);
 
   }
   else{
@@ -480,17 +557,17 @@ void HNL_SR3_BDT_KinVar::MakeTreeSS2L(HNL_LeptonCore::Channel lep_channel,vector
 
   if(IdxMatchJetl2!=-1){
 
-    PtRatiol2   = LepTColl.at(1)->Pt()/JetAllColl.at(IdxMatchJetl2).Pt();
-    TLorentzVector JetNoLep2(JetAllColl.at(IdxMatchJetl2));
+    PtRatiol2   = LepTColl.at(1)->Pt()/JetColl_All.at(IdxMatchJetl2).Pt();
+    TLorentzVector JetNoLep2(JetColl_All.at(IdxMatchJetl2));
     JetNoLep2  -= *LepTColl.at(1);
-    PtRelv0l2   = LepTColl.at(1)->Perp(JetAllColl.at(IdxMatchJetl2).Vect());
+    PtRelv0l2   = LepTColl.at(1)->Perp(JetColl_All.at(IdxMatchJetl2).Vect());
     PtRelv1l2   = LepTColl.at(1)->Perp(JetNoLep2.Vect());
-    CEMFracCJl2 = JetAllColl.at(IdxMatchJetl2).ChargedEmEnergyFraction();
-    NEMFracCJl2 = JetAllColl.at(IdxMatchJetl2).NeutralEmEnergyFraction();
-    CHFracCJl2  = JetAllColl.at(IdxMatchJetl2).ChargedHadEnergyFraction();
-    NHFracCJl2  = JetAllColl.at(IdxMatchJetl2).NeutralHadEnergyFraction();
-    MuFracCJl2  = JetAllColl.at(IdxMatchJetl2).MuonEnergyFraction();
-    JetDiscCJl2 = JetAllColl.at(IdxMatchJetl2).GetTaggerResult(JetTagging::DeepJet);
+    CEMFracCJl2 = JetColl_All.at(IdxMatchJetl2).ChargedEmEnergyFraction();
+    NEMFracCJl2 = JetColl_All.at(IdxMatchJetl2).NeutralEmEnergyFraction();
+    CHFracCJl2  = JetColl_All.at(IdxMatchJetl2).ChargedHadEnergyFraction();
+    NHFracCJl2  = JetColl_All.at(IdxMatchJetl2).NeutralHadEnergyFraction();
+    MuFracCJl2  = JetColl_All.at(IdxMatchJetl2).MuonEnergyFraction();
+    JetDiscCJl2 = JetColl_All.at(IdxMatchJetl2).GetTaggerResult(JetTagging::DeepJet);
 
   }
   else{
@@ -501,13 +578,13 @@ void HNL_SR3_BDT_KinVar::MakeTreeSS2L(HNL_LeptonCore::Channel lep_channel,vector
 
   if(IdxMatchAwayJetl1!=-1){
 
-    PtRatioAJl1 = JetAllColl.at(IdxMatchAwayJetl1).Pt()/LepTColl.at(0)->Pt();
-    CEMFracAJl1 = JetAllColl.at(IdxMatchAwayJetl1).ChargedEmEnergyFraction();
-    NEMFracAJl1 = JetAllColl.at(IdxMatchAwayJetl1).NeutralEmEnergyFraction();
-    CHFracAJl1  = JetAllColl.at(IdxMatchAwayJetl1).ChargedHadEnergyFraction();
-    NHFracAJl1  = JetAllColl.at(IdxMatchAwayJetl1).NeutralHadEnergyFraction();
-    MuFracAJl1  = JetAllColl.at(IdxMatchAwayJetl1).MuonEnergyFraction();
-    JetDiscAJl1 = JetAllColl.at(IdxMatchAwayJetl1).GetTaggerResult(JetTagging::DeepJet);
+    PtRatioAJl1 = JetColl_All.at(IdxMatchAwayJetl1).Pt()/LepTColl.at(0)->Pt();
+    CEMFracAJl1 = JetColl_All.at(IdxMatchAwayJetl1).ChargedEmEnergyFraction();
+    NEMFracAJl1 = JetColl_All.at(IdxMatchAwayJetl1).NeutralEmEnergyFraction();
+    CHFracAJl1  = JetColl_All.at(IdxMatchAwayJetl1).ChargedHadEnergyFraction();
+    NHFracAJl1  = JetColl_All.at(IdxMatchAwayJetl1).NeutralHadEnergyFraction();
+    MuFracAJl1  = JetColl_All.at(IdxMatchAwayJetl1).MuonEnergyFraction();
+    JetDiscAJl1 = JetColl_All.at(IdxMatchAwayJetl1).GetTaggerResult(JetTagging::DeepJet);
 
   }
   else{
@@ -518,13 +595,13 @@ void HNL_SR3_BDT_KinVar::MakeTreeSS2L(HNL_LeptonCore::Channel lep_channel,vector
 
   if(IdxMatchAwayJetl2!=-1){
 
-    PtRatioAJl2 = JetAllColl.at(IdxMatchAwayJetl2).Pt()/LepTColl.at(1)->Pt();
-    CEMFracAJl2 = JetAllColl.at(IdxMatchAwayJetl2).ChargedEmEnergyFraction();
-    NEMFracAJl2 = JetAllColl.at(IdxMatchAwayJetl2).NeutralEmEnergyFraction();
-    CHFracAJl2  = JetAllColl.at(IdxMatchAwayJetl2).ChargedHadEnergyFraction();
-    NHFracAJl2  = JetAllColl.at(IdxMatchAwayJetl2).NeutralHadEnergyFraction();
-    MuFracAJl2  = JetAllColl.at(IdxMatchAwayJetl2).MuonEnergyFraction();
-    JetDiscAJl2 = JetAllColl.at(IdxMatchAwayJetl2).GetTaggerResult(JetTagging::DeepJet);
+    PtRatioAJl2 = JetColl_All.at(IdxMatchAwayJetl2).Pt()/LepTColl.at(1)->Pt();
+    CEMFracAJl2 = JetColl_All.at(IdxMatchAwayJetl2).ChargedEmEnergyFraction();
+    NEMFracAJl2 = JetColl_All.at(IdxMatchAwayJetl2).NeutralEmEnergyFraction();
+    CHFracAJl2  = JetColl_All.at(IdxMatchAwayJetl2).ChargedHadEnergyFraction();
+    NHFracAJl2  = JetColl_All.at(IdxMatchAwayJetl2).NeutralHadEnergyFraction();
+    MuFracAJl2  = JetColl_All.at(IdxMatchAwayJetl2).MuonEnergyFraction();
+    JetDiscAJl2 = JetColl_All.at(IdxMatchAwayJetl2).GetTaggerResult(JetTagging::DeepJet);
 
   }
   else{

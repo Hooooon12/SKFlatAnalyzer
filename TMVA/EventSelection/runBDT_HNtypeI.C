@@ -25,8 +25,11 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
   }
   if(bkgType == "Incl"){
     outBkgName = "Inclusive";
-    if(channel == "EE") bkgName = "AllBkg_EE";
-    else bkgName = "AllBkg_MuMu";
+    bkgName = "AllBkg_"+channel;
+    //if(channel == "EE") bkgName = "AllBkg_EE";
+    //else bkgName = "AllBkg_MuMu";
+    //if(channel == "EE") bkgName = "AllBkg_NoWJets_EE";
+    //else bkgName = "AllBkg_NoWJets_MuMu";
   }
 
 
@@ -357,34 +360,34 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
       data_loader->AddVariable("Ptj1", "Ptj1", "units", 'F');
       //data_loader->AddVariable("Ptj2", "Ptj2", "units", 'F');
       data_loader->AddVariable("MET2ST", "MET2ST", "units", 'F');
-      data_loader->AddVariable("HTLT1", "HTLT1", "units", 'F');
+      data_loader->AddVariable("HTLT1", "HTLT1", "units", 'F');                // 21-25
       data_loader->AddVariable("HTLT2", "HTLT2", "units", 'F');
-      data_loader->AddVariable("Etal1", "Etal1", "units", 'F');
-      data_loader->AddVariable("Etal2", "Etal2", "units", 'F');
+      data_loader->AddVariable("Etal1", "Etal1", "units", 'F');                // 21-25
+      data_loader->AddVariable("Etal2", "Etal2", "units", 'F');                // 21-25
       //data_loader->AddVariable("PtRatioAJl1", "PtRatioAJl1", "units", 'F');
       //data_loader->AddVariable("PtRatioAJl2", "PtRatioAJl2", "units", 'F');
       //data_loader->AddVariable("CEMFracAJl1", "CEMFracAJl1", "units", 'F');
       //data_loader->AddVariable("CEMFracAJl2", "CEMFracAJl2", "units", 'F');
       //data_loader->AddVariable("NEMFracAJl1", "NEMFracAJl1", "units", 'F');
-      data_loader->AddVariable("NEMFracAJl2", "NEMFracAJl2", "units", 'F');
-      data_loader->AddVariable("CHFracAJl1", "CHFracAJl1", "units", 'F');
-      data_loader->AddVariable("CHFracAJl2", "CHFracAJl2", "units", 'F');
+      data_loader->AddVariable("NEMFracAJl2", "NEMFracAJl2", "units", 'F');    // 31-35
+      data_loader->AddVariable("CHFracAJl1", "CHFracAJl1", "units", 'F');      // 31-35
+      data_loader->AddVariable("CHFracAJl2", "CHFracAJl2", "units", 'F');      // 31-35
       //data_loader->AddVariable("NHFracAJl1", "NHFracAJl1", "units", 'F');
       //data_loader->AddVariable("NHFracAJl2", "NHFracAJl2", "units", 'F');
-      data_loader->AddVariable("MuFracAJl1", "MuFracAJl1", "units", 'F');
-      data_loader->AddVariable("MuFracAJl2", "MuFracAJl2", "units", 'F');
+      data_loader->AddVariable("MuFracAJl1", "MuFracAJl1", "units", 'F');      // 26-30
+      data_loader->AddVariable("MuFracAJl2", "MuFracAJl2", "units", 'F');      // 26-30
       data_loader->AddVariable("JetDiscAJl1", "JetDiscAJl1", "units", 'F');
       data_loader->AddVariable("JetDiscAJl2", "JetDiscAJl2", "units", 'F');
       data_loader->AddVariable("dRll", "dRll", "units", 'F');
       data_loader->AddVariable("dRlj11", "dRlj11", "units", 'F');
       //data_loader->AddVariable("dRlj12", "dRlj12", "units", 'F');
       data_loader->AddVariable("dRlj21", "dRlj21", "units", 'F');
-      data_loader->AddVariable("dRlj22", "dRlj22", "units", 'F');
+      data_loader->AddVariable("dRlj22", "dRlj22", "units", 'F');              // 31-35
       data_loader->AddVariable("MSSSF", "MSSSF", "units", 'F');
       data_loader->AddVariable("Mlj11", "Mlj11", "units", 'F');
-      data_loader->AddVariable("Mlj12", "Mlj12", "units", 'F');
+      data_loader->AddVariable("Mlj12", "Mlj12", "units", 'F');                // 31-35
       data_loader->AddVariable("Mlj21", "Mlj21", "units", 'F');
-      data_loader->AddVariable("Mlj22", "Mlj22", "units", 'F');
+      data_loader->AddVariable("Mlj22", "Mlj22", "units", 'F');                // 26-30
       data_loader->AddVariable("MTvl1", "MTvl1", "units", 'F');
       data_loader->AddVariable("MTvl2", "MTvl2", "units", 'F');
       data_loader->AddVariable("Mllj1", "Mllj1", "units", 'F');
@@ -394,12 +397,12 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
       data_loader->AddVariable("dRWjj", "dRWjj", "units", 'F');
       //data_loader->AddVariable("dRlW12", "dRlW12", "units", 'F');
       //data_loader->AddVariable("dRlW22", "dRlW22", "units", 'F');
-      data_loader->AddVariable("dRlN12", "dRlN12", "units", 'F');
-      data_loader->AddVariable("dRlN21", "dRlN21", "units", 'F');
+      data_loader->AddVariable("dRlN12", "dRlN12", "units", 'F');              // 26-30
+      data_loader->AddVariable("dRlN21", "dRlN21", "units", 'F');              // 26-30
       data_loader->AddVariable("M_W2_jj", "M_W2_jj", "units", 'F');
       //data_loader->AddVariable("M_W1_lljj", "M_W1_lljj", "units", 'F');
-      data_loader->AddVariable("M_N1_l1jj", "M_N1_l1jj", "units", 'F');
-      data_loader->AddVariable("M_N2_l2jj", "M_N2_l2jj", "units", 'F');
+      data_loader->AddVariable("M_N1_l1jj", "M_N1_l1jj", "units", 'F');        // 21-25
+      data_loader->AddVariable("M_N2_l2jj", "M_N2_l2jj", "units", 'F');        // 21-25
 
     }
 
@@ -525,18 +528,18 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
       data_loader->AddVariable("Ptj1", "Ptj1", "units", 'F');
       //data_loader->AddVariable("Ptj2", "Ptj2", "units", 'F');
       data_loader->AddVariable("MET2ST", "MET2ST", "units", 'F');
-      data_loader->AddVariable("HTLT1", "HTLT1", "units", 'F');
-      data_loader->AddVariable("HTLT2", "HTLT2", "units", 'F');
+      data_loader->AddVariable("HTLT1", "HTLT1", "units", 'F');                // 31-35
+      data_loader->AddVariable("HTLT2", "HTLT2", "units", 'F');                // 21-25
       data_loader->AddVariable("Etal1", "Etal1", "units", 'F');
       data_loader->AddVariable("Etal2", "Etal2", "units", 'F');
-      data_loader->AddVariable("PtRatioAJl1", "PtRatioAJl1", "units", 'F');
+      data_loader->AddVariable("PtRatioAJl1", "PtRatioAJl1", "units", 'F');    // 31-35
       //data_loader->AddVariable("PtRatioAJl2", "PtRatioAJl2", "units", 'F');
       //data_loader->AddVariable("CEMFracAJl1", "CEMFracAJl1", "units", 'F');
-      data_loader->AddVariable("CEMFracAJl2", "CEMFracAJl2", "units", 'F');
-      data_loader->AddVariable("NEMFracAJl1", "NEMFracAJl1", "units", 'F');
-      data_loader->AddVariable("NEMFracAJl2", "NEMFracAJl2", "units", 'F');
-      data_loader->AddVariable("CHFracAJl1", "CHFracAJl1", "units", 'F');
-      data_loader->AddVariable("CHFracAJl2", "CHFracAJl2", "units", 'F');
+      data_loader->AddVariable("CEMFracAJl2", "CEMFracAJl2", "units", 'F');    // 31-35
+      data_loader->AddVariable("NEMFracAJl1", "NEMFracAJl1", "units", 'F');    // 26-30
+      data_loader->AddVariable("NEMFracAJl2", "NEMFracAJl2", "units", 'F');    // 26-30
+      data_loader->AddVariable("CHFracAJl1", "CHFracAJl1", "units", 'F');      // 26-30
+      data_loader->AddVariable("CHFracAJl2", "CHFracAJl2", "units", 'F');      // 26-30
       //data_loader->AddVariable("NHFracAJl1", "NHFracAJl1", "units", 'F');
       //data_loader->AddVariable("NHFracAJl2", "NHFracAJl2", "units", 'F');
       //data_loader->AddVariable("MuFracAJl1", "MuFracAJl1", "units", 'F');
@@ -547,26 +550,26 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
       data_loader->AddVariable("dRlj11", "dRlj11", "units", 'F');
       //data_loader->AddVariable("dRlj12", "dRlj12", "units", 'F');
       data_loader->AddVariable("dRlj21", "dRlj21", "units", 'F');
-      data_loader->AddVariable("dRlj22", "dRlj22", "units", 'F');
+      data_loader->AddVariable("dRlj22", "dRlj22", "units", 'F');              // 31-35
       data_loader->AddVariable("MSSSF", "MSSSF", "units", 'F');
       data_loader->AddVariable("Mlj11", "Mlj11", "units", 'F');
-      data_loader->AddVariable("Mlj12", "Mlj12", "units", 'F');
+      data_loader->AddVariable("Mlj12", "Mlj12", "units", 'F');                // 31-35
       data_loader->AddVariable("Mlj21", "Mlj21", "units", 'F');
-      data_loader->AddVariable("Mlj22", "Mlj22", "units", 'F');
+      data_loader->AddVariable("Mlj22", "Mlj22", "units", 'F');                // 26-30
       data_loader->AddVariable("MTvl1", "MTvl1", "units", 'F');
-      data_loader->AddVariable("MTvl2", "MTvl2", "units", 'F');
+      data_loader->AddVariable("MTvl2", "MTvl2", "units", 'F');                // 21-25
       data_loader->AddVariable("Mllj1", "Mllj1", "units", 'F');
       //data_loader->AddVariable("Mllj2", "Mllj2", "units", 'F');
       //data_loader->AddVariable("PtWj1", "PtWj1", "units", 'F');
       //data_loader->AddVariable("PtWj2", "PtWj2", "units", 'F');
-      data_loader->AddVariable("dRWjj", "dRWjj", "units", 'F');
+      data_loader->AddVariable("dRWjj", "dRWjj", "units", 'F');                // 21-25
       //data_loader->AddVariable("dRlW12", "dRlW12", "units", 'F');
       //data_loader->AddVariable("dRlW22", "dRlW22", "units", 'F');
       //data_loader->AddVariable("dRlN12", "dRlN12", "units", 'F');
-      data_loader->AddVariable("dRlN21", "dRlN21", "units", 'F');
+      data_loader->AddVariable("dRlN21", "dRlN21", "units", 'F');              // 21-25
       data_loader->AddVariable("M_W2_jj", "M_W2_jj", "units", 'F');
       //data_loader->AddVariable("M_W1_lljj", "M_W1_lljj", "units", 'F');
-      data_loader->AddVariable("M_N1_l1jj", "M_N1_l1jj", "units", 'F');
+      data_loader->AddVariable("M_N1_l1jj", "M_N1_l1jj", "units", 'F');        // 21-25
       data_loader->AddVariable("M_N2_l2jj", "M_N2_l2jj", "units", 'F');
 
     }
@@ -690,20 +693,20 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
       data_loader->AddVariable("Ptl1", "Ptl1", "units", 'F');
       data_loader->AddVariable("Ptl2", "Ptl2", "units", 'F');
       data_loader->AddVariable("Ptj1", "Ptj1", "units", 'F');
-      data_loader->AddVariable("Ptj2", "Ptj2", "units", 'F');
+      data_loader->AddVariable("Ptj2", "Ptj2", "units", 'F');                  // 26-30
       data_loader->AddVariable("MET2ST", "MET2ST", "units", 'F');
       data_loader->AddVariable("HTLT1", "HTLT1", "units", 'F');
       data_loader->AddVariable("HTLT2", "HTLT2", "units", 'F');
-      data_loader->AddVariable("Etal1", "Etal1", "units", 'F');
-      data_loader->AddVariable("Etal2", "Etal2", "units", 'F');
-      data_loader->AddVariable("PtRatioAJl1", "PtRatioAJl1", "units", 'F');
+      data_loader->AddVariable("Etal1", "Etal1", "units", 'F');                // 21-25
+      data_loader->AddVariable("Etal2", "Etal2", "units", 'F');                // 26-30
+      data_loader->AddVariable("PtRatioAJl1", "PtRatioAJl1", "units", 'F');    // 31-35
       //data_loader->AddVariable("PtRatioAJl2", "PtRatioAJl2", "units", 'F');
       //data_loader->AddVariable("CEMFracAJl1", "CEMFracAJl1", "units", 'F');
       //data_loader->AddVariable("CEMFracAJl2", "CEMFracAJl2", "units", 'F');
-      data_loader->AddVariable("NEMFracAJl1", "NEMFracAJl1", "units", 'F');
+      data_loader->AddVariable("NEMFracAJl1", "NEMFracAJl1", "units", 'F');    // 31-35
       //data_loader->AddVariable("NEMFracAJl2", "NEMFracAJl2", "units", 'F');
-      data_loader->AddVariable("CHFracAJl1", "CHFracAJl1", "units", 'F');
-      data_loader->AddVariable("CHFracAJl2", "CHFracAJl2", "units", 'F');
+      data_loader->AddVariable("CHFracAJl1", "CHFracAJl1", "units", 'F');      // 26-30
+      data_loader->AddVariable("CHFracAJl2", "CHFracAJl2", "units", 'F');      // 26-30
       //data_loader->AddVariable("NHFracAJl1", "NHFracAJl1", "units", 'F');
       //data_loader->AddVariable("NHFracAJl2", "NHFracAJl2", "units", 'F');
       //data_loader->AddVariable("MuFracAJl1", "MuFracAJl1", "units", 'F');
@@ -712,29 +715,29 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
       data_loader->AddVariable("JetDiscAJl2", "JetDiscAJl2", "units", 'F');
       data_loader->AddVariable("dRll", "dRll", "units", 'F');
       data_loader->AddVariable("dRlj11", "dRlj11", "units", 'F');
-      data_loader->AddVariable("dRlj12", "dRlj12", "units", 'F');
+      data_loader->AddVariable("dRlj12", "dRlj12", "units", 'F');              // 31-35
       data_loader->AddVariable("dRlj21", "dRlj21", "units", 'F');
-      data_loader->AddVariable("dRlj22", "dRlj22", "units", 'F');
+      data_loader->AddVariable("dRlj22", "dRlj22", "units", 'F');              // 31-35
       data_loader->AddVariable("MSSSF", "MSSSF", "units", 'F');
       data_loader->AddVariable("Mlj11", "Mlj11", "units", 'F');
-      data_loader->AddVariable("Mlj12", "Mlj12", "units", 'F');
+      data_loader->AddVariable("Mlj12", "Mlj12", "units", 'F');                // 31-35
       data_loader->AddVariable("Mlj21", "Mlj21", "units", 'F');
-      data_loader->AddVariable("Mlj22", "Mlj22", "units", 'F');
+      data_loader->AddVariable("Mlj22", "Mlj22", "units", 'F');                // 21-25
       data_loader->AddVariable("MTvl1", "MTvl1", "units", 'F');
       data_loader->AddVariable("MTvl2", "MTvl2", "units", 'F');
       data_loader->AddVariable("Mllj1", "Mllj1", "units", 'F');
       //data_loader->AddVariable("Mllj2", "Mllj2", "units", 'F');
       //data_loader->AddVariable("PtWj1", "PtWj1", "units", 'F');
       //data_loader->AddVariable("PtWj2", "PtWj2", "units", 'F');
-      data_loader->AddVariable("dRWjj", "dRWjj", "units", 'F');
+      data_loader->AddVariable("dRWjj", "dRWjj", "units", 'F');                // 21-25
       //data_loader->AddVariable("dRlW12", "dRlW12", "units", 'F');
       //data_loader->AddVariable("dRlW22", "dRlW22", "units", 'F');
       //data_loader->AddVariable("dRlN12", "dRlN12", "units", 'F');
-      data_loader->AddVariable("dRlN21", "dRlN21", "units", 'F');
+      data_loader->AddVariable("dRlN21", "dRlN21", "units", 'F');              // 26-30
       data_loader->AddVariable("M_W2_jj", "M_W2_jj", "units", 'F');
       //data_loader->AddVariable("M_W1_lljj", "M_W1_lljj", "units", 'F');
-      data_loader->AddVariable("M_N1_l1jj", "M_N1_l1jj", "units", 'F');
-      data_loader->AddVariable("M_N2_l2jj", "M_N2_l2jj", "units", 'F');
+      data_loader->AddVariable("M_N1_l1jj", "M_N1_l1jj", "units", 'F');        // 21-25
+      data_loader->AddVariable("M_N2_l2jj", "M_N2_l2jj", "units", 'F');        // 21-25
 
     }
 
@@ -793,8 +796,10 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
 
   //factory->BookMethod( data_loader,TMVA::Types::kBDT, "BDT", "!H:!V:NTrees="+NTrees_txt+":nEventsMin=400:MaxDepth=3:nCuts="+NCuts_txt+":BoostType=AdaBoost:SeparationType=GiniIndex:PruneMethod=NoPruning" );
   if(BDTMethod == "BDT"){
-    factory->BookMethod( data_loader,TMVA::Types::kBDT, "BDT", "!H:!V:NTrees="+NTrees_txt+":MinNodeSize=1.0%:MaxDepth="+MaxDepth_txt+":nCuts="+NCuts_txt+":BoostType=AdaBoost:SeparationType=GiniIndex:PruneMethod=NoPruning:NegWeightTreatment=IgnoreNegWeightsInTraining" ); // Without negative weights
-    //factory->BookMethod( data_loader,TMVA::Types::kBDT, "BDT", "!H:!V:NTrees="+NTrees_txt+":MinNodeSize=0.5%:MaxDepth="+MaxDepth_txt+":nCuts="+NCuts_txt+":BoostType=AdaBoost:SeparationType=GiniIndex:PruneMethod=NoPruning:NegWeightTreatment=IgnoreNegWeightsInTraining" );
+    //factory->BookMethod( data_loader,TMVA::Types::kBDT, "BDT", "!H:!V:NTrees="+NTrees_txt+":MinNodeSize=1.0%:MaxDepth="+MaxDepth_txt+":nCuts="+NCuts_txt+":BoostType=AdaBoost:SeparationType=GiniIndex:PruneMethod=NoPruning:NegWeightTreatment=IgnoreNegWeightsInTraining" ); // Without negative weights
+    factory->BookMethod( data_loader,TMVA::Types::kBDT, "BDT", "!H:!V:NTrees="+NTrees_txt+":MinNodeSize=0.5%:MaxDepth="+MaxDepth_txt+":nCuts="+NCuts_txt+":BoostType=AdaBoost:SeparationType=GiniIndex:PruneMethod=NoPruning:NegWeightTreatment=IgnoreNegWeightsInTraining" );  // MinNodeSize 0.5%
+    //factory->BookMethod( data_loader,TMVA::Types::kBDT, "BDT", "!H:!V:NTrees="+NTrees_txt+":MinNodeSize=0.25%:MaxDepth="+MaxDepth_txt+":nCuts="+NCuts_txt+":BoostType=AdaBoost:SeparationType=GiniIndex:PruneMethod=NoPruning:NegWeightTreatment=IgnoreNegWeightsInTraining" );  // MinNodeSize 0.25%
+    //factory->BookMethod( data_loader,TMVA::Types::kBDT, "BDT", "!H:!V:NTrees="+NTrees_txt+":MinNodeSize=1.5%:MaxDepth="+MaxDepth_txt+":nCuts="+NCuts_txt+":BoostType=AdaBoost:SeparationType=GiniIndex:PruneMethod=NoPruning:NegWeightTreatment=IgnoreNegWeightsInTraining" );  // MinNodeSize 1.5%
   }
 
   //==== Gradient Boost
@@ -838,7 +843,7 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
     dnnOptions.Append (":"); dnnOptions.Append (batchLayoutString);
     dnnOptions.Append (":"); dnnOptions.Append (layoutString);
     dnnOptions.Append (":"); dnnOptions.Append (trainingStrategyString);
-
+ 
     TString dnnMethodName = "DNN_CPU";
     if(useDLGPU){
       dnnOptions += ":Architecture=GPU";
@@ -847,7 +852,7 @@ void runBDT_HNtypeI(TString channel, int mass, TString bkgType, TString era, TSt
     else{
       dnnOptions += ":Architecture=CPU";
     }
-
+ 
     factory->BookMethod(data_loader, TMVA::Types::kDL, dnnMethodName, dnnOptions);
 
   }

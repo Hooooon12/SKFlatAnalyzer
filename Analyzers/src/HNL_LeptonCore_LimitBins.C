@@ -10,8 +10,6 @@ void HNL_LeptonCore::DefineLimitBins(){
   vector<double> sr1bins_ee;
   vector<double> sr1bins_em;
 
-  //// Define CR1 binning      
-  vector<double> cr1bins = { 0.,400, 500,600, 2000.};
   
   if(DataEra == "2016preVFP") {
     //sr1bins_mm = { 0., 400, 550,  2000.}; ANv4
@@ -39,7 +37,7 @@ void HNL_LeptonCore::DefineLimitBins(){
   for(unsigned int i_d =1 ; i_d <  sr1bins_mm.size()+3; i_d++)  MuMu_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
   for(unsigned int i_d =1 ; i_d <  sr1bins_ee.size()+3; i_d++)  EE_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
   for(unsigned int i_d =1 ; i_d <  sr1bins_em.size()+3; i_d++)  EMu_SR1_BinTags.push_back("SR1_MNbin"+to_string(i_d));
-  for(unsigned int i_d =1 ; i_d <  cr1bins.size(); i_d++)     CR1_BinTags.push_back("CR1_MNbin"+to_string(i_d));
+
 
   //// EE/EMu have most bins
   map_bins_labels ["SR1_PlotVersion_MuMu"]= EE_SR1_BinTags;
@@ -58,7 +56,6 @@ void HNL_LeptonCore::DefineLimitBins(){
   //// CR
   map_bins_labels ["CR1"]       = CR1_BinTags;
 
-  map_bins_boundaries  ["CR1"]  = cr1bins;
 
   //// Define SR 2 binning  
   
@@ -73,9 +70,6 @@ void HNL_LeptonCore::DefineLimitBins(){
   std::vector<TString> EE_SR3   = minBinsSR3;
   std::vector<TString> EMu_SR3  = minBinsSR3;
   
-  //  EE_SR3.insert(EE_SR3.end(), {"SR3_bin21","SR3_bin22","SR3_bin23","SR3_bin24","SR3_bin25"}); // Append {bin20-24}
-  //  EMu_SR3.insert(EMu_SR3.end(), {"SR3_bin19","SR3_bin20","SR3_bin21","SR3_bin22","SR3_bin23"}); // Append {bin20-21}   
-
   map_bins_labels ["SR3_MuMu"] = MuMu_SR3;
   map_bins_labels ["SR3_EE"]   = EE_SR3;
   map_bins_labels ["SR3_EMu"]  = EMu_SR3;
@@ -358,6 +352,7 @@ vector<TString> HNL_LeptonCore::GetBDTLimitLabels(const TString& key){
   map<TString,vector<TString> > ::iterator mit = map_BDT_bins_labels.find(key);
   if(mit == map_BDT_bins_labels.end()) {
     cout << "GetBDTLimitLabels " << key << endl;
+    for(auto i : map_BDT_bins_labels) cout << i.first << endl;
     exit(EXIT_FAILURE);
   }
   vector<TString> SRlabels = mit->second;

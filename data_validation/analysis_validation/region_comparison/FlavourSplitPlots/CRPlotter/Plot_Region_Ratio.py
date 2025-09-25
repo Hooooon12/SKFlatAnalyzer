@@ -648,9 +648,10 @@ elif args.lll:
         ["HNL_ZNPMu_AK8_ThreeLepton_CR", "LLL", ["MuMuMu", "EEE", "EMuL", "LLL"]],
         ["HNL_ZNPEl_ThreeLepton_CR", "LL", ["MuMuMu", "EEE", "EMuL", "LLL"]],
         ["HNL_TopNP_ThreeLepton_CR", "LL", ["MuMuMu", "EEE", "EMuL", "LLL"]],
-
     ]
-    
+    hist_bases = [
+        ["HNL_WZ_SR1_ThreeLepton_CR", "LLL", ["MuMuMu", "EEE", "EMuL", "LLL"]],
+    ]    
 
 
 input_dir ="/data6/Users/jalmond/2020/HL_SKFlatAnalyzer_UL_LONG/SKFlatAnalyzer/data_validation/analysis_validation/merged_samples/"+Plot_Version+"/"

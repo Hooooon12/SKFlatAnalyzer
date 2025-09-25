@@ -34,12 +34,12 @@ def run_signal():
             ("VBFOfficial.txt", 20),
             ("SSWWOfficial.txt", 20)
         ]:
-            cmd = f"SKFlat.py -a {analyzer} -l {sigpath}/{signal_file} -n {jobs} --nmax {nmax} -e {era} --skim  SkimTree_HNMultiLep&"
+            cmd = f"SKFlat.py -a {analyzer} -l {sigpath}/{signal_file} -n {jobs} --nmax {nmax} -e {era}&"
             run_command(cmd)
 
 def run_weinberg():
     for era in era_list:
-        cmd = f"SKFlat.py -a {analyzer} -l {sigpath}/Weinberg.txt -n {njobs} --nmax {nmax} -e {era} --skim  SkimTree_HNMultiLep&"
+        cmd = f"SKFlat.py -a {analyzer} -l {sigpath}/Weinberg.txt -n {njobs} --nmax {nmax} -e {era} &"
         run_command(cmd)
 
 def run_all():

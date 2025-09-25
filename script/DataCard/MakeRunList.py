@@ -35,8 +35,8 @@ grepRegion = ' | grep card | grep '+CardRep if "Run2" in args.eras else ' | grep
 
 #tags = ["_sronly"]
 tags = ["_syst"]
-#tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+#tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = [""]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined","_syst"]
 #tags = ["_sr1_syst","_sr2_syst","_sr3_syst","_sr_syst"]
@@ -61,19 +61,13 @@ tags = ["_syst"]
 
 isRun2 = ""
 if "Run2" in args.eras:
-  tags = ["_syst"]
-  #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
-  #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
-  #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
-  #tags = ["_sr2_syst_Combined"]
-  #tags = ["_sronly_sr2_syst"] # no CR, sr1, 2, 3, separate, with Syst
   isRun2 = "Run2_"
 
 for dirName in args.dirNames:
 
   greps = 'ls '+dirName+grepRegion+' | grep '*int(bool(args.eras))+' '.join(["-e "+era for era in args.eras])+' | grep '*int(bool(args.channels))+' '.join(["-e "+channel for channel in args.channels])+' | grep '*int(bool(args.masses))+' '.join(["-e M"+mass+"_" for mass in args.masses])+' | grep '*int(bool(args.signals))+' '.join(["-e "+signal for signal in args.signals]) # if any of eras, chs, ms exists, this line greps it in order. if not, just ls the directory
-  if len(args.signals)==0: greps += ' | grep -Ev \"DYVBF|SSWW|Weinberg\"' # When you don't want DYVBF, SSWW, Weinberg specific results
-  #if len(args.signals)==0: greps += ' | grep -Ev \"DYVBF|SSWW\"' # When you don't want DYVBF, SSWW specific results
+  #if len(args.signals)==0: greps += ' | grep -Ev \"DYVBF|SSWW|Weinberg\"' # When you don't want DYVBF, SSWW, Weinberg specific results
+  if len(args.signals)==0: greps += ' | grep -Ev \"DYVBF|SSWW\"' # When you don't want DYVBF, SSWW specific results
   #print greps
 
   cards = cmd.getoutput(greps).replace('_'+CardRep+'.txt','').replace('_syst.txt','').split('\n')

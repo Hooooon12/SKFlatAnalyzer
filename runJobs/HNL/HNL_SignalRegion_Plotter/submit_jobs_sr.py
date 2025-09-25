@@ -200,7 +200,12 @@ if args.Signal:
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt   -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt  -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/Weinberg.txt  -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
-    exit()
+
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Official/SSWWOfficial.txt -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Official/DYOfficial.txt   -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Official/VBFOfficial.txt  -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+
+        exit()
 
 if args.RunData:
 

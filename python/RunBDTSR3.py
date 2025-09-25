@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os,sys,time
 import argparse
@@ -28,7 +28,7 @@ parser.add_argument('-t', dest='Tag', default="Default")
 parser.add_argument('-o', dest='Outputdir', default="")
 parser.add_argument('-q', dest='Queue', default="fastq")
 parser.add_argument('-e', dest='Era', default="2017",help="2016preVFP(2016a), 2016postVFP(2016b), 2017, 2018, Run2")
-parser.add_argument('--nmax', dest='NMax', default=50, type=int, help="maximum running jobs")
+parser.add_argument('--nmax', dest='NMax', default=100, type=int, help="maximum running jobs")
 parser.add_argument('--reduction', dest='Reduction', default=1, type=float)
 parser.add_argument('--memory', dest='Memory', default=24000, type=float)
 parser.add_argument('--batchname',dest='BatchName', default="")
@@ -152,7 +152,7 @@ os.system('mkdir -p '+FinalOutputPath+'/dataset/weights/')
 
 
 
-TMVADirs = [os.environ['SKFlat_WD'] + '/TMVA/']
+TMVADirs = [os.environ['SKFlat_WD'] + '/TMVA/EventSelection/']
 
 macroname=""
 for TMVADir in TMVADirs:
@@ -182,7 +182,7 @@ for TMVADir in TMVADirs:
   #outName = 'output_'+signalName+'_'+args.Channel+'_M'+str(args.Mass)+'_Mode'+str(args.MetMode)+str(args.NbMode)+str(args.JetMode)+'_NTree'+str(args.NTree)+'__BDT'
   outName = 'output_DY_'+args.Channel+'_M'+str(args.Mass)+'_'+args.Bkg+'_'+args.Era+'_NTrees'+str(args.NTree)+'_NCuts'+str(args.NCut)+'_MaxDepth'+str(args.MaxDepth)+'_'+args.BDTMethod
 
-  print>>run_commands,'''#!/bin/bash
+  print('''#!/bin/bash
 SECTION=`printf $1`
 WORKDIR=`pwd`
 
@@ -205,7 +205,12 @@ echo "@@@@ cmsswrel = "$cmsswrel
 echo "@@@@ scram..."
 eval `scramv1 runtime -sh`
 cd -
-source /cvmfs/cms.cern.ch/$SCRAM_ARCH/cms/$cmsswrel/external/$SCRAM_ARCH/bin/thisroot.sh
+#source /cvmfs/cms.cern.ch/$SCRAM_ARCH/cms/$cmsswrel/external/$SCRAM_ARCH/bin/thisroot.sh
+
+### modifying LD_LIBRARY_PATH to use libraries in base_rundir
+
+export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH|sed 's@'$SKFlat_WD'/lib@{0}/lib@')
+export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$SKFlat_WD/DataFormats/include:$SKFlat_WD/AnalyzerTools/include:$SKFlat_WD/Analyzers/include:$SKFlat_WD/Analyzers/HNLRegions/include/:$SKFlat_WD/Analyzers/Utils/include/
 
 while [ "$Trial" -lt 3 ]; do
   echo "#### running ####"
@@ -221,8 +226,8 @@ while [ "$Trial" -lt 3 ]; do
   fi
 done
 
-mv dataset/weights/TMVAClassification_BDT.class.C    {5}/dataset/weights/{6}.class.C 
-mv dataset/weights/TMVAClassification_BDT.weights.xml    {5}/dataset/weights/{6}.weights.xml
+mv dataset/weights/TMVAClassification_*.class.C    {5}/dataset/weights/{6}.class.C 
+mv dataset/weights/TMVAClassification_*.weights.xml    {5}/dataset/weights/{6}.weights.xml
 mv _condor_stdout {5}/Logs/Job_out_{6}.log
 mv _condor_stderr {5}/Logs/Job_err_{6}.log                                                                                                                                                                                                 
 
@@ -235,30 +240,32 @@ fi
 
 cat err.log >&2
 exit $EXITCODE
-'''.format(MasterJobDir, base_rundir, submitMacro, SCRAM_ARCH, cmsswrel,FinalOutputPath , outName)
+'''.format(MasterJobDir, base_rundir, submitMacro, SCRAM_ARCH, cmsswrel,FinalOutputPath , outName), file=run_commands)
   run_commands.close()
 
   submit_command = open(base_rundir+'/submit.jds','w')
   concurrency_limits=''
   if args.NMax:
     concurrency_limits='concurrency_limits = n'+str(args.NMax)+'.'+os.getenv("USER")
-    request_memory=''
+    request_memory='request_memory = 8 GB'
     if args.Memory:
       request_memory='request_memory = '+str(args.Memory)
-    print>>submit_command,'''executable = {1}.sh
+    print('''executable = {1}.sh
 jobbatchname = {1}
 universe   = vanilla
 arguments  = $(Process)
 log = condor.log
 getenv     = True
+request_cpus = 1
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 output = job_$(Process).log
 error = job_$(Process).err
+environment = "LANG=C LC_ALL=C LC_CTYPE=C"
 {2}
 {3}
 queue {0}
-'''.format(str(NJobs), commandsfilename,concurrency_limits,request_memory)
+'''.format(str(NJobs), commandsfilename,concurrency_limits,request_memory), file=submit_command)
     submit_command.close()
 
 
@@ -272,33 +279,33 @@ queue {0}
 
 
 
-print '##################################################'
+print('##################################################')
 print("RunDir: " + base_rundir)
-print 'Submission Finished'
-print '- JobID = '+str_RandomNumber
-print '- Analyzer = '+args.Analyzer+'.C'
-print '- Channel = '+args.Channel
-print '- Mass = '+str(args.Mass)
-print '- Bkg = '+args.Bkg
-print '- Era = '+args.Era
+print('Submission Finished')
+print('- JobID = '+str_RandomNumber)
+print('- Analyzer = '+args.Analyzer+'.C')
+print('- Channel = '+args.Channel)
+print('- Mass = '+str(args.Mass))
+print('- Bkg = '+args.Bkg)
+print('- Era = '+args.Era)
 #if args.IsVBF:
-#  print '- IsVBF = True'
+#  print('- IsVBF = True')
 #else:
-#  print '- IsVBF = False'
+#  print('- IsVBF = False')
 
 
-print '-'*40
-print '- NJobs = '+str(NJobs)
-print '-'*40
-#print '- RunModes [MET] = '+str(args.MetMode)
-#print '- RunModes [Nb] = '+str(args.NbMode)
-#print '- RunModes [Jet] = '+str(args.JetMode)
-print '- BDTMethod = '+args.BDTMethod
-print '- NTrees = '+str(args.NTree)
-print '- NCuts = '+str(args.NCut)
-print '- MaxDepth = '+str(args.MaxDepth)
+print('-'*40)
+print('- NJobs = '+str(NJobs))
+print('-'*40)
+#print('- RunModes [MET] = '+str(args.MetMode))
+#print('- RunModes [Nb] = '+str(args.NbMode))
+#print('- RunModes [Jet] = '+str(args.JetMode))
+print('- BDTMethod = '+args.BDTMethod)
+print('- NTrees = '+str(args.NTree))
+print('- NCuts = '+str(args.NCut))
+print('- MaxDepth = '+str(args.MaxDepth))
 
-print '- output will be send to : '+FinalOutputPath
+print('- output will be send to : '+FinalOutputPath)
 
-print '##################################################'
+print('##################################################')
 

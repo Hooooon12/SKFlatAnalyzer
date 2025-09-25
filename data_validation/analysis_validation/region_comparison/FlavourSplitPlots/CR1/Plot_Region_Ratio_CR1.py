@@ -585,9 +585,15 @@ parser.add_argument('-llll', action='store_true', help='Enable level 3 logging')
 
 # Add a flag for selecting the directory
 parser.add_argument('--plot-version', type=str, choices=directories, help='Select the directory for Plot_Version')
+parser.add_argument('--usewz-alt', action='store_true', help='Use alternative WZ normalization')
 
 args = parser.parse_args()
-
+# Update WZ file if --usewz-alt flag is set                                                                                                                                  
+if args.usewz_alt:
+    for entry in background_files:
+        if entry[1] == "WZ":
+            entry[0] = "HNL_ControlRegionOne_WZAlt.root"
+            
 bin_labels = ["#mu#mu", "ee", "e#mu", "ll"]
 
 IDs = ["HNL_ULIDv2_NoOverlap","HNL_ULIDv2_TauVeto3","HNL_ULIDv2_TauVeto","HNL_ULIDv2_TauVeto2","HNL_ULIDv2_bjet_noak8","HNL_ULIDv2_presel","HNL_ULIDv2_presel_bjetlepclean","HNL_ULIDv2_presel_mod","HNL_ULIDv2_bjet_noak8_hnlveto","HNL_ULIDv2_veto_id_one","HNL_ULIDv2_veto_id_two","HNL_ULIDv2_ANv4","HNL_ULIDv2_presel_bjetmod","HNL_ULIDv2_presel_bjetmod_ak8_tight","HNL_ULIDv2_presel_bjetmodx"]
@@ -602,6 +608,9 @@ for j_region in regions:
 
 input_dir ="/data6/Users/jalmond/2020/HL_SKFlatAnalyzer_UL_LONG/SKFlatAnalyzer/data_validation/analysis_validation/merged_samples/"+Plot_Version+"/"
 
+
+if args.usewz_alt:
+    Plot_Version=Plot_Version+"_WZAlt"
 
 
 # --- Path and File Output ---

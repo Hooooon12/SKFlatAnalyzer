@@ -9,7 +9,7 @@ from pathlib import Path
 from datetime import datetime
 
 
-Analyzer="HNL_ControlRegionOne"
+Analyzer="HNL_ControlRegionLLL"
 skim="SkimTree_HNMultiLepBDT"
 skim_dilep="SkimTree_DileptonBDT"
 
@@ -45,7 +45,7 @@ eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
 parser = argparse.ArgumentParser(description="Example script with string flag")
 # Add a string flag, like --mode somevalue
 parser.add_argument('--mode', type=str, default='default', help='Mode of operation (e.g., test, prod, debug)')
-parser.add_argument("--analyzer", choices=["HNL_ControlRegionTwo", "HNL_ControlRegionOne","HNL_ControlRegion_Plotter"], required=True, help="Select the analyzer.")
+parser.add_argument("--analyzer", choices=["HNL_ControlRegionTwo", "HNL_ControlRegionOne", "HNL_ControlRegionLLL","HNL_ControlRegion_Plotter"], required=True, help="Select the analyzer.")
 
 args = parser.parse_args()
 
@@ -57,6 +57,11 @@ elif args.analyzer == "HNL_ControlRegionOne":
     Analyzer = "HNL_ControlRegionOne"
     skim = "SkimTree_AK8BDT"
     skim_dilep = "SkimTree_AK8BDT"
+
+elif args.analyzer == "HNL_ControlRegionLLL":
+    Analyzer = "HNL_ControlRegionLLL"
+    skim = "SkimTree_HNMultiLepBDT"
+    skim_dilep = "SkimTree_DileptonBDT"
 
 elif args.analyzer == "HNL_ControlRegion_Plotter":
     Analyzer = "HNL_ControlRegion_Plotter"
@@ -184,11 +189,16 @@ commands_template = [
     ("WZ", [
         f"{mode}MultiLepton__RunPrompt__/{Analyzer}_{skim}_WZ_EWK.root",
         f"{mode}MultiLepton__RunPrompt__/{Analyzer}_{skim}_WZTo3LNu_mllmin4p0_powheg.root"
+    ]),
+    ("WZAlt", [
+        f"{mode}MultiLepton__RunPrompt__/{Analyzer}_{skim}_WZ_EWK.root",
+        f"{mode}MultiLepton__RunPrompt__/{Analyzer}_{skim}_WZTo3LNu_amcatnlo.root"
     ])
+
 ]
 
-
-
+if Analyzer=="HNL_ControlRegionLLL":
+    commands_template.remove(("CF", f"{mode}MultiLepton__RunCF__/DATA/{Analyzer}_{skim_dilep}_*"))
 
 for era in eras:
     era_path = os.path.join(base_path, era)

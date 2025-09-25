@@ -3,7 +3,7 @@
 void HNL_Signal_Efficiency::initializeAnalyzer(){
 
   HNL_LeptonCore::initializeAnalyzer();
-  SetupEventMVAReader("V2");
+  SetupEventMVAReader("V3");
 
 }
 

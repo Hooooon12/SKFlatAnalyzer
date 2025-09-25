@@ -76,6 +76,7 @@ void HNL_TriggerEfficiency::initializeAnalyzer(){
 
 void HNL_TriggerEfficiency::executeEvent(){
 
+  AnalyzerParameter param = HNL_LeptonCore::InitialiseHNLParameter("HNL_ULIDv2");
 
   Event ev = GetEvent();
   float weight=1., w_GenNorm=1., w_BR=1., w_PU=1.;
@@ -115,16 +116,21 @@ void HNL_TriggerEfficiency::executeEvent(){
 
 
   JetTagging::Parameters param_jets = JetTagging::Parameters(JetTagging::DeepJet, JetTagging::Medium, JetTagging::incl, JetTagging::mujets);
-  vector<Jet> jetNoVetoColl  = GetJets("tight", 25., 2.4);
+  /*vector<Jet> jetNoVetoColl  = GetJets("tight", 25., 2.4);
   sort(jetNoVetoColl.begin(), jetNoVetoColl.end(), PtComparing);
   vector<Jet> bjetNoVetoColl = SelBJets(jetNoVetoColl, param_jets);
   vector<Jet> jetColl  = JetsVetoLeptonInside(jetNoVetoColl, electronVetoColl, muonVetoColl, 0.4);
+  vector<Jet> bjetColl = SelBJets(jetColl, param_jets);*/
+
+  vector<Jet> jetColl  = GetJets("tightLepVeto", 25., 2.4);
   vector<Jet> bjetColl = SelBJets(jetColl, param_jets);
 
+  //Particle vMET = ev.GetMETVector();
+  //Particle vMET_xyCorr(pfMET_Type1_PhiCor_pt*TMath::Cos(pfMET_Type1_PhiCor_phi), pfMET_Type1_PhiCor_pt*TMath::Sin(pfMET_Type1_PhiCor_phi), 0., pfMET_Type1_PhiCor_pt);
+  //Particle METv = GetvMET("PuppiT1xyULCorr", param, AK4_VBF_JetColl, AK8_JetColl, muonTightColl, electronTightColl);
 
-  Particle vMET = ev.GetMETVector();
-  Particle vMET_xyCorr(pfMET_Type1_PhiCor_pt*TMath::Cos(pfMET_Type1_PhiCor_phi), pfMET_Type1_PhiCor_pt*TMath::Sin(pfMET_Type1_PhiCor_phi), 0., pfMET_Type1_PhiCor_pt);
-
+  Particle vStandMET = GetMiniAODvMET("PuppiT1xyULCorr");
+  Particle METv = GetvCorrMET("PuppiT1xyULCorr", muonTightColl, param, vStandMET);
 
   vector<Gen> truthColl;
 
@@ -154,22 +160,22 @@ void HNL_TriggerEfficiency::executeEvent(){
 
  
   if(MuMu){
-    if(DiMuTrig_DZ   ) MeasEffDiMuTrig_DZ(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, vMET, ev, weight, "");
-    //    if(DiMuTrig_MuLeg) MeasEffDiMuTrig_MuLeg(muonTightColl, muonLooseColl, electronTightColl, electronLooseColl, jetColl, bjetColl, vMET, ev, weight, "");
+    if(DiMuTrig_DZ   ) MeasEffDiMuTrig_DZ(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, METv, ev, weight, "");
+    //    if(DiMuTrig_MuLeg) MeasEffDiMuTrig_MuLeg(muonTightColl, muonLooseColl, electronTightColl, electronLooseColl, jetColl, bjetColl, METv, ev, weight, "");
 
   }
   if(EE){
-    if(DiElTrig_DZ) MeasEffDiElTrig_DZ(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, vMET, ev, weight, "");
+    if(DiElTrig_DZ) MeasEffDiElTrig_DZ(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, METv, ev, weight, "");
   }
   if(EMu){
     if(EMuTrig_ElLeg){
-      MeasEffEMuTrig_ElLeg(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, vMET, ev, weight, "");
+      MeasEffEMuTrig_ElLeg(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, METv, ev, weight, "");
     }
     if(EMuTrig_MuLeg){
-      MeasEffEMuTrig_MuLeg(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, vMET, ev, weight, "");
+      MeasEffEMuTrig_MuLeg(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, METv, ev, weight, "");
     }
     if(EMuTrig_DZ){
-      MeasEffEMuTrig_DZ(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, vMET, ev, weight, "");
+      MeasEffEMuTrig_DZ(muonTightColl, muonVetoColl, electronTightColl, electronVetoColl, jetColl, bjetColl, METv, ev, weight, "");
     }
   }
 
@@ -256,10 +262,28 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_MuLeg(vector<Muon>& MuTColl, vector<M
 
   if( !(ElTColl.size()==1 && MuTColl.size()==1) ) return;
   if( !(ElLColl.size()==1 && MuLColl.size()==1) ) return;
-  if(!IsDATA){ if( !(MuTColl.at(0).IsPrompt() && ElTColl.at(0).IsPrompt()) ) return; }
+  //if(!IsDATA){ if( !(MuTColl.at(0).IsPrompt() && ElTColl.at(0).IsPrompt()) ) return; }
+
+  if(!IsDATA){ 
+    if(RunPrompt){
+      if( !(MuTColl.at(0).IsPrompt() && ElTColl.at(0).IsPrompt()) ) return; 
+    }
+    if(RunConv){
+      if( !(MuTColl.at(0).IsConv() || ElTColl.at(0).IsConv()) ) return; 
+    }
+  }
+
   if( ElTColl.at(0).Pt()<(DataYear<2017? 30:35) ) return;
-  if( MuTColl.at(0).Charge()==ElTColl.at(0).Charge() ) return;
+
+  if(RunFake){
+    if( MuTColl.at(0).Charge() != ElTColl.at(0).Charge() ) return;
+  }
+  else{
+    if( MuTColl.at(0).Charge() == ElTColl.at(0).Charge() ) return;
+  }
+
   if( MuTColl.at(0).DeltaR(ElTColl.at(0))<0.4 ) return;
+
   if( !(JetColl.size()>1 && BJetColl.size()>0) ) return;
 
   const int NPtBinEdges1=11, NPtBinEdges2=12, NfEtaBinEdges=5;
@@ -285,6 +309,10 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_MuLeg(vector<Muon>& MuTColl, vector<M
   if(DataYear==2017) PassLeg2 = MuTColl.at(0).PassPath("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v");
   //filter name different only in 17B in full Run-2, wasn't catched before processing, but checked eff(DZ)~1 in 17
   if(!PassTagHLT) return;
+
+  FillHist("KinVar/Muon_Pt", PTMu, weight, 2000, 0., 2000.);
+  FillHist("KinVar/Muon_Eta", MuTColl.at(0).Eta(), weight, 60, -3., 3.);
+  FillHist("KinVar/MET", vMET.Pt(), weight, 2000, 0., 2000.);
 
   FillHist("NMu1_AllEta_Pt_1D", PTMu, weight, NPtBinEdges1-1, PtBinEdges1);
   FillHist("NMu1_4EtaBin_PtEta_2D", PTMu, fEtaMu, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges1);
@@ -355,10 +383,28 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_ElLeg(vector<Muon>& MuTColl, vector<M
 				       vector<Jet>& JetColl,  vector<Jet>& BJetColl, Particle& vMET, Event& ev, float weight, TString Label){
   if( !(MuTColl.size()==1 && ElTColl.size()==1) ) return;
   if( !(MuLColl.size()==1 && ElLColl.size()==1) ) return;
-  if(!IsDATA){ if( !(MuTColl.at(0).IsPrompt() && ElTColl.at(0).IsPrompt()) ) return; }
+  //if(!IsDATA){ if( !(MuTColl.at(0).IsPrompt() && ElTColl.at(0).IsPrompt()) ) return; }
+
+  if(!IsDATA){
+    if(RunPrompt){
+      if( !(MuTColl.at(0).IsPrompt() && ElTColl.at(0).IsPrompt()) ) return;
+    }
+    if(RunConv){
+      if( !(MuTColl.at(0).IsConv() || ElTColl.at(0).IsConv()) ) return;
+    }
+  }
+
   if( MuTColl.at(0).Pt()<(DataYear!=2017? 26:29) ) return;
-  if( MuTColl.at(0).Charge()==ElTColl.at(0).Charge() ) return;
+
+  if(RunFake){
+    if( MuTColl.at(0).Charge() != ElTColl.at(0).Charge() ) return;
+  }
+  else{
+    if( MuTColl.at(0).Charge() == ElTColl.at(0).Charge() ) return;
+  }
+
   if( MuTColl.at(0).DeltaR(ElTColl.at(0))<0.4 ) return;
+
   if( !(JetColl.size()>1 && BJetColl.size()>0) ) return;
 
   const int NPtBinEdges1=11, NPtBinEdges2=11, NfEtaBinEdges=4;
@@ -372,7 +418,7 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_ElLeg(vector<Muon>& MuTColl, vector<M
 
   double fEtaBinEdges[NfEtaBinEdges]={0., 0.8, 1.479, 2.5};
   double PTEle   = ElTColl.at(0).Pt();
-  double fEtaEle = fabs(ElTColl.at(0).Eta());
+  double fEtaEle = fabs(ElTColl.at(0).scEta());
 
   bool PassLeg1=false, PassLeg2=false, PassTagHLT = false;
   for(unsigned int it=0; it<TrigList_SglMu.size(); it++){ if(MuTColl.at(0).PassPath(TrigList_SglMu.at(it))){ PassTagHLT=true; break; } }
@@ -381,6 +427,10 @@ void HNL_TriggerEfficiency::MeasEffEMuTrig_ElLeg(vector<Muon>& MuTColl, vector<M
     "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter";
   PassLeg1 = ElTColl.at(0).PassFilter(TestFilter1), PassLeg2 = ElTColl.at(0).PassFilter(TestFilter2);
   if(!PassTagHLT) return;
+
+  FillHist("KinVar/Electron_Pt", PTEle, weight, 2000, 0., 2000.);
+  FillHist("KinVar/Electron_Eta", ElTColl.at(0).scEta(), weight, 60, -3., 3.);
+  FillHist("KinVar/MET", vMET.Pt(), weight, 2000, 0., 2000.);
 
   FillHist("NEle1_AllEta_Pt_1D", PTEle, weight, NPtBinEdges1-1, PtBinEdges1);
   FillHist("NEle1_3EtaBin_PtEta_2D", PTEle, fEtaEle, weight, NPtBinEdges1-1, PtBinEdges1, NfEtaBinEdges-1, fEtaBinEdges);

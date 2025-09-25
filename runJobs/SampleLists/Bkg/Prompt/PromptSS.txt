@@ -1,4 +1,4 @@
-WZTo3LNu_mllmin4p0_powheg
+WZTo3LNu_amcatnlo
 WZ_EWK
 WWTo2L2Nu_DS
 WWW
