@@ -68,6 +68,7 @@ TString HNL_LeptonCore::GetPDFUncertainty(int weightIndex, double& ev_weight) {
     return "";
   }
 
+/*
   float NormNom = h_SumW_Scale->GetBinContent(1);
 
   // Check if weightIndex is within the bounds of weight_PDF
@@ -89,6 +90,10 @@ TString HNL_LeptonCore::GetPDFUncertainty(int weightIndex, double& ev_weight) {
 
     return "_Syst_PDF" + TString::Itoa(weightIndex, 10);
   }
+*/ // JH: old script; delete after some period; @250926
+
+  return "_Syst_PDF" + TString::Itoa(weightIndex, 10);
+
 
   // Default case when weightIndex is out of range
   ev_weight = 1;
