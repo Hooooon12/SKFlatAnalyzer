@@ -809,7 +809,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
     double maxDiJetDeta=fabs(jets[0].Eta() - jets[1].Eta());
     double Av_JetEta= 0.5*(jets[0].Eta()+ jets[1].Eta());
     double zeppenfeld = CalulateMaxZeppenfeld(leps, Av_JetEta,maxDiJetDeta);
-    FillHist( plot_dir+ region+ "/VBF/Lead_zeppenfeld", zeppenfeld  , w, 100, 0.0, 2.0, "zeppenfeld");
+    FillHist( plot_dir+ region+ "/VBF/Lead_zeppenfeld", zeppenfeld  , w, 200, 0.0, 10.0, "zeppenfeld");
   }
   
   if(jets.size()>1){
@@ -831,7 +831,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
   double MET2ST = GetMET2ST(leps, jets, fatjets, met);
   FillHist( plot_dir+ region+ "/SKEvent/Ev_MET2ST", MET2ST  , w, 25, 0, 25,"MET^{2}/S_{T} GeV");
 
-  FillHist( plot_dir+ region+ "/SKEvent/MET", met.Pt()  , w, 100, 0, 100,"MET GeV"); //JH
+  FillHist( plot_dir+ region+ "/SKEvent/Ev_MET", met.Pt()  , w, 100, 0, 100,"MET GeV"); //JH
 
   //double ST = GetST(leps, jets, fatjets, met);
   //

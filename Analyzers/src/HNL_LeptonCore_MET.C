@@ -27,10 +27,10 @@ Particle HNL_LeptonCore::GetvCorrMET(const TString& METType, const std::vector<M
       //// Same Selection as Type-1 MET correction
       bool overlap_mu(false);
       for(auto imu : loose_muons) {
-	if(imu.DeltaR(ij) < 0.4) {
-	  overlap_mu=true;
-	  break;
-	}
+        if(imu.DeltaR(ij) < 0.4) {
+          overlap_mu=true;
+          break;
+        }
       }
       if(overlap_mu) continue;
       double jetEMFrac = ij.ChargedEmEnergyFraction() + ij.NeutralEmEnergyFraction();
@@ -40,7 +40,7 @@ Particle HNL_LeptonCore::GetvCorrMET(const TString& METType, const std::vector<M
       
       bool overlap_ak8(false);
       for(auto ifatjet : FatJets) {
-	if(ij.Pt() < 200.) continue;
+        if(ij.Pt() < 200.) continue;
         if(ifatjet.DeltaR(ij) < 0.8) {
           overlap_ak8=true;
           break;
@@ -113,7 +113,7 @@ Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter& para
 
 
 Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter param, 
-				 const std::vector<Muon>& muons, const std::vector<Electron>& electrons, bool propsmear ){
+         const std::vector<Muon>& muons, const std::vector<Electron>& electrons, bool propsmear ){
 
 
   ////// This function is used to get MET both central and systematic                                                                                                                                                                                                                                                         
@@ -169,15 +169,15 @@ Particle HNL_LeptonCore::GetvMET(const TString& METType, AnalyzerParameter param
 
     if(UsePuppi) {
       if(isfinite(PuppiMET_Type1_pt_shifts->at(IdxSyst))){
-	if(HasFlag("ScanSystematicMET")){
-	  if(IdxSyst == 10) cout <<" Uncluster Up PuppiMET_Type1_pt = " << PuppiMET_Type1_pt << " PuppiMET_Type1_pt_shifts->at(IdxSyst) = " << PuppiMET_Type1_pt_shifts->at(IdxSyst) << endl;
-	  else cout <<" Uncluster Down PuppiMET_Type1_pt = " << PuppiMET_Type1_pt << " PuppiMET_Type1_pt_shifts->at(IdxSyst) = " << PuppiMET_Type1_pt_shifts->at(IdxSyst) << endl;
+  if(HasFlag("ScanSystematicMET")){
+    if(IdxSyst == 10) cout <<" Uncluster Up PuppiMET_Type1_pt = " << PuppiMET_Type1_pt << " PuppiMET_Type1_pt_shifts->at(IdxSyst) = " << PuppiMET_Type1_pt_shifts->at(IdxSyst) << endl;
+    else cout <<" Uncluster Down PuppiMET_Type1_pt = " << PuppiMET_Type1_pt << " PuppiMET_Type1_pt_shifts->at(IdxSyst) = " << PuppiMET_Type1_pt_shifts->at(IdxSyst) << endl;
 
-	  if(IdxSyst == 10) cout <<" Uncluster Up pfMET_Type1_pt = " << pfMET_Type1_pt << " pfMET_Type1_pt_shifts->at(IdxSyst) = " << pfMET_Type1_pt_shifts->at(IdxSyst) << endl;
+    if(IdxSyst == 10) cout <<" Uncluster Up pfMET_Type1_pt = " << pfMET_Type1_pt << " pfMET_Type1_pt_shifts->at(IdxSyst) = " << pfMET_Type1_pt_shifts->at(IdxSyst) << endl;
           else cout <<" Uncluster Down pfMET_Type1_pt = " << pfMET_Type1_pt << " pfMET_Type1_pt_shifts->at(IdxSyst) = " << pfMET_Type1_pt_shifts->at(IdxSyst) << endl;
-	  
+    
 
-	}
+  }
         vMETFinal = UpdateMETSyst(PuppiMET_Type1_pt, PuppiMET_Type1_phi, PuppiMET_Type1_pt_shifts->at(IdxSyst),PuppiMET_Type1_phi_shifts->at(IdxSyst), vMETCorr);
       }
     }

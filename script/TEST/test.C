@@ -210,6 +210,10 @@ void test(TString era, bool isdata, TString sample, TString skim, TString flag){
   }
   else if(era=="2018" && !isdata && sample=="Weinberg_EE"){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/SSWWjj_DIM5_WeinbergOpt_EE/250729_124410/0000/SKFlatNtuple_2018_MC_1.root")) exit(EIO);
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/SSWWjj_DIM5_WeinbergOpt_EE/250729_124410/0000/SKFlatNtuple_2018_MC_2.root")) exit(EIO);
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/SSWWjj_DIM5_WeinbergOpt_EE/250729_124410/0000/SKFlatNtuple_2018_MC_3.root")) exit(EIO);
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/SSWWjj_DIM5_WeinbergOpt_EE/250729_124410/0000/SKFlatNtuple_2018_MC_4.root")) exit(EIO);
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/SSWWjj_DIM5_WeinbergOpt_EE/250729_124410/0000/SKFlatNtuple_2018_MC_5.root")) exit(EIO);
   }
   if(flag.Length()>0) m.SetOutfilePath("hists_"+era+"_"+sample+flagOutname+".root");
   else m.SetOutfilePath("hists_"+era+"_"+sample+".root");
