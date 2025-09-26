@@ -1879,9 +1879,12 @@ bool HNL_RegionDefinitions::FillZZCRPlots(HNL_LeptonCore::Channel channel, std::
 
   Fill_RegionPlots(param,"HNL_ZZ_FourLepton_CR", taus ,  JetColl,  AK8_JetColl,  leps,  METv, nPV, w);
   double weight_orig_kfactor = 1.;
+  double weight_zzpt_kfactor = 1.;
   if(MCSample.Contains("ZZTo4L_powheg")) weight_orig_kfactor =  1.16/ZZKfactor("ZZMass");
+  if(MCSample.Contains("ZZTo4L_powheg")) weight_zzpt_kfactor =  ZZKfactor("ZZPt")/ZZKfactor("ZZMass");
 
   if(User("jalmond"))Fill_RegionPlots(param,"HNL_ZZ_OrigKF_FourLepton_CR", taus ,  JetColl,  AK8_JetColl,  leps,  METv, nPV, w*weight_orig_kfactor);
+  if(User("jalmond"))Fill_RegionPlots(param,"HNL_ZZ_ZZPtKF_FourLepton_CR", taus ,  JetColl,  AK8_JetColl,  leps,  METv, nPV, w*weight_zzpt_kfactor);
 
   
   OutCutFlow("HNL_ZZ_FourLepton_CR",w);

@@ -139,10 +139,11 @@ public:
   bool k_debug;
 
 
-  //==== Print four vector
-  virtual void Print();
-
+  virtual void  Print() const;
   
+  // Streamer
+  friend std::ostream& operator<<(std::ostream& os, const Particle& p);
+
 
 private:
   double j_Charge;

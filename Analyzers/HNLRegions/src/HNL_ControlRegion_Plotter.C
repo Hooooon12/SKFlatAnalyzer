@@ -2,12 +2,13 @@
 
 void HNL_ControlRegion_Plotter::initializeAnalyzer(){
 
-  HNL_LeptonCore::initializeAnalyzer();
   
   /// Select BDT versions to plot                                                                                                       
-  BDTVersions_to_run ={"V3","V4"};
+  if(HasFlag("AllBDTVersions"))BDTVersions_to_run ={"V2","V3","V4"};
+  else BDTVersions_to_run ={"V3"};
 
 
+  HNL_LeptonCore::initializeAnalyzer(BDTVersions_to_run);
   if(IsDATA){
     bool run_ee_bdt=false;  bool run_mm_bdt=false;  bool run_em_bdt=false;
 
@@ -122,6 +123,15 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param_cr, ve
   /// SetupWeight applies w_GenNorm=1., w_BR=1., w_PU  w_Pref  
   double weight =SetupWeight(ev,param_cr);
 
+  if(HasFlag("ApplySRSF")){
+    if(MCSample == "WZTo3LNu_amcatnlo"){
+      if(DataEra == "2016preVFP") weight *= 0.83822;
+      if(DataEra == "2016postVFP") weight *=  0.90653;
+      if(DataEra == "2017") weight *= 0.92787;
+      if(DataEra == "2018") weight *= 0.89930;
+    }
+  }
+  
   std::vector<Electron>   ElectronVetoColl = GetElectrons(param_cr.Electron_Veto_ID, 10.,  2.5);
   std::vector<Muon>       MuonVetoColl     = GetMuons    (param_cr.Muon_Veto_ID,     5.,  2.4);
 
@@ -158,6 +168,7 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param_cr, ve
   if(RunCF) RunEl =  {0,1} ;
   else RunEl = {-1};
 
+   
 
   ///// Scan Tau ID                                              
 

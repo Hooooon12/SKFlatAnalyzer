@@ -2,7 +2,7 @@
 
 void SkimTree_HNMultiLep::initializeAnalyzer(){
 
-  HNL_LeptonCore::initializeAnalyzer(false,false);
+  HNL_LeptonCore::initializeAnalyzer({},false,false);
 
   outfile->cd();
   cout << "[SkimTree_HNMultiLep::initializeAnalyzer()] gDirectory = " << gDirectory->GetName() << endl;

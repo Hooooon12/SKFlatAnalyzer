@@ -402,130 +402,94 @@ void AnalyzerCore::DeleteHistMaps(){
 
 
 
-
-void AnalyzerCore::WriteHist(){
-
+void AnalyzerCore::WriteHist() {
+  // Set max compression
+  outfile->SetCompressionLevel(9);
   outfile->cd();
 
   WriteProfile();
 
-  for(std::map< TString, TH1D* >::iterator mapit = maphist_TH1D.begin(); mapit!=maphist_TH1D.end(); mapit++){
-    TString this_fullname=mapit->second->GetName();
-    TString this_name=this_fullname(this_fullname.Last('/')+1,this_fullname.Length());
-    TString this_suffix=this_fullname(0,this_fullname.Last('/'));
-    TDirectory *dir = outfile->GetDirectory(this_suffix);
-    if(!dir){
-      outfile->mkdir(this_suffix);
+  // Determine if in memory-saving mode
+  bool doOptimize = HasFlag("RunSyst");
+
+  // Lambda to write THxD maps (TH1D/TH2D/TH3D)
+  auto write_hist_map = [&](auto& hist_map) {
+    for (auto& [fullpath, hist] : hist_map) {
+      if (doOptimize) {
+        if (hist->GetEntries() == 0 || hist->GetSumOfWeights() == 0) continue;
+      }
+
+      TString name = hist->GetName();
+      TString hist_name = name(name.Last('/') + 1, name.Length());
+      TString dir_path  = name(0, name.Last('/'));
+
+      TDirectory* dir = outfile->GetDirectory(dir_path);
+      if (!dir) dir = outfile->mkdir(dir_path);
+      outfile->cd(dir_path);
+
+      hist->SetName(hist_name);
+      hist->Write();
     }
-    outfile->cd(this_suffix);
-    mapit->second->Write(this_name);
     outfile->cd();
-  }
-  for(std::map< TString, TH2D* >::iterator mapit = maphist_TH2D.begin(); mapit!=maphist_TH2D.end(); mapit++){
-    TString this_fullname=mapit->second->GetName();
-    TString this_name=this_fullname(this_fullname.Last('/')+1,this_fullname.Length());
-    TString this_suffix=this_fullname(0,this_fullname.Last('/'));
-    TDirectory *dir = outfile->GetDirectory(this_suffix);
-    if(!dir){
-      //cout << "Making outdir  " << this_suffix << endl;
-      outfile->mkdir(this_suffix);
+  };
+
+  // TH1D, TH2D, TH3D
+  write_hist_map(maphist_TH1D);
+  write_hist_map(maphist_TH2D);
+  write_hist_map(maphist_TH3D);
+
+  // JS maps
+  auto write_js_map = [&](auto& js_map) {
+    for (auto& [dir_path, hist_map] : js_map) {
+      TDirectory* dir = outfile->GetDirectory(dir_path);
+      if (!dir) dir = outfile->mkdir(dir_path);
+      outfile->cd(dir_path);
+
+      for (auto& [_, hist] : hist_map) {
+        if (doOptimize) {
+          if (hist->GetEntries() == 0 || hist->GetSumOfWeights() == 0) continue;
+        }
+
+        hist->Write();
+      }
+
+      outfile->cd();
     }
-    outfile->cd(this_suffix);
-    //cout << "Writing " << this_name << endl;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-    mapit->second->Write(this_name);
-    outfile->cd();
-  }
-  for(std::map< TString, TH3D* >::iterator mapit = maphist_TH3D.begin(); mapit!=maphist_TH3D.end(); mapit++){
-    TString this_fullname=mapit->second->GetName();
-    TString this_name=this_fullname(this_fullname.Last('/')+1,this_fullname.Length());
-    TString this_suffix=this_fullname(0,this_fullname.Last('/'));
-    TDirectory *dir = outfile->GetDirectory(this_suffix);
-    if(!dir){
-      outfile->mkdir(this_suffix);
-    }
-    outfile->cd(this_suffix);
-    mapit->second->Write(this_name);
-    outfile->cd();
-  }
+  };
 
-  outfile->cd();
-  for(std::map< TString, std::map<TString, TH1D*> >::iterator mapit=JSmaphist_TH1D.begin(); mapit!=JSmaphist_TH1D.end(); mapit++){
+  write_js_map(JSmaphist_TH1D);
+  write_js_map(JSmaphist_TH2D);
 
-    TString this_suffix = mapit->first;
-    std::map< TString, TH1D* > this_maphist = mapit->second;
-
-
-    TDirectory *dir = outfile->GetDirectory(this_suffix);
-    if(!dir){
-      outfile->mkdir(this_suffix);
-    }
-    outfile->cd(this_suffix);
-
-    for(std::map< TString, TH1D* >::iterator mapit = this_maphist.begin(); mapit!=this_maphist.end(); mapit++){
-      mapit->second->Write();
-    }
-
-    outfile->cd();
-
-  }
-
-  for(std::map< TString, std::map<TString, TH2D*> >::iterator mapit=JSmaphist_TH2D.begin(); mapit!=JSmaphist_TH2D.end(); mapit++){
-
-    TString this_suffix = mapit->first;
-    std::map< TString, TH2D* > this_maphist = mapit->second;
-
-    TDirectory *dir = outfile->GetDirectory(this_suffix);
-    if(!dir){
-      outfile->mkdir(this_suffix);
-    }
-    outfile->cd(this_suffix);
-
-    for(std::map< TString, TH2D* >::iterator mapit = this_maphist.begin(); mapit!=this_maphist.end(); mapit++){
-      mapit->second->Write();
-    }
-
-    outfile->cd();
-
-  }
-
-
-  //=== hist maps       
-  if(TimingMap.size() > 0){
-    auto itr = TimingMap.find("start");
-    double start_time = itr->second;
-
-    for(auto i : TimingMap) {
-      cout << i.first << " processing time = " << (i.second- start_time) / CLOCKS_PER_SEC << endl;
-    }
-  }
-
-
-  if(TimerMap.size() > 1){
-    vector<TString> TimerLabels;
-    for(auto i: TimeTagMatcher) TimerLabels.push_back(i.second);
-    sort(TimerLabels.begin(), TimerLabels.end());
+  //==== Timer Hist ====
+  if (TimerMap.size() > 1) {
+    std::vector<TString> TimerLabels;
+    for (auto& i : TimeTagMatcher) TimerLabels.push_back(i.second);
+    std::sort(TimerLabels.begin(), TimerLabels.end());
 
     TH1* timer_hist = new TH1D("TimeHist", "", TimerLabels.size(), 0, TimerLabels.size());
-    for (unsigned int i=0 ; i < TimerLabels.size(); i++) timer_hist->GetXaxis()->SetBinLabel(i+1,TimerLabels[i]);
-    timer_hist->SetDirectory(NULL);
-    for(auto i : TimerMap) {
-      if(i.first != "LATEST"){
-        cout << i.first << " processing time = " << i.second << endl;
+    for (unsigned int i = 0; i < TimerLabels.size(); i++)
+      timer_hist->GetXaxis()->SetBinLabel(i + 1, TimerLabels[i]);
+
+    timer_hist->SetDirectory(nullptr);
+
+    for (auto& i : TimerMap) {
+      if (i.first != "LATEST") {
+        //std::cout << i.first << " processing time = " << i.second << std::endl;
         timer_hist->Fill(i.first, i.second);
       }
     }
 
-    TDirectory *dir = outfile->GetDirectory("Timer");
-    if(!dir)  outfile->mkdir("Timer");
+    TDirectory* dir = outfile->GetDirectory("Timer");
+    if (!dir) dir = outfile->mkdir("Timer");
     outfile->cd("Timer");
-
     timer_hist->Write();
     outfile->cd();
     delete timer_hist;
   }
-
-
+  
 }
+
+
 
 
 

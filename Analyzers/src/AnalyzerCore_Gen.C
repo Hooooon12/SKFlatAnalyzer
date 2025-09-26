@@ -1,31 +1,59 @@
 #include "AnalyzerCore.h"
 
 
-int AnalyzerCore::GetZZFinalState(){
+int AnalyzerCore::GetZZFinalState( ){
 
   //https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsZZ4l2015#gg_H_ZZ
   // finalState=1 : 4e/4mu/4tau
   // finalState=2 : 2e2mu/2mutau/2e2tau
 
+  int nel_gen_Zdaughter=0;
+  int nmu_gen_Zdaughter=0;
+  int ntau_gen_Zdaughter=0;
+  
+  for(int i=2; i<int(All_Gens.size()); i++){
+    Gen gen = All_Gens.at(i);
+    if(abs(All_Gens.at(gen.MotherIndex()).PID()) == 23) {                                                                                                              
+      if(abs(gen.PID() ) ==11) nel_gen_Zdaughter++;
+      if(abs(gen.PID() ) ==13) nmu_gen_Zdaughter++;
+      if(abs(gen.PID() ) ==15) ntau_gen_Zdaughter++;
+    }
+  }
+  
   int nel_gen=0; 
   int nmu_gen=0;
   int ntau_gen=0;
   for(int i=2; i<int(All_Gens.size()); i++){
     Gen gen = All_Gens.at(i);
-    if(gen.Status()==1){
+    //    if(abs(All_Gens.at(gen.MotherIndex()).PID()) == 23) {
+    if(gen.Status()==1 && abs(All_Gens.at(gen.MotherIndex()).PID()) != 2212 && abs(All_Gens.at(gen.MotherIndex()).PID()) > 6){
+      
       if(abs(gen.PID() ) ==11 && gen.isPromptFinalState() && (abs(All_Gens.at(gen.MotherIndex()).PID()) != 13 ) ) nel_gen++;
       if(abs(gen.PID() ) ==13 && gen.isPromptFinalState()) nmu_gen++;
       if(abs(gen.PID() ) ==15 && gen.isPrompt() && gen.isPromptDecayed()) ntau_gen++;
     }
   }
   
-  if((nel_gen + nmu_gen+ntau_gen) > 4) {
-    cout << "FS  " << nel_gen << " "<< nmu_gen << " " << ntau_gen << endl;
-    PrintGen(All_Gens);                                                                                                                                                                                          
+  int n_lep = nel_gen + nmu_gen + ntau_gen;
+  if(nel_gen ==4 && n_lep==4) return 1;
+  if(nmu_gen ==4 && n_lep==4) return 1;
+  if(ntau_gen ==4 && n_lep==4) return 1;
+
+  if(!HasFlag("OLDZZKFactor")){
+    if(nel_gen_Zdaughter == 4) return 1;
+    if(nmu_gen_Zdaughter == 4) return 1;
+    if(ntau_gen_Zdaughter == 4) return 1;
+    
+    if(nel_gen_Zdaughter == 2 && nmu_gen_Zdaughter==2) return 2;
+  
+  
+    if((nel_gen + nmu_gen+ntau_gen) > 4) {                                                                                                                                   
+      cout << "FS  " << nel_gen << " "<< nmu_gen << " " << ntau_gen << endl;                                                                                                 
+      cout << nel_gen_Zdaughter << " " << nmu_gen_Zdaughter << " " << ntau_gen_Zdaughter << endl;
+      PrintGen(All_Gens);				
+    }
   }
-  if(nel_gen ==4) return 1;
-  if(nmu_gen ==4) return 1;
-  if(ntau_gen ==4) return 1;
+  
   return 2;
 }
 

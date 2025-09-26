@@ -1,4 +1,7 @@
 *~
+data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/log_scan/
+data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/logs_v1/
+data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/logs_v2/
 data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/logs_v0/
 data_validation/analysis_validation/bdt_input/plots_v3_vs_v4/
 data_validation/analysis_validation/bdt_input/Plot_BDT_Shape/plots/

@@ -1,6 +1,6 @@
 #include "HNL_LeptonCore.h"
 
-void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // default : true, true
+void HNL_LeptonCore::initializeAnalyzer(vector<TString> BDTVersions, bool READBKGHISTS, bool SETUPIDBDT){
 
   AnalyzerCore::initializeAnalyzer();
 
@@ -9,7 +9,7 @@ void HNL_LeptonCore::initializeAnalyzer(bool READBKGHISTS, bool SETUPIDBDT){ // 
   map_bins_labels.clear();
   map_bins_boundaries.clear();
   DefineLimitBins();
-  DefineBDTLimitBins();
+  DefineBDTLimitBins(BDTVersions);
 
   /// SETUP BKG OBJ
   mcCorr          = new MCCorrection();

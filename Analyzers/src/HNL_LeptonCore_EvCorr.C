@@ -96,33 +96,53 @@ TString HNL_LeptonCore::GetPDFUncertainty(int weightIndex, double& ev_weight) {
 }
 
 
-double HNL_LeptonCore::GetScaleUncertainty(int sys) {
-  // Return 1 if the sample type is not valid or if weight_Scale is empty
-  if (!IsSignal() || sys == 0 || weight_Scale->empty()) {
+double HNL_LeptonCore::GetScaleUncertainty(int sys, TString tag_debug) {
+  // Basic guards
+  if (!IsSignal() || sys == 0 || !weight_Scale || weight_Scale->empty()) {
     return 1.0;
   }
-
-  // Ensure weight_Scale has enough elements
+  // Expect at least a couple of scale weights; ignore the last two entries as before
   if (weight_Scale->size() < 2) {
     return 1.0;
   }
 
-  if (sys == 1) {
-    double min_var = 0.0;
-    for (size_t weightIndex = 0; weightIndex < weight_Scale->size() - 2; ++weightIndex) {
-      min_var = std::max(min_var, static_cast<double>(weight_Scale->at(weightIndex)));
-    }
-    return min_var;
+  // Scan valid (finite) weights among all entries, but ignore 6th (i=5) and 8th (i=7)
+  const size_t n = weight_Scale->size();
+  double max_w = -std::numeric_limits<double>::infinity();
+  double min_w =  std::numeric_limits<double>::infinity();
+  size_t n_valid = 0;
+  
+  for (size_t i = 0; i < n; ++i) {
+    if (i == 5 || i == 7) continue;  // skip 6th and 8th weight
+    
+    const double w = static_cast<double>(weight_Scale->at(i));
+    if (!std::isfinite(w)) continue;  // skip NaN, +Inf, -Inf
+    
+    ++n_valid;
+    if (w > max_w) max_w = w;
+    if (w < min_w) min_w = w;
+  }
+  
+  // If nothing usable, fall back to neutral
+  if (n_valid == 0) {
+    return 1.0;
   }
 
-  if (sys == -1) {
-    double max_var = 1000.0;
-    for (size_t weightIndex = 0; weightIndex < weight_Scale->size() - 2; ++weightIndex) {
-      max_var = std::min(max_var, static_cast<double>(weight_Scale->at(weightIndex)));
-    }
-    return max_var;
-  }
+  // Note: original logic was effectively "up = max", "down = min"
 
+  if(tag_debug != "") {
+    if(max_w < 0) {
+      cout << "Scale Uncertainty " << sys << "  " << max_w << "  " << min_w <<  " " << tag_debug << endl;
+      for (size_t i = 0; i < n; ++i) {
+	const double w = static_cast<double>(weight_Scale->at(i));
+	cout << "i " << i <<  " w = " << w << endl;
+      }
+    }   
+  }
+  if (sys == 1)  return max_w;
+  if (sys == -1) return min_w;
+
+ 
   return 1.0;
 }
 
@@ -356,6 +376,9 @@ bool HNL_LeptonCore::PassHEMVeto(const std::vector<Lepton*>& leps, double& weigh
 
 
 void HNL_LeptonCore::PassJetHEMVeto(const std::vector<Jet>& jets, const TString& Flag, double& weight_hem) {
+
+  if(HasFlag("RunSyst")) return;
+  
   // Check status of Jets in HEM region
   int nJets_orig = jets.size();
   int nJets_HEMVeto = 0;

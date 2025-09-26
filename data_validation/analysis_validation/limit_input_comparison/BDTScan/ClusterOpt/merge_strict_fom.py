@@ -53,8 +53,8 @@ def compare_limitbins_fom(bkg_file, sig_file, flavours, masses, log):
     log_print("\n[INFO] Comparing summed FOMs from LimitBins histograms (bin-by-bin breakdown):")
     for flav in flavours:
         for mass in masses:
-            for version_tag in ["V3", "V4"]:
-                bkg_path = f"LimitExtractionBDT/HNL_ULIDv2/{flav}_{version_tag}/M{mass}/LimitBins"
+            for version_tag in ["V2","V3","V4"]:
+                bkg_path = f"LimitExtractionBDT/HNL_ULIDv2/{flav}_{version_tag}_StrictBin/M{mass}/LimitBins"
                 sig_path = bkg_path  # same directory for signal and background
 
                 bkg_dir = bkg_file.Get(bkg_path)
@@ -197,13 +197,16 @@ base_dir = '/data6/Users/jalmond/2020/Plotter/HNDiLeptonWorskspace/InputFiles/Me
 eras = [era]#, '2016postVFP', '2017', '2018']
 masses = [mass]#, '200', '300', '400', '500']
 flavours = [flavour]#, 'MuMu', 'EMu']
-versions = ["V3", "V4"]
+versions = ["V2","V3", "V4"]
 os.makedirs("log_scan", exist_ok=True)
 dir_path = select_directory(base_dir)
 
 # mergiung criteria
 n_bin_minbkg=1.0
 n_bin_relerr=0.30
+
+lower_bdt_interval=0.02
+upper_bdt_interval=0.01
 
 # Loop
 for era in eras:
@@ -233,16 +236,16 @@ for era in eras:
                 name = key.GetName()
                 if "Binned" in name or f"M{mass}" not in name:
                     continue
-                version = "V3" if "V3" in name else "V4"
                 hist = hist_dir.Get(name)
                 if not hist or not isinstance(hist, ROOT.TH1):
                     continue
 
+                version = "V3" if "V3" in name else "V4"
                 log_file = f"log_scan/{era}_{flav}_{name}.log"
                 with open(log_file, "w") as log:
                     def log_print(msg): print(msg); log.write(msg + "\n")
                     
-                    log_print(f"[INFO] Processing: {era} {flav} {name} {version}")
+                    log_print(f"[INFO] Processing: {era} {flav} {name}")
                     compare_limitbins_fom(bkg_file, sig_file, [flav], [mass], log)
 
                     sig_hist = None

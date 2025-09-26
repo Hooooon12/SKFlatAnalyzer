@@ -12,6 +12,8 @@
 #pragma link C++ class SumEvents+;
 #pragma link C++ class ExampleRun+;
 #pragma link C++ class SKFlatValidation+;
+#pragma link C++ class SkimTree_SSDilepton+;
+#pragma link C++ class SkimTree_SSDileptonBDT+;
 #pragma link C++ class SkimTree_Dilepton+;
 #pragma link C++ class SkimTree_DileptonBDT+;
 #pragma link C++ class SkimTree_HNMultiLep+;

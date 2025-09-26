@@ -52,8 +52,17 @@ void Particle::SetCharge(double q){
   j_Charge = q;
 }
 
-void Particle::Print(){
-  cout << "(Pt, Eta, Phi, M, Charge) = " << Pt() << "\t" << Eta() << "\t" << Phi() << "\t" << M() << "\t" << Charge() << endl;
+std::ostream& operator<<(std::ostream& os, const Particle& p) {
+  os << "(Pt, Eta, Phi, M, Charge) = "
+     << p.Pt()  << "\t"
+     << p.Eta() << "\t"
+     << p.Phi() << "\t"
+     << p.M()   << "\t"
+     << p.Charge();
+  return os;
 }
 
+void Particle::Print() const {
+  std::cout << *this << std::endl;
+}
 

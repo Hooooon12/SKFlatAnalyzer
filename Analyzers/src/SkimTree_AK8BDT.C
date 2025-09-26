@@ -6,7 +6,7 @@ void SkimTree_AK8BDT::initializeAnalyzer(){
   cout << "[SkimTree_AK8BDT::initializeAnalyzer()] gDirectory = " << gDirectory->GetName() << endl;
   newtree = fChain->CloneTree(0);
 
-  HNL_LeptonCore::initializeAnalyzer(false,true);
+  HNL_LeptonCore::initializeAnalyzer({},false,true);
 
   InitialiseLeptonBDTSKFlat();
 

@@ -1,6 +1,33 @@
 import os
 import argparse
 
+
+import time
+import subprocess
+
+def get_long_running_hadd_processes(min_minutes=20):
+    try:
+        # Get list of 'hadd' processes and their elapsed time in seconds
+        output = subprocess.check_output(
+            "ps -eo etimes,cmd | grep hadd | grep -v grep", shell=True
+        ).decode("utf-8")
+
+        long_hadds = []
+        for line in output.strip().split('\n'):
+            if not line.strip():
+                continue
+            parts = line.strip().split(None, 1)
+            elapsed_seconds = int(parts[0])
+            if elapsed_seconds >= min_minutes * 60:
+                long_hadds.append((elapsed_seconds, parts[1]))
+        return long_hadds
+
+    except subprocess.CalledProcessError:
+        return []
+
+
+    
+
 # Define paths using environment variable
 base_path = os.getenv("SKFlat_WD")
 sigpath = os.path.join(base_path, "runJobs/SampleLists/Signals/")
@@ -219,7 +246,7 @@ if args.RunData:
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/{DATADir}/{era}_DiLepton_EMu.txt  -n 100 --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunData', flags)} &")
     exit()
 
-if args.Central or args.Systematics:
+if args.Central:
 
     ### DATA JOBS NOT CODED YET SINCE BLINDED
 
@@ -239,13 +266,61 @@ if args.Central or args.Systematics:
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/{DATADir}/{era}_DiLepton_EMu.txt  -n 100 --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunFake', flags)} &")
 
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Prompt/PromptSS.txt  -n 50  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunPrompt', flags)} &")
-        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Prompt/PromptSS2.txt -n 200 --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunPrompt', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Prompt/PromptSS2.txt -n 200 --nmax {nmax} -e {era} --skim SkimTree_SSDileptonBDT {FlagCommand('RunPrompt', flags)} &")
 
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Conv/Conv.txt   -n 50 --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunConv', flags)} &")
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Conv/ConvWG.txt -n 50 --nmax {nmax} -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunConv', flags)} &")
 
         RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/{DATADir}/{era}_DiLepton_EE.txt -n 200 --nmax {nmax} -e {era} --skim SkimTree_DileptonBDT {FlagCommand('RunCF', flags)} &")
 
+
+if args.Systematics:
+
+    ### DATA JOBS NOT CODED YET SINCE BLINDED                                                                                                                                                  
+
+    for era in era_list:
+        DATADir = "DL"
+        if UseGT36 and era == "2018":
+            DATADir = "DL_GT36"
+
+        # Running background and fake data commands                                                                                                                                            
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW.txt -n 20    --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt   -n 20    --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt  -n 20    --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/Weinberg.txt  -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/{DATADir}/{era}_DiLepton_MuMu.txt -n 20 --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunFake', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/{DATADir}/{era}_DiLepton_EE.txt   -n 20 --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunFake', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/{DATADir}/{era}_DiLepton_EMu.txt  -n 20 --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunFake', flags)} &")
+        
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Prompt/PromptSS.txt  -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunPrompt', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Prompt/PromptSS2.txt -n 40 --nmax {nmax} -e {era} --skim SkimTree_SSDileptonBDT {FlagCommand('RunPrompt', flags)} &")
+
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Conv/Conv.txt   -n 20 --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunConv', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {mcpath}/Conv/ConvWG.txt -n 20 --nmax {nmax} -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunConv', flags)} &")
+
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {datapath}/{DATADir}/{era}_DiLepton_EE.txt -n 100 --nmax {nmax} -e {era} --skim SkimTree_DileptonBDT {FlagCommand('RunCF', flags)} &")
+        # -- Wait + Monitor 'hadd' after job submission for this era --
+        if not TestMode:
+            print(f"\n[INFO] Waiting 1 hour after launching all jobs for era {era}...\n")
+            time.sleep(7200)  # Wait 1 hour before monitoring
+
+            while True:
+                long_hadds = get_long_running_hadd_processes(min_minutes=20)
+                if not long_hadds:
+                    print(f"[INFO] No long-running hadd jobs. Proceeding to next era: {era}\n")
+                    break
+                else:
+                    print(f"[INFO] Found {len(long_hadds)} hadd job(s) running > 20 min:")
+                    for elapsed, cmd in long_hadds:
+                        mins = elapsed // 60
+                        print(f"    {mins:>3} min - {cmd}")
+                    print(f"[INFO] Sleeping 10 more minutes before rechecking...\n")
+                    time.sleep(600)  # Wait another 10 minutes
+        else:
+            print(f"[TEST MODE] Skipping wait/monitor block for era {era}")
+        
+        
 if args.Cutflow:
     nmax = 750
     flags = []

@@ -457,7 +457,7 @@ def main():
         ["Leptons/Lep_2_pt","Lepton_pt",[2],0,100],
         ["Standard/M_ll","Lepton mass",[2],0,400],
         ["MainPlots/HT_PT1","Lepton mass",[1],0,10],
-        ["VBF/Lead_MJJ","MJJ",[1],0,2000],
+        ["VBF/Lead_MJJ","MJJ",[1],0,3000],
         ["VBF/MaxDEtaJets_MJJ","MJJ",[1],0,2000],
         ["VBF/Lead_zeppenfeld","Z",[5],0,2],
         ["VBF/MaxDEta_Jets_zeppenfeld","Z",[5],0,2]

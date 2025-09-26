@@ -11,7 +11,7 @@ ls -l
 
 echo "[INFO] Running scan for MASS=${MASS}, FLAV=${FLAV}, ERA=${ERA}, NBIN=${NBIN}"
 
-/usr/bin/env python3 scan_sr1_fast.py \
+/usr/bin/env python3 scan_sr1_memory.py \
   --mass ${MASS} \
   --flavour ${FLAV} \
   --era ${ERA} \

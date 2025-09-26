@@ -87,6 +87,15 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter& param, TString  region, TS
     for (auto& ilep : leps) {
       FillHist(plot_dir + region + "/AK8Jet_dR_" + ilep->GetFlavour(), fatjet.DeltaR(*ilep), w, 50, 0.0, 10.0, "#DeltaR (WAK8," + ilep->GetFlavour() + ")");
     }
+
+    FillHist(plot_dir + region + "/AK8Jet_dR_lep1" , fatjet.DeltaR(*leps[0]), w, 50, 0.0, 10.0, "#DeltaR (WAK8,lep1)");
+    FillHist(plot_dir + region + "/AK8Jet_dR_lep2" , fatjet.DeltaR(*leps[1]), w, 50, 0.0, 10.0, "#DeltaR (WAK8,lep2)");
+    
+    double J_l1_dphi = fabs(TVector2::Phi_mpi_pi( ( (*leps[0]).Phi() - (fatjet).Phi() )) );
+    double J_l2_dphi = fabs(TVector2::Phi_mpi_pi( ( (*leps[1]).Phi() - (fatjet).Phi() )) );
+    FillHist(plot_dir + region + "/AK8Jet_dPhi_lep1", J_l1_dphi , w, 50, -5.5, 100, "");
+    FillHist(plot_dir + region + "/AK8Jet_dPhi_lep2", J_l2_dphi , w, 50, -5.5, 100, "");
+    
     
     // Additional Histograms for FatJets
     FillHist(plot_dir + region + "/AK8J_SDMass", fatjet.SDMass(), w, 100, 0.0, 500.0, "Mass_{softdrop} GeV");
@@ -511,7 +520,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
     
     
   }
-  if(false){
+  if(HasFlag("PlotZZ")){
     Particle ZZ;
 
     vector<int> MotherPID;
@@ -658,6 +667,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
   FillHist( plot_dir+ region+ "/DeltaEta/dEta_lep1_lep2", ll_deta  , w, 200, -5.0, 5.0, "#Delta #Phi(l1,l2)") ;
   FillHist( plot_dir+ region+"/DeltaR/dR_ll", leps[0]->DeltaR(*leps[1] ) ,w, 100,  0.0, 10,"#DeltaR(l,l)");
   
+  FillHist( plot_dir+ region+ "/Leptons/Lep_r_pt",  leps[1]->Pt()/leps[0]->Pt()  ,  w, 200, 0, 1,"l_{1} p_{T} GeV");
   FillHist( plot_dir+ region+ "/Leptons/Lep_1_pt",  leps[0]->Pt()  ,  w, 200, 0, 2000,"l_{1} p_{T} GeV");
   FillHist( plot_dir+ region+ "/Leptons/Lep_2_pt",  leps[1]->Pt()  ,  w, 200, 0, 1000,"1_{2} p_{T} GeV");
   FillHist( plot_dir+ region+ "/Leptons/Lep_1_eta", leps[0]->Eta()  , w, 60, -3.0, 3,"l_{1} #eta");
@@ -705,7 +715,6 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
     FillHist( plot_dir+ region+ "/Leptons/Lep_4_pt", leps[3]->PtMaxed(1000.)  , w, 1000, 0., 1000.,"l_{4} p_{T} GeV");
     FillHist( plot_dir+ region+ "/Leptons/Lep_4_eta", leps[3]->Eta()  , w, 60, -3., 3.,"l_{4} #eta");
     FillHist( plot_dir+ region+ "/Leptons/Lep_4_phi", leps[3]->Phi()  , w, 200, -10, 10.,"l_{4} #phi");
-
   }
   
   //// Jet plots                                                                                                                                                                                                  
@@ -780,7 +789,8 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
 
     FillHist( plot_dir+ region+ "/VBF/MaxDEta_jet1_jet2", maxDiJetDeta  , w, 200, 0.0, 10.0, "Max DEta");
     Particle JJMEta = jets[ijet1] + jets[ijet2];
-    FillHist( plot_dir+ region+ "/VBF/MaxDEtaJets_MJJ",JJMEta.M()   , w, nVBFMJJbins, MJJbins, "MaxDEta MJJ");
+    //FillHist( plot_dir+ region+ "/VBF/MaxDEtaJets_MJJ",JJMEta.M()   , w, nVBFMJJbins, MJJbins, "MaxDEta MJJ");
+    FillHist( plot_dir+ region+ "/VBF/MaxDEtaJets_MJJ",JJMEta.M()   , w, 15, 0, 3000, "MaxDEta MJJ");
     double Av_JetEta= 0.5*(jets[ijet1].Eta()+ jets[ijet2].Eta());
     
     double zeppenfeld = CalulateMaxZeppenfeld(leps, Av_JetEta,maxDiJetDeta);
@@ -792,7 +802,10 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
     double MJJbins[nVBFMJJbins+1] = {0,300, 500,750,1200,1700,3000};
     
     Particle JJLead = jets[0] + jets[1];
-    FillHist( plot_dir+ region+ "/VBF/Lead_MJJ",JJLead.M()   , w, nVBFMJJbins, MJJbins, "Lead MJJ");
+    double deta = fabs(jets[0].Eta() - jets[1].Eta());
+    //FillHist( plot_dir+ region+ "/VBF/Lead_MJJ",JJLead.M()   , w, nVBFMJJbins, MJJbins, "Lead MJJ");
+    FillHist( plot_dir+ region+ "/VBF/Lead_MJJ",JJLead.M()   , w, 15, 0, 3000, "Lead MJJ");
+    FillHist( plot_dir+ region+ "/VBF/Lead_DEta", deta  , w, 200, 0.0, 10.0, "DEta JJ");
     double maxDiJetDeta=fabs(jets[0].Eta() - jets[1].Eta());
     double Av_JetEta= 0.5*(jets[0].Eta()+ jets[1].Eta());
     double zeppenfeld = CalulateMaxZeppenfeld(leps, Av_JetEta,maxDiJetDeta);
@@ -807,7 +820,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
   }
   
   //// Now draw detailed plots using flag
-  if(!HasFlag("Plots")) return;
+  //if(!HasFlag("Plots")) return;
   
   double HT = GetHT(jets, fatjets);
   FillHist( plot_dir+ region+ "/SKEvent/Ev_HT", HT  , w, 200, 0.0, 2000.0,"H_{T} GeV");
@@ -815,21 +828,26 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
   FillHist( plot_dir+ region+ "/SKEvent/nPV",  nvtx , w, 120, 0.0, 120.);
   FillHist( plot_dir+ region+ "/SKEvent/nPileUp",  nPileUp, w, 120, 0.0, 120.);
 
-  double ST = GetST(leps, jets, fatjets, met);
-  
-  FillHist( plot_dir+ region+ "/SKEvent/Ev_ST", ST  , w, 250, 0.0, 5000.0,"ST GeV");
+  double MET2ST = GetMET2ST(leps, jets, fatjets, met);
+  FillHist( plot_dir+ region+ "/SKEvent/Ev_MET2ST", MET2ST  , w, 25, 0, 25,"MET^{2}/S_{T} GeV");
 
-  Particle METv           = GetMiniAODvMET("T1xyCorr");
-  Particle PuppiMETvULPhiCorr = GetMiniAODvMET("PuppiT1xyULCorr");
+  FillHist( plot_dir+ region+ "/SKEvent/MET", met.Pt()  , w, 100, 0, 100,"MET GeV"); //JH
 
-  FillHist( plot_dir+ region+ "/SKEvent/Ev_PuppiMET_T1ULxyCorr", PuppiMETvULPhiCorr.Pt()  , w, 200, 0.0, 400.0,"MET GeV");
-  FillHist( plot_dir+ region+ "/SKEvent/Ev_pfMETphi_T1xyCorr", METv.Phi()  , w, 200, -5.0, 5.0,"MET #phi");
+  //double ST = GetST(leps, jets, fatjets, met);
+  //
+  //FillHist( plot_dir+ region+ "/SKEvent/Ev_ST", ST  , w, 250, 0.0, 5000.0,"ST GeV");
 
-  
-  FillHist( plot_dir+ region+ "/SKEvent/Mt_lep2", MT(*leps[1] ,met)  , w, 200, 0.0, 400.0,"MT GeV");
-  if(threelep) {
-    if(GetIndexNonBestZ(leps,M_ZWINDOW)> 0 )FillHist( plot_dir+ region+ "/SKEvent/Mt_nonZLep", MT(*leps[GetIndexNonBestZ(leps,M_ZWINDOW)], met) , w, 200, 0.0, 800.0,"M(T) non Z GeV");
-  }
+  //Particle METv           = GetMiniAODvMET("T1xyCorr");
+  //Particle PuppiMETvULPhiCorr = GetMiniAODvMET("PuppiT1xyULCorr");
+
+  //FillHist( plot_dir+ region+ "/SKEvent/Ev_PuppiMET_T1ULxyCorr", PuppiMETvULPhiCorr.Pt()  , w, 200, 0.0, 400.0,"MET GeV");
+  //FillHist( plot_dir+ region+ "/SKEvent/Ev_pfMETphi_T1xyCorr", METv.Phi()  , w, 200, -5.0, 5.0,"MET #phi");
+
+  //
+  //FillHist( plot_dir+ region+ "/SKEvent/Mt_lep2", MT(*leps[1] ,met)  , w, 200, 0.0, 400.0,"MT GeV");
+  //if(threelep) {
+  //  if(GetIndexNonBestZ(leps,M_ZWINDOW)> 0 )FillHist( plot_dir+ region+ "/SKEvent/Mt_nonZLep", MT(*leps[GetIndexNonBestZ(leps,M_ZWINDOW)], met) , w, 200, 0.0, 800.0,"M(T) non Z GeV");
+  //} //JH
 
   return;
 }

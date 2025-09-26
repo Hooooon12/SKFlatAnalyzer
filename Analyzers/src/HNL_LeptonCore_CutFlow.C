@@ -3,6 +3,8 @@
 
 void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histname, double weight, vector<TString> bin_lables, TString fill_label){
 
+  if(HasFlag("RunSyst")) return;
+  
 
   // Check if the last character is a '/'
   if (cutflow_dirname[cutflow_dirname.Length() - 1] == '/') {
@@ -192,6 +194,10 @@ void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histn
 
 void HNL_LeptonCore::FillCutflowDef(TString cutflow_dirname,TString cutflow_histname, double weight, vector<TString> bin_lables, TString fill_label){
 
+  if(HasFlag("RunSyst")) {
+    if (!cutflow_dirname.Contains("LimitExtraction"))    return;
+  }
+
 
   // Check if the directory name ends with a '/'
 
@@ -269,10 +275,13 @@ void HNL_LeptonCore::FillCutflow(AnalyzerParameter param,TString histname, doubl
 void HNL_LeptonCore::FillLimitInput(HNL_LeptonCore::SearchRegion sr, double event_weight, TString label,  TString hist_path,TString bin_key, TString channel){
 
   vector<TString> lables = GetLimitLabelsFromRegion(sr,bin_key,channel);
-
+  //cout << "bin_key = " << bin_key << " lables size = " << lables.size() << endl;
   TString histname = GetCutFlowNameFromRegion(sr);
 
   FillCutflowDef(hist_path,   histname, event_weight,lables, label);
+
+  if(HasFlag("RunSyst")) return;
+  
   FillCutflow2D (hist_path+"_2D",   histname, event_weight,lables, label);
   
   TString hist_pathLL = hist_path;
@@ -280,7 +289,6 @@ void HNL_LeptonCore::FillLimitInput(HNL_LeptonCore::SearchRegion sr, double even
   hist_pathLL=hist_pathLL.ReplaceAll("MuMu","LL");
   hist_pathLL=hist_pathLL.ReplaceAll("EMu","LL");
   FillCutflowDef(hist_pathLL,   histname, event_weight,lables, label);
-
 
   /// Fill SingleBinned                                                                                                                                                                                           
   vector<HNL_LeptonCore::SearchRegion> SingleBinned = {MuonCR1,        MuonCR2,        MuonCR3,        MuonCR3BDT, 
@@ -530,8 +538,7 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
 vector<TString>  HNL_LeptonCore::GetLimitLabelsFromRegion(HNL_LeptonCore::SearchRegion sr, TString bin_key, TString channel){
 
   if(sr==MuonSR1    || sr==ElectronSR1   || sr==ElectronMuonSR1)      {
-    if(bin_key == "SR1_PlotVersion")    return GetLimitLabels("SR1_PlotVersion",channel);
-    else   return GetLimitLabels("SR1",channel);
+    return GetLimitLabels("SR1",channel);
   }
   if(sr==MuonSR2    || sr==ElectronSR2   || sr==ElectronMuonSR2)      return GetLimitLabels("SR2");
   if(sr==MuonSR3    || sr==ElectronSR3   || sr==ElectronMuonSR3)      return GetLimitLabels("SR3",channel);

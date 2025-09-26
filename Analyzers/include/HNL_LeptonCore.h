@@ -171,12 +171,14 @@ class HNL_LeptonCore : public AnalyzerCore {
 
   AnalyzerParameter DefaultParam(const TString& s_setup_version, const TString& channel_st);
 
+  const vector<double>& choose_bins(const map<TString, vector<double>>& per_mass, TString mass);
+  
   /// Limit Binning setup
   double GetLimitBin(const TString& region, const std::vector<Lepton*>& leps, const std::vector<Jet>& AK4Jets, 
 		     const std::vector<FatJet>& AK8_JetColl, const Event& ev, double& nbins_reg);
 
   std::vector<TString> GetLimitLabels(const TString& SR, const TString& channel = "");
-  std::vector<double> GetLimitBinBoundary(const TString& SR, const TString& channel = "");
+  std::vector<double> GetLimitBinBoundary(const TString& SR, TString mass_ref, const TString& channel = "");
   std::vector<TString> GetBDTLimitLabels(const TString& key);
   TString GetSR3StringBin(const TString& RegionTag, const TString& channel, bool LowJet, double met2_st, double LT, double ll_dphi);
 
@@ -246,7 +248,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   void DefineLimitBins();
 
   // Define BDT limit bins
-  void DefineBDTLimitBins();
+  void DefineBDTLimitBins(vector<TString> bdt_versions);
 
   // Set binning for BDT with specific parameters
   void SetBinningBDT(const TString& channel, const TString& mass, const TString& RegionTag, 
@@ -296,7 +298,7 @@ class HNL_LeptonCore : public AnalyzerCore {
 
 
   //---- BDT Related    HNL_LeptonCore_BDT                                                                                                                                                                                           
-  void initializeAnalyzer(bool READBKGHISTS=true, bool SETUPIDBDT=true);
+  void initializeAnalyzer(vector<TString> BDTVersions={"V4"},bool READBKGHISTS=true, bool SETUPIDBDT=true);
   void SetupEventMVAReader(TString version, bool ee=true, bool mm=true, bool emu=true);
   void SetupEventMVAReaders(vector<TString> version, bool ee=true, bool mm=true, bool emu=true);
   void SetupEventMVAReaderInit(TString version, bool ee=true, bool mm=true, bool emu=true);
@@ -348,7 +350,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   double GetZ0Weight(double valX);
 
   // Returns the scale uncertainty for a given systematic variation
-  double GetScaleUncertainty(int sys);
+  double GetScaleUncertainty(int sys, TString tag="");
 
   // Returns the PDF uncertainty for the given weight index and event weight reference
   TString GetPDFUncertainty(int weightIndex, double& eventWeight);

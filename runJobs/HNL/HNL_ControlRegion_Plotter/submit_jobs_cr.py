@@ -254,7 +254,7 @@ if args.Central or args.Systematics:
         #### Prompt            
         if RunPrompt:
             RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Prompt/PromptSS.txt             -n 20        --nmax {nmax}   -e {era}  --skim SkimTree_HNMultiLepBDT   {FlagCommand('RunPrompt', flags)}  &")   
-            RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Prompt/PromptSS2.txt            -n 200       --nmax {nmax}   -e {era}  --skim SkimTree_HNMultiLepBDT   {FlagCommand('RunPrompt', flags)}  &")   
+            RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Prompt/PromptSS2.txt            -n 40       --nmax {nmax}   -e {era}  --skim SkimTree_SSDileptonBDT   {FlagCommand('RunPrompt', flags)}  &")   
             if args.RunAlternativePrompt or user == "jalmond":
                 RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {mcpath}/Prompt/PromptSSAlt.txt          -n 200       --nmax {nmax}   -e {era}  --skim SkimTree_HNMultiLepBDT   {FlagCommand('RunPrompt', flags)}  ")   
 

@@ -4,7 +4,10 @@ void HNL_SignalRegion_TestRun::initializeAnalyzer(){
 
   // All default settings like trigger/ PD/ BJet are decalred in HNL_LeptonCore::initializeAnalyzer to make them consistent for all HNL codes
 
-  HNL_LeptonCore::initializeAnalyzer();
+  BDTVersions_to_run ={"V3","V4"};
+
+  HNL_LeptonCore::initializeAnalyzer(BDTVersions_to_run);
+
   
   if(IsDATA){
     bool run_ee_bdt=false;    bool run_mm_bdt=false;    bool run_em_bdt=false;

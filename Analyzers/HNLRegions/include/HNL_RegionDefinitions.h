@@ -35,9 +35,9 @@ class HNL_RegionDefinitions : public HNL_LeptonCore {
 
   //// SIGNAL REGION DEFINITIONS
 
-  bool  RunSignalRegionAK8(bool ApplyForSR,HNL_LeptonCore::Channel channel,HNL_LeptonCore::ChargeType q, std::vector<Lepton *>& leps,std::vector<Lepton *>& leps_veto, std::vector<Tau>& Taus, std::vector<Jet>& jets, std::vector<FatJet>&  fatjets, std::vector<Jet>& bjets, Event& ev,  Particle& METv, AnalyzerParameter& param,   float w);
+  bool  RunSignalRegionAK8(bool ApplyForSR,TString mass_ref,int binning_method, bool fill_plots,HNL_LeptonCore::Channel channel,HNL_LeptonCore::ChargeType q, std::vector<Lepton *>& leps,std::vector<Lepton *>& leps_veto, std::vector<Tau>& Taus, std::vector<Jet>& jets, std::vector<FatJet>&  fatjets, std::vector<Jet>& bjets, Event& ev,  Particle& METv, AnalyzerParameter& param,   float w);
   
-  TString  RunSignalRegionAK8String(bool ApplyForSR,HNL_LeptonCore::Channel channel,HNL_LeptonCore::ChargeType q, std::vector<Lepton *>& leps,std::vector<Lepton *>& leps_veto, std::vector<Tau>& Taus, std::vector<Jet>& jets, std::vector<FatJet>&  fatjets, std::vector<Jet>& bjets, Event& ev,  Particle& METv, AnalyzerParameter& param,   float w);
+  TString  RunSignalRegionAK8String(bool ApplyForSR,TString mass_ref,int binning_method, bool fill_plots, HNL_LeptonCore::Channel channel,HNL_LeptonCore::ChargeType q, std::vector<Lepton *>& leps,std::vector<Lepton *>& leps_veto, std::vector<Tau>& Taus, std::vector<Jet>& jets, std::vector<FatJet>&  fatjets, std::vector<Jet>& bjets, Event& ev,  Particle& METv, AnalyzerParameter& param,   float w);
 
 
   
@@ -50,13 +50,15 @@ class HNL_RegionDefinitions : public HNL_LeptonCore {
   TString  RunSignalRegionAK4String(bool ApplyForSR,HNL_LeptonCore::Channel channel,HNL_LeptonCore::ChargeType q, std::vector<Lepton *>& leps,std::vector<Lepton *>& leps_veto,  std::vector<Tau>& Taus, std::vector<Jet>& jets, std::vector<FatJet>&  fatjets, std::vector<Jet>& bjets, Event& ev,  Particle& METv, AnalyzerParameter& param,   float w);
   
 
-  TString RunSignalRegionAK4StringBDT(bool ApplyForSR, TString mN, TString version, TString NCut, TString NTree, HNL_LeptonCore::Channel channel, HNL_LeptonCore::ChargeType qq ,std::vector<Lepton *>& LepTCol,  std::vector<Jet>& jets,std::vector<Jet>& bjets,  Event& ev, Particle& METv, AnalyzerParameter& param,   float w);
+  TString RunSignalRegionAK4StringBDT(bool ApplyForSR, TString mN, TString version, TString binning, TString NCut, TString NTree, HNL_LeptonCore::Channel channel, HNL_LeptonCore::ChargeType qq ,std::vector<Lepton *>& LepTCol,  std::vector<Jet>& jets,std::vector<Jet>& bjets,  Event& ev, Particle& METv, AnalyzerParameter& param,   float w);
 
 
   bool PassVBF(vector<Jet>&  jets,std::vector<Lepton *>& leps1, double mjj_cut,bool use_leadjet=true);
   bool PassVBFInitial(vector<Jet>&  jets);
   
 
+  TString GetSingleBinnedWWString(double HTOverPT, double ll_dphi);
+  
   // CR
 
 

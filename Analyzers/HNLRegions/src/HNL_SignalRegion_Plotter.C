@@ -4,10 +4,13 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
 
   // All default settings like trigger/ PD/ BJet are decalred in HNL_LeptonCore::initializeAnalyzer to make them consistent for all HNL codes
 
-  HNL_LeptonCore::initializeAnalyzer();
 
-  /// Select BDT versions to plot
-  BDTVersions_to_run ={"V4"};
+  /// Select BDT versions to plot                                                                                                                                         
+  if(HasFlag("AllBDTVersions")) BDTVersions_to_run ={"V2","V3","V4"};
+  else BDTVersions_to_run ={"V3"};
+  
+  HNL_LeptonCore::initializeAnalyzer(BDTVersions_to_run);
+
   
   if(IsDATA){
     bool run_ee_bdt=false;    bool run_mm_bdt=false;    bool run_em_bdt=false;
@@ -139,9 +142,13 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
   
   TString el_ID = SetLeptonID("Electron",param_sr);
   TString mu_ID = SetLeptonID("Muon", param_sr);
-  
-  if(param_sr.syst_ == AnalyzerParameter::ScaleUp)   weight *= GetScaleUncertainty(1);
-  if(param_sr.syst_ == AnalyzerParameter::ScaleDown) weight *= GetScaleUncertainty(-1);
+
+  TString ScaleTag = "";
+
+  //std::vector<FatJet> AK8_JetColl2 = GetHNLAK8Jets(param_sr.AK8JetColl,  param_sr);
+  //if(AK8_JetColl2.size()==1) ScaleTag = param_sr.Name+param_sr.Channel;
+  if(param_sr.syst_ == AnalyzerParameter::ScaleUp)   weight *= GetScaleUncertainty(1, ScaleTag);
+  if(param_sr.syst_ == AnalyzerParameter::ScaleDown) weight *= GetScaleUncertainty(-1,ScaleTag);
 
   double Min_FakeMuon_Pt     =  5;   double Min_FakeElectron_Pt =  10 ;
   std::vector<Muon>       MuonTightColl_Init     = SelectMuons    ( param_sr,mu_ID,     Min_FakeMuon_Pt, 2.4, weight);
