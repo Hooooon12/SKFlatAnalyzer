@@ -68,32 +68,12 @@ TString HNL_LeptonCore::GetPDFUncertainty(int weightIndex, double& ev_weight) {
     return "";
   }
 
-/*
-  float NormNom = h_SumW_Scale->GetBinContent(1);
-
   // Check if weightIndex is within the bounds of weight_PDF
   if (static_cast<size_t>(weightIndex) < weight_PDF->size()) {
-    float Norm = h_SumW_PDF->GetBinContent(weightIndex + 1);
-    ev_weight = weight_PDF->at(weightIndex) * (NormNom / Norm);
-    float test_MCweight = MCweight(false,false); //JH
-    cout << "======================================================" << endl; //JH
-    cout << "weightIndex: " << weightIndex << endl; //JH
-    cout << "MCweight: " << test_MCweight << endl; //JH
-    cout << "weight_PDF: " << weight_PDF->at(weightIndex) << endl; //JH
-    cout << "NormNom: " << NormNom << endl; //JH
-    cout << "NormNom/MCweight: " << NormNom/test_MCweight << endl; //JH
-    cout << "weight_Scale->at(0): " << weight_Scale->at(0) << endl; //JH
-    cout << "Norm: " << Norm << endl; //JH
-    cout << "weight_PDF/Norm: " << weight_PDF->at(weightIndex)/Norm << endl; //JH
-    cout << "Norm/MCweight: " << Norm/test_MCweight << endl; //JH
-    cout << "ev_weight: " << ev_weight << endl; //JH
+    ev_weight = weight_PDF->at(weightIndex);
 
     return "_Syst_PDF" + TString::Itoa(weightIndex, 10);
   }
-*/ // JH: old script; delete after some period; @250926
-
-  return "_Syst_PDF" + TString::Itoa(weightIndex, 10);
-
 
   // Default case when weightIndex is out of range
   ev_weight = 1;

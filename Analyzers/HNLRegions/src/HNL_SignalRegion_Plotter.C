@@ -73,7 +73,7 @@ void HNL_SignalRegion_Plotter::executeEvent(){
     }
     else if (MCSample.Contains("EE_private")) {
       ChannelsToRun = {EE};
-    } //JH
+    }
     else {
       ChannelsToRun = {EE, MuMu, EMu};
     }
@@ -194,7 +194,7 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
     TString ORIGName= param_sr.Name;
     TString ORIGDefName= param_sr.DefName;
 
-    for(unsigned int iw=0; iw<weight_PDF->size()+1; iw++){
+    for(unsigned int iw=0; iw<weight_PDF->size(); iw++){
       double PDF_W=1;
       TString PNAME_PDF = GetPDFUncertainty(iw,PDF_W);
 
