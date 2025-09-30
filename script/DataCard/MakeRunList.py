@@ -11,6 +11,7 @@ parser.add_argument('-e', dest='eras', default=[], nargs='+')
 parser.add_argument('-c', dest='channels', default=[], nargs='+') # store [] if nothing is fed
 parser.add_argument('-m', dest='masses', default=[], nargs='+')
 parser.add_argument('-s', dest='signals', default=[], nargs='+')
+parser.add_argument('--Ext', action='store_true', help='Extend cut based approach to M500')
 parser.add_argument('--Work', action='store_true', help='for workspace production purposes')
 parser.add_argument('--Limit', action='store_true', help='for limit extraction purposes')
 args = parser.parse_args()
@@ -66,8 +67,10 @@ if "Run2" in args.eras:
 for dirName in args.dirNames:
 
   greps = 'ls '+dirName+grepRegion+' | grep '*int(bool(args.eras))+' '.join(["-e "+era for era in args.eras])+' | grep '*int(bool(args.channels))+' '.join(["-e "+channel for channel in args.channels])+' | grep '*int(bool(args.masses))+' '.join(["-e M"+mass+"_" for mass in args.masses])+' | grep '*int(bool(args.signals))+' '.join(["-e "+signal for signal in args.signals]) # if any of eras, chs, ms exists, this line greps it in order. if not, just ls the directory
-  #if len(args.signals)==0: greps += ' | grep -Ev \"DYVBF|SSWW|Weinberg\"' # When you don't want DYVBF, SSWW, Weinberg specific results
-  if len(args.signals)==0: greps += ' | grep -Ev \"DYVBF|SSWW\"' # When you don't want DYVBF, SSWW specific results
+  #if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW|Weinberg\"' # When you don't want signal specific results
+  if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW\"' # When you don't want HNL signal specific results
+  if args.Ext: greps += ' | grep Ext'
+  else: greps += ' | grep -Ev \"Ext\"'
   #print greps
 
   cards = cmd.getoutput(greps).replace('_'+CardRep+'.txt','').replace('_syst.txt','').split('\n')

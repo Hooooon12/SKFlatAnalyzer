@@ -17,7 +17,8 @@ if HERE not in sys.path:
 from exceptions_auto import apply_auto_exceptions
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('--CnC', action='store_true', help='Cut and count limit')
+parser.add_argument('--Ext', action='store_true', help='Extend cut based approach down to M500')
+parser.add_argument('--CnC', action='store_true', help='One-bin limit')
 parser.add_argument('--Decorr', action='store_true', help='Decorrelate fake, CF region by region')
 parser.add_argument('--JetDecorr', action='store_true', help='Decorrelate jet scale/res additionally')
 parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
@@ -55,12 +56,13 @@ masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400"
 #masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 #masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 
-#masses = ["M150"]
-#masses_EMu = ["M150"]
+#masses = ["M500"]
+#masses_EMu = ["M500"]
 
 ## signal processes
 #signals = ["_DYVBF","_SSWW"]
-signals = ["","_Weinberg"]
+signals = ["_DY","_VBF"]
+#signals = ["","_Weinberg"]
 #signals = [""]
 #signals = ["_DYVBF","_SSWW",""]
 #signals = ["_SSWW"]
@@ -111,6 +113,7 @@ InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunS
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
+ExtTag = '_Ext' if args.Ext else ''
 if args.CnC:
   InputWPs = [WP+"_CnC" for WP in InputWPs]
 if args.Syst:
@@ -195,8 +198,7 @@ def MakeRateString(region, era, channel, mass, signal, WP):
   else:
     mass_int = 999999 # Weinberg
 
-  exceptionTag = WP
-
+  exceptionTag = WP+ExtTag
   this_process = apply_auto_exceptions(this_process, region, era, channel, mass, mass_int, exceptionTag)
 
   #print(region)
@@ -208,18 +210,29 @@ def MakeRateString(region, era, channel, mass, signal, WP):
   if not is_Weinberg:
     this_process['signalWeinberg'] = '0'
 
+    if "DYVBF" in signal:
+      this_process['signalSSWW'] = '0'
+    elif "DY" in signal:
+      this_process['signalVBF'] = '0'
+      this_process['signalSSWW'] = '0'
+    elif "VBF" in signal:
+      this_process['signalDY'] = '0'
+      this_process['signalSSWW'] = '0'
+    elif "SSWW" in signal:
+      #this_process['signalDYVBF'] = '0'
+      this_process['signalDY'] = '0'
+      this_process['signalVBF'] = '0'
+
     if mass_int < 300:
       this_process['signalVBF'] = '0'
       this_process['signalSSWW'] = '0'
     elif mass_int <= 500:
-      this_process['signalSSWW'] = '0'
-    elif 500 < mass_int <= 3000:
-      if "DY" in signal or "VBF" in signal:
+      if args.Ext and mass_int == 500:
+        this_process['signalSSWW'] = '-1'
+      else:
         this_process['signalSSWW'] = '0'
-      elif "SSWW" in signal:
-        #this_process['signalDYVBF'] = '0'
-        this_process['signalDY'] = '0'
-        this_process['signalVBF'] = '0'
+    elif 500 < mass_int <= 3000:
+      pass
     else:  # mass_value > 3000
       #this_process['signalDYVBF'] = '0'
       this_process['signalDY'] = '0'
@@ -271,7 +284,7 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
     new_lines = []
 
     # preprocess lines
-    this_lines[4] = "shapes * *  "+CRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n" if region in regions_cr else "shapes * *  "+SRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
+    this_lines[4] = "shapes * *  "+CRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+ExtTag+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n" if region in regions_cr else "shapes * *  "+SRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+ExtTag+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
     this_lines[17] = MakeRateString(region, era, channel, mass, signal, WP)
     for i in range(len(this_lines)):
       this_lines[i] = this_lines[i].replace('bin1',region)
@@ -412,14 +425,14 @@ def filter_crs(regions_cr_all, valid_srs):
   return [cr for cr in regions_cr_all if not any(tok in cr for tok in invalid_srs_crs)]
 
 def make_sr_cardname(era, channel, mass_signal, sr_list, tag, sronly):
-  base = f"card_{era}_{channel}_{mass_signal}"
+  base = f"card_{era}_{channel}{ExtTag}_{mass_signal}"
   if sronly:
     return [f"{sr}={base}_sronly_{sr}{tag}.txt" for sr in sr_list]
   else:
     return [f"{sr}={base}_{sr}{tag}.txt" for sr in sr_list]
 
 def make_cr_cardname(era, channel, mass_signal, cr_list, tag=""):
-    base = f"card_{era}_{channel}_{mass_signal}"
+    base = f"card_{era}_{channel}{ExtTag}_{mass_signal}"
     return [f"{cr}={base}_{cr}{tag}.txt" for cr in cr_list]
 
 def NuisanceGrouping(this_card):
@@ -530,16 +543,16 @@ for InputWP in InputWPs:
       this_card = CardSetting(args.CR, InputWP, era, channel, mass, signal)
       if args.CR:
         for region in list(this_card[0].keys()):
-          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass_signal+"_"+region+systTag+".txt",'w') as f:
+          with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_"+region+systTag+".txt",'w') as f:
             for line in this_card[0][region]:
               f.write(line)
         for region in list(this_card[1].keys()):
-          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass_signal+"_"+region+".txt",'w') as f:
+          with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_"+region+".txt",'w') as f:
             for line in this_card[1][region]:
               f.write(line)
       else:
         for region in list(this_card.keys()):
-          with open(OutputWP+"/card_"+era+"_"+channel+"_"+mass_signal+"_sronly_"+region+systTag+".txt",'w') as f:
+          with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_sronly_"+region+systTag+".txt",'w') as f:
             for line in this_card[region]:
               f.write(line)
 
@@ -560,40 +573,40 @@ for InputWP in InputWPs:
         if args.Combine == "CR":
           sr_combine = make_sr_cardname(era, channel, mass_signal, sr_filtered, tag=systTag, sronly=False)
           cr_combine = make_cr_cardname(era, channel, mass_signal, cr_filtered)
-          full_combine = f"card_{era}_{channel}_{mass_signal}{systTag}.txt"
+          full_combine = f"card_{era}_{channel}{ExtTag}_{mass_signal}{systTag}.txt"
           combineCards(full_combine, sr_combine+cr_combine)
 
           for sr in sr_filtered:
             cr_for_sr = filter_crs(regions_cr, [sr])
             sr_each = make_sr_cardname(era, channel, mass_signal, [sr], tag=systTag, sronly=False)
             cr_each = make_cr_cardname(era, channel, mass_signal, cr_for_sr)
-            combine_each = f"card_{era}_{channel}_{mass_signal}_{sr}{systTag}_Combined.txt"
+            combine_each = f"card_{era}_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
             combineCards(combine_each, sr_each+cr_each)
 
         elif args.Combine == "SR":
           sr_combine = make_sr_cardname(era, channel, mass_signal, sr_filtered, tag=systTag, sronly=True)
-          full_combine = f"card_{era}_{channel}_{mass_signal}_sronly_sr123{systTag}.txt"
+          full_combine = f"card_{era}_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
           combineCards(full_combine, sr_combine)
 
       if args.Combine == "Era":
         if args.CR: # with CR
-          per_era_full = [f"card_{era}_{channel}_{mass_signal}{systTag}.txt" for era in eras]
-          run2_full = f"card_Run2_{channel}_{mass_signal}{systTag}.txt"
+          per_era_full = [f"card_{era}_{channel}{ExtTag}_{mass_signal}{systTag}.txt" for era in eras]
+          run2_full = f"card_Run2_{channel}{ExtTag}_{mass_signal}{systTag}.txt"
           combine_run2(run2_full, per_era_full)
 
           for sr in sr_filtered:
-            per_era_each = [f"card_{era}_{channel}_{mass_signal}_{sr}{systTag}_Combined.txt" for era in eras]
-            run2_each = f"card_Run2_{channel}_{mass_signal}_{sr}{systTag}_Combined.txt"
+            per_era_each = [f"card_{era}_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt" for era in eras]
+            run2_each = f"card_Run2_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
             combine_run2(run2_each, per_era_each)
 
         else:
-          per_era_full = [f"card_{era}_{channel}_{mass_signal}_sronly_sr123{systTag}.txt" for era in eras]
-          run2_full = f"card_Run2_{channel}_{mass_signal}_sronly_sr123{systTag}.txt"
+          per_era_full = [f"card_{era}_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt" for era in eras]
+          run2_full = f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
           combine_run2(run2_full, per_era_full)
 
           for sr in sr_filtered:
-            per_era_each = [f"card_{e}_{channel}_{mass_signal}_sronly_{sr}{systTag}.txt" for era in eras]
-            run2_each = f"card_Run2_{channel}_{mass_signal}_sronly_{sr}{systTag}.txt"
+            per_era_each = [f"card_{e}_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt" for era in eras]
+            run2_each = f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt"
             combine_run2(run2_each, per_era_each)
 
     os.system('echo \'Done.\'')

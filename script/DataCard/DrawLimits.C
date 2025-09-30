@@ -66,7 +66,23 @@ void print_ratio_table(const vector<vector<double>>& mass_vs_nominal,
 }
 
 
-void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, bool AppendLimitTable=false, bool IsXsecLimit=false, bool Logy=true){
+void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool AddPub=true, bool SepLimit=false, bool CompareLimits=false, bool AppendLimitTable=false, bool IsXsecLimit=false, bool Logy=true){
+
+  if(DrawExt && CompareLimits){
+    cout << "[INFO] DrawExt and CompareLimits are not supported simultaneously. Sorry!" << endl;
+    cout << "[INFO] Exiting..." << endl;
+    return;
+  }
+  if(AddPub && SepLimit){
+    cout << "[INFO] Avoid drawing published analyses and separated limits, too messy!" << endl;
+    cout << "[INFO] Exiting..." << endl;
+    return;
+  }
+
+  TString AddPubTxt = "";
+  if(AddPub) AddPubTxt = "_AddPub";
+  TString SepLimitTxt = "";
+  if(SepLimit) SepLimitTxt = "_SigSep"; //"_SRSep";
 
   bool DrawObserved = false;
 
@@ -84,7 +100,17 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //TString WP_nom = "ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr_NoCR"; // nominal working point
   //TString WP_nom = "ANv4_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"; // nominal working point
   //TString WP_nom = "ANv5_HNL_ULIDv2_RunSyst_Decorr_JetDecorr"; // nominal working point
-  TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"; // nominal working point
+  //TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"; // nominal working point
+
+
+  vector<TString> WP_noms;
+  if(DrawExt) WP_noms = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP_BDT", "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP_Ext"}; // nominal working points
+  else WP_noms = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"}; // nominal working point
+
+  TString WP_name;
+  if(WP_noms.size()==1) WP_name = WP_noms[0];
+  else if(DrawExt) WP_name = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP_Ext";
+
   //TString tag_nom = "_syst"; // nominal tag
   //TString tag_nom = "_sr_Combined"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
@@ -100,8 +126,8 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   TString Name_IsXsecLimit = "_mixing";
   if(IsXsecLimit) Name_IsXsecLimit = "_xsec";
 
-  TString this_plotpath = plotpath+WP_nom;
-  if( !gSystem->mkdir(plotpath+WP_nom, kTRUE) ){
+  TString this_plotpath = plotpath+WP_name;
+  if( !gSystem->mkdir(plotpath+WP_name, kTRUE) ){
     cout
     << "###################################################" << endl
     << "Directoy " << this_plotpath << " is created" << endl
@@ -111,12 +137,15 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
 
   vector<TString> files; // Multiple limits of this analysis to compare each other
   vector<double> scales;
-  files.push_back(filepath+WP_nom+"/"+year+"_"+channel+tag_nom+"_"+method_nom+"_limit.txt"); // add nominal first
-  scales.push_back(0.01);
+  for(int i=0; i<WP_noms.size(); i++){
+    files.push_back(filepath+WP_noms[i]+"/"+year+"_"+channel+tag_nom+"_"+method_nom+"_limit.txt"); // add files systematically; Allow multiple noms.
+    scales.push_back(0.01);
+  }
 
   TString method = "Asym"; //"Full";
-  //vector<TString> WPs = {};
-  vector<TString> WPs = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"};
+  vector<TString> WPs = {}; // Compare to other analyses only
+  if(SepLimit) WPs = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"};
+  //vector<TString> WPs = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"};
   //vector<TString> WPs = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"};
   //vector<TString> WPs = {"ANv5_BDTV3_SR1_Binning_Update_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"};
   //vector<TString> WPs = {"ANv5_BDTV3_UpdateSRBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_Binning_Update_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"};
@@ -159,15 +188,16 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   //vector<TString> WPs = {"ANv3_HNL_ULIDv2_Decorr_Run2"}; // WPs to compare
   //vector<TString> tags = {"_syst_Run2Scaled"};
   //vector<TString> tags = {"_sr_Combined"};
-  //vector<TString> tags = {"_syst"};
   //vector<TString> tags = {"_sr2_syst_Combined"};
-  vector<TString> tags = {"_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"};
-  for(int i=0; i<WPs.size(); i++){
-    for(int j=0; j<tags.size(); j++){
-      //files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
-      //files.push_back(filepath+WPs[i]+"/2017_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
-      files.push_back(filepath+WPs[i]+"/Run2_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
-      scales.push_back(0.01);
+  vector<TString> tags = {"_syst"}; // Default setting
+  if(SepLimit) tags = {"_DY_syst","_VBF_syst","_DYVBF_syst","_SSWW_syst"}; //{"_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"};
+  if(CompareLimits){
+    for(int i=0; i<WPs.size(); i++){
+      for(int j=0; j<tags.size(); j++){
+        //files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
+        files.push_back(filepath+WPs[i]+"/Run2_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
+        scales.push_back(0.01);
+      }
     }
   }
   //if(channel=="EE"||channel=="MuMu") files.push_back(filepath+"240503_exo17028/"+channel+"_HNTightV2_Run2_Asym_limit.txt"); // add additional files
@@ -333,32 +363,87 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   gr_band_2sigma_0->SetLineColor(kOrange);
   gr_band_2sigma_0->SetMarkerColor(kOrange);
 
+  TGraphAsymmErrors *gr_obs_1, *gr_exp_1, *gr_band_1sigma_1, *gr_band_2sigma_1, *gr_obs_2, *gr_exp_2, *gr_band_1sigma_2, *gr_band_2sigma_2;
+
+  if(WP_noms.size()>1){
+    gr_obs_1 = new TGraphAsymmErrors(n_centrals[1],&masses[1][0],&obss[1][0],0,0,0,0);
+    gr_obs_1->SetLineWidth(3);
+    gr_obs_1->SetLineColor(kBlack);
+
+    gr_exp_1 = new TGraphAsymmErrors(n_centrals[1],&masses[1][0],&limits[1][0],0,0,0,0);
+    gr_exp_1->SetLineWidth(3);
+    gr_exp_1->SetLineStyle(2);
+    gr_exp_1->SetLineColor(kBlack);
+
+    gr_band_1sigma_1 = new TGraphAsymmErrors(n_centrals[1], &masses[1][0], &limits[1][0], 0, 0, &onesig_lefts[1][0], &onesig_rights[1][0]);
+    gr_band_1sigma_1->SetFillColor(kGreen+1);
+    gr_band_1sigma_1->SetLineColor(kGreen+1);
+    gr_band_1sigma_1->SetMarkerColor(kGreen+1);
+
+    gr_band_2sigma_1 = new TGraphAsymmErrors(n_centrals[1], &masses[1][0], &limits[1][0], 0, 0, &twosig_lefts[1][0], &twosig_rights[1][0]);
+    gr_band_2sigma_1->SetFillColor(kOrange);
+    gr_band_2sigma_1->SetLineColor(kOrange);
+    gr_band_2sigma_1->SetMarkerColor(kOrange);
+  };
+  if(WP_noms.size()>2){
+    gr_obs_2 = new TGraphAsymmErrors(n_centrals[2],&masses[2][0],&obss[2][0],0,0,0,0);
+    gr_obs_2->SetLineWidth(3);
+    gr_obs_2->SetLineColor(kBlack);
+
+    gr_exp_2 = new TGraphAsymmErrors(n_centrals[2],&masses[2][0],&limits[2][0],0,0,0,0);
+    gr_exp_2->SetLineWidth(3);
+    gr_exp_2->SetLineStyle(2);
+    gr_exp_2->SetLineColor(kBlack);
+
+    gr_band_1sigma_2 = new TGraphAsymmErrors(n_centrals[2], &masses[2][0], &limits[2][0], 0, 0, &onesig_lefts[2][0], &onesig_rights[2][0]);
+    gr_band_1sigma_2->SetFillColor(kGreen+1);
+    gr_band_1sigma_2->SetLineColor(kGreen+1);
+    gr_band_1sigma_2->SetMarkerColor(kGreen+1);
+
+    gr_band_2sigma_2 = new TGraphAsymmErrors(n_centrals[2], &masses[2][0], &limits[2][0], 0, 0, &twosig_lefts[2][0], &twosig_rights[2][0]);
+    gr_band_2sigma_2->SetFillColor(kOrange);
+    gr_band_2sigma_2->SetLineColor(kOrange);
+    gr_band_2sigma_2->SetMarkerColor(kOrange);
+  };
+
   // Use when there are more than two input limits to compare
   vector<TGraph*> gr_exp_list;
 
-  vector<int> colors = {kRed, kBlue, kViolet, kCyan, kPink+6, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7,};
+  vector<int> colors = {kRed+2, kOrange-2, kRed, kBlue, kCyan, kPink+6, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7,};
   //vector<int> styles = {1, 2, 3, 4, 5, 6};
   //vector<TString> descrps = {"BDTV3_Strict","BDTV3_Loose","BDTV4_Strict","BDTV4_Loose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose"};
   vector<TString> descrps;
 
-  //for (auto &wp : WPs) {
-  //  TString tmp = wp;
-  //  if (tmp.BeginsWith("ANv5_")) tmp.Remove(0, 5);
+  if(SepLimit){
+    for (auto &tag : tags) { // sr-dependent descriptions (tags: _sr1_syst_Combined, _sr2_syst_Combined, ...)
+      tag.Remove(0,1); // remove length 1 string starting from the 0th entry
+      tag.ReplaceAll("_syst_Combined", " only");
+      tag.ReplaceAll("sr", "SR");
 
-  //  Ssiz_t pos = tmp.Index("_RunSyst");
-  //  if (pos != kNPOS) tmp.Remove(pos);
+      tag.ReplaceAll("_syst", " ");
+      tag.ReplaceAll("DYVBF", "DY+W#gamma only");
+      tag.ReplaceAll("DY ", "DY only");
+      tag.ReplaceAll("VBF", "W#gamma only");
+      tag.ReplaceAll("SSWW", "SSWW only");
 
-  //  tmp.ReplaceAll("HNL_ULIDv2_", "");
+      descrps.push_back(tag);
+    }
+  }
+  else{
+    for (auto &wp : WPs) { // standard descrption: BDTV3_SR1_FixRepeatBin_AltBin_V3_Strict_15
+      TString tmp = wp;
+      if (tmp.BeginsWith("ANv5_")) tmp.Remove(0, 5);
 
-  //  descrps.push_back(tmp);
-  //}
+      Ssiz_t pos = tmp.Index("_RunSyst");
+      if (pos != kNPOS) tmp.Remove(pos);
 
-  for (auto &tag : tags) {
-    tag.Remove(0,1); // remove length 1 string starting from the 0th entry
-    descrps.push_back(tag);
-	}
+      tmp.ReplaceAll("HNL_ULIDv2_", "");
 
-  if (CompareLimits && masses.size() > 1) {
+      descrps.push_back(tmp);
+    }
+  }
+
+  if (CompareLimits && limits.size() > 1){
   
     for (size_t i = 1; i < limits.size(); ++i) { // start from limits to compare (0th limit == nominal)
 
@@ -1099,29 +1184,43 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   cout << "Drawing Dilepton "+year+" limit ..." << endl;
   TLegend *lg = 0;
   if(IsXsecLimit) lg = new TLegend(0.58, 0.45, 0.76, 0.75);
-  else lg = new TLegend(0.48, 0.15, 0.66, 0.45);
+  //else lg = new TLegend(0.48, 0.15, 0.66, 0.45);
+  else lg = new TLegend(0.48, 0.2, 0.9, 0.5);
   lg->SetBorderSize(0);
   lg->SetFillStyle(0);
-  TH1D *hist_emptylegend = new TH1D("hist_emptylegend","",1,0.,1.);
-  hist_emptylegend->SetLineColor(0);
+  //TH1D *hist_emptylegend = new TH1D("hist_emptylegend","",1,0.,1.);
+  //hist_emptylegend->SetLineColor(0);
 
+  lg->SetTextSize(0.03);
+  lg->SetEntrySeparation(0.02); 
   if(DrawObserved) lg->AddEntry(gr_obs_0,"Observed", "l");
   lg->AddEntry(gr_exp_0,"Expected", "l");
-  lg->AddEntry(gr_band_1sigma_0,"68% expected", "f");
-  lg->AddEntry(gr_band_2sigma_0,"95% expected", "f");
-  lg->AddEntry(hist_emptylegend,"","l");
-
-  TLegend *lg_Alt = new TLegend(0.65, 0.15, 0.93, 0.48);
-  lg_Alt->SetBorderSize(0);
-  lg_Alt->SetFillStyle(0);
+  if(!SepLimit) lg->AddEntry(gr_band_1sigma_0,"68% expected", "f");
+  if(!SepLimit) lg->AddEntry(gr_band_2sigma_0,"95% expected", "f");
+  //lg->AddEntry(hist_emptylegend,"","l");
   if(!IsXsecLimit){
-    //lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l"); // EXO-17-028
+    if(AddPub){
+      TLegendEntry* e1 = lg->AddEntry(gr_17028_exp, "#splitline{CMS 2016 DY+W#gamma SS2l}{#it{JHEP} 01 (2019) 122 (exp)}", "l"); // EXO-17-028
+      e1->SetTextSize(0.025);
+		}
     if(CompareLimits){
       for (size_t i = 0; i < gr_exp_list.size(); ++i) {
-        if (gr_exp_list[i]) lg_Alt->AddEntry(gr_exp_list[i], descrps[i], "l");
+        if (gr_exp_list[i]) lg->AddEntry(gr_exp_list[i], descrps[i], "l");
       }
     }
   }
+
+  //TLegend *lg_Alt = new TLegend(0.65, 0.15, 0.93, 0.48);
+  //lg_Alt->SetBorderSize(0);
+  //lg_Alt->SetFillStyle(0);
+  //if(!IsXsecLimit){
+  //  lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l"); // EXO-17-028
+  //  if(CompareLimits){
+  //    for (size_t i = 0; i < gr_exp_list.size(); ++i) {
+  //      if (gr_exp_list[i]) lg_Alt->AddEntry(gr_exp_list[i], descrps[i], "l");
+  //    }
+  //  }
+  //}
   
   if(channel=="MuMu"){
     //lg_Alt->AddEntry(gr_DELPHILimit, "DELPHI prompt", "l");
@@ -1134,6 +1233,12 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //lg_Alt->AddEntry(gr_EWPD_mm, "EWPD", "l");
 
     //if(!IsXsecLimit) lg_Alt->AddEntry(gr_21003_exp, "EXO-21-003 Run2 (exp)", "l"); // EXO-21-003
+    if(!IsXsecLimit){
+      if(AddPub){
+        TLegendEntry* e1 = lg->AddEntry(gr_21003_exp, "#splitline{CMS Run2 SSWW SS2l}{#it{PRL} 131 (2023) 011803 (exp)}", "l"); // EXO-21-003
+        e1->SetTextSize(0.025);
+      }
+    }
   }
   if(channel=="EE"){
     //lg_Alt->AddEntry(gr_DELPHILimit, "DELPHI prompt", "l");
@@ -1193,6 +1298,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     dummy->GetYaxis()->SetLabelSize(0.05);
   }
   else{
+    dummy->GetXaxis()->SetTitleOffset(0.9);
+    dummy->GetXaxis()->SetLabelOffset(0.001);
+    dummy->GetXaxis()->SetLabelSize(0.04);
     dummy->GetYaxis()->SetTitleSize(0.05);
     dummy->GetYaxis()->SetLabelSize(0.04);
   }
@@ -1230,11 +1338,21 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   dummy->Draw("hist");
 
   // Now draw limits
-  gr_band_2sigma_0->Draw("3same");
-  gr_band_1sigma_0->Draw("3same");
+  if(!SepLimit) gr_band_2sigma_0->Draw("3same");
+  if(!SepLimit) gr_band_1sigma_0->Draw("3same");
   gr_exp_0->Draw("lsame");
+  if(WP_noms.size()>1){
+    if(!SepLimit) gr_band_2sigma_1->Draw("3same");
+    if(!SepLimit) gr_band_1sigma_1->Draw("3same");
+    gr_exp_1->Draw("lsame");
+  }
+  if(WP_noms.size()>2){
+    if(!SepLimit) gr_band_2sigma_2->Draw("3same");
+    if(!SepLimit) gr_band_1sigma_2->Draw("3same");
+    gr_exp_2->Draw("lsame");
+  }
   if(!IsXsecLimit){
-    //gr_17028_exp->Draw("lsame"); // EXO-17-028
+    if(AddPub) gr_17028_exp->Draw("lsame"); // EXO-17-028
     if(CompareLimits){
       for (size_t i = 0; i < gr_exp_list.size(); ++i) {
         if (gr_exp_list[i]) gr_exp_list[i]->Draw("lsame");
@@ -1251,7 +1369,9 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     //gr_EWPD_mm->Draw("lsame");
     //gr_ATLAS_MuMu->Draw("lsame");
 
-    //if(!IsXsecLimit) gr_21003_exp->Draw("lsame"); // EXO-21-003
+    if(!IsXsecLimit){
+      if(AddPub) gr_21003_exp->Draw("lsame"); // EXO-21-003
+    }
   }
   else if(channel=="EE"){
     //gr_L3_2Limit->Draw("lsame");
@@ -1264,10 +1384,18 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
   else if(channel=="EMu"){
   }
 
-  if(DrawObserved) gr_obs_0->Draw("lsame");
+  if(DrawObserved){
+    gr_obs_0->Draw("lsame");
+    if(WP_noms.size()>1){
+      gr_obs_1->Draw("lsame");
+    }
+    if(WP_noms.size()>2){
+      gr_obs_2->Draw("lsame");
+    }
+  }
 
   lg->Draw();
-  lg_Alt->Draw();
+  //lg_Alt->Draw();
   
   TLatex latex_CMSPreliminary, latex_Lumi, latex_title;
   latex_CMSPreliminary.SetNDC();
@@ -1293,19 +1421,17 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     latex_Lumi.DrawLatex(0.77, 0.93, lumi+" fb^{-1} (13 TeV)");
     latex_title.DrawLatex(0.19, 0.83, "#scale[1.2]{#font[62]{CMS}}");
     latex_title.DrawLatex(0.19, 0.79, "#scale[1.0]{#font[41]{95% CL upper limit}}");
-    //latex_title.SetTextSize(0.05);
-    //latex_title.DrawLatex(0.21, 0.83, "#font[62]{CMS}");
   }
   else{
     latex_CMSPreliminary.DrawLatex(0.16, 0.96, "#scale[0.8]{CMS #bf{#it{Preliminary}}}");
     if(year.Contains("Run2")||tag_nom.Contains("Run2")) latex_Lumi.DrawLatex(0.69, 0.96, lumi+" fb^{-1} (13 TeV)"); // Run2
     else latex_Lumi.DrawLatex(0.736, 0.96, lumi+" fb^{-1} (13 TeV)");
-    latex_title.DrawLatex(0.25, 0.88, "#font[62]{CMS}");
-    latex_title.DrawLatex(0.25, 0.84, "#font[41]{95% CL upper limit}");
+    latex_title.DrawLatex(0.21, 0.88, "#font[62]{CMS}");
+    latex_title.DrawLatex(0.21, 0.84, "#font[41]{95% CL upper limit}");
     if(IsXsecLimit){
-      if(channel=="MuMu") latex_title.DrawLatex(0.25, 0.80, "#font[62]{#mu#mu}");
-      if(channel=="EE")   latex_title.DrawLatex(0.25, 0.80, "#font[62]{ee}");
-      if(channel=="EMu")  latex_title.DrawLatex(0.25, 0.80, "#font[62]{e#mu}");
+      if(channel=="MuMu") latex_title.DrawLatex(0.21, 0.80, "#font[62]{#mu#mu}");
+      if(channel=="EE")   latex_title.DrawLatex(0.21, 0.80, "#font[62]{ee}");
+      if(channel=="EMu")  latex_title.DrawLatex(0.21, 0.80, "#font[62]{e#mu}");
     }
     //latex_title.SetTextSize(0.05);
     //latex_title.DrawLatex(0.25, 0.88, "#font[62]{CMS}");
@@ -1504,7 +1630,7 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
     gr_ratio_17028->SetMarkerColor(kRed);
     gr_ratio_17028->SetLineColor(kRed);
     gr_ratio_17028->SetLineWidth(2);
-    //gr_ratio_17028->Draw("lpsame");
+    if(AddPub) gr_ratio_17028->Draw("lpsame"); // EXO-17-028
 
     //TGraph *gr_ratio_this = new TGraph(n_centrals[0],&masses[0][0],ratio_this);
     //gr_ratio_this->SetMarkerColor(kViolet);
@@ -1562,20 +1688,26 @@ void DrawLimits(TString year="", TString channel="", bool CompareLimits=false, b
       gr_ratio_21003->SetMarkerColor(kBlue);
       gr_ratio_21003->SetLineColor(kBlue);
       gr_ratio_21003->SetLineWidth(2);
-      //gr_ratio_21003->Draw("lpsame");
+      if(AddPub) gr_ratio_21003->Draw("lpsame"); // EXO-21-003
     }
 
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp_Logy.pdf");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.pdf");
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.png");
-    print_ratio_table(mass_vs_nominal,ratio_vs_nominal,mass_nominal,descrps,this_plotpath+"/"+year+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_comp.txt",channel,AppendLimitTable);
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp.pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp.png");
+    print_ratio_table(mass_vs_nominal,ratio_vs_nominal,mass_nominal,descrps,this_plotpath+"/"+year+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+"_comp.txt",channel,AppendLimitTable);
+  }
+  else if(DrawExt){
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".png");
   }
   else{
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.pdf");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+".pdf");
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+"_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_nom+tag_nom+Name_IsXsecLimit+".png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".png");
   }
 
   return;

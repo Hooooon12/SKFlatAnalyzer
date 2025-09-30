@@ -5,6 +5,8 @@ from ROOT import *
 import os, argparse
 
 parser = argparse.ArgumentParser(description='option')
+parser.add_argument('--BDT', action='store_true')
+parser.add_argument('--Ext', action='store_true')
 parser.add_argument('--Asymptotic', action='store_true')
 parser.add_argument('--Full', action='store_true')
 args = parser.parse_args()
@@ -95,16 +97,19 @@ myWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
 #tags = ["_syst"]
-tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+#tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_sronly_sr123_syst"]
 #tags = ["_sronly_sr123"]
 #tags = ["_DYVBF_sronly_sr123_syst"]
-#tags = ["_DYVBF_syst"]
-#tags = ["_SSWW_syst"]
+tags = ["_DYVBF_syst","_DY_syst","_VBF_syst","_SSWW_syst"]
 #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+
+BDTTag = '_BDT' if args.BDT else ''
+ExtTag = '_Ext' if args.Ext else ''
 
 for WP in myWPs:
   this_workdir = workdir+WP
+  WP = WP+BDTTag+ExtTag
   os.system("mkdir -p out/"+WP)
   for year, channel, ID, tag in [[year, channel, ID, tag] for year in years for channel in channels for ID in IDs for tag in tags]:
     
@@ -115,6 +120,14 @@ for WP in myWPs:
   
         for mass in (masses if channel!="EMu" else masses_EMu):
           this_name = year+"_"+channel+"_M"+mass+ID+tag
+          if args.BDT:
+            if float(mass)>500.: continue
+          elif args.Ext:
+            if float(mass)<500.:
+              f.write("\n")
+              continue
+            elif float(mass)==500: 
+              this_name = year+"_"+channel+ExtTag+"_M"+mass+ID+tag
           print(this_name)
           path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic.root"
   
@@ -149,6 +162,15 @@ for WP in myWPs:
   
         for mass in (masses if channel!="EMu" else masses_EMu):
           this_name = year+"_"+channel+"_M"+mass+ID+tag
+          if args.BDT:
+            if float(mass)>500.: continue
+          elif args.Ext:
+            if float(mass)<500.:
+              f.write("\n")
+              continue
+            elif float(mass)==500: 
+              this_name = year+"_"+channel+ExtTag+"_M"+mass+ID+tag
+          print(this_name)
           paths = [
                   this_workdir+"/full_CLs/"+this_name+"/output/"+this_name+"_Q1.root",
                   this_workdir+"/full_CLs/"+this_name+"/output/"+this_name+"_Q2.root",

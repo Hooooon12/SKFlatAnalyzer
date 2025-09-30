@@ -650,10 +650,13 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
     FillHist( plot_dir+ region + "/Jets/CEMFracCJ"     , ijet.ChargedEmEnergyFraction(), w, 100, 0.0, 1.0, "");
     FillHist( plot_dir+ region + "/Jets/NFracCJ"       , ijet.NeutralHadEnergyFraction(), w, 100, 0.0, 1.0, "");
     FillHist( plot_dir+ region + "/Jets/MuonEnergyFraction", ijet.MuonEnergyFraction(), w, 100, 0.0, 1.0, "");
-    FillHist( plot_dir+ region + "/Jets/NVtxTracks", ijet.NVtxTracks(), w, 50, 0.0, 50, "");
+    //FillHist( plot_dir+ region + "/Jets/NVtxTracks", ijet.NVtxTracks(), w, 50, 0.0, 50, "");
     FillHist( plot_dir+ region + "/Jets/Multiplicity", ijet.NMult() + ijet.CHMult(),w, 50, 0.0, 50, "");
-    if(fabs(ijet.Eta()) < 2.4) FillHist( plot_dir+ region + "/Jets/PileupJetId_Central",ijet.PileupJetId() , w, 100, 0.0, 1.0, "");
-    else FillHist( plot_dir+ region + "/Jets/PileupJetId_Endcap",ijet.PileupJetId() , w, 100, 0.0, 1.0, "");
+    FillHist( plot_dir+ region + "/Jets/NMult", ijet.NMult(),w, 35, 0.0, 35, "");
+    FillHist( plot_dir+ region + "/Jets/CHMult", ijet.CHMult(),w, 35, 0.0, 35, "");
+    if(fabs(ijet.Eta()) < 2.4) FillHist( plot_dir+ region + "/Jets/PileupJetId_Central",ijet.PileupJetId() , w, 100, -1.0, 1.0, "");
+    else if(fabs(ijet.Eta()) < 3.) FillHist( plot_dir+ region + "/Jets/PileupJetId_Endcap",ijet.PileupJetId() , w, 100, -1.0, 1.0, "");
+    else FillHist( plot_dir+ region + "/Jets/PileupJetId_Forward",ijet.PileupJetId() , w, 100, -1.0, 1.0, "");
   }
     
   FillHist( plot_dir+ region+ "/Leptons/SumQ", sumQ,  w, 10, -5, 5, "Q size");
@@ -663,7 +666,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
   FillHist( plot_dir+ region+ "/DiLepton/ll_Pt",  llCand.Pt()  , w, 2000, 0.0, 2000.0, "Z pt GeV");
   double ll_dphi = fabs(TVector2::Phi_mpi_pi( ( (*leps[0]).Phi() - (*leps[1]).Phi() )) );
   double ll_deta = fabs((*leps[0]).Eta() - (*leps[1]).Eta());
-  FillHist( plot_dir+ region+ "/DeltaPhi/dPhi_lep1_lep2", ll_dphi  , w, 200, -5.0, 5.0, "#Delta #Phi(l1,l2)") ;
+  FillHist( plot_dir+ region+ "/DeltaPhi/dPhi_lep1_lep2", ll_dphi  , w, 63, 0, 3.15, "#Delta #Phi(l1,l2)") ;
   FillHist( plot_dir+ region+ "/DeltaEta/dEta_lep1_lep2", ll_deta  , w, 200, -5.0, 5.0, "#Delta #Phi(l1,l2)") ;
   FillHist( plot_dir+ region+"/DeltaR/dR_ll", leps[0]->DeltaR(*leps[1] ) ,w, 100,  0.0, 10,"#DeltaR(l,l)");
   
@@ -679,7 +682,8 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
   double HTPTbins[nHTPTbins+1] = {0,1, 2,4,6,10};
 
   //// Event plots
-  FillHist( plot_dir+ region+ "/SKEvent/HToLepPt1", leps[0]->HTOverPt()  , w, nHTPTbins,HTPTbins,"HT/PT(1)");
+  //FillHist( plot_dir+ region+ "/SKEvent/HToLepPt1", leps[0]->HTOverPt()  , w, nHTPTbins,HTPTbins,"HT/PT(1)");
+  FillHist( plot_dir+ region+ "/SKEvent/HToLepPt1", leps[0]->HTOverPt()  , w, 20,0,10,"H_{T}/p_{T}(l_{1})");
   FillHist( plot_dir+ region+ "/SKEvent/Mt_lep1", MT(*leps[0] ,met)  , w, 200, 0.0, 400.0,"MT GeV");
   
   
@@ -794,7 +798,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
     double Av_JetEta= 0.5*(jets[ijet1].Eta()+ jets[ijet2].Eta());
     
     double zeppenfeld = CalulateMaxZeppenfeld(leps, Av_JetEta,maxDiJetDeta);
-    FillHist( plot_dir+ region+ "/VBF/MaxDEta_Jets_zeppenfeld", zeppenfeld  , w, 200, 0.0, 10.0, "zeppenfeld");
+    FillHist( plot_dir+ region+ "/VBF/MaxDEta_zeppenfeld", zeppenfeld  , w, 200, 0.0, 10.0, "zeppenfeld");
   } 
   
   if(jets.size()>1){
@@ -828,10 +832,10 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
   FillHist( plot_dir+ region+ "/SKEvent/nPV",  nvtx , w, 120, 0.0, 120.);
   FillHist( plot_dir+ region+ "/SKEvent/nPileUp",  nPileUp, w, 120, 0.0, 120.);
 
-  double MET2ST = GetMET2ST(leps, jets, fatjets, met);
-  FillHist( plot_dir+ region+ "/SKEvent/Ev_MET2ST", MET2ST  , w, 25, 0, 25,"MET^{2}/S_{T} GeV");
+  //double MET2ST = GetMET2ST(leps, jets, fatjets, met);
+  //FillHist( plot_dir+ region+ "/SKEvent/Ev_MET2ST", MET2ST  , w, 25, 0, 25,"MET^{2}/S_{T} GeV");
 
-  FillHist( plot_dir+ region+ "/SKEvent/Ev_MET", met.Pt()  , w, 100, 0, 100,"MET GeV"); //JH
+  //FillHist( plot_dir+ region+ "/SKEvent/Ev_MET", met.Pt()  , w, 100, 0, 100,"MET GeV"); //JH
 
   //double ST = GetST(leps, jets, fatjets, met);
   //

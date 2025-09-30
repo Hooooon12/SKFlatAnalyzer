@@ -21,6 +21,7 @@ parser.add_argument('-s', dest='saveException', choices=['Print','Write','Add'],
 parser.add_argument('-t', dest='histTag', nargs='+', default=['HNL_ULIDv2'], help='this is the param name of the SKFlatAnalyzer. Mostly IDs.')
 parser.add_argument('--Scan', action='store_true', help='scan the bin content')
 parser.add_argument('--CnC', action='store_true', help='1bin cut and count setting')
+parser.add_argument('--Ext', action='store_true', help='Extend selection by cut down to M500')
 parser.add_argument('--CR', action='store_true', help='Make HNL_ControlRegion_Plotter input (default : HNL_SignalRegion_Plotter)')
 parser.add_argument('--Syst', action='store_true', help='Add systematics')
 parser.add_argument('--Decorr', action='store_true', help='Decorrelate Fake, CF syst sources')
@@ -63,6 +64,7 @@ RegionToHistSuffixMap = {}
 
 inputTag = args.inputTag
 outputTag = args.outputTag if args.outputTag == '' else "_"+args.outputTag
+ExtTag = '_Ext' if args.Ext else ''
 
 BDTver = args.BDTver
 
@@ -968,6 +970,17 @@ for tag in args.histTag:
                 else:
                   if BDTver not in RegionToChannelMap[region][channel]:
                     RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel]+"_"+BDTver
+
+              if args.Ext:
+                LimitDir = "LimitExtraction"
+                InputHistMass = ""
+                RegionToHistSuffixMap[region][channel] = RegionToHistSuffixMap[region][channel].replace('BDT','')
+                if BDTver:
+                  if args.CR:
+                    RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel].replace("_"+BDTver.split('_')[0],'')
+                  else:
+                    RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel].replace("_"+BDTver,'')
+
             else:
               #if region=='sr2' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR2 alternative optimization : use the same binning for all era, flavor. (deprecated)
               #else: LimitDir = "LimitExtraction"
@@ -1397,7 +1410,7 @@ for tag in args.histTag:
             print(input_list.pop(i))
   
           print("##### Now creating a limit input root file...")
-          outName = OutputPath+era+"/"+region+"/"+mass+"_"+channel
+          outName = OutputPath+era+"/"+region+"/"+mass+"_"+channel+ExtTag
           outfile = TFile.Open(outName+"_card_input.root","RECREATE")
           
           outfile.cd() # Move into it

@@ -95,12 +95,16 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     std::vector<Lepton *> LepsT       = MakeLeptonPointerVector(muons,     electrons,     param);
     std::vector<Lepton *> LepsV       = MakeLeptonPointerVector(muons_veto,electrons_veto,param);
 
-    if(param.IsCentral()){
-      if(IsSignal())Fill_RegionPlots(param,"Signal_NoCut" , TauColl,
-                VBF_JetColl, AK8_JetColl, LepsV,
-                METv, nPV, weight_ll);
-    }
-    return; // JH
+    if(HasFlag("SigKin")){
+      if(param.IsCentral()){
+        for(long unsigned int imu =0 ; imu <  muons_veto.size(); imu++) muons_veto[imu].SetHTOverPt(GetHT(AK4_JetCollLoose,AK8_JetColl));
+        for(long unsigned int iel =0 ; iel < electrons_veto.size() ; iel++) electrons_veto[iel].SetHTOverPt(GetHT(AK4_JetCollLoose,AK8_JetColl));
+        if(IsSignal())Fill_RegionPlots(param,"Signal_NoCut" , TauColl,
+                  VBF_JetColl, AK8_JetColl, LepsV,
+                  METv, nPV, weight_ll);
+      }
+      return; // JH
+		}
 
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));

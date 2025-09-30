@@ -24,6 +24,7 @@ parser.add_argument('--Asymptotic', action='store_true')
 parser.add_argument('--Work', action='store_true', help='create workspace')
 parser.add_argument('--FitDiag', action='store_true', help='check nuisance fit')
 parser.add_argument('--Impact', action='store_true', help='check impacts')
+parser.add_argument('--MDfit', action='store_true', help='multidimension fits')
 parser.add_argument('--Breakdown', action='store_true', help='uncertainty breakdown')
 args = parser.parse_args()
 
@@ -64,6 +65,8 @@ for RunList in args.RunLists:
       os.system('mkdir -p Impacts/'+WP)
     if args.Breakdown:
       os.system('mkdir -p Breakdowns/'+WP)
+    if args.MDfit:
+      os.system('mkdir -p MDfits/'+WP)
   elif args.Work or IsNuis:
     with open(WP+'/submit_skeleton.sh','w') as skel:
       skel.write("universe = vanilla\n")
@@ -86,12 +89,13 @@ for RunList in args.RunLists:
   
     card = cards[i].strip('\n')
     if '#' in card: continue
-    shortcard = card.split('/')[-1].replace(".root","").replace(".txt","").replace("card_","")
+    shortcard = card.split('/')[-1].replace(".root","").replace(".txt","").replace("card_","") # Run2_EE_Ext_M500_syst
+    this_mass = "0" if "Weinberg" in shortcard else shortcard.split('_M')[-1].split('_')[0]
  
     if args.pdf:
       if args.Impact:
         os.chdir(pwd+"/"+WP+"/"+shortcard)
-        if "Weinberg" in shortcard.split('_')[2] or float(shortcard.split('_')[2].replace("M","")) <= 3000.:
+        if float(this_mass) <= 3000.:
           if "SSWW" in shortcard:
             os.system("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf")
             os.system("cp "+shortcard+"_DefMod_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
@@ -101,10 +105,16 @@ for RunList in args.RunLists:
         else: # mass is above 3000 GeV so that it only contains SSWW --> get impact with default physics model
           os.system("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf")
           os.system("cp "+shortcard+"_DefMod_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
+        os.chdir(pwd+"/Impacts/"+WP)
+        os.system("for i in *.pdf; do pdftoppm -png -singlefile \"$f\" \"${f%.pdf}\"; done;")
+        os.chdir(pwd)
+      if args.MDfit:
+        os.chdir(pwd+"/"+WP+"/"+shortcard)
+        os.system("cp "+shortcard+"_*MDfit.pdf "+shortcard+"_*MDfit.png "+pwd+"/MDfits/"+WP)
         os.chdir(pwd)
       if args.Breakdown:
         os.chdir(pwd+"/"+WP+"/"+shortcard)
-        os.system("cp "+shortcard+"_breakdown.pdf "+pwd+"/Breakdowns/"+WP)
+        os.system("cp "+shortcard+"_breakdown.pdf "+shortcard+"_breakdown.png "+pwd+"/Breakdowns/"+WP)
         os.chdir(pwd)
       continue
     elif args.Work:
@@ -227,7 +237,7 @@ for RunList in args.RunLists:
           runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu "+card+" -o "+shortcard+".root\n")
         else:
           runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel "+card+" -o "+shortcard+".root\n")
-        if ("Weinberg" not in shortcard.split('_')[2] and float(shortcard.split('_')[2].replace("M","")) > 3000.) or "SSWW" in shortcard: # mass is above 3000 GeV so it only contains SSWW, or SSWW only --> add DefMod for impact check
+        if (float(this_mass) > 3000.) or "SSWW" in shortcard: # mass is above 3000 GeV so it only contains SSWW, or SSWW only --> add DefMod for impact check
           runfile.write("text2workspace.py "+card+" -o "+shortcard+"_DefMod.root\n") # impact with default physics model with SSWW: see https://cms-talk.web.cern.ch/t/0-impact-on-poi-negative-bin-issue/42793
       with open(WP+"/"+shortcard+"/submit_Workspace.sh",'a') as submitfile:
         submitfile.write("executable = MakeWorkspace.sh\n")
@@ -241,14 +251,13 @@ for RunList in args.RunLists:
       os.chdir(pwd)
 
     if IsNuis:
-      this_mass = "0" if "Weinberg" in shortcard.split('_')[2] else shortcard.split('_M')[-1].split('_')[0]
       with open(WP+"/"+shortcard+"/Run"+this_check+".sh",'w') as runfile:
         runfile.write("#!/bin/bash\n")
         runfile.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
         runfile.write("pushd "+pwd+"/"+WP+"/"+shortcard+"\n")
         runfile.write("echo Setting cmsenv environment...\n")
         runfile.write("cmsenv\n")
-        if "Weinberg" in shortcard.split('_')[2] or float(shortcard.split('_')[2].replace("M","")) <= 3000.:
+        if float(this_mass) <= 3000.:
           if "SSWW" in shortcard:
             if args.FitDiag:
               runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose Asimov or not
