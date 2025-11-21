@@ -15,9 +15,8 @@ args = parser.parse_args()
 #workdir = "/data6/Users/jihkim/NewCombine/CMSSW_14_1_0_pre4/src/DilepHN/Batch/"
 workdir = "/data6/Users/jihkim/LatestCombine/CMSSW_14_1_0_pre4/src/DilepHN/Batch/"
 
-years = ["2016","2017","2018"]
-years = ["Run2"]
-years = ["2016preVFP","2016postVFP","2017","2018","Run2"]
+#years = ["2016","2017","2018"]
+#years = ["2016preVFP","2016postVFP","2017","2018","Run2"]
 years = ["Run2"]
 #years = ["2017"]
 #years = ["2018"]
@@ -92,16 +91,17 @@ IDs = [""] #["_ID"]
 #myWPs = ["ANv5_BDTV3_UpdateSRBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_UpdateSRBinning_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
 #myWPs = ["ANv5_BDTV3_AltSR1_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
 #myWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
-myWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"]
+#myWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"]
+myWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
-#tags = ["_syst"]
+tags = ["_syst"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_sronly_sr123_syst"]
 #tags = ["_sronly_sr123"]
 #tags = ["_DYVBF_sronly_sr123_syst"]
-tags = ["_DYVBF_syst","_DY_syst","_VBF_syst","_SSWW_syst"]
+#tags = ["_DYVBF_syst","_DY_syst","_VBF_syst","_SSWW_syst"]
 #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 
 BDTTag = '_BDT' if args.BDT else ''

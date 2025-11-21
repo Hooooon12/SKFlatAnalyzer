@@ -16,25 +16,29 @@ bin                           bin1   bin1   bin1   bin1          bin1   bin1   b
 process                       fake   cf     zg     mc_others     wz     zz     ww       signalDY    signalVBF      signalSSWW    signalWeinberg
 process                       1      2      3      4             5      6      7        -3          -2             -1            0
 rate                          -1     -1     -1     -1            -1     -1     -1       -1          -1             -1            -1
-lumi_13TeV             lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+lumi                   lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+lumi_13TeV_correlated  lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+lumi_13TeV_corr_1718   lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
 mc_xsec                lnN    -      -      -      1.2           -      -      -        -           -              -             -
 CMS_fake_stat          shape  1      -      -      -             -      -      -        -           -              -             -
 CMS_fake_highpt        shape  1      -      -      -             -      -      -        -           -              -             -
 CMS_fake_syst          lnN    1.2    -      -      -             -      -      -        -           -              -             -
 CMS_cf_stat            shape  -      1      -      -             -      -      -        -           -              -             -
-CMS_cf_syst            lnN    -      1.15   -      -             -      -      -        -           -              -             -
+CMS_cf_syst            lnN    -      1.17   -      -             -      -      -        -           -              -             -
 CMS_res_j              shape  -      -      1      1             1      1      1        1           1              1             1
 CMS_scale_j            shape  -      -      1      1             1      1      1        1           1              1             1
-CMS_eff_m_reco         shape  -      -      1      1             1      1      1        1           1              1             1
-CMS_eff_m_id           shape  -      -      1      1             1      1      1        1           1              1             1 
-CMS_eff_m_trigger      shape  -      -      1      1             1      1      1        1           1              1             1 
-CMS_scale_m            shape  -      -      1      1             1      1      1        1           1              1             1
-CMS_res_m              shape  -      -      1      1             1      1      1        1           1              1             1
-CMS_eff_e_reco         shape  -      -      1      1             1      1      1        1           1              1             1
-CMS_eff_e_id           shape  -      -      1      1             1      1      1        1           1              1             1
-CMS_eff_e_trigger      shape  -      -      1      1             1      1      1        1           1              1             1
-CMS_scale_e            shape  -      -      1      1             1      1      1        1           1              1             1
-CMS_res_e              shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_j_PUJetID_eff     shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_j_ParticleNet_W_Nominal         shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_m_reco_13TeV         shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_m_id_13TeV           shape  -      -      1      1             1      1      1        1           1              1             1 
+CMS_eff_m_trigger_13TeV      shape  -      -      1      1             1      1      1        1           1              1             1 
+CMS_scale_m_13TeV           shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_res_m_13TeV              shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_reco_13TeV         shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_id_13TeV           shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_trigger_13TeV      shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_scale_e_13TeV            shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_res_e_13TeV              shape  -      -      1      1             1      1      1        1           1              1             1
 CMS_btag_hf_corr       shape  -      -      1      1             1      1      1        1           1              1             1
 CMS_btag_hf_uncorr     shape  -      -      1      1             1      1      1        1           1              1             1
 CMS_btag_lf_corr       shape  -      -      1      1             1      1      1        1           1              1             1

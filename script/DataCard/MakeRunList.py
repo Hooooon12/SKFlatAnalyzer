@@ -71,10 +71,10 @@ for dirName in args.dirNames:
   if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW\"' # When you don't want HNL signal specific results
   if args.Ext: greps += ' | grep Ext'
   else: greps += ' | grep -Ev \"Ext\"'
-  #print greps
+  print(greps)
 
   cards = cmd.getoutput(greps).replace('_'+CardRep+'.txt','').replace('_syst.txt','').split('\n')
-  #print cards
+  print(cards)
   dirName = dirName.replace('/','')
   with open("RunList_"+isRun2+dirName+".txt",'w') as f:
     for card in cards:

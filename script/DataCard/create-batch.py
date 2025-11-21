@@ -24,13 +24,15 @@ parser.add_argument('--Asymptotic', action='store_true')
 parser.add_argument('--Work', action='store_true', help='create workspace')
 parser.add_argument('--FitDiag', action='store_true', help='check nuisance fit')
 parser.add_argument('--Impact', action='store_true', help='check impacts')
+parser.add_argument('--FastScan', action='store_true', help='fast scan')
 parser.add_argument('--MDfit', action='store_true', help='multidimension fits')
 parser.add_argument('--Breakdown', action='store_true', help='uncertainty breakdown')
+parser.add_argument('--InjectSignal', default='0', help='inject signals to asimov')
 args = parser.parse_args()
 
 IsNuis = False
 Ncheck = 0
-for check in ['FitDiag','Impact','Breakdown']:
+for check in ['FitDiag','Impact','Breakdown','FastScan','MDfit']:
   if vars(args)[check] is True:
     this_check = check
     IsNuis = True
@@ -39,6 +41,9 @@ if Ncheck > 1:
   print("More than 1 Nuisance flag activated; This is not supported.")
   print("Exiting ...")
   sys.exit(1)
+
+AsimovSetting = " -t -1 --expectSignal="+args.InjectSignal
+
 
 pwd = os.getcwd()
 CMSSW_BASE = os.environ['CMSSW_BASE']
@@ -67,6 +72,8 @@ for RunList in args.RunLists:
       os.system('mkdir -p Breakdowns/'+WP)
     if args.MDfit:
       os.system('mkdir -p MDfits/'+WP)
+    if args.FitDiag:
+      os.system('mkdir -p FitDiags/'+WP)
   elif args.Work or IsNuis:
     with open(WP+'/submit_skeleton.sh','w') as skel:
       skel.write("universe = vanilla\n")
@@ -93,28 +100,25 @@ for RunList in args.RunLists:
     this_mass = "0" if "Weinberg" in shortcard else shortcard.split('_M')[-1].split('_')[0]
  
     if args.pdf:
+      this_shortcard = shortcard+"_DefMod" if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else shortcard
       if args.Impact:
         os.chdir(pwd+"/"+WP+"/"+shortcard)
-        if float(this_mass) <= 3000.:
-          if "SSWW" in shortcard:
-            os.system("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf")
-            os.system("cp "+shortcard+"_DefMod_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
-          else:
-            os.system("pdfseparate "+shortcard+".pdf -f 1 -l 1 "+shortcard+"_1.pdf")
-            os.system("cp "+shortcard+"_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
-        else: # mass is above 3000 GeV so that it only contains SSWW --> get impact with default physics model
-          os.system("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf")
-          os.system("cp "+shortcard+"_DefMod_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+shortcard+".pdf")
+        os.system("pdfseparate Impact_"+this_shortcard+".pdf -f 1 -l 1 Impact_"+this_shortcard+"_1.pdf")
+        os.system("cp Impact_"+this_shortcard+"_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+this_shortcard+".pdf")
         os.chdir(pwd+"/Impacts/"+WP)
-        os.system("for i in *.pdf; do pdftoppm -png -singlefile \"$f\" \"${f%.pdf}\"; done;")
+        os.system("pdftoppm -png -singlefile Impact_"+this_shortcard+".pdf Impact_"+this_shortcard)
         os.chdir(pwd)
       if args.MDfit:
         os.chdir(pwd+"/"+WP+"/"+shortcard)
-        os.system("cp "+shortcard+"_*MDfit.pdf "+shortcard+"_*MDfit.png "+pwd+"/MDfits/"+WP)
+        os.system("cp MDfit_"+this_shortcard+".pdf MDfit_"+this_shortcard+".png "+pwd+"/MDfits/"+WP)
+        os.chdir(pwd)
+      if args.FitDiag:
+        os.chdir(pwd+"/"+WP+"/"+shortcard)
+        os.system("cp pulls_"+this_shortcard+".txt "+pwd+"/FitDiags/"+WP)
         os.chdir(pwd)
       if args.Breakdown:
         os.chdir(pwd+"/"+WP+"/"+shortcard)
-        os.system("cp "+shortcard+"_breakdown.pdf "+shortcard+"_breakdown.png "+pwd+"/Breakdowns/"+WP)
+        os.system("cp "+this_shortcard+"_breakdown.pdf "+this_shortcard+"_breakdown.png "+pwd+"/Breakdowns/"+WP)
         os.chdir(pwd)
       continue
     elif args.Work:
@@ -251,127 +255,58 @@ for RunList in args.RunLists:
       os.chdir(pwd)
 
     if IsNuis:
+      list_shortcard = [shortcard, shortcard+"_DefMod"] if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else [shortcard]
       with open(WP+"/"+shortcard+"/Run"+this_check+".sh",'w') as runfile:
         runfile.write("#!/bin/bash\n")
         runfile.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
         runfile.write("pushd "+pwd+"/"+WP+"/"+shortcard+"\n")
         runfile.write("echo Setting cmsenv environment...\n")
         runfile.write("cmsenv\n")
-        if float(this_mass) <= 3000.:
-          if "SSWW" in shortcard:
-            if args.FitDiag:
-              runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose Asimov or not
-              runfile.write("combine -M FitDiagnostics "+shortcard+".root --rMin -10 --rMax 10 --saveShapes --saveWithUncertainties -n _"+shortcard+" --plots -t -1\n") # FIXME maybe shortcard+"_DefMod.root? No?
-            elif args.Impact:
-              runfile.write("combineTool.py -M Impacts -d "+shortcard+"_DefMod.root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name "+shortcard+"_DefMod -t -1\n")
-              runfile.write("combineTool.py -M Impacts -d "+shortcard+"_DefMod.root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doFits --name "+shortcard+"_DefMod -t -1\n")
-              runfile.write("combineTool.py -M Impacts -d "+shortcard+"_DefMod.root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --output "+shortcard+"_DefMod_impacts.json --name "+shortcard+"_DefMod\n")
-              runfile.write("plotImpacts.py -i "+shortcard+"_DefMod_impacts.json -o "+shortcard+"_DefMod\n")
-              #runfile.write("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf\n")
-              runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_Asimov_nll -t -1\n")
-              runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_nll\n")
-              runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod\n")
-              runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod_rRange100\n")
-              runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_MDfit\n")
-              runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod_rRange100.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_rRange100_MDfit\n")
-            elif args.Breakdown:
-              runfile.write("combine -M MultiDimFit "+shortcard+"_DefMod.root --points=21 --rMin -5 --rMax 5 --alignEdges 1 -t -1 --saveWorkspace -n ."+shortcard+"_saveWorkspace\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 -t -1 -n ."+shortcard+"_total\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy -t -1 -n ."+shortcard+"_freeze_jet\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory -t -1 -n ."+shortcard+"_freeze_jet_theory\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake -t -1 -n ."+shortcard+"_freeze_jet_theory_fake\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec\n")
-              if "EE" in shortcard: runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeParameters allConstrainedNuisances -t -1 -n ."+shortcard+"_freeze_all\n")
-              if "EE" not in shortcard:
-                runfile.write("plot1DScan.py higgsCombine."+shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":14 --output "+shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,rest,stat\"\n")
-              else:
-                runfile.write("plot1DScan.py higgsCombine."+shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec+cf\":14 higgsCombine."+shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":15 --output "+shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf,rest,stat\"\n")
 
-          else:
-            if args.FitDiag:
-              runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose Asimov or not
-              runfile.write("combine -M FitDiagnostics "+shortcard+".root --rMin -10 --rMax 10 --saveShapes --saveWithUncertainties -n _"+shortcard+" --plots -t -1\n")
-            elif args.Impact:
-              runfile.write("echo Running Initial fit...\n")
-              runfile.write("combineTool.py -M Impacts -d "+shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --name "+shortcard+" -t -1\n")
-              runfile.write("echo Running Actual fit...\n")
-              runfile.write("combineTool.py -M Impacts -d "+shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --doFits --name "+shortcard+" -t -1\n")
-              runfile.write("echo Making impact json...\n")
-              runfile.write("combineTool.py -M Impacts -d "+shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --output "+shortcard+"_impacts.json --name "+shortcard+"\n")
-              runfile.write("echo Making impact plots...\n")
-              runfile.write("plotImpacts.py -i "+shortcard+"_impacts.json -o "+shortcard+"\n")
-              #runfile.write("pdfseparate "+shortcard+".pdf -f 1 -l 1 "+shortcard+"_1.pdf\n") # this doesn't work in singularity environment.................
-              runfile.write("echo Running fast scan...\n")
-              runfile.write("combineTool.py -M FastScan -w "+shortcard+".root:w -o "+shortcard+"_Asimov_nll -t -1\n")
-              runfile.write("combineTool.py -M FastScan -w "+shortcard+".root:w -o "+shortcard+"_nll\n")
-              runfile.write("echo Running multi-dimensional fit...\n")
-              runfile.write("combineTool.py -M MultiDimFit "+shortcard+".root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"\n")
-              runfile.write("combineTool.py -M MultiDimFit "+shortcard+".root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_rRange100\n") # original code
-              runfile.write("echo Summarizing the result into 1D...\n")
-              runfile.write("plot1DScan.py higgsCombine."+shortcard+".MultiDimFit.mH120.root -o "+shortcard+"_MDfit\n")
-              runfile.write("plot1DScan.py higgsCombine."+shortcard+"_rRange100.MultiDimFit.mH120.root -o "+shortcard+"_rRange100_MDfit\n")
-            elif args.Breakdown:
-              runfile.write("combine -M MultiDimFit "+shortcard+".root --points=21 --rMin -5 --rMax 5 --alignEdges 1 -t -1 --saveWorkspace -n ."+shortcard+"_saveWorkspace\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 -t -1 -n ."+shortcard+"_total\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy -t -1 -n ."+shortcard+"_freeze_jet\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory -t -1 -n ."+shortcard+"_freeze_jet_theory\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake -t -1 -n ."+shortcard+"_freeze_jet_theory_fake\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec\n")
-              if "EE" in shortcard: runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf\n")
-              runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeParameters allConstrainedNuisances -t -1 -n ."+shortcard+"_freeze_all\n")
-              if "EE" not in shortcard:
-                runfile.write("plot1DScan.py higgsCombine."+shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":14 --output "+shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,rest,stat\"\n")
-              else:
-                runfile.write("plot1DScan.py higgsCombine."+shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec+cf\":14 higgsCombine."+shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":15 --output "+shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf,rest,stat\"\n")
-
-        else: # mass is above 3000 GeV so that it only contains SSWW --> get impact with default physics model
+        for this_shortcard in list_shortcard:
           if args.FitDiag:
-            runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose Asimov or not
-            runfile.write("combine -M FitDiagnostics "+shortcard+".root --rMin -10 --rMax 10 --saveShapes --saveWithUncertainties -n _"+shortcard+" --plots -t -1\n") # FIXME maybe shortcard+"_DefMod.root? No?
+            if "DefMod" in this_shortcard: continue # Must use the actual physics model
+            runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose whether Asimov or not
+            runfile.write("combine -M FitDiagnostics "+this_shortcard+".root --rMin -10 --rMax 10 --saveShapes --saveWithUncertainties --saveNormalizations --saveWorkspace -n _"+this_shortcard+" --plots"+AsimovSetting+"\n")
+            runfile.write("python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -a fitDiagnostics_"+this_shortcard+".root > pulls_"+this_shortcard+".txt\n")
           elif args.Impact:
-            runfile.write("combineTool.py -M Impacts -d "+shortcard+"_DefMod.root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name "+shortcard+"_DefMod -t -1\n")
-            runfile.write("combineTool.py -M Impacts -d "+shortcard+"_DefMod.root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doFits --name "+shortcard+"_DefMod -t -1\n")
-            runfile.write("combineTool.py -M Impacts -d "+shortcard+"_DefMod.root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --output "+shortcard+"_DefMod_impacts.json --name "+shortcard+"_DefMod\n")
-            runfile.write("plotImpacts.py -i "+shortcard+"_DefMod_impacts.json -o "+shortcard+"_DefMod\n")
-            #runfile.write("pdfseparate "+shortcard+"_DefMod.pdf -f 1 -l 1 "+shortcard+"_DefMod_1.pdf\n")
-            runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_Asimov_nll -t -1\n")
-            runfile.write("combineTool.py -M FastScan -w "+shortcard+"_DefMod.root:w -o "+shortcard+"_DefMod_nll\n")
-            runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod\n")
-            runfile.write("combineTool.py -M MultiDimFit "+shortcard+"_DefMod.root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1 -t -1 --name ."+shortcard+"_DefMod_rRange100\n")
-            runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_MDfit\n")
-            runfile.write("plot1DScan.py higgsCombine."+shortcard+"_DefMod_rRange100.MultiDimFit.mH120.root -o "+shortcard+"_DefMod_rRange100_MDfit\n")
-          elif args.Breakdown:
-            runfile.write("combine -M MultiDimFit "+shortcard+"_DefMod.root --points=21 --rMin -5 --rMax 5 --alignEdges 1 -t -1 --saveWorkspace -n ."+shortcard+"_saveWorkspace\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 -t -1 -n ."+shortcard+"_total\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy -t -1 -n ."+shortcard+"_freeze_jet\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory -t -1 -n ."+shortcard+"_freeze_jet_theory\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake -t -1 -n ."+shortcard+"_freeze_jet_theory_fake\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec\n")
-            if "EE" in shortcard: runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf -t -1 -n ."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeParameters allConstrainedNuisances -t -1 -n ."+shortcard+"_freeze_all\n")
-            if "EE" not in shortcard:
-              runfile.write("plot1DScan.py higgsCombine."+shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":14 --output "+shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,rest,stat\"\n")
+            if (float(this_mass) > 3000.):
+              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name Impact_"+this_shortcard+AsimovSetting+"\n")
+              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doFits --name Impact_"+this_shortcard+AsimovSetting+"\n")
             else:
-              runfile.write("plot1DScan.py higgsCombine."+shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec+cf\":14 higgsCombine."+shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":15 --output "+shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf,rest,stat\"\n")
+              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --name Impact_"+this_shortcard+AsimovSetting+"\n")
+              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --doFits --name Impact_"+this_shortcard+AsimovSetting+"\n")
+            runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --output "+this_shortcard+"_impacts.json --name Impact_"+this_shortcard+"\n")
+            runfile.write("plotImpacts.py -i "+this_shortcard+"_impacts.json -o Impact_"+this_shortcard+"\n")
+          elif args.FastScan:
+            runfile.write("combineTool.py -M FastScan -w "+this_shortcard+".root:w -o "+this_shortcard+"_Asimov_nll"+AsimovSetting+"\n")
+            runfile.write("combineTool.py -M FastScan -w "+this_shortcard+".root:w -o "+this_shortcard+"_nll\n")
+          elif args.MDfit:
+            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=41 --rMin -1 --rMax 1 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_rRange1\n")
+            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_rRange10\n")
+            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_rRange100\n")
+            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_rRange1.MultiDimFit.mH120.root -o MDfit_rRange1_"+this_shortcard+"\n")
+            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_rRange10.MultiDimFit.mH120.root -o MDfit_rRange10_"+this_shortcard+"\n")
+            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_rRange100.MultiDimFit.mH120.root -o MDfit_rRange100_"+this_shortcard+"\n")
+          elif args.Breakdown:
+            runfile.write("combine -M MultiDimFit "+this_shortcard+".root --points=21 --rMin -5 --rMax 5 --alignEdges 1"+AsimovSetting+" --saveWorkspace -n ."+this_shortcard+"_saveWorkspace\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5"+AsimovSetting+" -n ."+this_shortcard+"_total\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec\n")
+            if "EE" in this_shortcard: runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeParameters allConstrainedNuisances"+AsimovSetting+" -n ."+this_shortcard+"_freeze_all\n")
+            if "EE" not in this_shortcard:
+              runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+this_shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+this_shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+this_shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":14 --output "+this_shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,rest,stat\"\n")
+            else:
+              runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+this_shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+this_shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec+cf\":14 higgsCombine."+this_shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":15 --output "+this_shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf,rest,stat\"\n")
 
         runfile.write("echo Done.\n")
 

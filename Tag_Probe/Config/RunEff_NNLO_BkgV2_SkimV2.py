@@ -1997,6 +1997,8 @@ def SystSumUp():
         this_hist_name = this_obj.GetName()
         this_hist_stat = this_obj.Clone(this_hist_name+"_stat")
         this_hist_stat.SetTitle(this_hist_name+"_stat")
+        this_hist_syst = this_obj.Clone(this_hist_name+"_syst")
+        this_hist_syst.SetTitle(this_hist_name+"_syst")
 
         this_hist_systs = [this_file_syst.Get(this_hist_name) for this_file_syst in this_file_systs]
         #print this_hist_name
@@ -2014,10 +2016,14 @@ def SystSumUp():
             syst_errors.append(max(syst_errors_naive[4],syst_errors_naive[5])) # QCD Up/Down
 
             new_error = nom_error**2
+            systOnly_error = 0.
             for syst_error in syst_errors:
               new_error += syst_error**2
+              systOnly_error += syst_error**2
             new_error = new_error**0.5
+            systOnly_error = systOnly_error**0.5
             this_obj.SetBinError(iX, new_error)
+            this_hist_syst.SetBinError(iX, systOnly_error)
 
         elif "2D" in this_hist_name:
           for iX in range(1, this_obj.GetNbinsX()+1):
@@ -2033,13 +2039,18 @@ def SystSumUp():
               syst_errors.append(max(syst_errors_naive[4],syst_errors_naive[5])) # QCD Up/Down
 
               new_error = nom_error**2
+              systOnly_error = 0.
               for syst_error in syst_errors:
                 new_error += syst_error**2
+                systOnly_error += syst_error**2
               new_error = new_error**0.5
+              systOnly_error = systOnly_error**0.5
               this_obj.SetBinError(iX, iY, new_error)
+              this_hist_syst.SetBinError(iX, iY, systOnly_error)
 
         this_hist_stat.Write()
         this_obj.Write("", TObject.kOverwrite) #https://root.cern.ch/doc/master/classTObject.html#aeac9082ad114b6702cb070a8a9f8d2ed : first argument --> save the hist with the original name, second --> overwrite. If kOverwrite not specified, there will be two objects having the same name.
+        this_hist_syst.Write("", TObject.kOverwrite) # Save syst-only uncertainties @251120
 
       # Close file
       this_file_nominal.Close()

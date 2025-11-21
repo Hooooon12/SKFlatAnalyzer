@@ -53,16 +53,14 @@ channels = ["MuMu","EE","EMu"]
 ## Full mass ranges
 masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","Weinberg"]
 masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"]
-#masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
-#masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000"]
 
-#masses = ["M500"]
+#masses = ["M1000"]
 #masses_EMu = ["M500"]
 
 ## signal processes
 #signals = ["_DYVBF","_SSWW"]
-signals = ["_DY","_VBF"]
-#signals = ["","_Weinberg"]
+#signals = ["_DY","_VBF"]
+signals = ["","_Weinberg"]
 #signals = [""]
 #signals = ["_DYVBF","_SSWW",""]
 #signals = ["_SSWW"]
@@ -109,7 +107,8 @@ CRpath = SRpath
 #InputWPs = ["ANv5_BDTV3_SR1_Binning_Update_HNL_ULIDv2_FixPDFerror_V3_Strict_15_Bin_RunSyst"]
 #InputWPs = ["ANv5_BDTV3_AltSR1_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst","ANv5_BDTV3_AltSR1_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"]
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"]
-InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"] # This is tentative nominal @250909
+#InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"] # This is tentative nominal @250909
+InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst"] # correlation updated @251006
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
@@ -137,7 +136,7 @@ OutputTag = ""
 #OutputTag += "_AutoMCStatThres10_1_1"
 #OutputTag += "_NoExcRule"
 #OutputTag += "_NoPDFsyst"
-OutputTag += "_NewRP"
+#OutputTag += "_NewRP"
 
 if args.Combine is None:
   if not args.CR: OutputTag+="_NoCR" # SR only
@@ -166,6 +165,32 @@ proc_rateRegion_map['ZZ'] = regions_sr + [cr for cr in regions_cr if "zz" in cr]
 #  if any("wz_cr1" in region for region in regions_cr ): OutputTag+="_WZ1"
 #  if any("wz_cr2" in region for region in regions_cr ): OutputTag+="_WZ2"
 #  if any("wz_cr3" in region for region in regions_cr ): OutputTag+="_WZ3"
+
+##### Lumi uncertainty table #####
+lumi_systs = {
+              '2016preVFP':
+                            {
+                             'uncorr':'1.01',
+                             'corr1':'1.006',
+                            },
+              '2016postVFP':
+                            {
+                             'uncorr':'1.01',
+                             'corr1':'1.006',
+                            },
+              '2017':
+                           {
+                            'uncorr':'1.02',
+                            'corr1':'1.009',
+                            'corr2':'1.006',
+                           },
+              '2018':
+                           {
+                            'uncorr':'1.015',
+                            'corr1':'1.02',
+                            'corr2':'1.002',
+                           },
+}
 
 ################################################################################################################################################
 
@@ -295,8 +320,9 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
     for line in this_lines[18:]:
 
       if args.Syst:
+
+        # channel-dependent fake syst
         if "CMS_fake_syst" in line:
-          # channel-dependent fake syst
           if channel=="EMu":
             line = line.replace('1.2','1.25')
           elif channel=="EE":
@@ -305,10 +331,25 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
         if is_syst_line(line):
           syst_name = line.split()[0]
 
+          # lumi treatment
+          if 'lumi' in syst_name:
+            if '13TeV' not in syst_name: # era-specific uncorrelated uncertainty
+              line = line.replace('1.05',lumi_systs[era]['uncorr'])
+            elif 'correlated' in syst_name: # all era correlated
+              line = line.replace('1.05',lumi_systs[era]['corr1'])
+            else: # 1718 correlated
+              if '2016' in era: continue
+              else: line = line.replace('1.05',lumi_systs[era]['corr2'])
+
           # era-correlated systs
-          if any(key in syst_name for key in ["xsec", "pileup", "QCDscale", "pdf", "_corr"]):
-            new_lines.append(line)
-            continue
+          if any(f"{key}_" in f"{syst_name}_" for key in ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco", "eff_m_id", "scale_e", "res_e", "eff_e_reco", "eff_e_id", "ParticleNet"]):
+            pass
+          # partial era-decorrelation (2016 lumi)
+          elif syst_name == "lumi":
+            if '2016' in era:
+              line = line.replace(syst_name, f"{syst_name}_2016")
+            else:
+              line = line.replace(syst_name, f"{syst_name}_{era}")
           # era-decorrelation
           else:
             line = line.replace(syst_name, f"{syst_name}_{era}")
@@ -318,6 +359,10 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
             if ("eff_e_" in syst_name) or ("scale_e" in syst_name) or ("res_e" in syst_name) or ("fake_highpt" in syst_name): continue
           elif channel=="EE":
             if ("eff_m_" in syst_name) or (syst_name == "CMS_scale_m") or ("res_m" in syst_name): continue
+
+          # sr treatment
+          if "sr1" not in region and "cr1" not in region:
+            if "ParticleNet" in syst_name: continue
  
       if is_rateParam_line(line):
         this_region = line.split()[0].split('_')[-1] if len(line.split()[0].split('_')) == 2 else None # "srx" if it's not ZGNorm or ZZNorm which is shared across all srs

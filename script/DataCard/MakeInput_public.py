@@ -1,4 +1,4 @@
-#rgs.Merge Run first: python MakeInput_public.py -e 2018 --CheckFiles -i HEMJet --PreFlag RemoveHEMJet
+# Run first: python MakeInput_public.py -e 2018 --CheckFiles -i HEMJet --PreFlag RemoveHEMJet
 # python MakeInput_public.py --Merge -e 2018 -i HEMJet --PreFlag RemoveHEMJet \ python MakeInput_public.py --CR --Merge -e 2018 -i HEMJet --PreFlag RemoveHEMJet \
 # python MakeInput_public.py [--Syst] [--Decorr] -i HEMJet --PreFlag RemoveHEMJet \ python MakeInput_public.py --CR [--Syst] [--Decorr] -i HEMJet --PreFlag RemoveHEMJet
 
@@ -221,15 +221,15 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["JetEnUp"]             = "CMS_scale_j_"+era+"Up"
   SystNameMap[era]["JetPUIDUp"]           = "CMS_eff_j_PUJET_id_"+era+"Up"
   SystNameMap[era]["JetPNETUp"]           = "CMS_eff_j_PNET_"+era+"Up"
-  SystNameMap[era]["MuonEnUp"]            = "CMS_scale_m_"+era+"Up"
-  SystNameMap[era]["MuonResUp"]           = "CMS_res_m_"+era+"Up"
-  SystNameMap[era]["MuonRecoSFUp"]        = "CMS_eff_m_reco_"+era+"Up"
-  SystNameMap[era]["MuonIDSFUp"]          = "CMS_eff_m_id_"+era+"Up"
+  SystNameMap[era]["MuonEnUp"]            = "CMS_scale_mUp"
+  SystNameMap[era]["MuonResUp"]           = "CMS_res_mUp"
+  SystNameMap[era]["MuonRecoSFUp"]        = "CMS_eff_m_recoUp"
+  SystNameMap[era]["MuonIDSFUp"]          = "CMS_eff_m_idUp"
   SystNameMap[era]["MuonTriggerSFUp"]     = "CMS_eff_m_trigger_"+era+"Up"
-  SystNameMap[era]["ElectronEnUp"]        = "CMS_scale_e_"+era+"Up"
-  SystNameMap[era]["ElectronResUp"]       = "CMS_res_e_"+era+"Up"
-  SystNameMap[era]["ElectronRecoSFUp"]    = "CMS_eff_e_reco_"+era+"Up"
-  SystNameMap[era]["ElectronIDSFUp"]      = "CMS_eff_e_id_"+era+"Up"
+  SystNameMap[era]["ElectronEnUp"]        = "CMS_scale_eUp"
+  SystNameMap[era]["ElectronResUp"]       = "CMS_res_eUp"
+  SystNameMap[era]["ElectronRecoSFUp"]    = "CMS_eff_e_recoUp"
+  SystNameMap[era]["ElectronIDSFUp"]      = "CMS_eff_e_idUp"
   SystNameMap[era]["ElectronTriggerSFUp"] = "CMS_eff_e_trigger_"+era+"Up"
   SystNameMap[era]["BTagSFHTagCorrUp"]    = "CMS_btag_hf_corrUp"
   SystNameMap[era]["BTagSFHTagUnCorrUp"]  = "CMS_btag_hf_uncorr_"+era+"Up"
@@ -241,21 +241,21 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["CFRateUp"]            = "CMS_cf_stat_"+era+"Up"
   SystNameMap[era]["FRUp"]                = "CMS_fake_stat_"+era+"Up"
   SystNameMap[era]["FRHighPtUp"]          = "CMS_fake_highpt_"+era+"Up"
-  SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation; this hist is from the old method
+  SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation
   SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation
   SystNameMap[era]["JetResDown"]            = "CMS_res_j_"+era+"Down"
   SystNameMap[era]["JetEnDown"]             = "CMS_scale_j_"+era+"Down"
   SystNameMap[era]["JetPUIDDown"]           = "CMS_eff_j_PUJET_id_"+era+"Down"
   SystNameMap[era]["JetPNETDown"]           = "CMS_eff_j_PNET_"+era+"Down"
-  SystNameMap[era]["MuonEnDown"]            = "CMS_scale_m_"+era+"Down"
-  SystNameMap[era]["MuonResDown"]           = "CMS_res_m_"+era+"Down"
-  SystNameMap[era]["MuonRecoSFDown"]        = "CMS_eff_m_reco_"+era+"Down"
-  SystNameMap[era]["MuonIDSFDown"]          = "CMS_eff_m_id_"+era+"Down"
+  SystNameMap[era]["MuonEnDown"]            = "CMS_scale_mDown"
+  SystNameMap[era]["MuonResDown"]           = "CMS_res_mDown"
+  SystNameMap[era]["MuonRecoSFDown"]        = "CMS_eff_m_recoDown"
+  SystNameMap[era]["MuonIDSFDown"]          = "CMS_eff_m_idDown"
   SystNameMap[era]["MuonTriggerSFDown"]     = "CMS_eff_m_trigger_"+era+"Down"
-  SystNameMap[era]["ElectronEnDown"]        = "CMS_scale_e_"+era+"Down"
-  SystNameMap[era]["ElectronResDown"]       = "CMS_res_e_"+era+"Down"
-  SystNameMap[era]["ElectronRecoSFDown"]    = "CMS_eff_e_reco_"+era+"Down"
-  SystNameMap[era]["ElectronIDSFDown"]      = "CMS_eff_e_id_"+era+"Down"
+  SystNameMap[era]["ElectronEnDown"]        = "CMS_scale_eDown"
+  SystNameMap[era]["ElectronResDown"]       = "CMS_res_eDown"
+  SystNameMap[era]["ElectronRecoSFDown"]    = "CMS_eff_e_recoDown"
+  SystNameMap[era]["ElectronIDSFDown"]      = "CMS_eff_e_idDown"
   SystNameMap[era]["ElectronTriggerSFDown"] = "CMS_eff_e_trigger_"+era+"Down"
   SystNameMap[era]["BTagSFHTagCorrDown"]    = "CMS_btag_hf_corrDown"
   SystNameMap[era]["BTagSFHTagUnCorrDown"]  = "CMS_btag_hf_uncorr_"+era+"Down"
@@ -267,7 +267,7 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["CFRateDown"]            = "CMS_cf_stat_"+era+"Down"
   SystNameMap[era]["FRDown"]                = "CMS_fake_stat_"+era+"Down"
   SystNameMap[era]["FRHighPtDown"]          = "CMS_fake_highpt_"+era+"Down"
-  SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation; this hist is from the old method
+  SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation
   SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation
   SystNameMap[era]["JetRes"]            = "CMS_res_j_"+era
   SystNameMap[era]["JetEn"]             = "CMS_scale_j_"+era
@@ -896,7 +896,7 @@ for tag in args.histTag:
     for region in regions: # ...and even each region to control!!
       print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
       OutputName = inputTag+"_"+tag+outputTag+outputTagSuffix
-      OutputPath = MainPath+'/LimitInputs/'+OutputName+'/'
+      OutputPath = os.getcwd()+'/LimitInputs/'+OutputName+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
   
       f_path_data          = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+PostFlag + "/DATA/"+Analyzer+DataSkim+"DATA.root"
