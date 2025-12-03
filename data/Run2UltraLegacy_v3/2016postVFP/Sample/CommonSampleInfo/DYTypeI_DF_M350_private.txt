@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumsign sumw
+DYTypeI_DF_M350_private	DYTypeI_NLO_DF_M350	0.3289934998	1467000	1373792.0	24.152647237700876 

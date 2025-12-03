@@ -2096,7 +2096,7 @@ bool AnalyzerCore::RunBDT(){
   
   if(!IsSignal()) return true;
   
-  vector<TString> BDTMasses = {"M85","M90","M95","M100","M125","M150","M200","M250","M300","M400","M500"};
+  vector<TString> BDTMasses = {"M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500"};
   
 
   for (auto it : BDTMasses){
@@ -2112,7 +2112,7 @@ TString AnalyzerCore::GetBDTSignalMass(TString bdt_mass){
   /// For bkg return original string
   
   /// For signal return mass of signal 
-  vector<TString> BDTMasses = {"85","90","95","100","125","150","200","250","300","400","500"};
+  vector<TString> BDTMasses = {"85","90","95","100","125","150","200","250","300","350","400","450","500"};
 
 
   if(!IsSignal()){

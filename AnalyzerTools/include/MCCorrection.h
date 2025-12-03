@@ -39,7 +39,9 @@ public:
   TDirectory *histDir;
   static vector<TString> Split(TString s,TString del);
   void ReadHistograms();
-
+  void ReadMuonRecoSFs_LowPt(const std::string& json_file);
+  void ReadMuonRecoSFs_HighPt(const std::string& json_file);
+  
   TString MCSample;
   void SetMCSample(TString s);
 
@@ -65,6 +67,21 @@ public:
   bool IgnoreNoHist;
 
 
+  struct MuonSFEntry {
+    double eta_min;
+    double eta_max;
+    double p_min;
+    double p_max;
+    
+    double nominal;
+    double stat;
+    double syst;
+  };
+  
+  std::vector<MuonSFEntry> MuonSFTable;
+  const MuonSFEntry* GetMuonRecoSF(double abseta, double p);
+
+
   double JetPileUpSF(Jet j, TString WP, int sys=0);
   double MuonTracker_SF(TString key, double eta, double p, int sys=0);
   double MuonReco_SF(TString key, double eta, double p, int sys=0);
@@ -78,7 +95,7 @@ public:
   double MuonTrigger_SF(TString ID, TString trig, std::vector<Lepton *> leps, int sys=0);
   double MuonTrigger_SF(TString ID, TString trig, const std::vector<Muon *>& muons, int sys=0);
 
-  std::map< TString, TH2F* > map_hist_Muon;
+  std::map< TString, TH2* > map_hist_Muon;
 
   double ElectronReco_SF(TString key, double sceta, double pt, int sys=0);
   double ElectronID_SF(TString ID, double sceta, double pt, int sys=0);
@@ -89,10 +106,10 @@ public:
   double ElectronTrigger_SF(TString ID, TString trig, const std::vector<Electron>& electrons, int sys=0);
   double ElectronTrigger_SF(TString ID, TString trig, const std::vector<Electron *>& electrons, int sys=0);
 
-  std::map< TString, TH2F* > map_hist_Electron;
+  std::map< TString, TH2* > map_hist_Electron;
   std::map< TString, TGraphAsymmErrors* > map_graph_Electron;
 
-  std::map< TString, TH2F* > map_hist_prefire;
+  std::map< TString, TH2* > map_hist_prefire;
   double GetPrefireWeight(const std::vector<Photon>& photons, const std::vector<Jet>& jets, int sys);
 
   std::map< TString, TH1D* > map_hist_pileup;
@@ -119,7 +136,7 @@ public:
   TH2D *hist_JetTagEff_C;
   TH2D *hist_JetTagEff_Light;
 
-  std::map< TString, TH2F* > map_hist_mcjet;
+  std::map< TString, TH2* > map_hist_mcjet;
   void SetupMCJetTagEff(TString Eff_file);
   double GetMCJetTagEff(JetTagging::Tagger tagger, JetTagging::WP wp, int JetFlavor, double JetPt, double JetEta, int sys=0);
   double GetJetTaggingSF(JetTagging::Parameters jtp, int JetFlavor, double JetPt, double JetEta, double Jetdiscr, string Syst="central");

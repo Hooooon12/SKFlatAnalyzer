@@ -420,7 +420,8 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
     };
     
     const std::vector<MassGroup> mass_groups = {
-      {400, {85, 90, 95, 100, 125, 150, 200, 250, 300, 400}},
+      {400, {85, 90, 95, 100, 125, 150, 200, 250, 300,350, 400}},
+      {450, {450}},
       {500, {500}},
       {600, {600}},
       {700, {700}},
@@ -434,6 +435,14 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
     
     // If you keep TString elsewhere, ok; otherwise prefer std::string
     const TString mcSampleName = MCSample; // or however you get it
+
+    // Top level debug
+    if(0)std::cout << "[DEBUG] New event: sample=" << mcSampleName
+	      << " isSignal=" << isSignal
+	      << " isSR=" << isSR
+	      << " nAK8=" << AK8_JetColl.size()
+	      << std::endl;
+    
     
     for (const auto& grp : mass_groups) {
       const int ref_mass = grp.ref_mass;
@@ -442,8 +451,22 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       // --- CR (control region) runs only for the first ref mass (400) ---
       // This matches your comment "CR only run in first loop as CR is not mass dependant"
 
-      bool sr1_fill_plot = (ref_mass == 400);
-      if (!isSR && !sr1_fill_plot) continue;
+
+      bool sr1_fill_plot = (ref_mass == 400 || isSignal);
+
+      if(0)std::cout << "[DEBUG]  Mass group loop: ref_mass=" << ref_mass
+		<< " sr1_fill_plot=" << sr1_fill_plot << std::endl;
+
+      if (!isSR && !sr1_fill_plot && !isSignal) {
+	 if(0)std::cout << "[DEBUG]   -> Skipping group ref_mass=" << ref_mass
+		  << " due to CR condition "
+		  << "(isSR=" << isSR
+		  << ", sr1_fill_plot=" << sr1_fill_plot
+		  << ", isSignal=" << isSignal << ")"
+		  << std::endl;
+	
+	continue;
+      }
             
       // --- For signal samples, restrict to allowed mass range(s) ---
       // We assume sample names contain exact tokens like "M500_private".
@@ -466,38 +489,35 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
                ev, METv ,param,weight_reg) ;
       
       if( RegionBin != "false") {
-  
-  /// Region 1+2+3                                                                                                                                                                  
-  //FillLimitInput(LimitRegions, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
-  
-  
-  if(IsSR&&param.IsCentral() && sr1_fill_plot) Fill_RegionPlots(param,"AllSR" , TauColl, 
-                      JetColl, AK8_JetColl, LepsT, 
-                      METv, nPV, weight_reg);
+	
+	/// Region 1+2+3                                                                                                                                                                  
+	//FillLimitInput(LimitRegionsR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
+	
+	
+	if(IsSR&&param.IsCentral() && sr1_fill_plot) Fill_RegionPlots(param,"AllSR" , TauColl, 
+									    JetColl, AK8_JetColl, LepsT, 
+									    METv, nPV, weight_reg);
 
-  if(sr1_fill_plot){
-    if(IsSR)FillCutflow(HNL_LeptonCore::ChannelDepSR1, weight_reg, channel_string +"_SR1",param);
-    else FillCutflow(HNL_LeptonCore::ChannelDepCR1, weight_reg, channel_string +"_CR1",param);
-  }
-  
-  //// Region1 only limit
-  if(IsSR){
-    FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name+"/M"+ref_mass,"SR1_"+channel_string,channel_string);
-    
-    TString RegionBinAlt= RunSignalRegionAK8String (IsSR, TString::Format("%d", ref_mass),1,false, channel,qq, LepsT, LepsV, TauColl,
-                JetColl, AK8_JetColl,B_JetColl,
-                ev, METv ,param,weight_reg) ;
+	if(sr1_fill_plot){
+	  if(IsSR)FillCutflow(HNL_LeptonCore::ChannelDepSR1, weight_reg, channel_string +"_SR1",param);
+	  else FillCutflow(HNL_LeptonCore::ChannelDepCR1, weight_reg, channel_string +"_CR1",param);
+	}
+	
+	//// Region1 only limit
+	if(IsSR){
+	  //// Used for scan not needed for analysis 
+	   if(strcmp(std::getenv("USER"),"jalmond")==0)
+	     FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
 
-    FillLimitInput(LimitRegionR1, weight_reg,   RegionBinAlt,  "LimitExtractionAlt/"+param.Name+"/M"+ref_mass,"SR1_"+channel_string,channel_string);
-    //        //FillLimitInput(LimitRegionR2, weight_reg, RegionBinAlt,  "LimitExtractionAlt/"+param.Name,"SR2",channel_string);                                                                                                                    
-
-  }
-  else{
-    
-    FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-    if(B_JetColl.size() == 1)       FillLimitInput(LimitRegionsInvBJetR1, weight_reg,   RegionBin+"_InvBJet",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-    else FillLimitInput(LimitRegionsInvMETR1, weight_reg,   RegionBin+"_InvMET",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-  }
+	  FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name+"/M"+ref_mass,"SR1_"+channel_string,channel_string);
+	  
+	}
+	else{
+	  
+	  FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+	  if(B_JetColl.size() == 1)       FillLimitInput(LimitRegionsInvBJetR1, weight_reg,   RegionBin+"_InvBJet",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+	  else FillLimitInput(LimitRegionsInvMETR1, weight_reg,   RegionBin+"_InvMET",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+	}
       }
     }
 
@@ -823,13 +843,6 @@ TString HNL_RegionDefinitions::RunSignalRegionAK8String(bool ApplyForSR,
       if(MN1 < ml1jbins[ibin]) return RegionTag+"_MNbin"+to_string(ibin);
     }
   }
-  if(binning_method==1){
-    vector<double> ml1jbins = GetLimitBinBoundary("SR1_Alt",ref_mass,GetChannelString(channel));
-
-    for(unsigned int ibin=1; ibin < ml1jbins.size(); ibin++){
-      if(MN1 < ml1jbins[ibin]) return RegionTag+"_MNbin"+to_string(ibin);
-    }
-  }
   
   return "true";
 
@@ -1086,18 +1099,21 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TStr
 
   float MVAvalueIncl    = EvaluateEventMVA(mN, "Incl", version, NCut, NTree, channel, LepTColl, ev, METv, param, w, isBDTVar); // true : fill MVA variables
 
+  vector<Tau> TauColl;
   
   if(!ApplyForSR|| HasFlag("PlotBDT")){
-    FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"/"+BDTLabel, MVAvalueIncl, w, 400, -1., 1.);
-    if(B_JetColl.size() == 1) FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"/InvBJet_"+BDTLabel, MVAvalueIncl, w, 400, -1., 1.);
-    else FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"/InvMET_"+BDTLabel, MVAvalueIncl, w, 400, -1., 1.);
+    FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/"+BDTLabel, MVAvalueIncl, w, 400, -1., 1.);
+    if(B_JetColl.size() == 1) FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/InvBJet_"+BDTLabel, MVAvalueIncl, w, 400, -1., 1.);
+    else FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/InvMET_"+BDTLabel, MVAvalueIncl, w, 400, -1., 1.);
   }
 
   if(ApplyForSR && param.syst_ ==AnalyzerParameter::Central && !HasFlag("RunSyst") && Binning == "Strict_15_Bin")   FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/"+BDTLabel_simple, MVAvalueIncl, w, 400, -1., 1.);
 
 
-  vector<Tau> TauColl;
-  if(FillCutFlow&&ApplyForSR&&param.IsCentral()) Fill_RegionPlots(param,"Pass"+RegionTag+"BDT" ,TauColl,  JetColl, AK8_JetColl, LepTColl,  METv, nPV, w);
+
+  if(FillCutFlow&&ApplyForSR&&param.IsCentral()) {
+    Fill_RegionPlots(param,"Pass"+RegionTag+"BDT" ,TauColl,  JetColl, AK8_JetColl, LepTColl,  METv, nPV, w);
+  }
 
   if(FillCutFlow){
     if(ApplyForSR)FillCutflow(HNL_LeptonCore::ChannelDepSR3, w, GetChannelString(channel) +"_"+RegionTag,param);

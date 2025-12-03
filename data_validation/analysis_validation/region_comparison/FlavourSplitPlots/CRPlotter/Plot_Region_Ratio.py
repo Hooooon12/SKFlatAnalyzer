@@ -29,6 +29,26 @@ logging.basicConfig(
     ]
 )
 
+def draw_fixed_boundaries(pad, x_positions):
+    pad.cd()
+    pad.Update()  # ensure user coords are valid
+
+    y_min = pad.GetUymin()
+    y_max = pad.GetUymax()
+
+    lines = []
+    for x in x_positions:
+        ln = ROOT.TLine(x, y_min, x, y_max)
+        ln.SetLineColor(ROOT.kBlack)
+        ln.SetLineStyle(2)  # dashed
+        ln.SetLineWidth(2)
+        ln.Draw("same")
+        lines.append(ln)
+
+    pad.RedrawAxis()
+    pad.Update()
+    return lines
+
 
 def make_legend(gr_Data_dummy,background_files):
 
@@ -818,6 +838,9 @@ try:
             latex_Lumi.SetTextSize(0.035)
             latex_Lumi.SetTextFont(42)
             latex_Lumi.DrawLatex(0.73, 0.96, "137.1 fb^{-1} (13 TeV)")
+
+            pad1.Update()
+            era_lines = draw_fixed_boundaries(pad1, [4.0, 8.0, 12.0]) 
             
             # bottom pad
             c1_down.cd()

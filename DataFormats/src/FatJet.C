@@ -146,10 +146,10 @@ double FatJet::GetTaggerSF(JetTagging::Tagger tg, TString era, int Sys) const{
   if(tg==JetTagging::particleNet_WvsQCD){
     if(era == "2016preVFP"){
       if (this->Pt()  < 300) {
-	double SF=1.07;
+	double SF=1.068682130166015;
 	if(Sys==0) return SF;
-	if(Sys==1) return (SF+0.26);
-	if(Sys==-1) return (SF-0.03);
+	if(Sys==1) return (SF+0.2633234295405093);
+	if(Sys==-1) return (SF-0.03152041939219363);
       }
       else  if (this->Pt() < 400) {
 	double SF=0.96;
@@ -160,8 +160,8 @@ double FatJet::GetTaggerSF(JetTagging::Tagger tg, TString era, int Sys) const{
       else{
 	double SF=1.17;
         if(Sys==0) return SF;
-        if(Sys==1) return (SF+0.07);
-	if(Sys==-1) return (SF-0.07);
+        if(Sys==1) return (SF+0.256);
+	if(Sys==-1) return (SF-0.069);
       }
       return -999999;
     }

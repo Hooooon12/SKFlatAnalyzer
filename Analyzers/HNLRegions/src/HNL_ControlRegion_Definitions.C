@@ -1512,12 +1512,9 @@ TString  HNL_RegionDefinitions::FillHighMassSR3CRPlots(HNL_LeptonCore::Channel c
     
   Fill_RegionPlots(param,"HNL_HighMassSR3_TwoLepton_CR", taus  ,  JetColl,  AK8_JetColl,  leps,  METv, nPV, w);
   
-  if (JetColl.size() < 2  && leps[1]->Pt() > 80.) {
-    if(leps[1]->Pt() > 140.)return true;
-    else return "false";
-  }
+  if(NB_JetColl>0)   Fill_RegionPlots(param,"HNL_HighMassSR3_BJet_TwoLepton_CR", taus  ,  JetColl,  AK8_JetColl,  leps,  METv, nPV, w);
+  else Fill_RegionPlots(param,"HNL_HighMassSR3_MET_TwoLepton_CR", taus  ,  JetColl,  AK8_JetColl,  leps,  METv, nPV, w);
 
-  if (JetColl.size() < 2) return "false";
   FillCutflow(Reg, w, "Step6",param);
 
 

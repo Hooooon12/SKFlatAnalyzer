@@ -648,18 +648,26 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::HEMJet) return "HEMJet";
   else if(syst_==Syst::MuonRecoSFUp)  return "MuonRecoSFUp";
   else if(syst_==Syst::MuonRecoSFDown) return "MuonRecoSFDown";
+  else if(syst_==Syst::MuonRecoSFStatUp)  return "MuonRecoSFStatUp";
+  else if(syst_==Syst::MuonRecoSFStatDown) return "MuonRecoSFStatDown";
   else if(syst_==Syst::MuonEnUp)   return "MuonEnUp";
   else if(syst_==Syst::MuonResUp) return "MuonResUp";
   else if(syst_==Syst::MuonResDown) return "MuonResDown";
   else if(syst_==Syst::MuonEnDown) return "MuonEnDown";
   else if(syst_==Syst::MuonIDSFUp) return "MuonIDSFUp";
   else if(syst_==Syst::MuonIDSFDown)    return "MuonIDSFDown";
+  else if(syst_==Syst::MuonIDSFStatUp) return "MuonIDSFStatUp";
+  else if(syst_==Syst::MuonIDSFStatDown)    return "MuonIDSFStatDown";
   else if(syst_==Syst::MuonISOSFUp)    return "MuonISOSFUp";
   else if(syst_==Syst::MuonISOSFDown)  return "MuonISOSFDown";
   else if(syst_==Syst::MuonTriggerSFUp)  return "MuonTriggerSFUp";
   else if(syst_==Syst::MuonTriggerSFDown)  return "MuonTriggerSFDown";
+  else if(syst_==Syst::MuonTriggerSFStatUp)  return "MuonTriggerSFStatUp";
+  else if(syst_==Syst::MuonTriggerSFStatDown)  return "MuonTriggerSFStatDown";
   else if(syst_==Syst::ElectronRecoSFUp) return "ElectronRecoSFUp";
   else if(syst_==Syst::ElectronRecoSFDown)   return "ElectronRecoSFDown";
+  else if(syst_==Syst::ElectronRecoSFStatUp) return "ElectronRecoSFStatUp";
+  else if(syst_==Syst::ElectronRecoSFStatDown)   return "ElectronRecoSFStatDown";
   else if(syst_==Syst::ElectronResUp)  return "ElectronResUp";
   else if(syst_==Syst::ElectronResDown) return "ElectronResDown";
   else if(syst_==Syst::ElectronEnUp)   return "ElectronEnUp";
@@ -668,6 +676,11 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::ElectronIDSFDown)  return "ElectronIDSFDown";
   else if(syst_==Syst::ElectronTriggerSFUp)  return "ElectronTriggerSFUp";
   else if(syst_==Syst::ElectronTriggerSFDown)  return "ElectronTriggerSFDown";
+
+  else if(syst_==Syst::ElectronIDSFStatUp)   return "ElectronIDSFStatUp";
+  else if(syst_==Syst::ElectronIDSFStatDown)  return "ElectronIDSFStatDown";
+  else if(syst_==Syst::ElectronTriggerSFStatUp)  return "ElectronTriggerSFStatUp";
+  else if(syst_==Syst::ElectronTriggerSFStatDown)  return "ElectronTriggerSFStatDown";
 
   else if(syst_==Syst::BTagSFHTagCorrUp)   return "BTagSFHTagCorrUp";
   else if(syst_==Syst::BTagSFHTagCorrDown)   return "BTagSFHTagCorrDown";

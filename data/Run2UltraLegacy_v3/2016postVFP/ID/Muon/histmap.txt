@@ -8,8 +8,8 @@ ISO      SF        NUM_TightRelIso_DEN_TightIDandIPCut     Files/Efficiencies_mu
 ISO      SF        NUM_TightRelIso_DEN_MediumID            Files/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root                 NUM_TightRelIso_DEN_MediumID_abseta_pt
 ISO      SF        NUM_LooseRelTkIso_DEN_HighPtIDandIPCut  Files/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root                 NUM_LooseRelTkIso_DEN_HighPtIDandIPCut_abseta_pt
 ID       SF        NUM_HNTightV2                           Files/HNL_LeptonIDSF_Muon_2016postVFP_Eta_MuonPt.root                       Data_MC_SF_Eta_MuonPt_HNTightV2
-ID       SF        NUM_HNL_ULID_2016                       Files/efficiency_FitFixedV2_ID_HighPt1bin_2016b.root                        sf
-ID       SF        NUM_2bins_HNL_ULID_2016                 Files/efficiency_FitFixedV2_ID_HighPt2bins_Pt300_2016b.root                 sf
+ID       SF        NUM_HNL_ULID_2016                 	   Files/efficiency_FitFixedV2_ID_HighPt2bins_Pt300_2016b.root                 sf
+ID       SF_Stat   NUM_HNL_ULID_2016                       Files/efficiency_FitFixedV2_ID_HighPt2bins_Pt300_2016b.root                 sf_s0m0
 ID       SF        NUM_TopHNT				   Files/IDEff_TopHNT_2016b.root    					       SF_fabs(probe_eta)_probe_pt
 ################################ Tracker SF
 Tracker  SF        NUM_GlobalMuons                         Files/2016b_GlobalMuon_v17.root                                             sf
@@ -23,14 +23,22 @@ Trigger  Eff_MC    DiMuIsoMu17_POGMIDTIso                  Files/TrigEff_Mu17_PO
 Trigger  Eff_DATA  DiMuIsoMu8_POGMIDTIso                   Files/TrigEff_Mu8_POGMIDTIso_2016b.root                                     data
 Trigger  Eff_MC    DiMuIsoMu8_POGMIDTIso                   Files/TrigEff_Mu8_POGMIDTIso_2016b.root                                     sim
 ### HNL Triggers
-Trigger  Eff_DATA  DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2016b.root                  data
-Trigger  Eff_MC    DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2016b.root                  sim
-Trigger  Eff_DATA  DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2016b.root                   data
-Trigger  Eff_MC    DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2016b.root                   sim
-Trigger  Eff_DATA  EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2016b.root                           data
-Trigger  Eff_MC    EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2016b.root                           sim
-Trigger  Eff_DATA  EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2016b.root                            data
-Trigger  Eff_MC    EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2016b.root			       sim
+Trigger  Eff_DATA  DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2016b.root                  data_syst
+Trigger  Eff_MC    DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2016b.root                  sim_syst
+Trigger  Eff_DATA  DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2016b.root                   data_syst
+Trigger  Eff_MC    DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2016b.root                   sim_syst
+Trigger  Eff_DATA  EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2016b.root                           data_syst
+Trigger  Eff_MC    EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2016b.root                           sim_syst
+Trigger  Eff_DATA  EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2016b.root                            data_syst
+Trigger  Eff_MC    EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2016b.root			       sim_syst
+Trigger  Stat_DATA  DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2016b.root                  data_stat
+Trigger  Stat_MC    DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2016b.root                  sim_stat
+Trigger  Stat_DATA  DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2016b.root                   data_stat
+Trigger  Stat_MC    DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2016b.root                   sim_stat
+Trigger  Stat_DATA  EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2016b.root                           data_stat
+Trigger  Stat_MC    EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2016b.root                           sim_stat
+Trigger  Stat_DATA  EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2016b.root                            data_stat
+Trigger  Stat_MC    EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2016b.root                            sim_stat
 ### Top Triggers
 Trigger  Eff_DATA  DiMuIsoMu17_HNTopID                     Files/TrigEff_Mu17_TopHNT_2016b.root                                        muonEffi_data_fabs(probe_eta)_probe_pt
 Trigger  Eff_MC    DiMuIsoMu17_HNTopID                     Files/TrigEff_Mu17_TopHNT_2016b.root                                        muonEffi_mc_fabs(probe_eta)_probe_pt

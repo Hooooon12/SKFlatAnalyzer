@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumsign sumw
+VBFTypeI_DF_M350_private	VBFTypeI_NLO_DF_M350	0.04166683523	1218000	560816.0	2.5745900221227203 

@@ -4,7 +4,7 @@ from collections import defaultdict
 
 # Settings
 log_dir = "logs"
-masses = ['100', '125', '150', '200', '250', '300', '400', '500']
+masses = ['300', '350','400','450']
 flavours = ['EE', 'MuMu', 'EMu']
 eras = ['2016preVFP', '2016postVFP', '2017', '2018']
 
@@ -38,7 +38,7 @@ def print_bins_grouped_by_flag(version_tag):
     data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
     for mass in masses:
-        for mode in ["strict_10Bins","strict_15Bins", "strict_20Bins"]:
+        for mode in ["strict_15Bins"]:
             if mode == "strict_10Bins":
                 bin_configs = [(10, 25, "Strict_BDT", "_Strict_10_Bin", "scan")]
             elif mode == "strict_15Bins":
@@ -84,6 +84,5 @@ def print_bins_grouped_by_flag(version_tag):
                     print("")  # Blank line between flavours
 
 if __name__ == "__main__":
-    print_bins_grouped_by_flag("V4")
     print_bins_grouped_by_flag("V3")
 

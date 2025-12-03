@@ -387,7 +387,8 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(AnalyzerParameter param,TString id, 
         }
       }
     }
-    if(param.syst_ == AnalyzerParameter::HEMJet || HasFlag("ScaleHEMJet")){
+    if((DataEra=="2018"&& param.syst_ == AnalyzerParameter::HEMJet) || HasFlag("ScaleHEMJet")){
+
       Jet this_jet = jets.at(i);
 
       if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){

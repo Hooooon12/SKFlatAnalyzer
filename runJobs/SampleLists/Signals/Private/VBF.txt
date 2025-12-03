@@ -8,7 +8,9 @@ VBFTypeI_DF_M2000_private
 VBFTypeI_DF_M2500_private
 VBFTypeI_DF_M3000_private
 VBFTypeI_DF_M300_private
+VBFTypeI_DF_M350_private
 VBFTypeI_DF_M400_private
+VBFTypeI_DF_M450_private
 VBFTypeI_DF_M500_private
 VBFTypeI_DF_M600_private
 VBFTypeI_DF_M700_private

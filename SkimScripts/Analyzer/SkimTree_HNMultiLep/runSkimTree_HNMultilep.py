@@ -20,7 +20,7 @@ def run_command(command):
 def run_gt36():
     for era in ["2018"]:
         for dataset in [
-            "EGamma_GT36:D"
+            "DoubleMuon_GT36:A"
         ]:
             cmd = f"SKFlat.py -a {analyzer} -i {dataset} -n 10000 --nmax 600 -e {era} &"
             run_command(cmd)

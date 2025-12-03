@@ -188,12 +188,8 @@ commands_template = [
     ]),
     ("WZ", [
         f"{mode}MultiLepton__RunPrompt__/{Analyzer}_{skim}_WZ_EWK.root",
-        f"{mode}MultiLepton__RunPrompt__/{Analyzer}_{skim}_WZTo3LNu_mllmin4p0_powheg.root"
-    ]),
-    ("WZAlt", [
-        f"{mode}MultiLepton__RunPrompt__/{Analyzer}_{skim}_WZ_EWK.root",
         f"{mode}MultiLepton__RunPrompt__/{Analyzer}_{skim}_WZTo3LNu_amcatnlo.root"
-    ])
+    ]),
 
 ]
 

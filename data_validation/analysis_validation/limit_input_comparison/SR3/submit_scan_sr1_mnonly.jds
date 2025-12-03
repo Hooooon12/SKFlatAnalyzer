@@ -1,0 +1,15 @@
+universe        = vanilla
+executable      = run_from_scan_sr1_mnonly.sh
+transfer_input_files = scan_sr1_memory.py
+arguments       = $(MASS) $(FLAV) $(ERA)  $(NBIN)
+log             = logs/scan_sr1_mnonly_$(MASS)_$(FLAV)_$(ERA)_$(NBIN).log
+output          = logs/scan_sr1_mnonly_$(MASS)_$(FLAV)_$(ERA)_$(NBIN).out
+error           = logs/scan_sr1_mnonly_$(MASS)_$(FLAV)_$(ERA)_$(NBIN).err
+request_cpus    = 1
+request_memory  = 45000
+getenv          = True
++JobFlavour     = "longlunch"
+concurrency_limits = n600.jalmond
+
+
+queue MASS, FLAV, ERA, NBIN from fom_scan_list.txt

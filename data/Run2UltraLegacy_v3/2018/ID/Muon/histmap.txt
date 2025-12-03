@@ -10,8 +10,8 @@ ISO      SF        NUM_LooseRelTkIso_DEN_HighPtIDandIPCut  Files/Efficiencies_mu
 ### HNL
 ID       SF        NUM_HNTightV2                           Files/HNL_LeptonIDSF_Muon_2018_Eta_MuonPt.root                              Data_MC_SF_Eta_MuonPt_HNTightV2
 ID       SF        NUM_TopHNT				   Files/IDEff_TopHNT_2018.root    					       SF_fabs(probe_eta)_probe_pt
-ID       SF        NUM_HNL_ULID_2018                     Files/efficiency_FitFixedV2_ID_HighPt1bin_2018.root			       sf
-ID       SF        NUM_2bins_HNL_ULID_2018                 Files/efficiency_FitFixedV2_ID_HighPt2bins_Pt300_2018.root                 sf                                                    
+ID       SF        NUM_HNL_ULID_2018                       Files/efficiency_FitFixedV2_ID_HighPt2bins_Pt300_2018.root                  sf
+ID       SF_Stat   NUM_HNL_ULID_2018                       Files/efficiency_FitFixedV2_ID_HighPt2bins_Pt300_2018.root                  sf_s0m0                                                    
 ################################ Tracker SF
 Tracker  SF        NUM_GlobalMuons			   Files/2018_GlobalMuon_v17.root					       sf
 ################################ Trigger SF
@@ -24,14 +24,22 @@ Trigger  Eff_MC    DiMuIsoMu17_POGMIDTIso                  Files/TrigEff_Mu17_PO
 Trigger  Eff_DATA  DiMuIsoMu8_POGMIDTIso                   Files/TrigEff_Mu8_POGMIDTIso_2018.root                                      data
 Trigger  Eff_MC    DiMuIsoMu8_POGMIDTIso                   Files/TrigEff_Mu8_POGMIDTIso_2018.root                                      sim
 ### HNL Trigger
-Trigger  Eff_DATA  DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2018.root 		       data
-Trigger  Eff_MC    DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2018.root		       sim
-Trigger  Eff_DATA  DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2018.root		       data
-Trigger  Eff_MC    DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2018.root		       sim
-Trigger  Eff_DATA  EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2018.root                            data
-Trigger  Eff_MC    EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2018.root                            sim
-Trigger  Eff_DATA  EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2018.root                             data
-Trigger  Eff_MC    EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2018.root                             sim
+Trigger  Eff_DATA  DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2018.root 		       data_syst
+Trigger  Eff_MC    DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2018.root		       sim_syst
+Trigger  Eff_DATA  DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2018.root		       data_syst
+Trigger  Eff_MC    DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2018.root		       sim_syst
+Trigger  Eff_DATA  EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2018.root                            data_syst
+Trigger  Eff_MC    EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2018.root                            sim_syst
+Trigger  Eff_DATA  EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2018.root                             data_syst
+Trigger  Eff_MC    EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2018.root                             sim_syst
+Trigger  Stat_DATA  DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2018.root                   data_stat
+Trigger  Stat_MC    DiMuIsoMu17_HNL_ULIDv2                  Files/efficiency_FitFixedV2_Mu17Leg1_HighPt1bin_2018.root                   sim_stat
+Trigger  Stat_DATA  DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2018.root                    data_stat
+Trigger  Stat_MC    DiMuIsoMu8_HNL_ULIDv2                   Files/efficiency_FitFixedV2_Mu8Leg2_HighPt1bin_2018.root                    sim_stat
+Trigger  Stat_DATA  EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2018.root                            data_stat
+Trigger  Stat_MC    EMuIsoMu23_HNL_ULIDv2                   Files/efficiency_EMu_Mu23Leg1_3EtaBins_2018.root                            sim_stat
+Trigger  Stat_DATA  EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2018.root                             data_stat
+Trigger  Stat_MC    EMuIsoMu8_HNL_ULIDv2                    Files/efficiency_EMu_Mu8Leg2_3EtaBins_2018.root                             sim_stat
 ### Top HNL Triggers
 Trigger  Eff_DATA  DiMuIsoMu17_HNTopID                     Files/TrigEff_Mu17_TopHNT_2018.root                                         muonEffi_data_fabs(probe_eta)_probe_pt
 Trigger  Eff_MC    DiMuIsoMu17_HNTopID                     Files/TrigEff_Mu17_TopHNT_2018.root                                         muonEffi_mc_fabs(probe_eta)_probe_pt

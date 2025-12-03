@@ -517,21 +517,22 @@ background_files = [
     ["HNL_ControlRegionTwo_Other.root", "Other"],
 ]
 
+
 colors = {
     "Chargeflip": ROOT.kYellow,
     "W#gamma": ROOT.kBlue,
-    "Z#gamma": ROOT.kGreen + 2,
-    "X#gamma": ROOT.kMagenta,
-    "Nonprompt": 870,
-    "Other": ROOT.kOrange,
+    "Z#gamma": ROOT.kOrange - 3,
+    "X#gamma": ROOT.kOrange - 3,
+    "Nonprompt":  ROOT.kAzure - 9,
+    "Other": ROOT.kGray + 2,
     "tHq": ROOT.kViolet,
     "TTV": ROOT.kPink + 1,
     "VVV": ROOT.kMagenta,
-    "WW": ROOT.kGray,
-    "WZ": ROOT.kGreen,
-    "ggZZ": ROOT.kSpring + 1,
-    "qqZZ": ROOT.kTeal,
-    "ZZ": ROOT.kTeal,
+    "WW": ROOT.kMagenta - 4,
+    "WZ": ROOT.kSpring - 1,
+    "ggZZ":  ROOT.kRed,
+    "qqZZ":  ROOT.kRed,
+    "ZZ":  ROOT.kRed,
 }
 
 

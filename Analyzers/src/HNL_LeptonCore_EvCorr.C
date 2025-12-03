@@ -162,6 +162,11 @@ void HNL_LeptonCore::EvalMuonIDWeight(const std::vector<Muon>& muons, AnalyzerPa
   case AnalyzerParameter::MuonIDSFDown:   SystDir_MuonIDSF = -1; break;
   case AnalyzerParameter::MuonISOSFUp:    SystDir_MuonISOSF = +1; break;
   case AnalyzerParameter::MuonISOSFDown:  SystDir_MuonISOSF = -1; break;
+  case AnalyzerParameter::MuonRecoSFStatUp:   SystDir_MuonRecoSF = +2; break;
+  case AnalyzerParameter::MuonRecoSFStatDown: SystDir_MuonRecoSF = -2; break;
+  case AnalyzerParameter::MuonIDSFStatUp:     SystDir_MuonIDSF = +2; break;
+  case AnalyzerParameter::MuonIDSFStatDown:   SystDir_MuonIDSF = -2; break;
+    
   default: break;
   }
 
@@ -244,12 +249,21 @@ void HNL_LeptonCore::EvalLeptonIDWeight(const std::vector<Lepton*>& leps, Analyz
   case AnalyzerParameter::MuonRecoSFDown:   SystDir_MuonRecoSF = -1; break;
   case AnalyzerParameter::MuonIDSFUp:       SystDir_MuonIDSF = +1; break;
   case AnalyzerParameter::MuonIDSFDown:     SystDir_MuonIDSF = -1; break;
+  case AnalyzerParameter::MuonRecoSFStatUp:     SystDir_MuonRecoSF = +2; break;
+  case AnalyzerParameter::MuonRecoSFStatDown:   SystDir_MuonRecoSF = -2; break;
+  case AnalyzerParameter::MuonIDSFStatUp:       SystDir_MuonIDSF = +2; break;
+  case AnalyzerParameter::MuonIDSFStatDown:     SystDir_MuonIDSF = -2; break;
   case AnalyzerParameter::MuonISOSFUp:      SystDir_MuonISOSF = +1; break;
   case AnalyzerParameter::MuonISOSFDown:    SystDir_MuonISOSF = -1; break;
   case AnalyzerParameter::ElectronRecoSFUp: SystDir_ElectronRecoSF = +1; break;
   case AnalyzerParameter::ElectronRecoSFDown: SystDir_ElectronRecoSF = -1; break;
   case AnalyzerParameter::ElectronIDSFUp:   SystDir_ElectronIDSF = +1; break;
   case AnalyzerParameter::ElectronIDSFDown: SystDir_ElectronIDSF = -1; break;
+  case AnalyzerParameter::ElectronRecoSFStatUp: SystDir_ElectronRecoSF = +2; break;
+  case AnalyzerParameter::ElectronRecoSFStatDown: SystDir_ElectronRecoSF = -2; break;
+  case AnalyzerParameter::ElectronIDSFStatUp:   SystDir_ElectronIDSF = +2; break;
+  case AnalyzerParameter::ElectronIDSFStatDown: SystDir_ElectronIDSF = -2; break;
+
   default: break;
   }
 
@@ -290,6 +304,10 @@ void HNL_LeptonCore::EvalElectronIDWeight(const std::vector<Electron>& electrons
   case AnalyzerParameter::ElectronRecoSFDown: SystDir_ElectronRecoSF = -1; break;
   case AnalyzerParameter::ElectronIDSFUp:     SystDir_ElectronIDSF = +1; break;
   case AnalyzerParameter::ElectronIDSFDown:   SystDir_ElectronIDSF = -1; break;
+  case AnalyzerParameter::ElectronRecoSFStatUp: SystDir_ElectronRecoSF = +2; break;
+  case AnalyzerParameter::ElectronRecoSFStatDown: SystDir_ElectronRecoSF = -2; break;
+  case AnalyzerParameter::ElectronIDSFStatUp:   SystDir_ElectronIDSF = +2; break;
+  case AnalyzerParameter::ElectronIDSFStatDown: SystDir_ElectronIDSF = -2; break;
   default: break;
   }
 

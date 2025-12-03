@@ -471,7 +471,7 @@ def main():
 
     
     
-    Flavours = ["MuMuMu", "EEE", "EMuL"]
+    Flavours = ["MuMu", "EE", "EMu"]
 
     hist_bases = [ ]
     for j_id in IDs:
