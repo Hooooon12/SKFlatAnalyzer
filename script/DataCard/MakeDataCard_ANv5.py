@@ -342,7 +342,7 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
               else: line = line.replace('1.05',lumi_systs[era]['corr2'])
 
           # era-correlated systs
-          if any(f"{key}_" in f"{syst_name}_" for key in ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco", "eff_m_id", "scale_e", "res_e", "eff_e_reco", "eff_e_id", "ParticleNet"]):
+          if any(f"{key}_" in f"{syst_name}_" for key in ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco", "eff_m_id", "scale_e", "res_e", "eff_e_reco", "eff_e_id", "PNET"]):
             pass
           # partial era-decorrelation (2016 lumi)
           elif syst_name == "lumi":
@@ -362,7 +362,7 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
 
           # sr treatment
           if "sr1" not in region and "cr1" not in region:
-            if "ParticleNet" in syst_name: continue
+            if "PNET" in syst_name: continue
  
       if is_rateParam_line(line):
         this_region = line.split()[0].split('_')[-1] if len(line.split()[0].split('_')) == 2 else None # "srx" if it's not ZGNorm or ZZNorm which is shared across all srs
