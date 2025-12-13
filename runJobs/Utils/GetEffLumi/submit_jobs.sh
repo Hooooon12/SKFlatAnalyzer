@@ -5,7 +5,7 @@ set -e  # Optional: exit script if any command fails
 analyzer="GetEffLumi"
 rundir="GetEffLumi"
 sigpath="${SKFlat_WD}/runJobs/SampleLists/Signals"
-nmax=600
+nmax=1000
 njobs_sig=2
 skim="SkimTree_HNMultiLepBDT"
 
@@ -19,7 +19,7 @@ echo ""
 for era in "${era_list[@]}"; do
     echo "[INFO] Submitting jobs for era: $era"
     SKFlat.py -a "$analyzer" \
-              -l "$sigpath/Private/SSWWExt.txt" \
+              -l "$sigpath/Private/New.txt" \
               -n "$njobs_sig" \
               --nmax "$nmax" \
               -e "$era" \

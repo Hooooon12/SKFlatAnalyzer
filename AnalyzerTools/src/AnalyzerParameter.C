@@ -79,6 +79,11 @@ void AnalyzerParameter::Clear(){
   Muon_UseTuneP = false;
   Muon_MinPt = 10.;
 
+  central = -999;
+  hemjet = -999;
+  hasHemjet = false;
+  hasCentral = false;
+  
   SystDir_PU=0;
   SystDir_BTag="central";
   BJet_Method="1a";
@@ -225,6 +230,12 @@ AnalyzerParameter::AnalyzerParameter(){
   /// ---------                                                                                                                                                                                
   Electron_MinPt = 10.;  Electron_MaxEta = 2.5;
 
+  central = -999;
+  hemjet = -999;
+  hasHemjet = false;
+  hasCentral = false;
+
+  
 }
 
 /*
@@ -645,7 +656,8 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::JetPUIDDown) return "JetPUIDDown";
   else if(syst_==Syst::JetPNETDown) return "JetPNETDown";
   else if(syst_==Syst::JetPNETUp) return "JetPNETUp";
-  else if(syst_==Syst::HEMJet) return "HEMJet";
+  else if(syst_==Syst::HEMJetUp) return "HEMJetUp";
+  else if(syst_==Syst::HEMJetDown) return "HEMJetDown";
   else if(syst_==Syst::MuonRecoSFUp)  return "MuonRecoSFUp";
   else if(syst_==Syst::MuonRecoSFDown) return "MuonRecoSFDown";
   else if(syst_==Syst::MuonRecoSFStatUp)  return "MuonRecoSFStatUp";

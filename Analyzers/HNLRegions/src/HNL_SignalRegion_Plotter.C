@@ -35,6 +35,7 @@ void HNL_SignalRegion_Plotter::initializeAnalyzer(){
 
 void HNL_SignalRegion_Plotter::executeEvent(){
 
+
   FillTimer("START_EV");
   
   if(_jentry == 0)    cout << "HNL_SignalRegion_Plotter::IsData = " << IsData << endl;
@@ -78,16 +79,18 @@ void HNL_SignalRegion_Plotter::executeEvent(){
       ChannelsToRun = {EE, MuMu, EMu};
     }
   }
-  
+
+
   for (auto id: LepIDs){
     for(auto channel : ChannelsToRun){
       
       if(IsSignal() && !SelectChannel(channel)) continue;
 
+      
       //// Central run...
       AnalyzerParameter param_sr = Setup_Param_HNL_ULIDv2(id,GetChannelString(channel));
       RunULAnalysis(param_sr);
-
+      
       /// Systematic run ...
       TString param_sr_name = param_sr.Name;
       TString param_sr_defname = param_sr.DefName;
@@ -118,6 +121,7 @@ void HNL_SignalRegion_Plotter::executeEvent(){
       for(auto isyst : GetSystList(SystLabel)){
         bool runJob = UpdateParamBySyst(id,param_sr,AnalyzerParameter::Syst(isyst),param_sr_name);
         if(runJob) RunULAnalysis(param_sr);
+
         /// Just in case reset param names
         param_sr.Name=param_sr_name;
         param_sr.DefName=param_sr_defname;
@@ -132,6 +136,13 @@ void HNL_SignalRegion_Plotter::executeEvent(){
 void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
 
   if(_jentry< 1) cout << "HNL_SignalRegion_Plotter::executeEvent " << param_sr.Name <<  " " << param_sr.Channel << endl;
+
+  //// Setup debug for one event 
+  if(HasFlag("debug_event")){
+    const ULong64_t event_to_debug = 769513;
+    if(event != event_to_debug) return;
+    else run_Debug = true;
+  }
   
   Event ev = GetEvent();
   double weight =SetupWeight(ev,param_sr);
@@ -139,6 +150,10 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
   // HL ID
   std::vector<Electron>   ElectronCollV = SelectElectrons(param_sr,param_sr.Electron_Veto_ID, 10., 2.5); 
   std::vector<Muon>       MuonCollV     = SelectMuons    (param_sr,param_sr.Muon_Veto_ID,     5., 2.4);
+
+  if(run_Debug){
+    for(auto im : MuonCollV) im.PrintObject("Veto Muon") ;
+  }
   
   TString el_ID = SetLeptonID("Electron",param_sr);
   TString mu_ID = SetLeptonID("Muon", param_sr);
@@ -153,12 +168,20 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
   double Min_FakeMuon_Pt     =  5;   double Min_FakeElectron_Pt =  10 ;
   std::vector<Muon>       MuonTightColl_Init     = SelectMuons    ( param_sr,mu_ID,     Min_FakeMuon_Pt, 2.4, weight);
   std::vector<Electron>   ElectronTightColl_Init = SelectElectrons( param_sr,el_ID, Min_FakeElectron_Pt, 2.5, weight);
-
+  
+  if(run_Debug){
+    for(auto im : MuonTightColl_Init) im.PrintObject("Init Muon");
+  }
+  
   //// Apply Full Pt cut after pt corrected in fakes                                                                            
   double Min_Muon_Pt     =  10.;   double Min_Electron_Pt =  15;
   std::vector<Muon>       MuonCollT  = SelectMuons(MuonTightColl_Init,mu_ID,     Min_Muon_Pt,     2.4);
   std::vector<Electron>   ElectronCollT = SelectElectrons(ElectronTightColl_Init,el_ID, Min_Electron_Pt, 2.5);
-
+  
+  if(run_Debug){
+    for(auto im : MuonCollT) im.PrintObject("Final Muon");
+  }
+  
   // create lepton collection
   std::vector<Lepton *> leps_veto  = MakeLeptonPointerVector(MuonCollV,ElectronCollV);
 
@@ -171,9 +194,39 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
   std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param_sr);
 
   Particle METv = GetvMET("PuppiT1xyULCorr", param_sr, MuonCollT, ElectronCollT); // returns MET with systematic correction; run this after all object selection done; NOTE that VBF jet is used here
+
+
+  if (run_Debug) {
+    std::cout << "HNL_SignalRegion_Plotter [DEBUG] After object selection:" << std::endl;
+    
+    std::cout << "  ElectronCollV            = " << ElectronCollV.size() << std::endl;
+    std::cout << "  MuonCollV                = " << MuonCollV.size() << std::endl;
+    
+    std::cout << "  MuonTightColl_Init       = " << MuonTightColl_Init.size() << std::endl;
+    std::cout << "  ElectronTightColl_Init   = " << ElectronTightColl_Init.size() << std::endl;
+    
+    std::cout << "  MuonCollT                = " << MuonCollT.size() << std::endl;
+    std::cout << "  ElectronCollT            = " << ElectronCollT.size() << std::endl;
+
+    std::cout << "  leps_veto                = " << leps_veto.size() << std::endl;
+
+    std::cout << "  AK8_JetColl              = " << AK8_JetColl.size() << std::endl;
+    std::cout << "  AK4_JetColl              = " << AK4_JetColl.size() << std::endl;
+    std::cout << "  AK4_VBF_JetColl          = " << AK4_VBF_JetColl.size() << std::endl;
+
+    std::cout << "  AK4_JetCollLoose         = " << AK4_JetCollLoose.size() << std::endl;
+    std::cout << "  AK4_BJetColl             = " << AK4_BJetColl.size() << std::endl;
+    
+    std::cout << "  syst                     = " << param_sr.syst_ << std::endl;
+    std::cout << "  weight (after syst)      = " << weight << std::endl;
+  }
   
   EvalJetWeight(AK4_JetColl,AK4_VBF_JetColl, AK8_JetColl, weight, param_sr);
 
+  if (run_Debug) {
+    std::cout << "  weight (after jet treatment)      = " << weight << std::endl;
+  }
+ 
   FillTimer("START_SR");
 
   vector<int> RunEl ;
@@ -234,8 +287,10 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
     }
   }
 
+  
   FillTimer("END_SR");
 
+  return;
 
 }
  

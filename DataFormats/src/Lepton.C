@@ -114,6 +114,7 @@ void Lepton::SetMiniAODPt(double d){
 
 void Lepton::PrintObject(TString label){
   cout << "------------------------------" << endl;
+  Print();
   cout << "Pt = " << this->Pt() << endl;
   cout << "Eta = " << this->fEta() << endl;
   cout << "j_dXY = " << j_dXY << endl;

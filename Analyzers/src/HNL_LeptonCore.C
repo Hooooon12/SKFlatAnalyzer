@@ -597,7 +597,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
                   AnalyzerParameter::JetEnUp, AnalyzerParameter::JetEnDown,
                   AnalyzerParameter::JetPUIDUp,AnalyzerParameter::JetPUIDDown,
                   AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,
-                  AnalyzerParameter::HEMJet,
+                  AnalyzerParameter::HEMJetUp,AnalyzerParameter::HEMJetDown,
                   AnalyzerParameter::BTagSFHTagCorrUp,AnalyzerParameter::BTagSFHTagCorrDown,
                   AnalyzerParameter::BTagSFLTagCorrUp,AnalyzerParameter::BTagSFLTagCorrDown,
                   AnalyzerParameter::BTagSFHTagUnCorrUp,AnalyzerParameter::BTagSFHTagUnCorrDown,
@@ -1291,7 +1291,7 @@ bool HNL_LeptonCore::CheckLeptonFlavourForChannel(HNL_LeptonCore::Channel channe
   if(channel==MuMu  || channel==EE || channel== EMu ){
     
     if (leps.size() != 2) return false;
-
+    
     if (channel==EE     && !(leps[0]->LeptonFlavour() == Lepton::ELECTRON && leps[1]->LeptonFlavour() == Lepton::ELECTRON)) return false;
     if (channel==MuMu   && !(leps[0]->LeptonFlavour() == Lepton::MUON     && leps[1]->LeptonFlavour() == Lepton::MUON))    return false;
     if (channel==EMu    && (n_el != n_mu) ) return false;

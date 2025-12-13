@@ -43,6 +43,24 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
             std::vector<Jet> AK4_JetCollLoose,std::vector<Jet> JetColl, std::vector<Jet> VBF_JetColl,std::vector<FatJet>  AK8_JetColl, std::vector<Jet> B_JetColl, 
             Event ev,   Particle METv, AnalyzerParameter param, int nElForRunCF,   float weight_ll){
 
+  if (run_Debug) {
+    std::cout << "[DEBUG] RunAllSignalRegions called" << std::endl;
+    std::cout << "  electronsInitial = " << electronsInitial.size() << std::endl;
+    std::cout << "  electrons_veto   = " << electrons_veto.size() << std::endl;
+    std::cout << "  muons            = " << muons.size() << std::endl;
+    std::cout << "  muons_veto       = " << muons_veto.size() << std::endl;
+    std::cout << "  taus             = " << TauColl.size() << std::endl;
+    std::cout << "  AK4_JetCollLoose = " << AK4_JetCollLoose.size() << std::endl;
+    std::cout << "  JetColl          = " << JetColl.size() << std::endl;
+    std::cout << "  VBF_JetColl      = " << VBF_JetColl.size() << std::endl;
+    std::cout << "  AK8_JetColl      = " << AK8_JetColl.size() << std::endl;
+    std::cout << "  B_JetColl        = " << B_JetColl.size() << std::endl;
+    std::cout << "  Event ev         = " << event << std::endl;
+    std::cout << "  MET pt           = " << METv.Pt() << std::endl;
+    std::cout << "  syst             = " << param.syst_ << std::endl;
+    std::cout << "  weight_ll        = " << weight_ll << std::endl;
+  }
+  
   //// Need to correct MET/Energy of electrons in the case of CF bkg estimate
   std::vector<Electron> electrons;
   if(RunCF) {
@@ -104,7 +122,7 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
                   METv, nPV, weight_ll);
       }
       return; // JH
-		}
+    }
 
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));
@@ -192,14 +210,11 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     
     FillCutflow(HNL_LeptonCore::ChannelDepInc, weight_channel, GetChannelString(dilep_channel) +"_NoCut",param);
     
-    
     if(!ConversionSplitting(LepsT,RunConv,2,param)) continue;
 
 
     if(! CheckLeptonFlavourForChannel(dilep_channel, LepsT))  continue;
-
     
-  
     if(param.IsCentral()) PassJetHEMVeto(JetColl,param.Name+"_Jet",weight_channel);
 
     if(LepsT.size() ==2)  FillCutflow(HNL_LeptonCore::ChannelDepDilep, weight_channel, GetChannelString(dilep_channel) +"_Dilep",param);
@@ -285,6 +300,7 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
   HNL_LeptonCore::SearchRegion LimitRegionsInvMETBDTR3 = HNL_LeptonCore::MuonInvMETCR3BDT;
   HNL_LeptonCore::SearchRegion LimitRegionsInvBJetBDTR3 = HNL_LeptonCore::MuonInvBJetCR3BDT;
 
+  
   if(IsSR){
   
     /// Remove now LimitRegions and LimitRegionsBDT which merged SR1/2/3 into one plot as SRs can have different bin numbers per mass/era 
@@ -438,10 +454,10 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
 
     // Top level debug
     if(0)std::cout << "[DEBUG] New event: sample=" << mcSampleName
-	      << " isSignal=" << isSignal
-	      << " isSR=" << isSR
-	      << " nAK8=" << AK8_JetColl.size()
-	      << std::endl;
+        << " isSignal=" << isSignal
+        << " isSR=" << isSR
+        << " nAK8=" << AK8_JetColl.size()
+        << std::endl;
     
     
     for (const auto& grp : mass_groups) {
@@ -455,17 +471,17 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       bool sr1_fill_plot = (ref_mass == 400 || isSignal);
 
       if(0)std::cout << "[DEBUG]  Mass group loop: ref_mass=" << ref_mass
-		<< " sr1_fill_plot=" << sr1_fill_plot << std::endl;
+    << " sr1_fill_plot=" << sr1_fill_plot << std::endl;
 
       if (!isSR && !sr1_fill_plot && !isSignal) {
-	 if(0)std::cout << "[DEBUG]   -> Skipping group ref_mass=" << ref_mass
-		  << " due to CR condition "
-		  << "(isSR=" << isSR
-		  << ", sr1_fill_plot=" << sr1_fill_plot
-		  << ", isSignal=" << isSignal << ")"
-		  << std::endl;
-	
-	continue;
+   if(0)std::cout << "[DEBUG]   -> Skipping group ref_mass=" << ref_mass
+      << " due to CR condition "
+      << "(isSR=" << isSR
+      << ", sr1_fill_plot=" << sr1_fill_plot
+      << ", isSignal=" << isSignal << ")"
+      << std::endl;
+  
+  continue;
       }
             
       // --- For signal samples, restrict to allowed mass range(s) ---
@@ -489,35 +505,36 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
                ev, METv ,param,weight_reg) ;
       
       if( RegionBin != "false") {
-	
-	/// Region 1+2+3                                                                                                                                                                  
-	//FillLimitInput(LimitRegionsR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
-	
-	
-	if(IsSR&&param.IsCentral() && sr1_fill_plot) Fill_RegionPlots(param,"AllSR" , TauColl, 
-									    JetColl, AK8_JetColl, LepsT, 
-									    METv, nPV, weight_reg);
+  
+  /// Region 1+2+3                                                                                                                                                                  
+  //FillLimitInput(LimitRegionsR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
+  
+  
+  if(IsSR&&param.IsCentral() && sr1_fill_plot) Fill_RegionPlots(param,"AllSR" , TauColl, 
+                      JetColl, AK8_JetColl, LepsT, 
+                      METv, nPV, weight_reg);
 
-	if(sr1_fill_plot){
-	  if(IsSR)FillCutflow(HNL_LeptonCore::ChannelDepSR1, weight_reg, channel_string +"_SR1",param);
-	  else FillCutflow(HNL_LeptonCore::ChannelDepCR1, weight_reg, channel_string +"_CR1",param);
-	}
-	
-	//// Region1 only limit
-	if(IsSR){
-	  //// Used for scan not needed for analysis 
-	   if(strcmp(std::getenv("USER"),"jalmond")==0)
-	     FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
+  if(sr1_fill_plot){
+    if(IsSR)FillCutflow(HNL_LeptonCore::ChannelDepSR1, weight_reg, channel_string +"_SR1",param);
+    else FillCutflow(HNL_LeptonCore::ChannelDepCR1, weight_reg, channel_string +"_CR1",param);
+  }
+  
+  //// Region1 only limit
+  if(IsSR){
+    //// Used for scan not needed for analysis 
+    if(HasFlag("SR1Scan")){
+      FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
+    }
 
-	  FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name+"/M"+ref_mass,"SR1_"+channel_string,channel_string);
-	  
-	}
-	else{
-	  
-	  FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-	  if(B_JetColl.size() == 1)       FillLimitInput(LimitRegionsInvBJetR1, weight_reg,   RegionBin+"_InvBJet",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-	  else FillLimitInput(LimitRegionsInvMETR1, weight_reg,   RegionBin+"_InvMET",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-	}
+    FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name+"/M"+ref_mass,"SR1_"+channel_string,channel_string);
+    
+  }
+  else{
+    
+    FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+    if(B_JetColl.size() == 1)       FillLimitInput(LimitRegionsInvBJetR1, weight_reg,   RegionBin+"_InvBJet",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+    else FillLimitInput(LimitRegionsInvMETR1, weight_reg,   RegionBin+"_InvMET",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+  }
       }
     }
 
@@ -664,7 +681,7 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       if(RegionBin != "false") {
 
         //CheckBin("DYType",RegionBin,"SR3_bin4",channel,param,LepsT,JetColl, AK8_JetColl,B_JetColl, METv,weight_reg);
-
+        
         if(IsSR&&param.IsCentral()) Fill_RegionPlots(param,"AllSR" , TauColl, JetColl, AK8_JetColl, LepsT,  METv, nPV, weight_reg);
         if(IsSR) FillCutflow(HNL_LeptonCore::ChannelDepSR3HM, weight_reg, channel_string +"_SR3",param);
         else  FillCutflow(HNL_LeptonCore::ChannelDepCR3HM, weight_reg, channel_string +"_CR3",param)  ;
@@ -674,6 +691,9 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
         //// Binned R1+2+3 only limit input
         //  FillLimitInput(LimitRegions, weight_reg,   RegionBin,"LimitExtraction/"+param.Name);
         ///  R3 HighMass only limit input
+
+        if(run_Debug)cout << "Event  " << event << " param.GetSystType() = " << param.GetSystType()  << " channel " << GetChannelString(channel) << " weight = " << weight_reg<< endl;
+
         if(IsSR) FillLimitInput(LimitRegionR3, weight_reg, RegionBin,  "LimitExtraction/"+param.Name,"SR3",channel_string);
         else{
           FillLimitInput(LimitRegionR3, weight_reg, RegionBin,  "LimitExtraction/"+param.Name,"CR3",channel_string);

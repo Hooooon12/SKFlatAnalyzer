@@ -40,6 +40,12 @@ void  HNL_LeptonCore::EvalJetWeight(const std::vector<Jet>&    AK4_JetColl, cons
     // Apply b-tagging SF and update weights
     double sf_btag = GetBJetSF(param, BJetColl, param_jets);
     w *= sf_btag;
+
+    if (run_Debug) {
+      std::cout << "[DEBUG] BTagSF applied: sf_btag=" << sf_btag
+		<< "  new_weight=" << w
+		<< std::endl;
+    }
     if(sf_btag > 10){
       mcCorr->DEBUG=true;
       sf_btag = GetBJetSF(param, BJetColl, param_jets);
@@ -77,6 +83,12 @@ void  HNL_LeptonCore::EvalJetWeight(const std::vector<Jet>&    AK4_JetColl, cons
     w *= AK8PNETSF;
     param.w.PNETSF = AK8PNETSF;
 
+    if (run_Debug) {
+      std::cout << "[DEBUG] AK8 PNET SF applied:"
+		<< " AK8PNETSF=" << AK8PNETSF
+		<< " new_weight=" << w
+		<< std::endl;
+    }
     // Fill histogram
     FillWeightHist(param.ChannelDir() + "/PNET_JETTagger", AK8PNETSF);
   }
@@ -94,6 +106,14 @@ void  HNL_LeptonCore::EvalJetWeight(const std::vector<Jet>&    AK4_JetColl, cons
     w *= jPUID;
     param.w.JetPU = jPUID;
 
+    if (run_Debug) {
+      std::cout << "[DEBUG] Jet PUID SF applied:"
+		<< " jPUID=" << jPUID
+		<< " new_weight=" << w
+		<< " merged_jets=" << Merged_Jets.size()
+		<< std::endl;
+    }
+    
     // Fill histogram
     FillWeightHist(param.ChannelDir() + "/PJet_PUID" + param.JetPUID + "_weight_", jPUID);
   }
@@ -305,6 +325,7 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(const std::vector<Jet>& jets, TStrin
     if(!( jets.at(i).PassID(id) ))            continue;
 
     if(HasFlag("RemoveHEMJet")){
+      /// Check status if jets in HEM region are removed
       if(DataEra=="2018"){
 	if (jets.at(i).Eta() < -1.3){
           if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)) continue;
@@ -312,6 +333,7 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(const std::vector<Jet>& jets, TStrin
       } 
     }
     if(HasFlag("ScaleHEMJet")){
+      /// Check effect if jets in HEM region are scaled
       Jet this_jet = jets.at(i);
 
       if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){
@@ -387,7 +409,16 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(AnalyzerParameter param,TString id, 
         }
       }
     }
-    if((DataEra=="2018"&& param.syst_ == AnalyzerParameter::HEMJet) || HasFlag("ScaleHEMJet")){
+    if((DataEra=="2018"&& param.syst_ == AnalyzerParameter::HEMJetUp) || HasFlag("ScaleHEMJet")){
+      
+      if (DataEra != "2018"){
+	std::cout << "[HEM DEBUG] DataEra=" << DataEra
+		  << " syst=" << param.syst_
+		  << " ScaleHEMJetFlag=" << HasFlag("ScaleHEMJet")
+		  << " phi=" << jets.at(i).Phi()
+		  << " eta=" << jets.at(i).Eta()
+		  << std::endl;
+      }
 
       Jet this_jet = jets.at(i);
 
@@ -400,7 +431,7 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(AnalyzerParameter param,TString id, 
       out.push_back(this_jet);
     }
     else     out.push_back( jets.at(i) );
-
+    
   }
 
   std::sort(out.begin(),       out.end(),        PtComparing);
@@ -428,9 +459,10 @@ std::vector<FatJet> HNL_LeptonCore::SelectFatJets(const std::vector<FatJet>& jet
         }
       }
     }
+
     if(HasFlag("ScaleHEMJet")){
       FatJet this_jet = jets.at(i);
-
+      
       if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){
         if (jets.at(i).Eta() < -1.3){
           if (jets.at(i).Eta() > - 2.5)   this_jet *= 0.8;
@@ -476,7 +508,9 @@ std::vector<FatJet> HNL_LeptonCore::SelectFatJets(AnalyzerParameter param,TStrin
         }
       }
     }
-    if(HasFlag("ScaleHEMJet")){
+
+    if((DataEra=="2018"&& param.syst_ == AnalyzerParameter::HEMJetUp) || HasFlag("ScaleHEMJet")){
+
       FatJet this_jet = jets.at(i);
 
       if((jets.at(i).Phi() < -0.87) && (jets.at(i).Phi() > -1.57)){
