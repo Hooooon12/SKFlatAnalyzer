@@ -218,7 +218,8 @@ SystList = [
             "FRHighPtUp","FRHighPtDown",
             "PDFUp","PDFDown",
             "ScaleUp","ScaleDown",
-            "HEMJet",
+            #"HEMJet", #FIXME this is a remnant of when HEMJet was saved as a single variation. Delete this when the run is stable
+            "HEMJetUp","HEMJetDown",
            ]
 
 SystNameMap = {}
@@ -256,7 +257,8 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["FRHighPtUp"]          = "CMS_fake_highpt_"+era+"Up"
   SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation
   SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation
-  SystNameMap[era]["HEMJet"]              = "CMS_HEM_"+era+"Up" #FIXME Let's add HEMJetUp and HEMJetDown in the SKFlatAnalyzer later
+  #SystNameMap[era]["HEMJet"]              = "CMS_HEM_"+era+"Up" #FIXME this is a remnant of when HEMJet was saved as a single variation. Delete this when the run is stable
+  SystNameMap[era]["HEMJetUp"]              = "CMS_HEM_"+era+"Up"
   SystNameMap[era]["JetResDown"]            = "CMS_res_j_"+era+"Down"
   SystNameMap[era]["JetEnDown"]             = "CMS_scale_j_"+era+"Down"
   SystNameMap[era]["JetPUIDDown"]           = "CMS_eff_j_PUJetID_"+era+"Down"
@@ -289,6 +291,7 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["FRHighPtDown"]          = "CMS_fake_highpt_"+era+"Down"
   SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation
   SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation
+  SystNameMap[era]["HEMJetDown"]              = "CMS_HEM_"+era+"Down"
   # SR-decorrelated sources
   SystNameMap[era]["CFRate"]            = "CMS_cf_stat_"+era
   SystNameMap[era]["FR"]                = "CMS_fake_stat_"+era
@@ -1406,12 +1409,12 @@ for tag in args.histTag:
                 print("Appending "+name_syst+"...")
                 input_list.append([input_list[i][0], h_syst, name_syst]) # Append each syst histogram while iterating
   
-              ## exception : There's no HEM down in the SKFlatOutput. Add HEM down by copying the default hist #FIXME let's add HEM down in the SKFlatAnalyzer later.
-              h_syst = input_list[i][1].Clone()
-              h_syst.SetDirectory(0)
-              name_syst = input_list[i][2]+"_CMS_HEM_"+era+"Down" # HEM down syst hist name
-              print("Appending "+name_syst+"...")
-              input_list.append([input_list[i][0], h_syst, name_syst]) # HEM down
+              ## #FIXME this is a remnant of when HEMJet was saved as a single variation. Delete this when the run is stable
+              #h_syst = input_list[i][1].Clone()
+              #h_syst.SetDirectory(0)
+              #name_syst = input_list[i][2]+"_CMS_HEM_"+era+"Down" # HEM down syst hist name
+              #print("Appending "+name_syst+"...")
+              #input_list.append([input_list[i][0], h_syst, name_syst]) # HEM down
 
               if args.Scan:
                 #for i in range(h_scan.GetNbinsX()): print h_scan.GetYaxis().GetBinLabel(3), h_scan.GetBinContent(i+1,3)
