@@ -111,7 +111,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"; // nominal working point
 
   //TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"; // set the nominal WP
-  TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
+  //TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
+  TString WP_nom = "ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
   vector<TString> WP_noms;
   if(DrawExt) WP_noms = {WP_nom+"_BDT", WP_nom+"_Ext"}; // nominal working points; BDT: up to 500 GeV, Ext: from 500 GeV
   else WP_noms = {WP_nom}; // nominal working point
@@ -154,8 +155,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
 
   TString method = "Asym"; //"Full";
   vector<TString> WPs = {}; // Nothing to draw other than nominals
-  WPs.push_back("ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"); // add WP you want to overlay
-  if(SepLimit) WPs = {WP_nom}; // same name with the nominal
+  WPs.push_back("ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
+  if(SepLimit) WPs = {WP_nom}; // same name with the nominal, but separate each signal/SR
   //vector<TString> WPs = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"};
   //vector<TString> WPs = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"};
   //vector<TString> WPs = {"ANv5_BDTV3_SR1_Binning_Update_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"};
@@ -1840,7 +1841,9 @@ double GetDYxsec(int mass, TString channel){ // /data9/Users/jihkim_public/Type1
   if(mass==200)   this_xsec = 10000*3.57786272755e-05;
   if(mass==250)   this_xsec = 10000*1.49950878991e-05;
   if(mass==300)   this_xsec = 10000*7.43681976965e-06;
+  if(mass==350)   this_xsec = 10000*4.112418747999959e-06;
   if(mass==400)   this_xsec = 10000*2.45309287603e-06;
+  if(mass==450)   this_xsec = 10000*1.5461080519999844e-06;
   if(mass==500)   this_xsec = 10000*1.01479289272e-06;
   if(mass==600)   this_xsec = 10000*4.83348624065e-07;
   if(mass==700)   this_xsec = 10000*2.52158749717e-07;
@@ -1891,8 +1894,10 @@ double GetVBFxsec(int mass, TString channel){ // /data6/Users/jihkim/SKFlatAnaly
   if(mass==150)   this_xsec = 0.;
   if(mass==200)   this_xsec = 0.;
   if(mass==250)   this_xsec = 0.;
-  if(mass==300)   this_xsec = 0.0089875;
-  if(mass==400)   this_xsec = 0.006085;
+  if(mass==300)   this_xsec = 10000*6.510161879333267e-07;
+  if(mass==350)   this_xsec = 10000*5.208354403999949e-07;
+  if(mass==400)   this_xsec = 10000*4.2478900486666243e-07;
+  if(mass==450)   this_xsec = 10000*3.5008180079999645e-07;
   if(mass==500)   this_xsec = 10000*2.91733616626e-07;
   if(mass==600)   this_xsec = 10000*2.07271062539e-07;
   if(mass==700)   this_xsec = 10000*1.51244445515e-07;

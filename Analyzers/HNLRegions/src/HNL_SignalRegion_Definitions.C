@@ -470,33 +470,31 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
 
       bool sr1_fill_plot = (ref_mass == 400 || isSignal);
 
-      if(0)std::cout << "[DEBUG]  Mass group loop: ref_mass=" << ref_mass
-    << " sr1_fill_plot=" << sr1_fill_plot << std::endl;
+      if(0)std::cout << "[DEBUG]  Mass group loop: ref_mass=" << ref_mass << " sr1_fill_plot=" << sr1_fill_plot << std::endl;
 
       if (!isSR && !sr1_fill_plot && !isSignal) {
-   if(0)std::cout << "[DEBUG]   -> Skipping group ref_mass=" << ref_mass
-      << " due to CR condition "
-      << "(isSR=" << isSR
-      << ", sr1_fill_plot=" << sr1_fill_plot
-      << ", isSignal=" << isSignal << ")"
-      << std::endl;
-  
-  continue;
+        if(0)std::cout << "[DEBUG]   -> Skipping group ref_mass=" << ref_mass
+            << " due to CR condition "
+            << "(isSR=" << isSR
+            << ", sr1_fill_plot=" << sr1_fill_plot
+            << ", isSignal=" << isSignal << ")"
+            << std::endl;
+        continue;
       }
             
       // --- For signal samples, restrict to allowed mass range(s) ---
       // We assume sample names contain exact tokens like "M500_private".
       bool inSignalRange = true;
       if (isSignal) {
-  inSignalRange = std::any_of(
-            masses.begin(), masses.end(),
-            [&](int m) {
-              // Build exact token once; TString::Format to avoid temp std::string
-              const TString token = TString::Format("M%d_private", m);
-              return mcSampleName.Contains(token);
-            }
-            );
-  if (!inSignalRange) continue;
+        inSignalRange = std::any_of(
+                  masses.begin(), masses.end(),
+                  [&](int m) {
+                    // Build exact token once; TString::Format to avoid temp std::string
+                    const TString token = TString::Format("M%d_private", m);
+                    return mcSampleName.Contains(token);
+                  }
+                  );
+        if (!inSignalRange) continue;
       }
 
       
@@ -506,35 +504,35 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       
       if( RegionBin != "false") {
   
-  /// Region 1+2+3                                                                                                                                                                  
-  //FillLimitInput(LimitRegionsR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
-  
-  
-  if(IsSR&&param.IsCentral() && sr1_fill_plot) Fill_RegionPlots(param,"AllSR" , TauColl, 
-                      JetColl, AK8_JetColl, LepsT, 
-                      METv, nPV, weight_reg);
+        /// Region 1+2+3                                                                                                                                                                  
+        //FillLimitInput(LimitRegionsR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
+        
+        
+        if(IsSR&&param.IsCentral() && sr1_fill_plot) Fill_RegionPlots(param,"AllSR" , TauColl, 
+                            JetColl, AK8_JetColl, LepsT, 
+                            METv, nPV, weight_reg);
 
-  if(sr1_fill_plot){
-    if(IsSR)FillCutflow(HNL_LeptonCore::ChannelDepSR1, weight_reg, channel_string +"_SR1",param);
-    else FillCutflow(HNL_LeptonCore::ChannelDepCR1, weight_reg, channel_string +"_CR1",param);
-  }
-  
-  //// Region1 only limit
-  if(IsSR){
-    //// Used for scan not needed for analysis 
-    if(HasFlag("SR1Scan")){
-      FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
-    }
+        if(sr1_fill_plot){
+          if(IsSR)FillCutflow(HNL_LeptonCore::ChannelDepSR1, weight_reg, channel_string +"_SR1",param);
+          else FillCutflow(HNL_LeptonCore::ChannelDepCR1, weight_reg, channel_string +"_CR1",param);
+        }
+        
+        //// Region1 only limit
+        if(IsSR){
+          //// Used for scan not needed for analysis 
+          if(HasFlag("SR1Scan")){
+            FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"SR1_"+channel_string,channel_string);
+          }
 
-    FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name+"/M"+ref_mass,"SR1_"+channel_string,channel_string);
-    
-  }
-  else{
-    
-    FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-    if(B_JetColl.size() == 1)       FillLimitInput(LimitRegionsInvBJetR1, weight_reg,   RegionBin+"_InvBJet",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-    else FillLimitInput(LimitRegionsInvMETR1, weight_reg,   RegionBin+"_InvMET",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
-  }
+          FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name+"/M"+ref_mass,"SR1_"+channel_string,channel_string);
+          
+        }
+        else{
+          
+          FillLimitInput(LimitRegionR1, weight_reg,   RegionBin,  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+          if(B_JetColl.size() == 1)       FillLimitInput(LimitRegionsInvBJetR1, weight_reg,   RegionBin+"_InvBJet",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+          else FillLimitInput(LimitRegionsInvMETR1, weight_reg,   RegionBin+"_InvMET",  "LimitExtraction/"+param.Name,"CR1_"+channel_string,channel_string);
+        }
       }
     }
 
@@ -568,11 +566,11 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
 
       /// Region 2 only Limit
       if(IsSR) {
-  FillLimitInput(LimitRegionR2, weight_reg, RegionBin,  "LimitExtraction/"+param.Name,"SR2",channel_string);
+        FillLimitInput(LimitRegionR2, weight_reg, RegionBin,  "LimitExtraction/"+param.Name,"SR2",channel_string);
 
-  /// Use an alternative binning
-  //TString RegionBinAlt = GetSingleBinnedWWString(LepsT[0]->HTOverPt(),ll_dphi);
-  //FillLimitInput(LimitRegionR2, weight_reg, RegionBinAlt,  "LimitExtractionAlt/"+param.Name,"SR2",channel_string);
+        /// Use an alternative binning
+        //TString RegionBinAlt = GetSingleBinnedWWString(LepsT[0]->HTOverPt(),ll_dphi);
+        //FillLimitInput(LimitRegionR2, weight_reg, RegionBinAlt,  "LimitExtractionAlt/"+param.Name,"SR2",channel_string);
       }
       else {
         FillLimitInput(LimitRegionR2, weight_reg, "CR2",  "LimitExtraction/"+param.Name,"CR2",channel_string);
@@ -589,90 +587,84 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       /// If using up/down : note Jihun should use PDF weights in limit step so this should be depreciated
       // Apply PDF systematic variations if specified
       // The usage here is legacy and should be replaced by proper handling in the limit-setting step
-      if(param.syst_ == AnalyzerParameter::PDFUp)   
-  weight_reg *= GetPDFUncertainty("SR3", 1);   // Apply PDF uncertainty upward variation
+      if(param.syst_ == AnalyzerParameter::PDFUp) weight_reg *= GetPDFUncertainty("SR3", 1);   // Apply PDF uncertainty upward variation
+      if(param.syst_ == AnalyzerParameter::PDFDown) weight_reg *= GetPDFUncertainty("SR3", -1);  // Apply PDF uncertainty downward variation
       
-      if(param.syst_ == AnalyzerParameter::PDFDown) 
-  weight_reg *= GetPDFUncertainty("SR3", -1);  // Apply PDF uncertainty downward variation
+      if(IsSR && B_JetColl.size() == 0 && ev.MET2ST() < 15) FillCutflow(HNL_LeptonCore::SRLowMass, weight_reg, "SR3_LowMass", param);
 
-      
-      if(IsSR && B_JetColl.size() == 0 && ev.MET2ST() < 15) 
-  FillCutflow(HNL_LeptonCore::SRLowMass, weight_reg, "SR3_LowMass", param);
-
-      
       /// RunBDT checks if:
       // a) signal mc and mass <= 500 --> Pass
       // b) non signal --> Pass
       if(RunBDT()){
 
-  /// FinalBDTHyperParamMap: This has NCut/NTree info for each Mass/Version/channel scenario
-  for(auto imapHP :FinalBDTHyperParamMap){
+        /// FinalBDTHyperParamMap: This has NCut/NTree info for each Mass/Version/channel scenario
+        for(auto imapHP :FinalBDTHyperParamMap){
 
-    // Only run BDT for this channel                                                                                                                          
-    if(!imapHP.first.Contains(channel_string)) continue;
-    
-    /// Loop over BDT versions
-    for(auto iversion : BDTVersions_to_run){
-      vector<TString> bin_criteria;
-      if (IsSR) {
-        if(HasFlag("AllBDTVersions")){
-    if(iversion == "V2") bin_criteria = {"StrictBin"};
-    if(iversion == "V3") bin_criteria = {"StrictBin","Strict_10_Bin", "Strict_15_Bin", "Strict_20_Bin"};
-    if(iversion == "V4") bin_criteria = {"Strict_10_Bin", "Strict_15_Bin", "Strict_20_Bin"};
+          // Only run BDT for this channel                                                                                                                          
+          if(!imapHP.first.Contains(channel_string)) continue;
+          
+          /// Loop over BDT versions
+          for(auto iversion : BDTVersions_to_run){
+            vector<TString> bin_criteria;
+            if (IsSR) {
+              if(HasFlag("AllBDTVersions")){
+                if(iversion == "V2") bin_criteria = {"StrictBin"};
+                if(iversion == "V3") bin_criteria = {"StrictBin","Strict_10_Bin", "Strict_15_Bin", "Strict_20_Bin"};
+                if(iversion == "V4") bin_criteria = {"Strict_10_Bin", "Strict_15_Bin", "Strict_20_Bin"};
+              }
+              else bin_criteria = {"Strict_15_Bin"};
+
+            } else {
+              bin_criteria = {""};
+            }
+            for(auto ibinning : bin_criteria){
+
+              // Only run BDT for version in BDTVersions_to_run     
+              if(!imapHP.first.Contains(iversion)) continue;
+              
+              /// GetBDTSignalMass gets for :
+              // a) bkg: TString of mass of sample i.e., M200, based on imapHP key
+              // b) signal : gets mass string but if mass string is not in sample name it returns NULL
+              /// -->  Only plot limits for BDT if signal is same mass as imapHP.first
+              TString SampleMass = GetBDTSignalMass(imapHP.first);
+              
+              //// Fill SR Cutflow for just one mass and channel BUT loop over versions
+              
+              if(imapHP.first.Contains(SampleMass+"_"+channel_string+"_"+TString(iversion))){
+          
+                TString RegBDT = RunSignalRegionAK4StringBDT(IsSR,SampleMass , iversion, ibinning,  imapHP.second.first, imapHP.second.second, channel,qq, LepsT, JetColl,  B_JetColl, ev, METv ,param,weight_reg);
+                
+                if(RegBDT != "false"){
+                  
+                  //// iversion now added to direrctory structure
+                  FillLimitInput(LimitRegionsBDTR3,
+                     weight_reg,
+                     RegBDT,
+                     "LimitExtractionBDT/"+param.Name+"_"+iversion+"_"+ibinning+"/M"+SampleMass,
+                     "SR3BDT_"+channel_string+"_"+DataEra+"_"+SampleMass+"_"+iversion+"_"+ibinning,
+                     channel_string);
+                  
+                  
+                  if(!IsSR){
+                    if(B_JetColl.size()==1) FillLimitInput(LimitRegionsInvBJetBDTR3,
+                             weight_reg,
+                             RegBDT,
+                             "LimitExtractionBDT/"+param.Name+"_"+iversion+"/M"+SampleMass,
+                             "SR3BDT_"+channel_string+"_"+DataEra+"_"+SampleMass+"_"+iversion,
+                             channel_string);
+                    
+                    else FillLimitInput(LimitRegionsInvMETBDTR3,
+                      weight_reg,
+                      RegBDT,
+                      "LimitExtractionBDT/"+param.Name+"_"+iversion+"/M"+SampleMass,
+                      "SR3BDT_"+channel_string+"_"+DataEra+"_"+SampleMass+"_"+iversion,
+                      channel_string);
+                  }
+                }
+              }
+            }
+          }
         }
-        else bin_criteria = {"Strict_15_Bin"};
-
-      } else {
-        bin_criteria = {""};
-      }
-      for(auto ibinning : bin_criteria){
-
-        // Only run BDT for version in BDTVersions_to_run     
-        if(!imapHP.first.Contains(iversion)) continue;
-        
-        /// GetBDTSignalMass gets for :
-        // a) bkg: TString of mass of sample i.e., M200, based on imapHP key
-        // b) signal : gets mass string but if mass string is not in sample name it returns NULL
-        /// -->  Only plot limits for BDT if signal is same mass as imapHP.first
-        TString SampleMass = GetBDTSignalMass(imapHP.first);
-        
-        //// Fill SR Cutflow for just one mass and channel BUT loop over versions
-        
-        if(imapHP.first.Contains(SampleMass+"_"+channel_string+"_"+TString(iversion))){
-    
-    TString RegBDT = RunSignalRegionAK4StringBDT(IsSR,SampleMass , iversion, ibinning,  imapHP.second.first, imapHP.second.second, channel,qq, LepsT, JetColl,  B_JetColl, ev, METv ,param,weight_reg);
-    
-    if(RegBDT != "false"){
-      
-      //// iversion now added to direrctory structure
-      FillLimitInput(LimitRegionsBDTR3,
-         weight_reg,
-         RegBDT,
-         "LimitExtractionBDT/"+param.Name+"_"+iversion+"_"+ibinning+"/M"+SampleMass,
-         "SR3BDT_"+channel_string+"_"+DataEra+"_"+SampleMass+"_"+iversion+"_"+ibinning,
-         channel_string);
-      
-      
-      if(!IsSR){
-        if(B_JetColl.size()==1) FillLimitInput(LimitRegionsInvBJetBDTR3,
-                 weight_reg,
-                 RegBDT,
-                 "LimitExtractionBDT/"+param.Name+"_"+iversion+"/M"+SampleMass,
-                 "SR3BDT_"+channel_string+"_"+DataEra+"_"+SampleMass+"_"+iversion,
-                 channel_string);
-        
-        else FillLimitInput(LimitRegionsInvMETBDTR3,
-          weight_reg,
-          RegBDT,
-          "LimitExtractionBDT/"+param.Name+"_"+iversion+"/M"+SampleMass,
-          "SR3BDT_"+channel_string+"_"+DataEra+"_"+SampleMass+"_"+iversion,
-          channel_string);
-      }
-    }
-        }
-      }
-    }
-  }
       }
 
       if(IsSR&&SSWWVeto) return;
@@ -856,12 +848,10 @@ TString HNL_RegionDefinitions::RunSignalRegionAK8String(bool ApplyForSR,
   double MN1 = (N1cand.M() > 2000.) ? 1999. : N1cand.M();
 
 
-  if(fill_plots){
-    vector<double> ml1jbins = GetLimitBinBoundary("SR1",ref_mass,GetChannelString(channel));
-    
-    for(unsigned int ibin=1; ibin < ml1jbins.size(); ibin++){
-      if(MN1 < ml1jbins[ibin]) return RegionTag+"_MNbin"+to_string(ibin);
-    }
+  vector<double> ml1jbins = GetLimitBinBoundary("SR1",ref_mass,GetChannelString(channel));
+  
+  for(unsigned int ibin=1; ibin < ml1jbins.size(); ibin++){
+    if(MN1 < ml1jbins[ibin]) return RegionTag+"_MNbin"+to_string(ibin);
   }
   
   return "true";

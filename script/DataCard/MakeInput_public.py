@@ -228,7 +228,7 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["JetResUp"]            = "CMS_res_j_"+era+"Up"
   SystNameMap[era]["JetEnUp"]             = "CMS_scale_j_"+era+"Up"
   SystNameMap[era]["JetPUIDUp"]           = "CMS_eff_j_PUJetID_"+era+"Up"
-  SystNameMap[era]["JetPNETUp"]           = "CMS_eff_j_ParticleNet_W_NominalUp"
+  SystNameMap[era]["JetPNETUp"]           = "CMS_eff_j_ParticleNet_W_NominalUp" if "PNETdecorr" not in args.outputTag else "CMS_eff_j_ParticleNet_W_Nominal_"+era+"Up"
   SystNameMap[era]["MuonEnUp"]            = "CMS_scale_mUp"
   SystNameMap[era]["MuonResUp"]           = "CMS_res_mUp"
   SystNameMap[era]["MuonRecoSFStatUp"]    = "CMS_eff_m_reco_stat_"+era+"Up"
@@ -262,7 +262,7 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["JetResDown"]            = "CMS_res_j_"+era+"Down"
   SystNameMap[era]["JetEnDown"]             = "CMS_scale_j_"+era+"Down"
   SystNameMap[era]["JetPUIDDown"]           = "CMS_eff_j_PUJetID_"+era+"Down"
-  SystNameMap[era]["JetPNETDown"]           = "CMS_eff_j_ParticleNet_W_NominalDown"
+  SystNameMap[era]["JetPNETDown"]           = "CMS_eff_j_ParticleNet_W_NominalDown" if "PNETdecorr" not in args.outputTag else "CMS_eff_j_ParticleNet_W_Nominal_"+era+"Down"
   SystNameMap[era]["MuonEnDown"]            = "CMS_scale_mDown"
   SystNameMap[era]["MuonResDown"]           = "CMS_res_mDown"
   SystNameMap[era]["MuonRecoSFStatDown"]    = "CMS_eff_m_reco_stat_"+era+"Down"
@@ -1111,8 +1111,7 @@ for tag in args.histTag:
             bkg_list = [ #bkg except mc (which was already added above)
                         [f_path_fake, h_fake, "fake"],
                         [f_path_cf, h_cf, "cf"],
-                        #[f_path_conv_inc, h_conv_inc, "conv_inc"], #NOTE deprecated. only preservation purposes
-                        [f_path_mc_inc, h_mc_inc, "mc_inc"],
+                        #[f_path_conv_inc, h_conv_inc, "conv_inc"], #NOTE deprecated. only preservation purposes. PREVIOUSLY: start from prompt_inc, add fake, cf, conv_inc. Now, start from mc_inc and add fake, cf and that's all.
                        ]
           
             if "Mu" in channel:

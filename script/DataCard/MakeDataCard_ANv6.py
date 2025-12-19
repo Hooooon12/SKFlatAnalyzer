@@ -17,6 +17,8 @@ if HERE not in sys.path:
 from exceptions_auto import apply_auto_exceptions
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-sk', dest='skels', default=["card_skeleton_ANv6.txt"], nargs='+', help='List of skeletons to use')
+parser.add_argument('-o', dest='outputTag', default='', help='tag attached to the output directory')
 parser.add_argument('--Ext', action='store_true', help='Extend cut based approach down to M500')
 parser.add_argument('--CnC', action='store_true', help='One-bin limit')
 parser.add_argument('--Decorr', action='store_true', help='Decorrelate fake, CF region by region')
@@ -54,17 +56,18 @@ channels = ["MuMu","EE","EMu"]
 masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","Weinberg"]
 masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"]
 
-#masses = ["M1000"]
+#masses = ["M500"]
 #masses_EMu = ["M500"]
 
 ## signal processes
 #signals = ["_DYVBF","_SSWW"]
 #signals = ["_DY","_VBF"]
-signals = ["","_Weinberg"]
-#signals = [""]
+#signals = ["","_Weinberg"]
+signals = [""]
 #signals = ["_DYVBF","_SSWW",""]
 #signals = ["_SSWW"]
 #signals = ["_Weinberg"]
+#signals = ["_DY","_VBF","_DYVBF"]
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_ANv3/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
@@ -109,7 +112,7 @@ CRpath = SRpath
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"]
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"] # This is tentative nominal @250909
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst"] # correlation updated @251006
-InputWPs = ["ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # ANv6: M350, M450 added and bin reoptimized due to xsec change of VBFTypeI M300, M400. Syst added. @251211
+InputWPs = ["ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] if "PNETdecorr" not in args.outputTag else ["ANv6_NewSignals_HNL_ULIDv2_PNETdecorr_V3_Strict_15_Bin_RunSyst"] # ANv6: M350, M450 added and bin reoptimized due to xsec change of VBFTypeI M300, M400. Syst added. @251211
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
@@ -126,7 +129,7 @@ if args.Syst:
 else:
   InputWPs = [WP+"_Decorr_JetDecorr" for WP in InputWPs] # FIXME use syst input as a default; can be changed later
 
-OutputTag = ""
+OutputTag = "" if args.outputTag == '' else "_"+args.outputTag
 
 #OutputTag = "_AN"
 #OutputTag = "_SUScomment"
@@ -288,14 +291,14 @@ def MakeRateString(region, era, channel, mass, signal, WP):
   return this_string
 
 def is_syst_line(line):
-  return (line.startswith("lumi_") or line.startswith("mc_") or line.startswith("CMS_") or line.startswith("QCDscale_") or line.startswith("pdf_"))
+  return (line.startswith("lumi") or line.startswith("mc_") or line.startswith("CMS_") or line.startswith("QCDscale_") or line.startswith("pdf_"))
 
 def is_rateParam_line(line):
   return "rateParam" in line
 
-def CardSetting(isCR, WP, era, channel, mass, signal):
+def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
 
-  with open("card_skeleton_ANv6.txt",'r') as f: # open skeleton
+  with open(skeleton,'r') as f: # open skeleton
     lines = f.readlines()
 
   new_lines_common = []
@@ -333,19 +336,21 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
 
           # lumi treatment
           if 'lumi' in syst_name:
-            if '13TeV' not in syst_name: # era-specific uncorrelated uncertainty
+            if 'uncorr' in syst_name: # era-specific uncorrelated uncertainty
               line = line.replace('1.05',lumi_systs[era]['uncorr'])
-            elif 'correlated' in syst_name: # all era correlated
+            elif '161718' in syst_name: # all era correlated
               line = line.replace('1.05',lumi_systs[era]['corr1'])
             else: # 1718 correlated
               if '2016' in era: continue
               else: line = line.replace('1.05',lumi_systs[era]['corr2'])
 
           # era-correlated systs
-          if any(f"{key}_" in f"{syst_name}_" for key in ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet"]):
+          corr_keys = ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet"]
+          if "PNETdecorr" in args.outputTag: corr_keys = [k for k in corr_keys if "ParticleNet" not in k]
+          if any(f"{key}_" in f"{syst_name}_" for key in corr_keys):
             pass
           # partial era-decorrelation (2016 lumi)
-          elif syst_name == "lumi":
+          elif 'lumi' in syst_name and 'uncorr' in syst_name:
             if '2016' in era:
               line = line.replace(syst_name, f"{syst_name}_2016")
             else:
@@ -501,7 +506,7 @@ def NuisanceGrouping(this_card):
                 'theory'      : [],
                 'fake'        : [],
                 'cf'          : [],
-                'jet_energy'  : [],
+                'jet_uncert'  : [],
                 'lep_uncert'  : [],
                 'btag_sf'     : [],
                 'met_energy'  : [],
@@ -521,7 +526,7 @@ def NuisanceGrouping(this_card):
     elif "CMS_cf" in line:
       group_nuis["cf"].append(line)
     elif "CMS_res_j" in line or "CMS_scale_j" in line or "ParticleNet" in line or "PUJetID" in line:
-      group_nuis["jet_energy"].append(line)
+      group_nuis["jet_uncert"].append(line)
     elif ("CMS_res_m" in line or "CMS_scale_m" in line or "CMS_eff_m" in line or "CMS_res_e" in line or "CMS_scale_e" in line or "CMS_eff_e" in line) and "CMS_scale_met" not in line:
       group_nuis["lep_uncert"].append(line)
     elif "CMS_btag" in line:
@@ -575,86 +580,89 @@ else:
   systTag = ""
 
 for InputWP in InputWPs:
-  OutputWP = InputWP+OutputTag
 
-  if not args.Combine:
-    os.system("mkdir -p "+OutputWP)
-    os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/MakeWorkspace.py "+OutputWP)
-    os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/CheckNuisance.py "+OutputWP)
+  for skel in args.skels:
+    SkelTag = skel.removesuffix('.txt').split('ANv6')[-1] #FIXME card_skeleton_ANv6_NoPUJetID_NoPNET.txt --> _NoPUJetID_NoPNET. ANv6 may be changed as version updated
+    OutputWP = InputWP+OutputTag+SkelTag
 
-    for era, channel, mass, signal in [(era, channel, mass, signal) for era in eras for channel in channels for mass in (masses if channel!="EMu" else masses_EMu) for signal in signals]:
-      if not ValidMassSignal(mass, signal): continue
+    if not args.Combine:
+      os.system("mkdir -p "+OutputWP)
+      os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/MakeWorkspace.py "+OutputWP)
+      os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/CheckNuisance.py "+OutputWP)
 
-      mass_signal = mass if signal.strip('_') in mass else mass + signal # Remove duplication like Weinberg_Weinberg
+      for era, channel, mass, signal in [(era, channel, mass, signal) for era in eras for channel in channels for mass in (masses if channel!="EMu" else masses_EMu) for signal in signals]:
+        if not ValidMassSignal(mass, signal): continue
 
-      this_card = CardSetting(args.CR, InputWP, era, channel, mass, signal)
-      if args.CR:
-        for region in list(this_card[0].keys()):
-          with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_"+region+systTag+".txt",'w') as f:
-            for line in this_card[0][region]:
-              f.write(line)
-        for region in list(this_card[1].keys()):
-          with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_"+region+".txt",'w') as f:
-            for line in this_card[1][region]:
-              f.write(line)
-      else:
-        for region in list(this_card.keys()):
-          with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_sronly_"+region+systTag+".txt",'w') as f:
-            for line in this_card[region]:
-              f.write(line)
+        mass_signal = mass if signal.strip('_') in mass else mass + signal # Remove duplication like Weinberg_Weinberg
 
-  else:
-    os.chdir(OutputWP)
-    os.system('echo \'Currently combining cards at...\'')
-    os.system('pwd')
-    if args.Syst:
-      os.system('echo \'Systematics have been added.\'')
-    for channel, mass, signal in [(channel, mass, signal) for channel in channels for mass in (masses if channel!="EMu" else masses_EMu) for signal in signals]:
-      if not ValidMassSignal(mass, signal): continue
-
-      mass_signal = mass if signal.strip('_') in mass else mass + signal # Remove duplication like Weinberg_Weinberg
-      sr_filtered = mass_to_srs(mass)
-      cr_filtered = filter_crs(regions_cr, sr_filtered)
-
-      for era in eras:
-        if args.Combine == "CR":
-          sr_combine = make_sr_cardname(era, channel, mass_signal, sr_filtered, tag=systTag, sronly=False)
-          cr_combine = make_cr_cardname(era, channel, mass_signal, cr_filtered)
-          full_combine = f"card_{era}_{channel}{ExtTag}_{mass_signal}{systTag}.txt"
-          combineCards(full_combine, sr_combine+cr_combine)
-
-          for sr in sr_filtered:
-            cr_for_sr = filter_crs(regions_cr, [sr])
-            sr_each = make_sr_cardname(era, channel, mass_signal, [sr], tag=systTag, sronly=False)
-            cr_each = make_cr_cardname(era, channel, mass_signal, cr_for_sr)
-            combine_each = f"card_{era}_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
-            combineCards(combine_each, sr_each+cr_each)
-
-        elif args.Combine == "SR":
-          sr_combine = make_sr_cardname(era, channel, mass_signal, sr_filtered, tag=systTag, sronly=True)
-          full_combine = f"card_{era}_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
-          combineCards(full_combine, sr_combine)
-
-      if args.Combine == "Era":
-        if args.CR: # with CR
-          per_era_full = [f"card_{era}_{channel}{ExtTag}_{mass_signal}{systTag}.txt" for era in eras]
-          run2_full = f"card_Run2_{channel}{ExtTag}_{mass_signal}{systTag}.txt"
-          combine_run2(run2_full, per_era_full)
-
-          for sr in sr_filtered:
-            per_era_each = [f"card_{era}_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt" for era in eras]
-            run2_each = f"card_Run2_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
-            combine_run2(run2_each, per_era_each)
-
+        this_card = CardSetting(args.CR, InputWP, skel, era, channel, mass, signal)
+        if args.CR:
+          for region in list(this_card[0].keys()):
+            with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_"+region+systTag+".txt",'w') as f:
+              for line in this_card[0][region]:
+                f.write(line)
+          for region in list(this_card[1].keys()):
+            with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_"+region+".txt",'w') as f:
+              for line in this_card[1][region]:
+                f.write(line)
         else:
-          per_era_full = [f"card_{era}_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt" for era in eras]
-          run2_full = f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
-          combine_run2(run2_full, per_era_full)
+          for region in list(this_card.keys()):
+            with open(OutputWP+"/card_"+era+"_"+channel+ExtTag+"_"+mass_signal+"_sronly_"+region+systTag+".txt",'w') as f:
+              for line in this_card[region]:
+                f.write(line)
 
-          for sr in sr_filtered:
-            per_era_each = [f"card_{e}_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt" for era in eras]
-            run2_each = f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt"
-            combine_run2(run2_each, per_era_each)
+    else:
+      os.chdir(OutputWP)
+      os.system('echo \'Currently combining cards at...\'')
+      os.system('pwd')
+      if args.Syst:
+        os.system('echo \'Systematics have been added.\'')
+      for channel, mass, signal in [(channel, mass, signal) for channel in channels for mass in (masses if channel!="EMu" else masses_EMu) for signal in signals]:
+        if not ValidMassSignal(mass, signal): continue
 
-    os.system('echo \'Done.\'')
-    os.chdir(pwd)
+        mass_signal = mass if signal.strip('_') in mass else mass + signal # Remove duplication like Weinberg_Weinberg
+        sr_filtered = mass_to_srs(mass)
+        cr_filtered = filter_crs(regions_cr, sr_filtered)
+
+        for era in eras:
+          if args.Combine == "CR":
+            sr_combine = make_sr_cardname(era, channel, mass_signal, sr_filtered, tag=systTag, sronly=False)
+            cr_combine = make_cr_cardname(era, channel, mass_signal, cr_filtered)
+            full_combine = f"card_{era}_{channel}{ExtTag}_{mass_signal}{systTag}.txt"
+            combineCards(full_combine, sr_combine+cr_combine)
+
+            for sr in sr_filtered:
+              cr_for_sr = filter_crs(regions_cr, [sr])
+              sr_each = make_sr_cardname(era, channel, mass_signal, [sr], tag=systTag, sronly=False)
+              cr_each = make_cr_cardname(era, channel, mass_signal, cr_for_sr)
+              combine_each = f"card_{era}_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
+              combineCards(combine_each, sr_each+cr_each)
+
+          elif args.Combine == "SR":
+            sr_combine = make_sr_cardname(era, channel, mass_signal, sr_filtered, tag=systTag, sronly=True)
+            full_combine = f"card_{era}_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
+            combineCards(full_combine, sr_combine)
+
+        if args.Combine == "Era":
+          if args.CR: # with CR
+            per_era_full = [f"card_{era}_{channel}{ExtTag}_{mass_signal}{systTag}.txt" for era in eras]
+            run2_full = f"card_Run2_{channel}{ExtTag}_{mass_signal}{systTag}.txt"
+            combine_run2(run2_full, per_era_full)
+
+            for sr in sr_filtered:
+              per_era_each = [f"card_{era}_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt" for era in eras]
+              run2_each = f"card_Run2_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
+              combine_run2(run2_each, per_era_each)
+
+          else:
+            per_era_full = [f"card_{era}_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt" for era in eras]
+            run2_full = f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
+            combine_run2(run2_full, per_era_full)
+
+            for sr in sr_filtered:
+              per_era_each = [f"card_{e}_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt" for era in eras]
+              run2_each = f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt"
+              combine_run2(run2_each, per_era_each)
+
+      os.system('echo \'Done.\'')
+      os.chdir(pwd)

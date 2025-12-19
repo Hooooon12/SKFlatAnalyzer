@@ -287,7 +287,7 @@ def MakeRateString(region, era, channel, mass, signal, WP):
   return this_string
 
 def is_syst_line(line):
-  return (line.startswith("lumi_") or line.startswith("mc_") or line.startswith("CMS_") or line.startswith("QCDscale_") or line.startswith("pdf_"))
+  return (line.startswith("lumi") or line.startswith("mc_") or line.startswith("CMS_") or line.startswith("QCDscale_") or line.startswith("pdf_"))
 
 def is_rateParam_line(line):
   return "rateParam" in line
@@ -333,19 +333,19 @@ def CardSetting(isCR, WP, era, channel, mass, signal):
 
           # lumi treatment
           if 'lumi' in syst_name:
-            if '13TeV' not in syst_name: # era-specific uncorrelated uncertainty
+            if 'uncorr' in syst_name: # era-specific uncorrelated uncertainty
               line = line.replace('1.05',lumi_systs[era]['uncorr'])
-            elif 'correlated' in syst_name: # all era correlated
+            elif '161718' in syst_name: # all era correlated
               line = line.replace('1.05',lumi_systs[era]['corr1'])
             else: # 1718 correlated
               if '2016' in era: continue
               else: line = line.replace('1.05',lumi_systs[era]['corr2'])
 
           # era-correlated systs
-          if any(f"{key}_" in f"{syst_name}_" for key in ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco", "eff_m_id", "scale_e", "res_e", "eff_e_reco", "eff_e_id", "PNET"]):
+          if any(f"{key}_" in f"{syst_name}_" for key in ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco", "eff_m_id", "scale_e", "res_e", "eff_e_reco", "eff_e_id"]):
             pass
           # partial era-decorrelation (2016 lumi)
-          elif syst_name == "lumi":
+          elif 'lumi' in syst_name and 'uncorr' in syst_name:
             if '2016' in era:
               line = line.replace(syst_name, f"{syst_name}_2016")
             else:

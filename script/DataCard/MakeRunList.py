@@ -35,9 +35,9 @@ grepRegion = ' | grep card | grep '+CardRep if "Run2" in args.eras else ' | grep
 #grepRegion = ' | grep card | grep -Ev "sr123"' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick sr1, 2, 3 separate limits by grepping all but removing sr123)
 
 #tags = ["_sronly"]
-tags = ["_syst"]
+#tags = ["_syst"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
-#tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = [""]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined","_syst"]
 #tags = ["_sr1_syst","_sr2_syst","_sr3_syst","_sr_syst"]
@@ -67,7 +67,7 @@ if "Run2" in args.eras:
 for dirName in args.dirNames:
 
   greps = 'ls '+dirName+grepRegion+' | grep '*int(bool(args.eras))+' '.join(["-e "+era for era in args.eras])+' | grep '*int(bool(args.channels))+' '.join(["-e "+channel for channel in args.channels])+' | grep '*int(bool(args.masses))+' '.join(["-e M"+mass+"_" for mass in args.masses])+' | grep '*int(bool(args.signals))+' '.join(["-e "+signal for signal in args.signals]) # if any of eras, chs, ms exists, this line greps it in order. if not, just ls the directory
-  #if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW|Weinberg\"' # When you don't want signal specific results
+  #if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW|Weinberg\"' # When you don't want signal specific results and the Weinberg
   if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW\"' # When you don't want HNL signal specific results
   if args.Ext: greps += ' | grep Ext'
   else: greps += ' | grep -Ev \"Ext\"'
