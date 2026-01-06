@@ -35,9 +35,9 @@ grepRegion = ' | grep card | grep '+CardRep if "Run2" in args.eras else ' | grep
 #grepRegion = ' | grep card | grep -Ev "sr123"' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick sr1, 2, 3 separate limits by grepping all but removing sr123)
 
 #tags = ["_sronly"]
-#tags = ["_syst"]
+tags = ["_syst"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
-tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+#tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = [""]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined","_syst"]
 #tags = ["_sr1_syst","_sr2_syst","_sr3_syst","_sr_syst"]

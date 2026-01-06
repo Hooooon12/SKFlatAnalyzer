@@ -775,12 +775,13 @@ from collections import defaultdict
 SR_KEYWORDS = {"sr1", "sr2", "sr3"}
 
 def region_key(region: str, cr_mode: bool = args.CR):
-    if cr_mode:
-        return ("equals", region)
-    else:
-        for kw in SR_KEYWORDS:
-            if kw in region:
-                return ("sr_pair", kw)
+    #if cr_mode:
+    #    return ("equals", region)
+    #else:
+    #    for kw in SR_KEYWORDS:
+    #        if kw in region:
+    #            return ("sr_pair", kw) # NOTE I don't think I need srx to crx pairing
+    return ("equals", region)
 
 def mass_condition(mass: str):
     if mass == "highmass":
@@ -811,7 +812,7 @@ def generate_exception_code(excepts):
                     continue
                 if mode == "sr_pair":
                     crx = rk.replace("sr", "cr")  # srx to crx
-                    region_conds.append(f'("{rk}" in region) or ("{crx}" in region)')
+                    region_conds.append(f'("{rk}" in region) or ("{crx}" in region)') # sr1 in region or cr1 in region. So srx and crx are synchronized. Do I need this?
                 else:
                     region_conds.append(f'(region == "{rk}")')
 
@@ -985,6 +986,12 @@ for tag in args.histTag:
                     RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel]+"_"+BDTver
 
               if args.Ext:
+                # Ext runs only with M500
+                if mass!="M500":
+                  print(mass,"is not allowed to run with Ext option.")
+                  print("Exiting ...")
+                  sys.exit(1)
+
                 LimitDir = "LimitExtraction"
                 InputHistMass = ""
                 RegionToHistSuffixMap[region][channel] = RegionToHistSuffixMap[region][channel].replace('BDT','')

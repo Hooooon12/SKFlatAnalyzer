@@ -9,7 +9,7 @@ class HNDilepModel(PhysicsModel):
         self.modelBuilder.factory_("expr::r2(\"(@0)*(@0)\", r)")
 
     def getYieldScale(self, bin, process):
-        if "signalDYVBF" in process:
+        if "signalDYVBF" in process or "signalDY" in process or "signalVBF" in process or "signalWeinberg" in process:
             return 'r'
         elif "signalSSWW" in process:
             return 'r2'
@@ -23,7 +23,7 @@ class HNDilepModel_EMu(PhysicsModel):
         self.modelBuilder.factory_("expr::r2_EMu(\"4*(@0)*(@0)\", r)")
 
     def getYieldScale(self, bin, process):
-        if "signalDYVBF" in process:
+        if "signalDYVBF" in process or "signalDY" in process or "signalVBF" in process or "signalWeinberg" in process:
             return 'r'
         elif "signalSSWW" in process:
             return 'r2_EMu'

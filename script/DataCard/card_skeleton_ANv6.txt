@@ -16,9 +16,9 @@ bin                           bin1   bin1   bin1   bin1          bin1   bin1   b
 process                       fake   cf     zg     mc_others     wz     zz     ww       signalDY    signalVBF      signalSSWW    signalWeinberg
 process                       1      2      3      4             5      6      7        -3          -2             -1            0
 rate                          -1     -1     -1     -1            -1     -1     -1       -1          -1             -1            -1
-lumi_13TeV_uncorr      lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
-lumi_13TeV_corr_161718 lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
-lumi_13TeV_corr_1718   lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+lumi_13TeV_16          lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+lumi_13TeV_1617        lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+lumi_13TeV_161718      lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
 mc_xsec                lnN    -      -      -      1.2           -      -      -        -           -              -             -
 CMS_fake_stat          shape  1      -      -      -             -      -      -        -           -              -             -
 CMS_fake_highpt        shape  1      -      -      -             -      -      -        -           -              -             -

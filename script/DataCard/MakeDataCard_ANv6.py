@@ -62,12 +62,13 @@ masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350"
 ## signal processes
 #signals = ["_DYVBF","_SSWW"]
 #signals = ["_DY","_VBF"]
-#signals = ["","_Weinberg"]
-signals = [""]
+signals = ["","_Weinberg"]
+#signals = [""]
 #signals = ["_DYVBF","_SSWW",""]
 #signals = ["_SSWW"]
 #signals = ["_Weinberg"]
 #signals = ["_DY","_VBF","_DYVBF"]
+#signals = ["_DY","_VBF","_DYVBF","_SSWW"]
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_ANv3/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
@@ -112,7 +113,8 @@ CRpath = SRpath
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"]
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"] # This is tentative nominal @250909
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst"] # correlation updated @251006
-InputWPs = ["ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] if "PNETdecorr" not in args.outputTag else ["ANv6_NewSignals_HNL_ULIDv2_PNETdecorr_V3_Strict_15_Bin_RunSyst"] # ANv6: M350, M450 added and bin reoptimized due to xsec change of VBFTypeI M300, M400. Syst added. @251211
+#InputWPs = ["ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] if "PNETdecorr" not in args.outputTag else ["ANv6_NewSignals_HNL_ULIDv2_PNETdecorr_V3_Strict_15_Bin_RunSyst"] # ANv6: M350, M450 added and bin reoptimized due to xsec change of VBFTypeI M300, M400. Syst added. @251211
+InputWPs = ["ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # fix missed trigger SF syst @251223
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
@@ -171,28 +173,27 @@ proc_rateRegion_map['ZZ'] = regions_sr + [cr for cr in regions_cr if "zz" in cr]
 #  if any("wz_cr3" in region for region in regions_cr ): OutputTag+="_WZ3"
 
 ##### Lumi uncertainty table #####
-lumi_systs = {
+lumi_systs = { # https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun2#Luminosity_for_pp_13_TeV_data_20
               '2016preVFP':
                             {
-                             'uncorr':'1.01',
-                             'corr1':'1.006',
+                             'corr1':'1.0118',
+                             'corr2':'1.0004',
+                             'corr3':'1.0035',
                             },
               '2016postVFP':
                             {
-                             'uncorr':'1.01',
-                             'corr1':'1.006',
+                             'corr1':'1.0118',
+                             'corr2':'1.0004',
+                             'corr3':'1.0035',
                             },
               '2017':
                            {
-                            'uncorr':'1.02',
-                            'corr1':'1.009',
-                            'corr2':'1.006',
+                            'corr2':'1.0055',
+                            'corr3':'1.0061',
                            },
               '2018':
                            {
-                            'uncorr':'1.015',
-                            'corr1':'1.02',
-                            'corr2':'1.002',
+                            'corr3':'1.0084',
                            },
 }
 
@@ -231,6 +232,8 @@ def MakeRateString(region, era, channel, mass, signal, WP):
   this_process = apply_auto_exceptions(this_process, region, era, channel, mass, mass_int, exceptionTag)
 
   #print(region)
+  #print(era)
+  #print(channel)
   #print(exceptionTag)
   #print(this_process)
 
@@ -334,27 +337,21 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
         if is_syst_line(line):
           syst_name = line.split()[0]
 
-          # lumi treatment
-          if 'lumi' in syst_name:
-            if 'uncorr' in syst_name: # era-specific uncorrelated uncertainty
-              line = line.replace('1.05',lumi_systs[era]['uncorr'])
-            elif '161718' in syst_name: # all era correlated
-              line = line.replace('1.05',lumi_systs[era]['corr1'])
-            else: # 1718 correlated
-              if '2016' in era: continue
-              else: line = line.replace('1.05',lumi_systs[era]['corr2'])
-
           # era-correlated systs
           corr_keys = ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet"]
           if "PNETdecorr" in args.outputTag: corr_keys = [k for k in corr_keys if "ParticleNet" not in k]
           if any(f"{key}_" in f"{syst_name}_" for key in corr_keys):
             pass
-          # partial era-decorrelation (2016 lumi)
-          elif 'lumi' in syst_name and 'uncorr' in syst_name:
-            if '2016' in era:
-              line = line.replace(syst_name, f"{syst_name}_2016")
-            else:
-              line = line.replace(syst_name, f"{syst_name}_{era}")
+          # partial correlation (lumi)
+          elif 'lumi' in syst_name:
+            if '161718' in syst_name:
+              line = line.replace('1.05',lumi_systs[era]['corr3'])
+            elif '1617' in syst_name:
+              if '2018' in era: continue # don't save this line
+              else: line = line.replace('1.05',lumi_systs[era]['corr2'])
+            else: # 16 only
+              if '2018' in era or '2017' in era: continue # don't save this line
+              else: line = line.replace('1.05',lumi_systs[era]['corr1'])
           # era-decorrelation
           else:
             line = line.replace(syst_name, f"{syst_name}_{era}")
@@ -425,6 +422,12 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
     return lines_sronly
  
 def ValidMassSignal(mass, signal):
+  # Check M500 limit extension
+  if args.Ext:
+    if mass!="M500":
+      #print(mass,"is not allowed to run with Ext option.")
+      return False
+
   # Check Weinberg first
   if mass=="Weinberg":
     if "Weinberg" in signal: return True

@@ -112,7 +112,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
 
   //TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"; // set the nominal WP
   //TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
-  TString WP_nom = "ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
+  //TString WP_nom = "ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
+  TString WP_nom = "ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
   vector<TString> WP_noms;
   if(DrawExt) WP_noms = {WP_nom+"_BDT", WP_nom+"_Ext"}; // nominal working points; BDT: up to 500 GeV, Ext: from 500 GeV
   else WP_noms = {WP_nom}; // nominal working point
@@ -130,8 +131,14 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString tag_nom = "_DYVBF_sronly_sr123_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sronly_sr123_syst"; // nominal tag
-  TString tag_nom = "_syst"; // nominal tag
+  TString tag_nom = "_syst"; // default setting
+  //TString tag_nom = "_DY_syst"; // nominal tag
+  //TString tag_nom = "_VBF_syst"; // nominal tag
+  //TString tag_nom = "_DYVBF_syst"; // nominal tag
+  //TString tag_nom = "_SSWW_syst"; // nominal tag
   //TString tag_nom = "_sr1_syst_Combined"; // nominal tag
+  //TString tag_nom = "_sr2_syst_Combined"; // nominal tag
+  //TString tag_nom = "_sr3_syst_Combined"; // nominal tag
   //TString tag_nom = "_syst_Run23Scaled"; // nominal tag
   TString method_nom = "Asym"; // nominal limit method
   TString Name_IsXsecLimit = "_mixing";
@@ -155,7 +162,9 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
 
   TString method = "Asym"; //"Full";
   vector<TString> WPs = {}; // Nothing to draw other than nominals
-  WPs.push_back("ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
+  //WPs.push_back("ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"); // add WP you want to overlay
+  //WPs.push_back("ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
+  //WPs.push_back("ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
   if(SepLimit) WPs = {WP_nom}; // same name with the nominal, but separate each signal/SR
   //vector<TString> WPs = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"};
   //vector<TString> WPs = {"ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewRP"};
@@ -200,8 +209,14 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //vector<TString> WPs = {"ANv3_HNL_ULIDv2_Decorr_Run2"}; // WPs to compare
   //vector<TString> tags = {"_syst_Run2Scaled"};
   //vector<TString> tags = {"_sr_Combined"};
-  //vector<TString> tags = {"_sr2_syst_Combined"};
   vector<TString> tags = {"_syst"}; // Default setting
+  //vector<TString> tags = {"_DY_syst"};
+  //vector<TString> tags = {"_VBF_syst"};
+  //vector<TString> tags = {"_DYVBF_syst"};
+  //vector<TString> tags = {"_SSWW_syst"};
+  //vector<TString> tags = {"_sr1_syst_Combined"};
+  //vector<TString> tags = {"_sr2_syst_Combined"};
+  //vector<TString> tags = {"_sr3_syst_Combined"};
   if(SepLimit==1) tags = {"_DY_syst","_VBF_syst","_DYVBF_syst","_SSWW_syst"};
   else if(SepLimit==2) tags = {"_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"};
   for(int i=0; i<WPs.size(); i++){
