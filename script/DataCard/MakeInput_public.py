@@ -1379,7 +1379,7 @@ for tag in args.histTag:
                   #### Now check zero norm ... ####
                   if h_syst.Integral()<=0.:
                     print("!!!!!! Zero norm detected in",input_list[i][2],input_hist,"with syst:",name_syst,"!!!!!!")
-                    print("Making a makeup hist(=cc of nominal)...") # Sometimes there is no hist with syst variation and Combine complains. This is to makeup this.
+                    print("Making a makeup hist(=cc of nominal)...") # When the syst variation is negative, just use the nominal as a variation.
                     h_syst = input_list[i][1].Clone()
                     h_syst.SetDirectory(0)
 
@@ -1399,6 +1399,7 @@ for tag in args.histTag:
 
                 # scale signal systs except the pdf variations (which are already done)
                 if 'PDFUp' in this_syst or 'PDFDown' in this_syst: pass
+                elif h_syst.Integral() == input_list[i][1].Integral(): pass # if this syst is just a cc of the nominal, then no need to scale.
                 else:
                   if not is_Weinberg:
                     if "signalDYVBF" in input_list[i][2]: # Scale the syst variated signals
@@ -1493,7 +1494,8 @@ for tag in args.histTag:
   exceptionTag = args.exceptionTag if args.exceptionTag else OutputName
 
   code = generate_exception_code(Except_list)
-  save_path = "/data6/Users/jihkim/LatestCombine/CMSSW_14_1_0_pre4/src/DilepHN/exceptions_auto.py"
+  #save_path = "/data6/Users/jihkim/LatestCombine/CMSSW_14_1_0_pre4/src/DilepHN/exceptions_auto.py"
+  save_path = "/data9/Users/HNL_public/SUS-24-014/Combine/CMSSW_14_1_0_pre4/src/DilepHN/exceptions_auto.py"
   
   if args.saveException == "Print":
     print("Printing exception rules ...")
