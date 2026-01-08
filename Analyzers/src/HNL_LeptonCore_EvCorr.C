@@ -177,7 +177,7 @@ void HNL_LeptonCore::EvalMuonIDWeight(const std::vector<Muon>& muons, AnalyzerPa
 
     // Determine the appropriate reco_pt
     double reco_pt = (param.k.Muon_RECO_SF == "HighPtMuonRecoSF" || 
-		      (param.k.Muon_RECO_SF == "MuonRecoSF" && this_pt > 200)) ? MiniAODP : this_pt;
+		     (param.k.Muon_RECO_SF == "MuonRecoSF" && this_pt > 200)) ? MiniAODP : this_pt;
 
     // [1] Reco ID SF - Should be applied to all Muons
     double this_recosf = (param.Apply_Weight_RECOSF) ? 
@@ -277,9 +277,19 @@ void HNL_LeptonCore::EvalLeptonIDWeight(const std::vector<Lepton*>& leps, Analyz
       this_weight *= this_recosf * this_idsf;
     } 
     else if (lep->LeptonFlavour() == Lepton::MUON) {
+      
+      double MiniAODP = std::sqrt(lep->MiniAODPt() * lep->MiniAODPt() + lep->Pz() * lep->Pz());
+      this_pt = lep->MiniAODPt();
+      
       double this_idsf = mcCorr->MuonID_SF(param.k.Muon_ID_SF, this_eta, this_pt, SystDir_MuonIDSF);
       double this_isosf = mcCorr->MuonISO_SF(param.k.Muon_ISO_SF, this_eta, this_pt, SystDir_MuonISOSF);
-      double this_recosf = mcCorr->MuonReco_SF(param.k.Muon_RECO_SF, this_eta, this_pt, SystDir_MuonRecoSF);
+
+      // Determine the appropriate reco_pt                                                                                               
+      double reco_pt = (param.k.Muon_RECO_SF == "HighPtMuonRecoSF" ||
+                     (param.k.Muon_RECO_SF == "MuonRecoSF" && this_pt > 200)) ? MiniAODP : this_pt;
+
+
+      double this_recosf = mcCorr->MuonReco_SF(param.k.Muon_RECO_SF, this_eta, reco_pt, SystDir_MuonRecoSF);
             
       this_weight *= this_idsf * this_isosf * this_recosf;
     }

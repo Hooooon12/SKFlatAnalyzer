@@ -453,7 +453,7 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
     const TString mcSampleName = MCSample; // or however you get it
 
     // Top level debug
-    if(0)std::cout << "[DEBUG] New event: sample=" << mcSampleName
+    if(run_Debug)std::cout << "[DEBUG] New event: sample=" << mcSampleName
         << " isSignal=" << isSignal
         << " isSR=" << isSR
         << " nAK8=" << AK8_JetColl.size()
@@ -470,16 +470,16 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
 
       bool sr1_fill_plot = (ref_mass == 400 || isSignal);
 
-      if(0)std::cout << "[DEBUG]  Mass group loop: ref_mass=" << ref_mass << " sr1_fill_plot=" << sr1_fill_plot << std::endl;
+      if(run_Debug)std::cout << "[DEBUG]  Mass group loop: ref_mass=" << ref_mass << " sr1_fill_plot=" << sr1_fill_plot << std::endl;
 
       if (!isSR && !sr1_fill_plot && !isSignal) {
-        if(0)std::cout << "[DEBUG]   -> Skipping group ref_mass=" << ref_mass
-            << " due to CR condition "
-            << "(isSR=" << isSR
-            << ", sr1_fill_plot=" << sr1_fill_plot
-            << ", isSignal=" << isSignal << ")"
-            << std::endl;
-        continue;
+        if(run_Debug)std::cout << "[DEBUG]   -> Skipping group ref_mass=" << ref_mass
+           << " due to CR condition "
+           << "(isSR=" << isSR
+           << ", sr1_fill_plot=" << sr1_fill_plot
+           << ", isSignal=" << isSignal << ")"
+           << std::endl;
+       continue;
       }
             
       // --- For signal samples, restrict to allowed mass range(s) ---
@@ -1025,6 +1025,8 @@ TString HNL_RegionDefinitions::RunSignalRegionWWString(bool ApplyForSR,HNL_Lepto
     cuts = chIt->second;
   }
       }
+      
+      if(HasFlag("SingularBinning")) cuts  ={2.0, 2.5, 1.5, 2.5};
       
       // Bin selection (preserves your original logic)
       if (ll_dphi > 2.0) {

@@ -24,6 +24,11 @@ void HNL_LeptonCore::initializeAnalyzer(vector<TString> BDTVersions, bool READBK
   //=== VERBOSE                                                                                                                                        
   run_Debug = HasFlag("DEBUG");
 
+  //=== print flags
+  k_muonweight=false;
+  k_electronweight=false;
+  k_jetweight=false;
+  
   //=== bkg flags                                                                                                                                      
   RunPrompt = HasFlag("RunPrompt");
   RunFake   = HasFlag("RunFake");

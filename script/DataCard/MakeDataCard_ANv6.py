@@ -18,6 +18,10 @@ from exceptions_auto import apply_auto_exceptions
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-sk', dest='skels', default=["card_skeleton_ANv6.txt"], nargs='+', help='List of skeletons to use')
+parser.add_argument('-e', dest='eras', default=["2016preVFP","2016postVFP","2017","2018"], choices=["2016preVFP","2016postVFP","2017","2018"], nargs='+')
+parser.add_argument('-c', dest='channels', default=["MuMu","EE","EMu"], choices=["MuMu","EE","EMu"], nargs='+') # store [] if nothing is fed
+parser.add_argument('-m', dest='masses', default=["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"], choices=["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"], nargs='+')
+parser.add_argument('-s', dest='signals', default=["","_Weinberg"], choices=["","_DY","_VBF","_DYVBF","_SSWW","_Weinberg"], nargs='+')
 parser.add_argument('-o', dest='outputTag', default='', help='tag attached to the output directory')
 parser.add_argument('--Ext', action='store_true', help='Extend cut based approach down to M500')
 parser.add_argument('--CnC', action='store_true', help='One-bin limit')
@@ -40,35 +44,10 @@ pwd = os.getcwd()
 #
 #####################################################
 
-#eras = ["2016","2017","2018"]
-#eras = ["2017"]
-#eras = ["2018"]
-eras = ["2016preVFP","2016postVFP","2017","2018"]
-#eras = ["2016preVFP"]
-
-channels = ["MuMu","EE","EMu"]
-#channels = ["MuMu","EE"]
-#channels = ["EE"]
-#channels = ["EE","EMu"]
-#channels = ["MuMu"]
-
-## Full mass ranges
-masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","Weinberg"]
-masses_EMu = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"]
-
-#masses = ["M500"]
-#masses_EMu = ["M500"]
-
-## signal processes
-#signals = ["_DYVBF","_SSWW"]
-#signals = ["_DY","_VBF"]
-signals = ["","_Weinberg"]
-#signals = [""]
-#signals = ["_DYVBF","_SSWW",""]
-#signals = ["_SSWW"]
-#signals = ["_Weinberg"]
-#signals = ["_DY","_VBF","_DYVBF"]
-#signals = ["_DY","_VBF","_DYVBF","_SSWW"]
+eras = args.eras
+channels = args.channels
+masses = args.masses
+signals = args.signals
 
 #SRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_ANv3/LimitExtraction/"
 #CRpath = "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_ControlRegion_Plotter_ANv3/LimitExtraction/"
@@ -114,7 +93,8 @@ CRpath = SRpath
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_V3_Strict_15_Bin_RunSyst"] # This is tentative nominal @250909
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst"] # correlation updated @251006
 #InputWPs = ["ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] if "PNETdecorr" not in args.outputTag else ["ANv6_NewSignals_HNL_ULIDv2_PNETdecorr_V3_Strict_15_Bin_RunSyst"] # ANv6: M350, M450 added and bin reoptimized due to xsec change of VBFTypeI M300, M400. Syst added. @251211
-InputWPs = ["ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # fix missed trigger SF syst @251223
+#InputWPs = ["ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # fix missed trigger SF syst @251223
+InputWPs = ["ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # Test consistent binning @260108
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
@@ -421,7 +401,11 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
   else:
     return lines_sronly
  
-def ValidMassSignal(mass, signal):
+def ValidMassSignal(channel: str, mass: str, signal: str) -> bool:
+  # Check channel dependent mass
+  if channel != "EMu" and int(mass.strip('M')) >= 40000:
+    return False
+
   # Check M500 limit extension
   if args.Ext:
     if mass!="M500":
@@ -593,8 +577,8 @@ for InputWP in InputWPs:
       os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/MakeWorkspace.py "+OutputWP)
       os.system("ln -s /data6/Users/jihkim/SKFlatAnalyzer/script/DataCard/CheckNuisance.py "+OutputWP)
 
-      for era, channel, mass, signal in [(era, channel, mass, signal) for era in eras for channel in channels for mass in (masses if channel!="EMu" else masses_EMu) for signal in signals]:
-        if not ValidMassSignal(mass, signal): continue
+      for era, channel, mass, signal in [(era, channel, mass, signal) for era in eras for channel in channels for mass in masses for signal in signals]:
+        if not ValidMassSignal(channel, mass, signal): continue
 
         mass_signal = mass if signal.strip('_') in mass else mass + signal # Remove duplication like Weinberg_Weinberg
 
@@ -620,8 +604,8 @@ for InputWP in InputWPs:
       os.system('pwd')
       if args.Syst:
         os.system('echo \'Systematics have been added.\'')
-      for channel, mass, signal in [(channel, mass, signal) for channel in channels for mass in (masses if channel!="EMu" else masses_EMu) for signal in signals]:
-        if not ValidMassSignal(mass, signal): continue
+      for channel, mass, signal in [(channel, mass, signal) for channel in channels for mass in masses for signal in signals]:
+        if not ValidMassSignal(channel, mass, signal): continue
 
         mass_signal = mass if signal.strip('_') in mass else mass + signal # Remove duplication like Weinberg_Weinberg
         sr_filtered = mass_to_srs(mass)

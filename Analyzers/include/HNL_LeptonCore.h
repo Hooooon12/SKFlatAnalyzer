@@ -682,6 +682,7 @@ class HNL_LeptonCore : public AnalyzerCore {
   bool IsSkimmed, Signal, HEM1516 ,BeforeRun319077;
   bool DEBUG,IsCentral, RunFullAnalysis;
   TRandom3* rand_;
+  bool k_muonweight,k_electronweight,k_jetweight;
   
   // Trigger vectors used to store year dependant trigger lists
   

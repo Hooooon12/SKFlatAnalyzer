@@ -231,6 +231,8 @@ void HNL_LeptonCore::DefineLimitBins(){
 vector<double> HNL_LeptonCore::GetLimitBinBoundary(const TString& SR, TString mass_ref, const TString& channel){
 
 
+  if(HasFlag("SingularBinning")) return { 0., 125.0, 375.0, 435.0, 495.0, 575.0, 755.0  , 2000.}; ;
+  
   TString key = (channel == "") ? SR : SR+"_"+channel+"_"+mass_ref;
   
   map<TString,vector<double> >::iterator mit = map_bins_boundaries.find(key);
@@ -281,8 +283,26 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
   
   TString binPrefix = RegionTag + "_bin";
   double binLimit1 = 0.0, binLimit2 = 0.0, binLimit3 = 0.0, binLimit4 = 0.0, binLimit5 = 0.0;
-  
-  if (channel == "MuMu") {
+
+
+  if(HasFlag("SingularBinning")) {
+     if (LowJet) {
+        // LowJet Bins                                                                                                                                                      
+        if (met2_st < met2_st_boundary) {
+          binLimit1 = 150; binLimit2 = 175; binLimit3 = 200; binLimit4 = 300;
+        } else {
+          binLimit1 = 175; binLimit2 = 250;
+        }
+      } else {
+        // HighJet Bins                                                                                                                                                     
+        if (met2_st < met2_st_boundary) {
+          binLimit1 = 160; binLimit2 = 180; binLimit3 = 200; binLimit4 = 225; binLimit5 = 275;
+        } else {
+          binLimit1 = 175; binLimit2 = 200; binLimit3 = 250;
+        }
+     }
+  }
+  else  if (channel == "MuMu") {
 
     if(DataEra == "2016preVFP") {
       if (LowJet) {

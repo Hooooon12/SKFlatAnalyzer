@@ -36,6 +36,11 @@ std::vector<Muon> HNL_LeptonCore::SelectMuons(AnalyzerParameter& param, const TS
   std::vector<Muon> muons = SelectMuons(param, id, ptmin, fetamax);
     
   if (!IsData) {
+
+    if (!k_muonweight) {
+      std::cout << "[INFO] EvalMuonIDWeight is running" << std::endl;
+      k_muonweight=true;
+    }
     EvalMuonIDWeight(muons, param, EvWeight);
   }
 
@@ -143,6 +148,10 @@ std::vector<Electron> HNL_LeptonCore::SelectElectrons(AnalyzerParameter& param, 
   std::vector<Electron> electrons = SelectElectrons(param, id, ptmin, fetamax, vetoHEM);
     
   if (!IsData) {
+    if (!k_electronweight) {
+      std::cout << "[INFO] EvalElectronIDWeight is running" << std::endl;
+      k_electronweight=true;
+    }
     EvalElectronIDWeight(electrons, param, EvWeight);
   }
 

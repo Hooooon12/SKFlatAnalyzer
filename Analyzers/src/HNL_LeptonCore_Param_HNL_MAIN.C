@@ -39,7 +39,10 @@ AnalyzerParameter HNL_LeptonCore::Setup_Param_HNL_ULID(const TString& s_setup_ve
   param_default.Electron_Veto_ID  = "HNVetoMVA";
   param_default.Electron_Tight_ID = "HNL_ULID_"+GetYearString();
 
+  /// Use Med+High Pt SFs
+  param_default.k.Muon_RECO_SF       = "MuonRecoSF";
 
+  
   ///Fakes                                                                                                                                                                                                                                                                                                
   param_default.FakeRateMethod    = "Standard";
   param_default.FakeRateParam     = "PtParton";

@@ -78,8 +78,9 @@ public:
     double syst;
   };
   
-  std::vector<MuonSFEntry> MuonSFTable;
-  const MuonSFEntry* GetMuonRecoSF(double abseta, double p);
+  std::vector<MuonSFEntry> MuonSFTable_LowPt;
+  std::vector<MuonSFEntry> MuonSFTable_HighPt;
+  const MuonSFEntry* GetMuonRecoSF(bool ishighpt, double abseta, double p);
 
 
   double JetPileUpSF(Jet j, TString WP, int sys=0);

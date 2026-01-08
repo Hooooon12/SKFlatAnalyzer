@@ -19,7 +19,12 @@ JetTagging::Parameters HNL_LeptonCore::GetParamJetTagger(AnalyzerParameter& para
 void  HNL_LeptonCore::EvalJetWeight(const std::vector<Jet>&    AK4_JetColl, const std::vector<Jet>&    AK4_VBFJetColl, const std::vector<FatJet>&   AK8_JetColl,  double & w,AnalyzerParameter& param){
   
   if(IsData) return;
-    
+
+  if (!k_jetweight) {
+    std::cout << "[INFO] EvalJetWeight is running" << std::endl;
+    k_jetweight=true;
+  }
+  
   /// BJET SF
  
   if (param.Apply_Weight_BJetSF && param.BTagger != "Default") {
