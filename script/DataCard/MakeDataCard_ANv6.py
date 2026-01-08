@@ -94,7 +94,7 @@ CRpath = SRpath
 #InputWPs = ["ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst"] # correlation updated @251006
 #InputWPs = ["ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] if "PNETdecorr" not in args.outputTag else ["ANv6_NewSignals_HNL_ULIDv2_PNETdecorr_V3_Strict_15_Bin_RunSyst"] # ANv6: M350, M450 added and bin reoptimized due to xsec change of VBFTypeI M300, M400. Syst added. @251211
 #InputWPs = ["ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # fix missed trigger SF syst @251223
-InputWPs = ["ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # Test consistent binning @260108
+InputWPs = ["ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning"] # Test consistent binning @260108
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
@@ -402,10 +402,6 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
     return lines_sronly
  
 def ValidMassSignal(channel: str, mass: str, signal: str) -> bool:
-  # Check channel dependent mass
-  if channel != "EMu" and int(mass.strip('M')) >= 40000:
-    return False
-
   # Check M500 limit extension
   if args.Ext:
     if mass!="M500":
@@ -421,6 +417,10 @@ def ValidMassSignal(channel: str, mass: str, signal: str) -> bool:
   else:
     if "Weinberg" in signal: return False
     if signal=="": return True # MakeRateString will handle this
+
+    # Check channel dependent mass
+    if channel != "EMu" and int(mass.strip('M')) >= 40000:
+      return False
 
     if int(mass.strip('M'))<300:
       if "DY" in signal:
