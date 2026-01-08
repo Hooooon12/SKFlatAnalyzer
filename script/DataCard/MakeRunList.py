@@ -67,8 +67,8 @@ if "Run2" in args.eras:
 for dirName in args.dirNames:
 
   greps = 'ls '+dirName+grepRegion+' | grep '*int(bool(args.eras))+' '.join(["-e "+era for era in args.eras])+' | grep '*int(bool(args.channels))+' '.join(["-e "+channel for channel in args.channels])+' | grep '*int(bool(args.masses))+' '.join(["-e M"+mass+"_" for mass in args.masses])+' | grep '*int(bool(args.signals))+' '.join(["-e "+signal for signal in args.signals]) # if any of eras, chs, ms exists, this line greps it in order. if not, just ls the directory
-  #if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW|Weinberg\"' # When you don't want signal specific results and the Weinberg
-  if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW\"' # When you don't want HNL signal specific results
+  if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW|Weinberg\"' # When you don't want signal specific results and the Weinberg
+  #if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW\"' # When you don't want HNL signal specific results
   if args.Ext: greps += ' | grep Ext'
   else: greps += ' | grep -Ev \"Ext\"'
   #print(greps)

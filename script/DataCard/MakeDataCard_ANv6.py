@@ -416,11 +416,12 @@ def ValidMassSignal(channel: str, mass: str, signal: str) -> bool:
   # Now N mass
   else:
     if "Weinberg" in signal: return False
-    if signal=="": return True # MakeRateString will handle this
 
     # Check channel dependent mass
     if channel != "EMu" and int(mass.strip('M')) >= 40000:
       return False
+
+    if signal=="": return True # MakeRateString will handle this
 
     if int(mass.strip('M'))<300:
       if "DY" in signal:
