@@ -67,6 +67,7 @@ outputTag = args.outputTag if args.outputTag == '' else "_"+args.outputTag
 ExtTag = '_Ext' if args.Ext else ''
 
 BDTver = args.BDTver
+ANver = int(re.search(r'\bANv(\d+)(?=_|$)', inputTag).group(1)) # ANv + some number + _ or end of the string
 
 if not args.histTag:
   print("Please specify the hist tag; e.g. HNL_ULIDv2 .")
@@ -395,7 +396,7 @@ if args.CheckFiles:
   DataList['2017'] = []
   DataList['2018'] = []
   Streams = ["DoubleEG","DoubleMuon","MuonEG"]
-  Streams_2018 = ["EGamma_GT36","DoubleMuon_GT36","MuonEG_GT36"] if ("ANv5" in inputTag or "ANv6" in inputTag) else ["EGamma","DoubleMuon","MuonEG"]
+  Streams_2018 = ["EGamma_GT36","DoubleMuon_GT36","MuonEG_GT36"] if (ANver >= 5) else ["EGamma","DoubleMuon","MuonEG"]
   for stream in Streams:
     for period in ["B_ver2","C","D","E","F"]:
       DataList['2016preVFP'].append(stream+"_"+period)

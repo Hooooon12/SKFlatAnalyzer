@@ -27,15 +27,16 @@ parser.add_argument('--Impact', action='store_true', help='check impacts')
 parser.add_argument('--FastScan', action='store_true', help='fast scan')
 parser.add_argument('--MDfit', action='store_true', help='multidimension fits')
 parser.add_argument('--Breakdown', action='store_true', help='uncertainty breakdown')
+parser.add_argument('--GOF', action='store_true', help='goodness of fit test')
 parser.add_argument('--InjectSignal', default='0', help='inject signals to asimov')
 args = parser.parse_args()
 
-IsNuis = False
+IsNuis = False # Limit extraction setting
 Ncheck = 0
-for check in ['FitDiag','Impact','Breakdown','FastScan','MDfit']:
+for check in ['FitDiag','Impact','Breakdown','FastScan','MDfit','GOF']:
   if vars(args)[check] is True:
     this_check = check
-    IsNuis = True
+    IsNuis = True # Statistical tests
     Ncheck += 1
 if Ncheck > 1:
   print("More than 1 Nuisance flag activated; This is not supported.")
@@ -74,7 +75,7 @@ for RunList in args.RunLists:
       os.system('mkdir -p MDfits/'+WP)
     if args.FitDiag:
       os.system('mkdir -p FitDiags/'+WP)
-  elif args.Work or IsNuis:
+  elif args.Work or IsNuis: # Make workspace or perform statistical tests
     with open(WP+'/submit_skeleton.sh','w') as skel:
       skel.write("universe = vanilla\n")
       skel.write("+SingularityImage = \"/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el9:latest\"\n")
@@ -82,7 +83,7 @@ for RunList in args.RunLists:
       skel.write("when_to_transfer_output = ON_EXIT\n")
       skel.write("request_memory = 24000\n")
       skel.write("request_cpus = 4\n")
-  else:
+  else: # Extract limits
     os.system('mkdir -p Batch/'+WP)
     with open('Batch/submit_skeleton.sh','w') as skel:
       skel.write("universe = vanilla\n")
@@ -125,8 +126,10 @@ for RunList in args.RunLists:
       os.system('mkdir -p '+WP+'/'+shortcard)
       os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/submit_Workspace.sh')
     elif IsNuis:
-      os.system('mkdir -p '+WP+'/'+shortcard)
-      os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/submit_'+this_check+'.sh')
+      os.system('mkdir -p '+WP+'/'+shortcard+'/'+this_check)
+      os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/'+this_check+'/submit_'+this_check+'.sh')
+      os.system('cp '+WP+'/'+shortcard+'/'+shortcard+'.root '+WP+'/'+shortcard+'/'+this_check)
+      os.system('cp '+WP+'/'+shortcard+'/'+shortcard+'_DefMod.root '+WP+'/'+shortcard+'/'+this_check)
     else:
       os.system('mkdir -p Batch/'+WP+'/full_CLs/'+shortcard+'/output/')
       os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/full_CLs/'+shortcard+'/submit_Q1.sh')
@@ -256,10 +259,10 @@ for RunList in args.RunLists:
 
     if IsNuis:
       list_shortcard = [shortcard, shortcard+"_DefMod"] if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else [shortcard]
-      with open(WP+"/"+shortcard+"/Run"+this_check+".sh",'w') as runfile:
+      with open(WP+"/"+shortcard+"/"+this_check+"/Run"+this_check+".sh",'w') as runfile:
         runfile.write("#!/bin/bash\n")
         runfile.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
-        runfile.write("pushd "+pwd+"/"+WP+"/"+shortcard+"\n")
+        runfile.write("pushd "+pwd+"/"+WP+"/"+shortcard+"/"+this_check+"\n")
         runfile.write("echo Setting cmsenv environment...\n")
         runfile.write("cmsenv\n")
 
@@ -269,6 +272,11 @@ for RunList in args.RunLists:
             runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose whether Asimov or not
             runfile.write("combine -M FitDiagnostics "+this_shortcard+".root --rMin -10 --rMax 10 --saveShapes --saveWithUncertainties --saveNormalizations --saveWorkspace -n _"+this_shortcard+" --plots"+AsimovSetting+"\n")
             runfile.write("python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -a fitDiagnostics_"+this_shortcard+".root > pulls_"+this_shortcard+".txt\n")
+          elif args.GOF:
+            if "DefMod" in this_shortcard: continue # Must use the actual physics model
+            runfile.write("echo Running the goodness of fit test...\n")
+            runfile.write("combine -M GoodnessOfFit "+this_shortcard+".root -t -1 --algo saturated -n gof_Asimov_"+this_shortcard+"\n")
+            runfile.write("combine -M GoodnessOfFit "+this_shortcard+".root -t "+args.Ntoy+" --algo saturated -n gof_Ntoy"+args.Ntoy+"_"+this_shortcard+"\n")
           elif args.Impact:
             if (float(this_mass) > 3000.):
               runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name Impact_"+this_shortcard+AsimovSetting+"\n")
@@ -310,12 +318,12 @@ for RunList in args.RunLists:
 
         runfile.write("echo Done.\n")
 
-      with open(WP+"/"+shortcard+"/submit_"+this_check+".sh",'a') as submitfile:
+      with open(WP+"/"+shortcard+"/"+this_check+"/submit_"+this_check+".sh",'a') as submitfile:
         submitfile.write("executable = Run"+this_check+".sh\n")
         submitfile.write("log = "+shortcard+"_Run"+this_check+".log\n")
         submitfile.write("output = "+shortcard+"_Run"+this_check+".out\n")
         submitfile.write("error = "+shortcard+"_Run"+this_check+".out\n")
         submitfile.write("queue\n")
-      os.chdir(WP+"/"+shortcard)
+      os.chdir(WP+"/"+shortcard+"/"+this_check)
       os.system('condor_submit -a "priority = -15" submit_'+this_check+'.sh -batch-name '+shortcard+'_'+WP+'_'+this_check)
       os.chdir(pwd)
