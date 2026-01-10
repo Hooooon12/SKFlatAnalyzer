@@ -302,176 +302,178 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
         }
      }
   }
-  else  if (channel == "MuMu") {
-
-    if(DataEra == "2016preVFP") {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 150; binLimit2 = 175; binLimit3 = 200; binLimit4 = 300;
+  else {
+    if (channel == "MuMu") {
+      
+      if(DataEra == "2016preVFP") {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 150; binLimit2 = 175; binLimit3 = 200; binLimit4 = 300;
+	  } else {
+	    binLimit1 = 175; binLimit2 = 250; 
+	  }
 	} else {
-	  binLimit1 = 175; binLimit2 = 250; 
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 160; binLimit2 = 180; binLimit3 = 200; binLimit4 = 225; binLimit5 = 275;
+	  } else {
+	    binLimit1 = 175; binLimit2 = 200; binLimit3 = 250; 
+	  }
 	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 160; binLimit2 = 180; binLimit3 = 200; binLimit4 = 225; binLimit5 = 275;
+      }
+      else   if(DataEra == "2016postVFP") {
+	if (LowJet) {
+	  // LowJet Bins                                                                                                 
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 130; binLimit2 = 150; binLimit3 = 200; binLimit4 = 300;
+	  } else {
+	    binLimit1 = 175; binLimit2 = 250;
+	  }
 	} else {
-	  binLimit1 = 175; binLimit2 = 200; binLimit3 = 250; 
+	  // HighJet Bins                                                                                                
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 130; binLimit2 = 150; binLimit3 = 175; binLimit4 = 200; binLimit5 = 275;
+	  } else {
+	    binLimit1 = 150; binLimit2 = 175; binLimit3 = 225;
+	  }
+	}
+      }
+      else if (DataYear == 2017) {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 150; binLimit2 = 200; binLimit3 = 250; binLimit4 = 300;
+	  } else {
+	    binLimit1 = 200; binLimit2 = 275; 
+	  }
+	} else {
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 175; binLimit2 = 200; binLimit3 = 250; binLimit4 = 300; binLimit5 = 375;
+	  } else {
+	    binLimit1 = 200; binLimit2 = 275; binLimit3 = 350; 
+	  }
+	}
+      } else if (DataYear == 2018) {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 200; binLimit2 = 250; binLimit3 = 300; binLimit4 = 375;
+	  } else {
+	    binLimit1 = 200; binLimit2 = 400; 
+	  }
+	} else {
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 200; binLimit2 = 225; binLimit3 = 275; binLimit4 = 325; binLimit5 = 400;
+	  } else {
+	    binLimit1 = 200; binLimit2 = 350; binLimit3 = 450; 
+	  }
 	}
       }
     }
-    else   if(DataEra == "2016postVFP") {
-      if (LowJet) {
-        // LowJet Bins                                                                                                 
-        if (met2_st < met2_st_boundary) {
-          binLimit1 = 130; binLimit2 = 150; binLimit3 = 200; binLimit4 = 300;
-        } else {
-          binLimit1 = 175; binLimit2 = 250;
-        }
-      } else {
-        // HighJet Bins                                                                                                
-        if (met2_st < met2_st_boundary) {
-          binLimit1 = 130; binLimit2 = 150; binLimit3 = 175; binLimit4 = 200; binLimit5 = 275;
-        } else {
-          binLimit1 = 150; binLimit2 = 175; binLimit3 = 225;
-        }
-      }
-    }
-    else if (DataYear == 2017) {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 150; binLimit2 = 200; binLimit3 = 250; binLimit4 = 300;
-	} else {
-	  binLimit1 = 200; binLimit2 = 275; 
-	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 175; binLimit2 = 200; binLimit3 = 250; binLimit4 = 300; binLimit5 = 375;
-	} else {
-	  binLimit1 = 200; binLimit2 = 275; binLimit3 = 350; 
-	}
-      }
-    } else if (DataYear == 2018) {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 200; binLimit2 = 250; binLimit3 = 300; binLimit4 = 375;
-	} else {
-	  binLimit1 = 200; binLimit2 = 400; 
-	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 200; binLimit2 = 225; binLimit3 = 275; binLimit4 = 325; binLimit5 = 400;
-	} else {
-	  binLimit1 = 200; binLimit2 = 350; binLimit3 = 450; 
-	}
-      }
-    }
-  }
   
-  if (channel == "EE") {
-    if (DataYear == 2016) {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 200; binLimit2 = 400; binLimit3 = 600; binLimit4 = 900;
+    if (channel == "EE") {
+      if (DataYear == 2016) {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 200; binLimit2 = 400; binLimit3 = 600; binLimit4 = 900;
+	  } else {
+	    binLimit1 = 200; binLimit2 = 500; 
+	  }
 	} else {
-	  binLimit1 = 200; binLimit2 = 500; 
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 300; binLimit2 = 375; binLimit3 = 450; binLimit4 = 550; binLimit5 = 700;
+	  } else {
+	    binLimit1 = 250; binLimit2 = 350; binLimit3 = 400;
+	  }
 	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 300; binLimit2 = 375; binLimit3 = 450; binLimit4 = 550; binLimit5 = 700;
+      } else if (DataYear == 2017) {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 200; binLimit2 = 400; binLimit3 = 600; binLimit4 = 900;
+	  } else {
+	    binLimit1 = 180; binLimit2 = 500; 
+	  }
 	} else {
-	  binLimit1 = 250; binLimit2 = 350; binLimit3 = 400;
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 300; binLimit2 = 375; binLimit3 = 450; binLimit4 = 550; binLimit5 = 700;
+	  } else {
+	    binLimit1 = 300; binLimit2 = 450; binLimit3 = 550;
+	  }
 	}
-      }
-    } else if (DataYear == 2017) {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 200; binLimit2 = 400; binLimit3 = 600; binLimit4 = 900;
+      } else if (DataYear == 2018) {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 200; binLimit2 = 400; binLimit3 = 600; binLimit4 = 900; 
+	  } else {
+	    binLimit1 = 200; binLimit2 = 600; 
+	  }
 	} else {
-	  binLimit1 = 180; binLimit2 = 500; 
-	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 300; binLimit2 = 375; binLimit3 = 450; binLimit4 = 550; binLimit5 = 700;
-	} else {
-	  binLimit1 = 300; binLimit2 = 450; binLimit3 = 550;
-	}
-      }
-    } else if (DataYear == 2018) {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 200; binLimit2 = 400; binLimit3 = 600; binLimit4 = 900; 
-	} else {
-	  binLimit1 = 200; binLimit2 = 600; 
-	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 300; binLimit2 = 400; binLimit3 = 500; binLimit4 = 600; binLimit5 = 800;
-	} else {
-	  binLimit1 = 350; binLimit2 = 500; binLimit3 = 600; 
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 300; binLimit2 = 400; binLimit3 = 500; binLimit4 = 600; binLimit5 = 800;
+	  } else {
+	    binLimit1 = 350; binLimit2 = 500; binLimit3 = 600; 
+	  }
 	}
       }
     }
-  }
-  
-  if (channel == "EMu") {
-    if (DataYear == 2016) {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 175; binLimit2 = 250; binLimit3 = 325; binLimit4 = 425;
+    
+    if (channel == "EMu") {
+      if (DataYear == 2016) {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 175; binLimit2 = 250; binLimit3 = 325; binLimit4 = 425;
+	  } else {
+	    binLimit1 = 250; binLimit2 = 400;
+	  }
 	} else {
-	  binLimit1 = 250; binLimit2 = 400;
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 250; binLimit2 = 290; binLimit3 = 340; binLimit4 = 400; binLimit5 = 500;
+	  } else {
+	    binLimit1 = 200; binLimit2 = 300; binLimit3 = 400; 
+	  }
 	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 250; binLimit2 = 290; binLimit3 = 340; binLimit4 = 400; binLimit5 = 500;
+      } else if (DataYear == 2017) {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 175; binLimit2 = 250; binLimit3 = 350; binLimit4 = 450;
+	  } else {
+	    binLimit1 = 250; binLimit2 = 450; 
+	  }
 	} else {
-	  binLimit1 = 200; binLimit2 = 300; binLimit3 = 400; 
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 250; binLimit2 = 300; binLimit3 = 350; binLimit4 = 400; binLimit5 = 500;
+	  } else {
+	    binLimit1 = 250; binLimit2 = 350; binLimit3 = 500;
+	  }
 	}
-      }
-    } else if (DataYear == 2017) {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 175; binLimit2 = 250; binLimit3 = 350; binLimit4 = 450;
+      } else if (DataYear == 2018) {
+	if (LowJet) {
+	  // LowJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 250; binLimit2 = 300; binLimit3 = 400; binLimit4 = 500;
+	  } else {
+	    binLimit1 = 250; binLimit2 = 550; 
+	  }
 	} else {
-	  binLimit1 = 250; binLimit2 = 450; 
-	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 250; binLimit2 = 300; binLimit3 = 350; binLimit4 = 400; binLimit5 = 500;
-	} else {
-	  binLimit1 = 250; binLimit2 = 350; binLimit3 = 500;
-	}
-      }
-    } else if (DataYear == 2018) {
-      if (LowJet) {
-	// LowJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 250; binLimit2 = 300; binLimit3 = 400; binLimit4 = 500;
-	} else {
-	  binLimit1 = 250; binLimit2 = 550; 
-	}
-      } else {
-	// HighJet Bins
-	if (met2_st < met2_st_boundary) {
-	  binLimit1 = 300; binLimit2 = 350; binLimit3 = 425; binLimit4 = 500; binLimit5 = 700;
-	} else {
-	  binLimit1 = 250; binLimit2 = 400; binLimit3 = 500;
+	  // HighJet Bins
+	  if (met2_st < met2_st_boundary) {
+	    binLimit1 = 300; binLimit2 = 350; binLimit3 = 425; binLimit4 = 500; binLimit5 = 700;
+	  } else {
+	    binLimit1 = 250; binLimit2 = 400; binLimit3 = 500;
+	  }
 	}
       }
     }
