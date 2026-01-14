@@ -103,22 +103,22 @@ for RunList in args.RunLists:
     if args.pdf:
       this_shortcard = shortcard+"_DefMod" if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else shortcard
       if args.Impact:
-        os.chdir(pwd+"/"+WP+"/"+shortcard)
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check)
         os.system("pdfseparate Impact_"+this_shortcard+".pdf -f 1 -l 1 Impact_"+this_shortcard+"_1.pdf")
         os.system("cp Impact_"+this_shortcard+"_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+this_shortcard+".pdf")
         os.chdir(pwd+"/Impacts/"+WP)
         os.system("pdftoppm -png -singlefile Impact_"+this_shortcard+".pdf Impact_"+this_shortcard)
         os.chdir(pwd)
       if args.MDfit:
-        os.chdir(pwd+"/"+WP+"/"+shortcard)
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check)
         os.system("cp MDfit_"+this_shortcard+".pdf MDfit_"+this_shortcard+".png "+pwd+"/MDfits/"+WP)
         os.chdir(pwd)
       if args.FitDiag:
-        os.chdir(pwd+"/"+WP+"/"+shortcard)
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check)
         os.system("cp pulls_"+this_shortcard+".txt "+pwd+"/FitDiags/"+WP)
         os.chdir(pwd)
       if args.Breakdown:
-        os.chdir(pwd+"/"+WP+"/"+shortcard)
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check)
         os.system("cp "+this_shortcard+"_breakdown.pdf "+this_shortcard+"_breakdown.png "+pwd+"/Breakdowns/"+WP)
         os.chdir(pwd)
       continue
@@ -241,11 +241,11 @@ for RunList in args.RunLists:
         runfile.write("cmsenv\n")
         card = card.replace(".root",".txt") # The Runlist contains card_name.root by default.
         if "EMu" in shortcard:
-          runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu "+card+" -o "+shortcard+".root\n")
+          runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu "+card+" --channel-masks -o "+shortcard+".root\n")
         else:
-          runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel "+card+" -o "+shortcard+".root\n")
+          runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel "+card+" --channel-masks -o "+shortcard+".root\n")
         if (float(this_mass) > 3000.) or "SSWW" in shortcard: # mass is above 3000 GeV so it only contains SSWW, or SSWW only --> add DefMod for impact check
-          runfile.write("text2workspace.py "+card+" -o "+shortcard+"_DefMod.root\n") # impact with default physics model with SSWW: see https://cms-talk.web.cern.ch/t/0-impact-on-poi-negative-bin-issue/42793
+          runfile.write("text2workspace.py "+card+" --channel-masks -o "+shortcard+"_DefMod.root\n") # impact with default physics model with SSWW: see https://cms-talk.web.cern.ch/t/0-impact-on-poi-negative-bin-issue/42793
       with open(WP+"/"+shortcard+"/submit_Workspace.sh",'a') as submitfile:
         submitfile.write("executable = MakeWorkspace.sh\n")
         submitfile.write("log = "+shortcard+"_Workspace.log\n")
@@ -277,6 +277,9 @@ for RunList in args.RunLists:
             runfile.write("echo Running the goodness of fit test...\n")
             runfile.write("combine -M GoodnessOfFit "+this_shortcard+".root -t -1 --algo saturated -n gof_Asimov_"+this_shortcard+"\n")
             runfile.write("combine -M GoodnessOfFit "+this_shortcard+".root -t "+args.Ntoy+" --algo saturated -n gof_Ntoy"+args.Ntoy+"_"+this_shortcard+"\n")
+            runfile.write("combine -M GoodnessOfFit "+this_shortcard+".root --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r -n gof_CRonly_obs_"+this_shortcard+"\n")
+            runfile.write("combine -M GoodnessOfFit "+this_shortcard+".root -t "+args.Ntoy+" --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r -n gof_CRonly_toys_Ntoy"+args.Ntoy+"_"+this_shortcard+"\n")
+            runfile.write("combine -M GoodnessOfFit "+this_shortcard+".root -t "+args.Ntoy+" --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r --toysFrequentist -n gof_CRonly_toysFreq_Ntoy"+args.Ntoy+"_"+this_shortcard+"\n")
           elif args.Impact:
             if (float(this_mass) > 3000.):
               runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name Impact_"+this_shortcard+AsimovSetting+"\n")

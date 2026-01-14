@@ -28,7 +28,16 @@ parser.add_argument('--Decorr', action='store_true', help='Decorrelate Fake, CF 
 parser.add_argument('--JetDecorr', action='store_true', help='Decorrelate jet syst sources as well')
 parser.add_argument('--PreFlag', nargs='+', help='Your private flag names')
 parser.add_argument('--PostFlag', nargs='+', help='Your private flag names')
+## Merge setting
 parser.add_argument('--Merge', action='store_true', help='hadd the needed histograms') # NOTE Run2 Merging deprecated.
+parser.add_argument('--Data',   action='store_true', help='merge Data')
+parser.add_argument('--Fake',   action='store_true', help='merge Fake')
+parser.add_argument('--CF',     action='store_true', help='merge CF')
+parser.add_argument('--Conv',   action='store_true', help='merge Conv')
+parser.add_argument('--Prompt', action='store_true', help='merge Prompt')
+parser.add_argument('--MC',     action='store_true', help='merge MC (Conv+Prompt)')
+parser.add_argument('--Signal', action='store_true', help='merge Signal')
+##
 parser.add_argument('--CheckFiles', action='store_true', help='check all inputs before merge')
 parser.add_argument('--BDTver', default=None, help='BDT version comparison')
 args = parser.parse_args()
@@ -92,15 +101,27 @@ CFSkim = "_SkimTree_DileptonBDT_" #FIXME Data CF
 SignalSkim = "_SkimTree_HNMultiLepBDT_"
 
 # This will do necessary hadd for you.
-MergeData   = True if args.Merge else False
-MergeFake   = True if args.Merge else False  # RunFake
-MergeCF     = True if args.Merge else False  # RunCF
-MergeConv   = True if args.Merge else False  # RunConv
-MergePrompt = True if args.Merge else False  # RunPrompt
-MergeMC     = True if args.Merge else False  # MergeMC (Conv+Prompt)
-MergeSignal = True if args.Merge else False
-#MergeDYVBF = True if args.Merge else False
-#MergeSSWW  = True if args.Merge else False
+targets = ['Data','Fake','CF','Conv','Prompt','MC','Signal']
+any_target_selected = any(getattr(args, t) for t in targets)
+
+if not args.Merge and any_target_selected:
+  parser.error("You used --Data/--Fake/... without --Merge. Add --Merge.")
+
+if args.Merge:
+  if any_target_selected:
+    Merge = {t: getattr(args, t) for t in targets}
+  else:
+    Merge = {t: True for t in targets}
+else:
+  Merge = {t: False for t in targets}
+
+MergeData   = Merge['Data']
+MergeFake   = Merge['Fake']
+MergeCF     = Merge['CF']
+MergeConv   = Merge['Conv']
+MergePrompt = Merge['Prompt']
+MergeMC     = Merge['MC']
+MergeSignal = Merge['Signal']
 
 if args.CR:
   Blinded = False # Blinded --> the total background will be used as data_obs

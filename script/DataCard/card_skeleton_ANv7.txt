@@ -1,0 +1,71 @@
+imax *  number of channels
+jmax *  number of backgrounds
+kmax *  number of nuisance parameters (sources of systematical uncertainties)
+------------
+shapes * *  /data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegionPlotter/LimitInputs/test.root $PROCESS $PROCESS_$SYSTEMATIC
+------------
+# we have just one channel, in which we observe 0 events
+bin bin1
+observation -1
+------------
+# now we list the expected events for signal and all backgrounds in that bin
+# the second 'process' line must have a positive number for backgrounds, and 0 for signal
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
+bin                           bin1   bin1   bin1   bin1          bin1   bin1   bin1     bin1        bin1           bin1          bin1
+process                       fake   cf     zg     mc_others     wz     zz     ww       signalDY    signalVBF      signalSSWW    signalWeinberg
+process                       1      2      3      4             5      6      7        -3          -2             -1            0
+rate                          -1     -1     -1     -1            -1     -1     -1       -1          -1             -1            -1
+lumi_13TeV_16          lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+lumi_13TeV_1617        lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+lumi_13TeV_161718      lnN    -      -      1.05   1.05          1.05   1.05   1.05     1.05        1.05           1.05          1.05
+mc_xsec                lnN    -      -      -      1.2           -      -      -        -           -              -             -
+CMS_fake_stat          shape  1      -      -      -             -      -      -        -           -              -             -
+CMS_fake_highpt        shape  1      -      -      -             -      -      -        -           -              -             -
+CMS_fake_syst          lnN    1.2    -      -      -             -      -      -        -           -              -             -
+CMS_cf_stat            shape  -      1      -      -             -      -      -        -           -              -             -
+CMS_cf_syst            lnN    -      1.17   -      -             -      -      -        -           -              -             -
+CMS_HEM                shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_res_j              shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_scale_j            shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_j_PUJetID      shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_j_ParticleNet_W_Nominal         shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_m_reco_stat    shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_m_id_stat      shape  -      -      1      1             1      1      1        1           1              1             1 
+CMS_eff_m_trigger_stat shape  -      -      1      1             1      1      1        1           1              1             1 
+CMS_eff_m_reco_syst    shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_m_id_syst      shape  -      -      1      1             1      1      1        1           1              1             1 
+CMS_eff_m_trigger_syst shape  -      -      1      1             1      1      1        1           1              1             1 
+CMS_scale_m            shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_res_m              shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_reco_stat    shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_id_stat      shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_trigger_stat shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_reco_syst    shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_id_syst      shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_eff_e_trigger_syst shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_scale_e            shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_res_e              shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_btag_hf_corr       shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_btag_hf_uncorr     shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_btag_lf_corr       shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_btag_lf_uncorr     shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_scale_met          shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_l1_prefiring       shape  -      -      1      1             1      1      1        1           1              1             1
+CMS_pileup_13TeV       shape  -      -      1      1             1      1      1        1           1              1             1
+QCDscale_DY            shape  -      -      -      -             -      -      -        1           -              -             -
+QCDscale_VBF           shape  -      -      -      -             -      -      -        -           1              -             -
+QCDscale_SSWW          shape  -      -      -      -             -      -      -        -           -              1             -
+QCDscale_Weinberg      shape  -      -      -      -             -      -      -        -           -              -             1
+pdf_DY                 shape  -      -      -      -             -      -      -        1           -              -             -
+pdf_VBF                shape  -      -      -      -             -      -      -        -           1              -             -
+pdf_SSWW               shape  -      -      -      -             -      -      -        -           -              1             -
+pdf_Weinberg           shape  -      -      -      -             -      -      -        -           -              -             1
+* autoMCStats 10 0 1
+WZNorm_sr1             rateParam    REGION    wz    1.0
+WZNorm_sr2             rateParam    REGION    wz    1.0
+WZNorm_sr3             rateParam    REGION    wz    1.0
+ZZNorm                 rateParam    REGION    zz    1.0
+ZGNorm                 rateParam    REGION    zg    1.0
+WWNorm_sr1             rateParam    REGION    ww    1.0
+WWNorm_sr2             rateParam    REGION    ww    1.0
