@@ -7,10 +7,11 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dirNames', nargs='+') # nargs='+' force a user to feed this argument
-parser.add_argument('-e', dest='eras', default=[], nargs='+')
-parser.add_argument('-c', dest='channels', default=[], nargs='+') # store [] if nothing is fed
-parser.add_argument('-m', dest='masses', default=[], nargs='+')
-parser.add_argument('-s', dest='signals', default=[], nargs='+')
+parser.add_argument('-e', dest='eras', default=[], choices=['2016preVFP','2016postVFP','2017','2018','Run2'], nargs='+')
+parser.add_argument('-c', dest='channels', default=[], choices=['MuMu','EE','EMu'], nargs='+') # store [] if nothing is fed
+parser.add_argument('-m', dest='masses', default=[], choices=["85","90","95","100","125","150","200","250","300","350","400","450","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000","25000","30000","40000","50000","60000"], nargs='+')
+parser.add_argument('-s', dest='signals', default=[], choices=["","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+')
+parser.add_argument('-t', dest='tags', default=["AllSR"], choices=["AllSR","SR1","SR2","SR3"], nargs='+')
 parser.add_argument('--Ext', action='store_true', help='Extend cut based approach to M500')
 parser.add_argument('--Work', action='store_true', help='for workspace production purposes')
 parser.add_argument('--Limit', action='store_true', help='for limit extraction purposes')
@@ -34,8 +35,19 @@ CardRep = "syst.txt" if "Run2" in args.eras else "sr3_InvBJet"
 grepRegion = ' | grep card | grep '+CardRep if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick everything by grepping 'card')
 #grepRegion = ' | grep card | grep -Ev "sr123"' if "Run2" in args.eras else ' | grep '+CardRep # When you grep an individual era, there are many duplications with different regions, namely sr1, ww_cr, sr3_inv, etc, and even directories! Pick just one using 'sr3_inv' (Run2: pick sr1, 2, 3 separate limits by grepping all but removing sr123)
 
+TAG_MAP = {
+  "AllSR": ["_syst"],
+  "SR1": ["_sr1_syst_Combined"],
+  "SR2": ["_sr2_syst_Combined"],
+  "SR3": ["_sr3_syst_Combined"],
+}
+
+tags = []
+for tag_key in args.tags:
+  tags.extend(TAG_MAP[tag_key])
+
 #tags = ["_sronly"]
-tags = ["_syst"]
+#tags = ["_syst"]
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = [""]
@@ -68,7 +80,6 @@ for dirName in args.dirNames:
 
   greps = 'ls '+dirName+grepRegion+' | grep '*int(bool(args.eras))+' '.join(["-e "+era for era in args.eras])+' | grep '*int(bool(args.channels))+' '.join(["-e "+channel for channel in args.channels])+' | grep '*int(bool(args.masses))+' '.join(["-e M"+mass+"_" for mass in args.masses])+' | grep '*int(bool(args.signals))+' '.join(["-e "+signal for signal in args.signals]) # if any of eras, chs, ms exists, this line greps it in order. if not, just ls the directory
   if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW|Weinberg\"' # When you don't want signal specific results and the Weinberg
-  #if len(args.signals)==0: greps += ' | grep -Ev \"DY|VBF|SSWW\"' # When you don't want HNL signal specific results
   if args.Ext: greps += ' | grep Ext'
   else: greps += ' | grep -Ev \"Ext\"'
   #print(greps)

@@ -18,6 +18,7 @@ from exceptions_auto import apply_auto_exceptions
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-sk', dest='skels', default=["card_skeleton_ANv7.txt"], nargs='+', help='List of skeletons to use')
+parser.add_argument('-wp', dest='InputWPs', nargs='+', help='List of LimitInput working points')
 parser.add_argument('-e', dest='eras', default=["2016preVFP","2016postVFP","2017","2018"], choices=["2016preVFP","2016postVFP","2017","2018"], nargs='+')
 parser.add_argument('-c', dest='channels', default=["MuMu","EE","EMu"], choices=["MuMu","EE","EMu"], nargs='+') # store [] if nothing is fed
 parser.add_argument('-m', dest='masses', default=["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"], choices=["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"], nargs='+')
@@ -55,7 +56,8 @@ CRpath = SRpath
 #InputWPs = ["ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # fix missed trigger SF syst @251223 <-- ANv6 legacy
 #InputWPs = ["ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning"] # Test consistent binning (MuMu only, due to a bug) @260108
 #InputWPs = ["ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning"] # Test consistent binning but fix the bug; pt-dependent Muon RECO SF @260110
-InputWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # pt-dependent Muon RECO SF @260110
+#InputWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # pt-dependent Muon RECO SF @260110
+InputWPs = args.InputWPs
 
 RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
 
