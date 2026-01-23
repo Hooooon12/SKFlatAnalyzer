@@ -98,12 +98,13 @@ IDs = [""] #["_ID"]
 #myWPs = ["ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
 #myWPs = ["ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"]
 #myWPs = ["ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"]
-myWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
+#myWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
+myWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr","ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
-tags = ["_syst"]
-#tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
+#tags = ["_syst"]
+tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_DYVBF_syst","_DY_syst","_VBF_syst","_SSWW_syst"]
 #tags = ["_sronly_sr123_syst"]
 #tags = ["_sronly_sr123"]
@@ -125,6 +126,9 @@ for WP in myWPs:
       #with open("limits/"+WP+"/"+year+"_"+channel+ID+tag+"_Run23Scaled_Asym_limit.txt", 'w') as f:
   
         for mass in (masses if channel!="EMu" else masses_EMu):
+          if tag=="_sr2_syst_Combined":
+            if float(mass)<=500.: continue # no significantly meaningful to check M125-500 SR2 limit (they exist though... just in case)
+
           this_name = year+"_"+channel+"_M"+mass+ID+tag
           if args.BDT:
             if float(mass)>500.: continue
@@ -167,6 +171,9 @@ for WP in myWPs:
       with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Full_limit.txt", 'w') as f:
   
         for mass in (masses if channel!="EMu" else masses_EMu):
+          if tag=="_sr2_syst_Combined":
+            if float(mass)<=500.: continue # no significantly meaningful to check M125-500 SR2 limit (they exist though... just in case)
+
           this_name = year+"_"+channel+"_M"+mass+ID+tag
           if args.BDT:
             if float(mass)>500.: continue

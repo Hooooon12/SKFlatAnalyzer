@@ -32,7 +32,7 @@ void print_ratio_table(const vector<vector<double>>& mass_vs_nominal,
     fout << "[" << table_title << " channel]" << "\n";
 
     // BDTver 100 200 300 ...
-    fout << left << setw(40) << "BDT version";
+    fout << left << setw(40) << "Limit setting | Mass";
     for (double m : mass_nominal)
         fout << setw(10) << fixed << setprecision(0) << m;
     fout << "\n";
@@ -162,7 +162,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //WPs.push_back("ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
-  WPs.push_back("ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
+  //WPs.push_back("ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
+  WPs.push_back("ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
   if(SepLimit) WPs = {WP_nom}; // same name with the nominal, but separate each signal/SR
   vector<TString> tags = {"_syst"}; // Default setting
   //vector<TString> tags = {"_DY_syst"};
@@ -1697,9 +1698,9 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     TH1D *dummy2 = new TH1D("hist2", "", 100000, 0., 100000.);
     dummy2->GetYaxis()->SetTitleSize(0.1);
     dummy2->GetYaxis()->SetTitleOffset(0.5);
-    if(channel=="MuMu") dummy2->GetYaxis()->SetTitle("#frac{limits}{Run2 #mu#mu}");
-    else if(channel=="EE") dummy2->GetYaxis()->SetTitle("#frac{limits}{Run2 ee}");
-    else if(channel=="EMu") dummy2->GetYaxis()->SetTitle("#frac{limits}{Run2 e#mu}");
+    if(channel=="MuMu") dummy2->GetYaxis()->SetTitle("#frac{Compared}{Nominal}");
+    else if(channel=="EE") dummy2->GetYaxis()->SetTitle("#frac{Compared}{Nominal}");
+    else if(channel=="EMu") dummy2->GetYaxis()->SetTitle("#frac{Compared}{Nominal}");
     if(SepLimit==1) dummy2->GetYaxis()->SetTitle("#frac{Signal sep.}{Combined}");
     else if(SepLimit==2) dummy2->GetYaxis()->SetTitle("#frac{SR sep.}{Combined}");
     dummy2->GetYaxis()->SetLabelSize(0.12);

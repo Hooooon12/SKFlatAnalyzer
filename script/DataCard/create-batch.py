@@ -19,7 +19,7 @@ parser.add_argument('--Q2', action='store_true')
 parser.add_argument('--Q3', action='store_true')
 parser.add_argument('--Q4', action='store_true')
 parser.add_argument('--Q5', action='store_true')
-parser.add_argument('-t', dest='Ntoy', default='1000', help='N of toys when running full CLs')
+parser.add_argument('-t', dest='Ntoy', default='1000', help='N of toys')
 parser.add_argument('--Asymptotic', action='store_true')
 parser.add_argument('--Work', action='store_true', help='create workspace')
 parser.add_argument('--FitDiag', action='store_true', help='check nuisance fit')
@@ -44,7 +44,7 @@ if Ncheck > 1:
   sys.exit(1)
 
 AsimovSetting = " -t -1 --expectSignal="+args.InjectSignal
-
+AsimovName = "s"+args.InjectSignal
 
 pwd = os.getcwd()
 CMSSW_BASE = os.environ['CMSSW_BASE']
@@ -67,14 +67,7 @@ for RunList in args.RunLists:
   WP = RunList.split('.')[-2].replace('RunList_','').replace('Run2_','') if args.Input is None else args.Input.split('/')[-2] # Currently, RunList is splitted into Run2 and normal setting (code structure issue -- it doesn't change WP)
 
   if args.pdf:
-    if args.Impact:
-      os.system('mkdir -p Impacts/'+WP)
-    if args.Breakdown:
-      os.system('mkdir -p Breakdowns/'+WP)
-    if args.MDfit:
-      os.system('mkdir -p MDfits/'+WP)
-    if args.FitDiag:
-      os.system('mkdir -p FitDiags/'+WP)
+    os.system('mkdir -p '+this_check+'/'+WP+'/'+AsimovName)
   elif args.Work or IsNuis: # Make workspace or perform statistical tests
     with open(WP+'/submit_skeleton.sh','w') as skel:
       skel.write("universe = vanilla\n")
@@ -103,33 +96,33 @@ for RunList in args.RunLists:
     if args.pdf:
       this_shortcard = shortcard+"_DefMod" if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else shortcard
       if args.Impact:
-        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check)
-        os.system("pdfseparate Impact_"+this_shortcard+".pdf -f 1 -l 1 Impact_"+this_shortcard+"_1.pdf")
-        os.system("cp Impact_"+this_shortcard+"_1.pdf "+pwd+"/Impacts/"+WP+"/Impact_"+this_shortcard+".pdf")
-        os.chdir(pwd+"/Impacts/"+WP)
-        os.system("pdftoppm -png -singlefile Impact_"+this_shortcard+".pdf Impact_"+this_shortcard)
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
+        os.system("pdfseparate Impact_"+this_shortcard+"_"+AsimovName+".pdf -f 1 -l 1 Impact_"+this_shortcard+"_"+AsimovName+"_1.pdf")
+        os.system("cp Impact_"+this_shortcard+"_"+AsimovName+"_1.pdf "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName+"/Impact_"+this_shortcard+"_"+AsimovName+".pdf")
+        os.chdir(pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
+        os.system("pdftoppm -png -singlefile Impact_"+this_shortcard+"_"+AsimovName+".pdf Impact_"+this_shortcard+"_"+AsimovName)
         os.chdir(pwd)
       if args.MDfit:
-        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check)
-        os.system("cp MDfit_"+this_shortcard+".pdf MDfit_"+this_shortcard+".png "+pwd+"/MDfits/"+WP)
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
+        os.system("cp MDfit_"+this_shortcard+"_"+AsimovName+".pdf MDfit_"+this_shortcard+"_"+AsimovName+".png "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
         os.chdir(pwd)
       if args.FitDiag:
-        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check)
-        os.system("cp pulls_"+this_shortcard+".txt "+pwd+"/FitDiags/"+WP)
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
+        os.system("cp pulls_"+this_shortcard+"_"+AsimovName+".txt "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
         os.chdir(pwd)
       if args.Breakdown:
-        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check)
-        os.system("cp "+this_shortcard+"_breakdown.pdf "+this_shortcard+"_breakdown.png "+pwd+"/Breakdowns/"+WP)
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
+        os.system("cp "+this_shortcard+"_"+AsimovName+"_breakdown.pdf "+this_shortcard+"_"+AsimovName+"_breakdown.png "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
         os.chdir(pwd)
       continue
     elif args.Work:
       os.system('mkdir -p '+WP+'/'+shortcard)
       os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/submit_Workspace.sh')
     elif IsNuis:
-      os.system('mkdir -p '+WP+'/'+shortcard+'/'+this_check)
-      os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/'+this_check+'/submit_'+this_check+'.sh')
-      os.system('cp '+WP+'/'+shortcard+'/'+shortcard+'.root '+WP+'/'+shortcard+'/'+this_check)
-      os.system('cp '+WP+'/'+shortcard+'/'+shortcard+'_DefMod.root '+WP+'/'+shortcard+'/'+this_check)
+      os.system('mkdir -p '+WP+'/'+shortcard+'/'+this_check+'/'+AsimovName)
+      os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/'+this_check+'/'+AsimovName+'/submit_'+this_check+'_'+AsimovName+'.sh')
+      os.system('cp '+WP+'/'+shortcard+'/'+shortcard+'.root '+WP+'/'+shortcard+'/'+this_check+'/'+AsimovName)
+      os.system('cp '+WP+'/'+shortcard+'/'+shortcard+'_DefMod.root '+WP+'/'+shortcard+'/'+this_check+'/'+AsimovName)
     else:
       os.system('mkdir -p Batch/'+WP+'/full_CLs/'+shortcard+'/output/')
       os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/full_CLs/'+shortcard+'/submit_Q1.sh')
@@ -148,7 +141,7 @@ for RunList in args.RunLists:
         submitfile.write("executable = run_Q1.sh\n")
         submitfile.write("log = "+shortcard+"_Q1.log\n")
         submitfile.write("output = "+shortcard+"_Q1.out\n")
-        submitfile.write("error = "+shortcard+"_Q1.err\n")
+        submitfile.write("error = "+shortcard+"_Q1.out\n")
         submitfile.write("transfer_output_files = higgsCombine"+shortcard+".HybridNew.mH120.quant0.025.root\n")
         submitfile.write("transfer_output_remaps = \"higgsCombine"+shortcard+".HybridNew.mH120.quant0.025.root = output/"+shortcard+"_Q1.root\"\n")
         submitfile.write("queue\n")
@@ -163,7 +156,7 @@ for RunList in args.RunLists:
         submitfile.write("executable = run_Q2.sh\n")
         submitfile.write("log = "+shortcard+"_Q2.log\n")
         submitfile.write("output = "+shortcard+"_Q2.out\n")
-        submitfile.write("error = "+shortcard+"_Q2.err\n")
+        submitfile.write("error = "+shortcard+"_Q2.out\n")
         submitfile.write("transfer_output_files = higgsCombine"+shortcard+".HybridNew.mH120.quant0.160.root\n")
         submitfile.write("transfer_output_remaps = \"higgsCombine"+shortcard+".HybridNew.mH120.quant0.160.root = output/"+shortcard+"_Q2.root\"\n")
         submitfile.write("queue\n")
@@ -178,7 +171,7 @@ for RunList in args.RunLists:
         submitfile.write("executable = run_Q3.sh\n")
         submitfile.write("log = "+shortcard+"_Q3.log\n")
         submitfile.write("output = "+shortcard+"_Q3.out\n")
-        submitfile.write("error = "+shortcard+"_Q3.err\n")
+        submitfile.write("error = "+shortcard+"_Q3.out\n")
         submitfile.write("transfer_output_files = higgsCombine"+shortcard+".HybridNew.mH120.quant0.500.root\n")
         submitfile.write("transfer_output_remaps = \"higgsCombine"+shortcard+".HybridNew.mH120.quant0.500.root = output/"+shortcard+"_Q3.root\"\n")
         submitfile.write("queue\n")
@@ -193,7 +186,7 @@ for RunList in args.RunLists:
         submitfile.write("executable = run_Q4.sh\n")
         submitfile.write("log = "+shortcard+"_Q4.log\n")
         submitfile.write("output = "+shortcard+"_Q4.out\n")
-        submitfile.write("error = "+shortcard+"_Q4.err\n")
+        submitfile.write("error = "+shortcard+"_Q4.out\n")
         submitfile.write("transfer_output_files = higgsCombine"+shortcard+".HybridNew.mH120.quant0.840.root\n")
         submitfile.write("transfer_output_remaps = \"higgsCombine"+shortcard+".HybridNew.mH120.quant0.840.root = output/"+shortcard+"_Q4.root\"\n")
         submitfile.write("queue\n")
@@ -208,7 +201,7 @@ for RunList in args.RunLists:
         submitfile.write("executable = run_Q5.sh\n")
         submitfile.write("log = "+shortcard+"_Q5.log\n")
         submitfile.write("output = "+shortcard+"_Q5.out\n")
-        submitfile.write("error = "+shortcard+"_Q5.err\n")
+        submitfile.write("error = "+shortcard+"_Q5.out\n")
         submitfile.write("transfer_output_files = higgsCombine"+shortcard+".HybridNew.mH120.quant0.975.root\n")
         submitfile.write("transfer_output_remaps = \"higgsCombine"+shortcard+".HybridNew.mH120.quant0.975.root = output/"+shortcard+"_Q5.root\"\n")
         submitfile.write("queue\n")
@@ -224,7 +217,7 @@ for RunList in args.RunLists:
         submitfile.write("executable = run_Asymptotic.sh\n")
         submitfile.write("log = "+shortcard+"_Asymptotic.log\n")
         submitfile.write("output = "+shortcard+"_Asymptotic.out\n")
-        submitfile.write("error = "+shortcard+"_Asymptotic.err\n")
+        submitfile.write("error = "+shortcard+"_Asymptotic.out\n")
         submitfile.write("transfer_output_files = higgsCombineTest.AsymptoticLimits.mH120.root\n")
         submitfile.write("transfer_output_remaps = \"higgsCombineTest.AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic.root\"\n")
         submitfile.write("queue\n")
@@ -251,7 +244,6 @@ for RunList in args.RunLists:
         submitfile.write("log = "+shortcard+"_Workspace.log\n")
         submitfile.write("output = "+shortcard+"_Workspace.out\n")
         submitfile.write("error = "+shortcard+"_Workspace.out\n")
-        #submitfile.write("error = "+shortcard+"_Workspace.err\n")
         submitfile.write("queue\n")
       os.chdir(WP+"/"+shortcard)
       os.system('condor_submit -a "priority = -15" submit_Workspace.sh -batch-name '+shortcard+'_'+WP+'_Workspace')
@@ -259,10 +251,10 @@ for RunList in args.RunLists:
 
     if IsNuis:
       list_shortcard = [shortcard, shortcard+"_DefMod"] if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else [shortcard]
-      with open(WP+"/"+shortcard+"/"+this_check+"/Run"+this_check+".sh",'w') as runfile:
+      with open(WP+"/"+shortcard+"/"+this_check+"/"+AsimovName+"/Run"+this_check+"_"+AsimovName+".sh",'w') as runfile:
         runfile.write("#!/bin/bash\n")
         runfile.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
-        runfile.write("pushd "+pwd+"/"+WP+"/"+shortcard+"/"+this_check+"\n")
+        runfile.write("pushd "+pwd+"/"+WP+"/"+shortcard+"/"+this_check+"/"+AsimovName+"\n")
         runfile.write("echo Setting cmsenv environment...\n")
         runfile.write("cmsenv\n")
 
@@ -282,51 +274,51 @@ for RunList in args.RunLists:
             runfile.write("combine -M GoodnessOfFit "+this_shortcard+".root -t "+args.Ntoy+" --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r --toysFrequentist -n gof_CRonly_toysFreq_Ntoy"+args.Ntoy+"_"+this_shortcard+"\n")
           elif args.Impact:
             if (float(this_mass) > 3000.):
-              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name Impact_"+this_shortcard+AsimovSetting+"\n")
-              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doFits --name Impact_"+this_shortcard+AsimovSetting+"\n")
+              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name Impact_"+this_shortcard+"_"+AsimovName+AsimovSetting+"\n")
+              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -100 --rMax 100 --robustFit 1 --doFits --name Impact_"+this_shortcard+"_"+AsimovName+AsimovSetting+"\n")
             else:
-              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --name Impact_"+this_shortcard+AsimovSetting+"\n")
-              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --doFits --name Impact_"+this_shortcard+AsimovSetting+"\n")
-            runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --output "+this_shortcard+"_impacts.json --name Impact_"+this_shortcard+"\n")
-            runfile.write("plotImpacts.py -i "+this_shortcard+"_impacts.json -o Impact_"+this_shortcard+"\n")
+              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --name Impact_"+this_shortcard+"_"+AsimovName+AsimovSetting+"\n")
+              runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --rMin -10 --rMax 10 --robustFit 1 --doFits --name Impact_"+this_shortcard+"_"+AsimovName+AsimovSetting+"\n")
+            runfile.write("combineTool.py -M Impacts -d "+this_shortcard+".root -m "+this_mass+" --output "+this_shortcard+"_"+AsimovName+"_impacts.json --name Impact_"+this_shortcard+"_"+AsimovName+"\n")
+            runfile.write("plotImpacts.py -i "+this_shortcard+"_"+AsimovName+"_impacts.json -o Impact_"+this_shortcard+"_"+AsimovName+"\n")
           elif args.FastScan:
             runfile.write("combineTool.py -M FastScan -w "+this_shortcard+".root:w -o "+this_shortcard+"_Asimov_nll"+AsimovSetting+"\n")
             runfile.write("combineTool.py -M FastScan -w "+this_shortcard+".root:w -o "+this_shortcard+"_nll\n")
           elif args.MDfit:
-            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=41 --rMin -1 --rMax 1 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_rRange1\n")
-            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_rRange10\n")
-            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_rRange100\n")
-            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_rRange1.MultiDimFit.mH120.root -o MDfit_rRange1_"+this_shortcard+"\n")
-            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_rRange10.MultiDimFit.mH120.root -o MDfit_rRange10_"+this_shortcard+"\n")
-            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_rRange100.MultiDimFit.mH120.root -o MDfit_rRange100_"+this_shortcard+"\n")
+            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=41 --rMin -1 --rMax 1 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_"+AsimovName+"_rRange1\n")
+            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_"+AsimovName+"_rRange10\n")
+            runfile.write("combineTool.py -M MultiDimFit "+this_shortcard+".root --algo grid --points=401 --rMin -100 --rMax 100 --alignEdges 1"+AsimovSetting+" --name ."+this_shortcard+"_"+AsimovName+"_rRange100\n")
+            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_"+AsimovName+"_rRange1.MultiDimFit.mH120.root -o MDfit_rRange1_"+this_shortcard+"_"+AsimovName+"\n")
+            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_"+AsimovName+"_rRange10.MultiDimFit.mH120.root -o MDfit_rRange10_"+this_shortcard+"_"+AsimovName+"\n")
+            runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_"+AsimovName+"_rRange100.MultiDimFit.mH120.root -o MDfit_rRange100_"+this_shortcard+"_"+AsimovName+"\n")
           elif args.Breakdown:
-            runfile.write("combine -M MultiDimFit "+this_shortcard+".root --points=21 --rMin -5 --rMax 5 --alignEdges 1"+AsimovSetting+" --saveWorkspace -n ."+this_shortcard+"_saveWorkspace\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5"+AsimovSetting+" -n ."+this_shortcard+"_total\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec\n")
-            if "EE" in this_shortcard: runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf"+AsimovSetting+" -n ."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf\n")
-            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeParameters allConstrainedNuisances"+AsimovSetting+" -n ."+this_shortcard+"_freeze_all\n")
-            if "EE" not in this_shortcard:
-              runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+this_shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+this_shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+this_shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":14 --output "+this_shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,rest,stat\"\n")
+            runfile.write("combine -M MultiDimFit "+this_shortcard+"_"+AsimovName+".root --points=21 --rMin -5 --rMax 5 --alignEdges 1"+AsimovSetting+" --saveWorkspace -n ."+this_shortcard+"_"+AsimovName+"_saveWorkspace\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_total\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec\n")
+            if "EE" in this_shortcard+"_"+AsimovName: runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeNuisanceGroups jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf\n")
+            runfile.write("combine -M MultiDimFit higgsCombine."+this_shortcard+"_"+AsimovName+"_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r=-5,5 --freezeParameters allConstrainedNuisances"+AsimovSetting+" -n ."+this_shortcard+"_"+AsimovName+"_freeze_all\n")
+            if "EE" not in this_shortcard+"_"+AsimovName:
+              runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_"+AsimovName+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_all.MultiDimFit.mH120.root:\"stat\":14 --output "+this_shortcard+"_"+AsimovName+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,rest,stat\"\n")
             else:
-              runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+this_shortcard+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+this_shortcard+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+this_shortcard+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec+cf\":14 higgsCombine."+this_shortcard+"_freeze_all.MultiDimFit.mH120.root:\"stat\":15 --output "+this_shortcard+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf,rest,stat\"\n")
+              runfile.write("plot1DScan.py higgsCombine."+this_shortcard+"_"+AsimovName+"_total.MultiDimFit.mH120.root --main-label \"Total Uncert.\" --others higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet.MultiDimFit.mH120.root:\"jet\":4 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory.MultiDimFit.mH120.root:\"jet+theory\":5 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake.MultiDimFit.mH120.root:\"jet+theory+fake\":6 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root:\"jet+theory+fake+lep\":7 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup\":8 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi\":9 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag\":10 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire\":11 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met\":12 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec\":13 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_cf.MultiDimFit.mH120.root:\"jet+theory+fake+lep+pileup+lumi+btag+prefire+met+xsec+cf\":14 higgsCombine."+this_shortcard+"_"+AsimovName+"_freeze_all.MultiDimFit.mH120.root:\"stat\":15 --output "+this_shortcard+"_"+AsimovName+"_breakdown --y-max 10 --y-cut 40 --breakdown \"jet_energy,theory,fake,lep_uncert,pileup,lumi,btag_sf,prefire,met_energy,xsec,cf,rest,stat\"\n")
 
         runfile.write("echo Done.\n")
 
-      with open(WP+"/"+shortcard+"/"+this_check+"/submit_"+this_check+".sh",'a') as submitfile:
-        submitfile.write("executable = Run"+this_check+".sh\n")
-        submitfile.write("log = "+shortcard+"_Run"+this_check+".log\n")
-        submitfile.write("output = "+shortcard+"_Run"+this_check+".out\n")
-        submitfile.write("error = "+shortcard+"_Run"+this_check+".out\n")
+      with open(WP+"/"+shortcard+"/"+this_check+"/"+AsimovName+"/submit_"+this_check+"_"+AsimovName+".sh",'a') as submitfile:
+        submitfile.write("executable = Run"+this_check+"_"+AsimovName+".sh\n")
+        submitfile.write("log = "+shortcard+"_Run"+this_check+"_"+AsimovName+".log\n")
+        submitfile.write("output = "+shortcard+"_Run"+this_check+"_"+AsimovName+".out\n")
+        submitfile.write("error = "+shortcard+"_Run"+this_check+"_"+AsimovName+".out\n")
         submitfile.write("queue\n")
-      os.chdir(WP+"/"+shortcard+"/"+this_check)
-      os.system('condor_submit -a "priority = -15" submit_'+this_check+'.sh -batch-name '+shortcard+'_'+WP+'_'+this_check)
+      os.chdir(WP+"/"+shortcard+"/"+this_check+"/"+AsimovName)
+      os.system('condor_submit -a "priority = -15" submit_'+this_check+'_'+AsimovName+'.sh -batch-name '+shortcard+'_'+WP+'_'+this_check+'_'+AsimovName)
       os.chdir(pwd)
