@@ -1045,10 +1045,9 @@ for tag in args.histTag:
 
             # Set channel dependent scaler first
             DYVBFscaler = 0.01 # Set the signalDYVBF scaler
+            if mass_int <= 100: DYVBFscaler = 0.001 # if you want to use HybridNew without additional options, see https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844
             if mass_int > 3000: DYVBFscaler = 0.1 # relax the scale for SSWW impact
             SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
-
-            #if mass_int <= 100: DYVBFscaler = 0.001 # if you want to use HybridNew without additional options, see https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844
 
           else: # TODO let's merge Weinberg and other signals later, e.g. setting mass_int = 999999 for the Weinberg
             #if region=='sr2' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR2 alternative optimization : use the same binning for all era, flavor. (deprecated)

@@ -152,7 +152,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   vector<double> scales;
   for(int i=0; i<WP_noms.size(); i++){
     files.push_back(filepath+WP_noms[i]+"/"+year+"_"+channel+tag_nom+"_"+method_nom+"_limit.txt"); // add files systematically; Allow multiple noms.
-    scales.push_back(0.01);
+    scales.push_back(0.01); // scales for WP_noms
   }
 
   TString method = "Asym"; //"Full";
@@ -179,7 +179,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     for(int j=0; j<tags.size(); j++){
       //files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
       files.push_back(filepath+WPs[i]+"/Run2_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
-      scales.push_back(0.01);
+      scales.push_back(0.01); // scales for compared WPs
     }
   }
   //if(channel=="EE"||channel=="MuMu") files.push_back(filepath+"240503_exo17028/"+channel+"_HNTightV2_Run2_Asym_limit.txt"); // add additional files
@@ -215,11 +215,9 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       if (is >> this_twosig_right) twosig_right.push_back(this_twosig_right);
 
       double scale = scales.at(i);
-      //if(i==0&&this_mass>3000.) scale *= 10; //NOTE Nominal only: SSWW-only region has mass-dependent scaler.. why? to see SSWW pull with narrower range
-      if(this_mass>3000.) scale *= 10; //NOTE All limit sets: SSWW-only region has mass-dependent scaler.. why? to see SSWW pull with narrower range
-      //double scale=1.;
-      //if(mass[dummyint]<=100) scale *= 0.001; // 0.001 only for low mass (https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844)
-      //else scale *= 0.01; // input signal scaled as V^2 = 0.01 by default
+      //if(i==0&&this_mass>3000.) scale *= 10; //NOTE SSWW-only region scaled differently, to see SSWW pull with narrower range. Apply this only to nominal WP.
+      if(this_mass>3000.) scale *= 10; //NOTE Apply different scale to all WPs.
+      if(this_mass<=100.) scale *= 0.01; //NOTE only for low mass (https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844) // This is applied from ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewCLs @260125
 
       obs[dummyint] *= scale;
       limit[dummyint] *= scale;
@@ -419,7 +417,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   else{
     for (auto &wp : WPs) { // standard descrption: BDTV3_SR1_FixRepeatBin_AltBin_V3_Strict_15
       TString tmp = wp;
-      if (tmp.BeginsWith("ANv5_")) tmp.Remove(0, 5);
+      if (tmp.BeginsWith("ANv5_")) tmp.Remove(0, 5); // FIXME Invent clever thing !!
 
       Ssiz_t pos = tmp.Index("_RunSyst");
       if (pos != kNPOS) tmp.Remove(pos);

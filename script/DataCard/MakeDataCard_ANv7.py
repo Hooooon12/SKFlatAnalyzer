@@ -6,6 +6,7 @@
 # python MakeDataCard_ANv7.py --Syst [--Decorr]; python MakeDataCard_ANv7.py --Combine SR --Syst [--Decorr] <-- without rateParam ("sronly" setting)
 
 import os, sys, argparse, re
+import subprocess as cmd
 from collections import OrderedDict
 #print("CWD:", os.getcwd())
 #print("__file__:", __file__)
@@ -37,13 +38,12 @@ args = parser.parse_args()
 
 pwd = os.getcwd()
 
-#####################################################
-#
-# args.CR --> sr, sr_inv connected via rateParam
-# else --> sr only, bkg norm uncert. treated by lnN
-# args.syst --> postpone
-#
-#####################################################
+failure, result = cmd.getstatusoutput('combine --help')
+if failure:
+  print("[!!ERROR!!] cannot run combine.")
+  print("Please set proper cmsenv first.")
+  print("Exiting ...")
+  sys.exit(1)
 
 eras = args.eras
 channels = args.channels
@@ -81,6 +81,14 @@ else:
   InputWPs = [WP+"_Decorr_JetDecorr" for WP in InputWPs] # FIXME use syst input as a default; can be changed later
 
 OutputTag = "" if args.outputTag == '' else "_"+args.outputTag
+
+#####################################################
+#
+# args.CR --> sr, sr_inv connected via rateParam
+# else --> sr only, bkg norm uncert. treated by lnN
+# args.syst --> postpone
+#
+#####################################################
 
 if args.Combine is None:
   if not args.CR: OutputTag+="_NoCR" # SR only
