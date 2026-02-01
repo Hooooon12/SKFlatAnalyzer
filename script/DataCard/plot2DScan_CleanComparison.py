@@ -194,7 +194,7 @@ dummy_dy   = ROOT.TLine(); dummy_dy.SetLineColor(ROOT.kRed);     dummy_dy.SetLin
 dummy_ssww = ROOT.TLine(); dummy_ssww.SetLineColor(ROOT.kBlue);  dummy_ssww.SetLineWidth(3); dummy_ssww.SetLineStyle(7)
 
 leg.AddEntry(dummy_real, "2D Limit (95% CL)", "l")
-leg.AddEntry(dummy_dy,   f"Naive DY+W\gamma (Ref f={REF_F_VAL})", "l")
+leg.AddEntry(dummy_dy,   f"Naive DY+W#gamma (Ref f={REF_F_VAL})", "l")
 leg.AddEntry(dummy_ssww, f"Naive SSWW (Ref f={REF_F_VAL})", "l")
 leg.Draw()
 
