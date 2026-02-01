@@ -9,7 +9,8 @@ ROOT.gROOT.SetBatch(True)
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
-INPUT_FILE = "higgsCombine_grid_2D_expected.MultiDimFit.mH120.root"
+#INPUT_FILE = "higgsCombine_grid_2D_expected.MultiDimFit.mH120.root"
+INPUT_FILE = "higgsCombine_Run2_EMu_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root"
 TREE_NAME  = "limit"
 
 # Target Cut (2D 95% CL)

@@ -12,7 +12,8 @@ ROOT.gROOT.SetBatch(True)
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
-INPUT_FILE = "higgsCombine_grid_2D_expected.MultiDimFit.mH120.root" 
+INPUT_FILE = "higgsCombine_Run2_EMu_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_grid_2D_expected.MultiDimFit.mH120.root" 
 CSV_FILE   = "limit_points_interpolated.csv" # <-- Input CSV filename
 TREE_NAME  = "limit"
 
@@ -184,7 +185,7 @@ def draw_comparison():
     SSWW_naive_func.SetLineColor(ROOT.kBlue)
     SSWW_naive_func.SetLineWidth(2)
     SSWW_naive_func.SetLineStyle(7) 
-    #SSWW_naive_func.Draw("SAME") # Decided not to draw, not to add confusion to the audience.
+    SSWW_naive_func.Draw("SAME") # Decided not to draw, not to add confusion to the audience.
 
     # 6. Legend
     leg = ROOT.TLegend(0.40, 0.75, 0.82, 0.88)
@@ -197,7 +198,7 @@ def draw_comparison():
     DYVBF_l_naive = ROOT.TLine(); DYVBF_l_naive.SetLineColor(ROOT.kRed); DYVBF_l_naive.SetLineWidth(3); DYVBF_l_naive.SetLineStyle(7)
     #SSWW_l_naive = ROOT.TLine(); SSWW_l_naive.SetLineColor(ROOT.kBlue); SSWW_l_naive.SetLineWidth(2); SSWW_l_naive.SetLineStyle(7)
     
-    leg.AddEntry(l_2d, "Real 2D Scan (95% CL, 5.99)", "l")
+    leg.AddEntry(l_2d, "2D Scan (95% CL, 5.99)", "l")
     #leg.AddEntry(l_1d, "Real 2D Scan (1D-def 95%, 3.84)", "l")
     # Legend still shows user's REF_F_VAL, even if actual used point was slightly different
     leg.AddEntry(DYVBF_l_naive, f"Naive Scaling (Ref: f={REF_F_VAL})", "l")

@@ -35,8 +35,8 @@ parser.add_argument('--FitDiag', action='store_true', help='check nuisance fit')
 parser.add_argument('--Impact', action='store_true', help='check impacts')
 parser.add_argument('--FastScan', action='store_true', help='fast scan')
 parser.add_argument('--MDfit', action='store_true', help='multidimension fits')
-parser.add_argument('--r', default='0', help='(EMuFull-only) inject r')
-parser.add_argument('--f', default='0.5', help='(EMuFull-only) inject f')
+parser.add_argument('--r', default='0', help='(3ch, EMuFull only) inject r')
+parser.add_argument('--f', default='0.5', help='(3ch, EMuFull only) inject f')
 parser.add_argument('--Breakdown', action='store_true', help='uncertainty breakdown')
 parser.add_argument('--GOF', action='store_true', help='goodness of fit test')
 parser.add_argument('--InjectSignal', default='0', help='inject signals to asimov')
@@ -492,10 +492,19 @@ for RunList in args.RunLists:
         runfile.write("echo Setting cmsenv environment...\n")
         runfile.write("cmsenv\n")
         card = card.replace(".root",".txt") # The Runlist contains card_name.root by default.
-        if "EMu" in shortcard:
+        if "3ch" in shortcard:
+            if (float(this_mass) > 3000.):
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --channel-masks -o "+shortcard+".root\n")
+            elif (float(this_mass) <= 100.):
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=1 --channel-masks -o "+shortcard+".root\n")
+            else:
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.01 --channel-masks -o "+shortcard+".root\n")
+        elif "EMu" in shortcard:
           if "EMuFull" in WP:
             if (float(this_mass) > 3000.):
               runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu_Full "+card+" --PO r0=0.1 --channel-masks -o "+shortcard+".root\n")
+            elif (float(this_mass) <= 100.):
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu_Full "+card+" --PO r0=1 --channel-masks -o "+shortcard+".root\n")
             else:
               runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu_Full "+card+" --PO r0=0.01 --channel-masks -o "+shortcard+".root\n")
           else:
@@ -552,9 +561,9 @@ for RunList in args.RunLists:
             runfile.write(f"combineTool.py -M FastScan -w {pwd}/{WP}/{shortcard}/{this_shortcard}.root:w -o {this_shortcard}_Asimov_nll {AsimovSetting}\n")
             runfile.write(f"combineTool.py -M FastScan -w {pwd}/{WP}/{shortcard}/{this_shortcard}.root:w -o {this_shortcard}_nll\n")
           elif args.MDfit:
-            if "EMuFull" in WP:
+            if "EMuFull" in WP or "3ch" in shortcard:
               if "DefMod" in this_shortcard: continue # Must use the actual physics model
-              runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r={args.r},f={args.f} --setParameterRanges r=0,2:f=0,1 --algo grid --points=2500 --robustFit 1 --saveNLL --name _{this_shortcard}_grid_2D_Asimov_r{args.r}f{args.f}\n")
+              runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r={args.r},f={args.f} --setParameterRanges r=0,2:f=0,1 --algo grid --points=2601 --robustFit 1 --saveNLL --name _{this_shortcard}_grid_2D_Asimov_r{args.r}f{args.f}\n")
             else:
               runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --algo grid --points=41 --rMin -1 --rMax 1 --alignEdges 1 {AsimovSetting} --name .{this_shortcard}_{AsimovName}_rRange1\n")
               runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 {AsimovSetting} --name .{this_shortcard}_{AsimovName}_rRange10\n")
@@ -602,7 +611,7 @@ for RunList in args.RunLists:
         submitfile.write("when_to_transfer_output = ON_EXIT\n")
         submitfile.write("queue\n")
       os.chdir(WP+"/"+shortcard+"/"+this_check+"/"+AsimovName)
-      if args.MDfit and "EMuFull" in WP:
+      if args.MDfit and ("EMuFull" in WP or "3ch" in shortcard):
         os.system(f'condor_submit -a "priority = -15" submit_{this_check}_{AsimovName}.sh -batch-name {shortcard}_{WP}_{this_check}_grid_2D_Asimov_r{args.r}f{args.f}')
       else:
         os.system(f'condor_submit -a "priority = -15" submit_{this_check}_{AsimovName}.sh -batch-name {shortcard}_{WP}_{this_check}_{AsimovName}')
