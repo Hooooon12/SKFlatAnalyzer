@@ -128,20 +128,20 @@ if args.CR:
   DefFlags = ["MultiLepton__"]
   Analyzer = "HNL_ControlRegion_Plotter"
 
-  #regions = ["sr1_inv","sr2_inv","sr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr1","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
-  regions = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_InvBJet","sr2_InvBJet","sr3_InvBJet","zg_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr"] if not args.Merge else "" # for CRs
+  #regions = ["cr1_inv","cr2_inv","cr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr1","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
+  regions = ["cr1_InvMET","cr2_InvMET","cr3_InvMET","cr1_InvBJet","cr2_InvBJet","cr3_InvBJet","zg_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr"] if not args.Merge else "" # for CRs
   #regions = ["zg_cr","zz_cr"] if not args.Merge else "" # for CRs
 
-  RegionToDefFlagMap['sr_inv']     = "MultiLepton__"
-  RegionToDefFlagMap['sr1_inv']    = "MultiLepton__"
-  RegionToDefFlagMap['sr2_inv']    = "MultiLepton__"
-  RegionToDefFlagMap['sr3_inv']    = "MultiLepton__"
-  RegionToDefFlagMap['sr1_InvMET'] = "MultiLepton__"
-  RegionToDefFlagMap['sr2_InvMET'] = "MultiLepton__"
-  RegionToDefFlagMap['sr3_InvMET'] = "MultiLepton__"
-  RegionToDefFlagMap['sr1_InvBJet'] = "MultiLepton__"
-  RegionToDefFlagMap['sr2_InvBJet'] = "MultiLepton__"
-  RegionToDefFlagMap['sr3_InvBJet'] = "MultiLepton__"
+  RegionToDefFlagMap['cr_inv']     = "MultiLepton__"
+  RegionToDefFlagMap['cr1_inv']    = "MultiLepton__"
+  RegionToDefFlagMap['cr2_inv']    = "MultiLepton__"
+  RegionToDefFlagMap['cr3_inv']    = "MultiLepton__"
+  RegionToDefFlagMap['cr1_InvMET'] = "MultiLepton__"
+  RegionToDefFlagMap['cr2_InvMET'] = "MultiLepton__"
+  RegionToDefFlagMap['cr3_InvMET'] = "MultiLepton__"
+  RegionToDefFlagMap['cr1_InvBJet'] = "MultiLepton__"
+  RegionToDefFlagMap['cr2_InvBJet'] = "MultiLepton__"
+  RegionToDefFlagMap['cr3_InvBJet'] = "MultiLepton__"
   RegionToDefFlagMap['zg_cr']      = "MultiLepton__"
   RegionToDefFlagMap['wz_cr']      = "MultiLepton__"
   RegionToDefFlagMap['wz_cr1']     = "MultiLepton__"
@@ -149,16 +149,16 @@ if args.CR:
   RegionToDefFlagMap['wz_cr3']     = "MultiLepton__"
   RegionToDefFlagMap['zz_cr']      = "MultiLepton__"
 
-  RegionToChannelMap['sr_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr1_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr2_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr3_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr1_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr2_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr3_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr1_InvBJet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr2_InvBJet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
-  RegionToChannelMap['sr3_InvBJet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr1_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr2_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr3_inv'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr1_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr2_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr3_InvMET'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr1_InvBJet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr2_InvBJet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
+  RegionToChannelMap['cr3_InvBJet'] = {'MuMu':'MuMu', 'EE':'EE', 'EMu':'EMu'}
   RegionToChannelMap['zg_cr']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['wz_cr']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['wz_cr1']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
@@ -166,16 +166,16 @@ if args.CR:
   RegionToChannelMap['wz_cr3']  = {'MuMu':'MuMuMu', 'EE':'EEE', 'EMu':'EMuL'}
   RegionToChannelMap['zz_cr']  = {'MuMu':'MuMuMuMu', 'EE':'EEEE', 'EMu':'EMuLL'}
 
-  RegionToHistSuffixMap['sr_inv']  = {'MuMu':'LimitBins/MuonCR',  'EE':'LimitBins/ElectronCR',  'EMu':'LimitBins/ElectronMuonCR'}
-  RegionToHistSuffixMap['sr1_inv'] = {'MuMu':'LimitBins/MuonCR1', 'EE':'LimitBins/ElectronCR1', 'EMu':'LimitBins/ElectronMuonCR1'}
-  RegionToHistSuffixMap['sr2_inv'] = {'MuMu':'LimitBins/MuonCR2', 'EE':'LimitBins/ElectronCR2', 'EMu':'LimitBins/ElectronMuonCR2'}
-  RegionToHistSuffixMap['sr3_inv'] = {'MuMu':'LimitBins/MuonCR3', 'EE':'LimitBins/ElectronCR3', 'EMu':'LimitBins/ElectronMuonCR3'}
-  RegionToHistSuffixMap['sr1_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR1', 'EE':'LimitBins/ElectronInvMETCR1', 'EMu':'LimitBins/ElectronMuonInvMETCR1'}
-  RegionToHistSuffixMap['sr2_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR2', 'EE':'LimitBins/ElectronInvMETCR2', 'EMu':'LimitBins/ElectronMuonInvMETCR2'}
-  RegionToHistSuffixMap['sr3_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR3', 'EE':'LimitBins/ElectronInvMETCR3', 'EMu':'LimitBins/ElectronMuonInvMETCR3'}
-  RegionToHistSuffixMap['sr1_InvBJet'] = {'MuMu':'LimitBins/MuonInvBJetCR1', 'EE':'LimitBins/ElectronInvBJetCR1', 'EMu':'LimitBins/ElectronMuonInvBJetCR1'}
-  RegionToHistSuffixMap['sr2_InvBJet'] = {'MuMu':'LimitBins/MuonInvBJetCR2', 'EE':'LimitBins/ElectronInvBJetCR2', 'EMu':'LimitBins/ElectronMuonInvBJetCR2'}
-  RegionToHistSuffixMap['sr3_InvBJet'] = {'MuMu':'LimitBins/MuonInvBJetCR3', 'EE':'LimitBins/ElectronInvBJetCR3', 'EMu':'LimitBins/ElectronMuonInvBJetCR3'}
+  RegionToHistSuffixMap['cr_inv']  = {'MuMu':'LimitBins/MuonCR',  'EE':'LimitBins/ElectronCR',  'EMu':'LimitBins/ElectronMuonCR'}
+  RegionToHistSuffixMap['cr1_inv'] = {'MuMu':'LimitBins/MuonCR1', 'EE':'LimitBins/ElectronCR1', 'EMu':'LimitBins/ElectronMuonCR1'}
+  RegionToHistSuffixMap['cr2_inv'] = {'MuMu':'LimitBins/MuonCR2', 'EE':'LimitBins/ElectronCR2', 'EMu':'LimitBins/ElectronMuonCR2'}
+  RegionToHistSuffixMap['cr3_inv'] = {'MuMu':'LimitBins/MuonCR3', 'EE':'LimitBins/ElectronCR3', 'EMu':'LimitBins/ElectronMuonCR3'}
+  RegionToHistSuffixMap['cr1_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR1', 'EE':'LimitBins/ElectronInvMETCR1', 'EMu':'LimitBins/ElectronMuonInvMETCR1'}
+  RegionToHistSuffixMap['cr2_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR2', 'EE':'LimitBins/ElectronInvMETCR2', 'EMu':'LimitBins/ElectronMuonInvMETCR2'}
+  RegionToHistSuffixMap['cr3_InvMET'] = {'MuMu':'LimitBins/MuonInvMETCR3', 'EE':'LimitBins/ElectronInvMETCR3', 'EMu':'LimitBins/ElectronMuonInvMETCR3'}
+  RegionToHistSuffixMap['cr1_InvBJet'] = {'MuMu':'LimitBins/MuonInvBJetCR1', 'EE':'LimitBins/ElectronInvBJetCR1', 'EMu':'LimitBins/ElectronMuonInvBJetCR1'}
+  RegionToHistSuffixMap['cr2_InvBJet'] = {'MuMu':'LimitBins/MuonInvBJetCR2', 'EE':'LimitBins/ElectronInvBJetCR2', 'EMu':'LimitBins/ElectronMuonInvBJetCR2'}
+  RegionToHistSuffixMap['cr3_InvBJet'] = {'MuMu':'LimitBins/MuonInvBJetCR3', 'EE':'LimitBins/ElectronInvBJetCR3', 'EMu':'LimitBins/ElectronMuonInvBJetCR3'}
   RegionToHistSuffixMap['zg_cr']   = {'MuMu':'LimitShape_ZG/Binned', 'EE':'LimitShape_ZG/Binned', 'EMu':'LimitShape_ZG/Binned'}
   RegionToHistSuffixMap['wz_cr']   = {'MuMu':'LimitShape_WZ/Binned', 'EE':'LimitShape_WZ/Binned', 'EMu':'LimitShape_WZ/Binned'}
   RegionToHistSuffixMap['wz_cr1']  = {'MuMu':'LimitShape_WZ_SR1/Binned', 'EE':'LimitShape_WZ_SR1/Binned', 'EMu':'LimitShape_WZ_SR1/Binned'}
@@ -207,6 +207,34 @@ else:
 
 
 SystList = [
+            ## Separate JES
+            "JetAbsoluteMPFBiasUp","JetAbsoluteMPFBiasDown",
+            "JetAbsoluteScaleUp",  "JetAbsoluteScaleDown",  
+            "JetAbsoluteStatUp",   "JetAbsoluteStatDown",   
+            "JetFlavorQCDUp",      "JetFlavorQCDDown",      
+            "JetFragmentationUp",  "JetFragmentationDown",  
+            "JetPileUpDataMCUp",   "JetPileUpDataMCDown",   
+            "JetPileUpPtBBUp",     "JetPileUpPtBBDown",     
+            "JetPileUpPtEC1Up",    "JetPileUpPtEC1Down",    
+            "JetPileUpPtEC2Up",    "JetPileUpPtEC2Down",    
+            "JetPileUpPtHFUp",     "JetPileUpPtHFDown",     
+            "JetPileUpPtRefUp",    "JetPileUpPtRefDown",    
+            "JetRelativeBalUp",    "JetRelativeBalDown",    
+            "JetRelativeFSRUp",    "JetRelativeFSRDown",    
+            "JetRelativeJEREC1Up", "JetRelativeJEREC1Down", 
+            "JetRelativeJEREC2Up", "JetRelativeJEREC2Down", 
+            "JetRelativePtBBUp",   "JetRelativePtBBDown",   
+            "JetRelativePtEC1Up",  "JetRelativePtEC1Down",  
+            "JetRelativePtEC2Up",  "JetRelativePtEC2Down",  
+            "JetRelativePtHFUp",   "JetRelativePtHFDown",   
+            "JetRelativeSampleUp", "JetRelativeSampleDown", 
+            "JetRelativeStatECUp", "JetRelativeStatECDown", 
+            "JetRelativeStatFSRUp","JetRelativeStatFSRDown",
+            "JetRelativeStatHFUp", "JetRelativeStatHFDown", 
+            "JetSinglePionECALUp", "JetSinglePionECALDown",    
+            "JetSinglePionHCALUp", "JetSinglePionHCALDown",    
+            "JetTimePtEtaUp",      "JetTimePtEtaDown",         
+            ##
             "JetResUp","JetResDown",
             "JetEnUp","JetEnDown",
             "JetPUIDUp","JetPUIDDown",
@@ -235,18 +263,46 @@ SystList = [
             "PrefireUp","PrefireDown",
             "PUUp","PUDown",
             "CFRateUp","CFRateDown",
-            #"CFSFUp","CFSFDown",
             "FRUp","FRDown",
             "FRHighPtUp","FRHighPtDown",
             "PDFUp","PDFDown",
             "ScaleUp","ScaleDown",
-            #"HEMJet", #FIXME this is a remnant of when HEMJet was saved as a single variation. Delete this when the run is stable
             "HEMJetUp","HEMJetDown",
            ]
 
 SystNameMap = {}
 for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era] = {}
+
+  ### Up variations
+  ## Separate JES
+  SystNameMap[era]["JetAbsoluteMPFBiasUp"] = "CMS_scale_j_AbsoluteMPFBiasUp"
+  SystNameMap[era]["JetAbsoluteScaleUp"]   = "CMS_scale_j_AbsoluteScaleUp"
+  SystNameMap[era]["JetAbsoluteStatUp"]    = "CMS_scale_j_AbsoluteStat_"+era+"Up"
+  SystNameMap[era]["JetFlavorQCDUp"]       = "CMS_scale_j_FlavorQCDUp"
+  SystNameMap[era]["JetFragmentationUp"]   = "CMS_scale_j_FragmentationUp"
+  SystNameMap[era]["JetPileUpDataMCUp"]    = "CMS_scale_j_PileUpDataMCUp"
+  SystNameMap[era]["JetPileUpPtBBUp"]      = "CMS_scale_j_PileUpPtBBUp"
+  SystNameMap[era]["JetPileUpPtEC1Up"]     = "CMS_scale_j_PileUpPtEC1Up"
+  SystNameMap[era]["JetPileUpPtEC2Up"]     = "CMS_scale_j_PileUpPtEC2Up"
+  SystNameMap[era]["JetPileUpPtHFUp"]      = "CMS_scale_j_PileUpPtHFUp"
+  SystNameMap[era]["JetPileUpPtRefUp"]     = "CMS_scale_j_PileUpPtRefUp"
+  SystNameMap[era]["JetRelativeBalUp"]     = "CMS_scale_j_RelativeBalUp"
+  SystNameMap[era]["JetRelativeFSRUp"]     = "CMS_scale_j_RelativeFSRUp"
+  SystNameMap[era]["JetRelativeJEREC1Up"]  = "CMS_scale_j_RelativeJEREC1_"+era+"Up"
+  SystNameMap[era]["JetRelativeJEREC2Up"]  = "CMS_scale_j_RelativeJEREC2_"+era+"Up"
+  SystNameMap[era]["JetRelativePtBBUp"]    = "CMS_scale_j_RelativePtBBUp"
+  SystNameMap[era]["JetRelativePtEC1Up"]   = "CMS_scale_j_RelativePtEC1_"+era+"Up"
+  SystNameMap[era]["JetRelativePtEC2Up"]   = "CMS_scale_j_RelativePtEC2_"+era+"Up"
+  SystNameMap[era]["JetRelativePtHFUp"]    = "CMS_scale_j_RelativePtHFUp"
+  SystNameMap[era]["JetRelativeSampleUp"]  = "CMS_scale_j_RelativeSample_"+era+"Up"
+  SystNameMap[era]["JetRelativeStatECUp"]  = "CMS_scale_j_RelativeStatEC_"+era+"Up"
+  SystNameMap[era]["JetRelativeStatFSRUp"] = "CMS_scale_j_RelativeStatFSR_"+era+"Up"
+  SystNameMap[era]["JetRelativeStatHFUp"]  = "CMS_scale_j_RelativeStatHF_"+era+"Up"
+  SystNameMap[era]["JetSinglePionECALUp"]  = "CMS_scale_j_SinglePionECALUp"
+  SystNameMap[era]["JetSinglePionHCALUp"]  = "CMS_scale_j_SinglePionHCALUp"
+  SystNameMap[era]["JetTimePtEtaUp"]       = "CMS_scale_j_TimePtEta_"+era+"Up"
+  ##
   SystNameMap[era]["JetResUp"]            = "CMS_res_j_"+era+"Up"
   SystNameMap[era]["JetEnUp"]             = "CMS_scale_j_"+era+"Up"
   SystNameMap[era]["JetPUIDUp"]           = "CMS_eff_j_PUJetID_"+era+"Up"
@@ -254,19 +310,19 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["MuonEnUp"]            = "CMS_scale_mUp"
   SystNameMap[era]["MuonResUp"]           = "CMS_res_mUp"
   SystNameMap[era]["MuonRecoSFStatUp"]    = "CMS_eff_m_reco_stat_"+era+"Up"
-  SystNameMap[era]["MuonIDSFStatUp"]      = "CMS_eff_m_id_stat_"+era+"Up"
-  SystNameMap[era]["MuonTriggerSFStatUp"] = "CMS_eff_m_trigger_stat_"+era+"Up"
+  SystNameMap[era]["MuonIDSFStatUp"]      = "CMS_SUS24014_eff_m_id_stat_"+era+"Up"
+  SystNameMap[era]["MuonTriggerSFStatUp"] = "CMS_SUS24014_eff_m_trigger_stat_"+era+"Up"
   SystNameMap[era]["MuonRecoSFUp"]        = "CMS_eff_m_reco_systUp"
-  SystNameMap[era]["MuonIDSFUp"]          = "CMS_eff_m_id_systUp"
-  SystNameMap[era]["MuonTriggerSFUp"]     = "CMS_eff_m_trigger_systUp"
+  SystNameMap[era]["MuonIDSFUp"]          = "CMS_SUS24014_eff_m_id_systUp"
+  SystNameMap[era]["MuonTriggerSFUp"]     = "CMS_SUS24014_eff_m_trigger_systUp"
   SystNameMap[era]["ElectronEnUp"]        = "CMS_scale_eUp"
   SystNameMap[era]["ElectronResUp"]       = "CMS_res_eUp"
   SystNameMap[era]["ElectronRecoSFStatUp"]    = "CMS_eff_e_reco_stat_"+era+"Up"
-  SystNameMap[era]["ElectronIDSFStatUp"]      = "CMS_eff_e_id_stat_"+era+"Up"
-  SystNameMap[era]["ElectronTriggerSFStatUp"] = "CMS_eff_e_trigger_stat_"+era+"Up"
+  SystNameMap[era]["ElectronIDSFStatUp"]      = "CMS_SUS24014_eff_e_id_stat_"+era+"Up"
+  SystNameMap[era]["ElectronTriggerSFStatUp"] = "CMS_SUS24014_eff_e_trigger_stat_"+era+"Up"
   SystNameMap[era]["ElectronRecoSFUp"]    = "CMS_eff_e_reco_systUp"
-  SystNameMap[era]["ElectronIDSFUp"]      = "CMS_eff_e_id_systUp"
-  SystNameMap[era]["ElectronTriggerSFUp"] = "CMS_eff_e_trigger_systUp"
+  SystNameMap[era]["ElectronIDSFUp"]      = "CMS_SUS24014_eff_e_id_systUp"
+  SystNameMap[era]["ElectronTriggerSFUp"] = "CMS_SUS24014_eff_e_trigger_systUp"
   SystNameMap[era]["BTagSFHTagCorrUp"]    = "CMS_btag_hf_corrUp"
   SystNameMap[era]["BTagSFHTagUnCorrUp"]  = "CMS_btag_hf_uncorr_"+era+"Up"
   SystNameMap[era]["BTagSFLTagCorrUp"]    = "CMS_btag_lf_corrUp"
@@ -274,13 +330,42 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["METUnclUp"]           = "CMS_scale_met_"+era+"Up"
   SystNameMap[era]["PrefireUp"]           = "CMS_l1_prefiring_"+era+"Up"
   SystNameMap[era]["PUUp"]                = "CMS_pileup_13TeV"+"Up" # full correlation
-  SystNameMap[era]["CFRateUp"]            = "CMS_cf_stat_"+era+"Up"
-  SystNameMap[era]["FRUp"]                = "CMS_fake_stat_"+era+"Up"
-  SystNameMap[era]["FRHighPtUp"]          = "CMS_fake_highpt_"+era+"Up"
+  SystNameMap[era]["CFRateUp"]            = "CMS_SUS24014_cf_stat_"+era+"Up"
+  SystNameMap[era]["FRUp"]                = "CMS_SUS24014_fake_stat_"+era+"Up"
+  SystNameMap[era]["FRHighPtUp"]          = "CMS_SUS24014_fake_highpt_"+era+"Up"
   SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation
   SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation
-  #SystNameMap[era]["HEMJet"]              = "CMS_HEM_"+era+"Up" #FIXME this is a remnant of when HEMJet was saved as a single variation. Delete this when the run is stable
-  SystNameMap[era]["HEMJetUp"]              = "CMS_HEM_"+era+"Up"
+  SystNameMap[era]["HEMJetUp"]            = "CMS_HEM_"+era+"Up"
+
+  ### Down variations
+  ## Separate JES
+  SystNameMap[era]["JetAbsoluteMPFBiasDown"] = "CMS_scale_j_AbsoluteMPFBiasDown"
+  SystNameMap[era]["JetAbsoluteScaleDown"]   = "CMS_scale_j_AbsoluteScaleDown"
+  SystNameMap[era]["JetAbsoluteStatDown"]    = "CMS_scale_j_AbsoluteStat_"+era+"Down"
+  SystNameMap[era]["JetFlavorQCDDown"]       = "CMS_scale_j_FlavorQCDDown"
+  SystNameMap[era]["JetFragmentationDown"]   = "CMS_scale_j_FragmentationDown"
+  SystNameMap[era]["JetPileUpDataMCDown"]    = "CMS_scale_j_PileUpDataMCDown"
+  SystNameMap[era]["JetPileUpPtBBDown"]      = "CMS_scale_j_PileUpPtBBDown"
+  SystNameMap[era]["JetPileUpPtEC1Down"]     = "CMS_scale_j_PileUpPtEC1Down"
+  SystNameMap[era]["JetPileUpPtEC2Down"]     = "CMS_scale_j_PileUpPtEC2Down"
+  SystNameMap[era]["JetPileUpPtHFDown"]      = "CMS_scale_j_PileUpPtHFDown"
+  SystNameMap[era]["JetPileUpPtRefDown"]     = "CMS_scale_j_PileUpPtRefDown"
+  SystNameMap[era]["JetRelativeBalDown"]     = "CMS_scale_j_RelativeBalDown"
+  SystNameMap[era]["JetRelativeFSRDown"]     = "CMS_scale_j_RelativeFSRDown"
+  SystNameMap[era]["JetRelativeJEREC1Down"]  = "CMS_scale_j_RelativeJEREC1_"+era+"Down"
+  SystNameMap[era]["JetRelativeJEREC2Down"]  = "CMS_scale_j_RelativeJEREC2_"+era+"Down"
+  SystNameMap[era]["JetRelativePtBBDown"]    = "CMS_scale_j_RelativePtBBDown"
+  SystNameMap[era]["JetRelativePtEC1Down"]   = "CMS_scale_j_RelativePtEC1_"+era+"Down"
+  SystNameMap[era]["JetRelativePtEC2Down"]   = "CMS_scale_j_RelativePtEC2_"+era+"Down"
+  SystNameMap[era]["JetRelativePtHFDown"]    = "CMS_scale_j_RelativePtHFDown"
+  SystNameMap[era]["JetRelativeSampleDown"]  = "CMS_scale_j_RelativeSample_"+era+"Down"
+  SystNameMap[era]["JetRelativeStatECDown"]  = "CMS_scale_j_RelativeStatEC_"+era+"Down"
+  SystNameMap[era]["JetRelativeStatFSRDown"] = "CMS_scale_j_RelativeStatFSR_"+era+"Down"
+  SystNameMap[era]["JetRelativeStatHFDown"]  = "CMS_scale_j_RelativeStatHF_"+era+"Down"
+  SystNameMap[era]["JetSinglePionECALDown"]  = "CMS_scale_j_SinglePionECALDown"
+  SystNameMap[era]["JetSinglePionHCALDown"]  = "CMS_scale_j_SinglePionHCALDown"
+  SystNameMap[era]["JetTimePtEtaDown"]       = "CMS_scale_j_TimePtEta_"+era+"Down"
+  ##
   SystNameMap[era]["JetResDown"]            = "CMS_res_j_"+era+"Down"
   SystNameMap[era]["JetEnDown"]             = "CMS_scale_j_"+era+"Down"
   SystNameMap[era]["JetPUIDDown"]           = "CMS_eff_j_PUJetID_"+era+"Down"
@@ -288,19 +373,19 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["MuonEnDown"]            = "CMS_scale_mDown"
   SystNameMap[era]["MuonResDown"]           = "CMS_res_mDown"
   SystNameMap[era]["MuonRecoSFStatDown"]    = "CMS_eff_m_reco_stat_"+era+"Down"
-  SystNameMap[era]["MuonIDSFStatDown"]      = "CMS_eff_m_id_stat_"+era+"Down"
-  SystNameMap[era]["MuonTriggerSFStatDown"] = "CMS_eff_m_trigger_stat_"+era+"Down"
+  SystNameMap[era]["MuonIDSFStatDown"]      = "CMS_SUS24014_eff_m_id_stat_"+era+"Down"
+  SystNameMap[era]["MuonTriggerSFStatDown"] = "CMS_SUS24014_eff_m_trigger_stat_"+era+"Down"
   SystNameMap[era]["MuonRecoSFDown"]        = "CMS_eff_m_reco_systDown"
-  SystNameMap[era]["MuonIDSFDown"]          = "CMS_eff_m_id_systDown"
-  SystNameMap[era]["MuonTriggerSFDown"]     = "CMS_eff_m_trigger_systDown"
+  SystNameMap[era]["MuonIDSFDown"]          = "CMS_SUS24014_eff_m_id_systDown"
+  SystNameMap[era]["MuonTriggerSFDown"]     = "CMS_SUS24014_eff_m_trigger_systDown"
   SystNameMap[era]["ElectronEnDown"]        = "CMS_scale_eDown"
   SystNameMap[era]["ElectronResDown"]       = "CMS_res_eDown"
   SystNameMap[era]["ElectronRecoSFStatDown"]    = "CMS_eff_e_reco_stat_"+era+"Down"
-  SystNameMap[era]["ElectronIDSFStatDown"]      = "CMS_eff_e_id_stat_"+era+"Down"
-  SystNameMap[era]["ElectronTriggerSFStatDown"] = "CMS_eff_e_trigger_stat_"+era+"Down"
+  SystNameMap[era]["ElectronIDSFStatDown"]      = "CMS_SUS24014_eff_e_id_stat_"+era+"Down"
+  SystNameMap[era]["ElectronTriggerSFStatDown"] = "CMS_SUS24014_eff_e_trigger_stat_"+era+"Down"
   SystNameMap[era]["ElectronRecoSFDown"]    = "CMS_eff_e_reco_systDown"
-  SystNameMap[era]["ElectronIDSFDown"]      = "CMS_eff_e_id_systDown"
-  SystNameMap[era]["ElectronTriggerSFDown"] = "CMS_eff_e_trigger_systDown"
+  SystNameMap[era]["ElectronIDSFDown"]      = "CMS_SUS24014_eff_e_id_systDown"
+  SystNameMap[era]["ElectronTriggerSFDown"] = "CMS_SUS24014_eff_e_trigger_systDown"
   SystNameMap[era]["BTagSFHTagCorrDown"]    = "CMS_btag_hf_corrDown"
   SystNameMap[era]["BTagSFHTagUnCorrDown"]  = "CMS_btag_hf_uncorr_"+era+"Down"
   SystNameMap[era]["BTagSFLTagCorrDown"]    = "CMS_btag_lf_corrDown"
@@ -308,16 +393,17 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["METUnclDown"]           = "CMS_scale_met_"+era+"Down"
   SystNameMap[era]["PrefireDown"]           = "CMS_l1_prefiring_"+era+"Down"
   SystNameMap[era]["PUDown"]                = "CMS_pileup_13TeV"+"Down" # full correlation
-  SystNameMap[era]["CFRateDown"]            = "CMS_cf_stat_"+era+"Down"
-  SystNameMap[era]["FRDown"]                = "CMS_fake_stat_"+era+"Down"
-  SystNameMap[era]["FRHighPtDown"]          = "CMS_fake_highpt_"+era+"Down"
+  SystNameMap[era]["CFRateDown"]            = "CMS_SUS24014_cf_stat_"+era+"Down"
+  SystNameMap[era]["FRDown"]                = "CMS_SUS24014_fake_stat_"+era+"Down"
+  SystNameMap[era]["FRHighPtDown"]          = "CMS_SUS24014_fake_highpt_"+era+"Down"
   SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation
   SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation
-  SystNameMap[era]["HEMJetDown"]              = "CMS_HEM_"+era+"Down"
-  # SR-decorrelated sources
-  SystNameMap[era]["CFRate"]            = "CMS_cf_stat_"+era
-  SystNameMap[era]["FR"]                = "CMS_fake_stat_"+era
-  SystNameMap[era]["FRHighPt"]          = "CMS_fake_highpt_"+era
+  SystNameMap[era]["HEMJetDown"]            = "CMS_HEM_"+era+"Down"
+
+  # SR-decorrelated sources -- Don't remove this, it is used below
+  SystNameMap[era]["CFRate"]            = "CMS_SUS24014_cf_stat_"+era
+  SystNameMap[era]["FR"]                = "CMS_SUS24014_fake_stat_"+era
+  SystNameMap[era]["FRHighPt"]          = "CMS_SUS24014_fake_highpt_"+era
   SystNameMap[era]["JetRes"]            = "CMS_res_j_"+era
   SystNameMap[era]["JetEn"]             = "CMS_scale_j_"+era
 
@@ -994,7 +1080,7 @@ for tag in args.histTag:
             if "EMu" not in channel and (mass_int > 30000):
               continue # NOTE Only EMu extends above M30000
 
-            if ("sr3" in region) and (mass_int <= 500):
+            if (("sr3" in region) or ("cr3_Inv" in region)) and (mass_int <= 500):
               LimitDir = "LimitExtractionBDT"
               InputHistMass = mass+"/"
               if 'BDT' not in RegionToHistSuffixMap[region][channel]:
@@ -1334,9 +1420,9 @@ for tag in args.histTag:
                 input_hist = LimitDir+"/Syst_"+this_syst+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
 
                 this_name_syst = SystNameMap[era][this_syst]
-                if 'PDF' in this_syst or 'Scale' in this_syst:
+                if ('PDF' in this_syst) or (('Scale' in this_syst) and ('Jet' not in this_syst)):
                   if 'signal' not in input_list[i][2]: continue
-                  elif 'PDF' in this_syst or 'Scale' in this_syst:
+                  else:
                     if "DYVBF" in input_list[i][2]:
                       this_name_syst = this_name_syst.replace('pdf','pdf_DYVBF').replace('scale','scale_DYVBF')
                     elif "DY" in input_list[i][2]:
@@ -1437,13 +1523,6 @@ for tag in args.histTag:
                 print("Appending "+name_syst+"...")
                 input_list.append([input_list[i][0], h_syst, name_syst]) # Append each syst histogram while iterating
   
-              ## #FIXME this is a remnant of when HEMJet was saved as a single variation. Delete this when the run is stable
-              #h_syst = input_list[i][1].Clone()
-              #h_syst.SetDirectory(0)
-              #name_syst = input_list[i][2]+"_CMS_HEM_"+era+"Down" # HEM down syst hist name
-              #print("Appending "+name_syst+"...")
-              #input_list.append([input_list[i][0], h_syst, name_syst]) # HEM down
-
               if args.Scan:
                 #for i in range(h_scan.GetNbinsX()): print h_scan.GetYaxis().GetBinLabel(3), h_scan.GetBinContent(i+1,3)
                 h_scan.SetDirectory(0)

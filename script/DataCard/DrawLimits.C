@@ -217,7 +217,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       double scale = scales.at(i);
       //if(i==0&&this_mass>3000.) scale *= 10; //NOTE SSWW-only region scaled differently, to see SSWW pull with narrower range. Apply this only to nominal WP.
       if(this_mass>3000.) scale *= 10; //NOTE Apply different scale to all WPs.
-      if(this_mass<=100.) scale *= 0.01; //NOTE only for low mass (https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844) // This is applied from ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewCLs @260125
+      if(this_mass<=100.) scale *= 0.1; //NOTE only for low mass (https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844) // This is applied from ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewCLs @260125
 
       obs[dummyint] *= scale;
       limit[dummyint] *= scale;

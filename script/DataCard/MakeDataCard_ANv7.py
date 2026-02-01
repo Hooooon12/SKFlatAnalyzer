@@ -65,7 +65,7 @@ CRpath = SRpath
 #InputWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # pt-dependent Muon RECO SF @260110
 InputWPs = args.InputWPs
 
-RegionDecorr_list = ["CMS_fake_stat","CMS_fake_highpt","CMS_fake_syst","CMS_cf_stat","CMS_cf_syst"]
+RegionDecorr_list = ["CMS_SUS24014_fake_stat","CMS_SUS24014_fake_highpt","CMS_SUS24014_fake_syst","CMS_SUS24014_cf_stat","CMS_SUS24014_cf_syst"]
 
 ExtTag = '_Ext' if args.Ext else ''
 if args.CnC:
@@ -78,7 +78,10 @@ if args.Syst:
       RegionDecorr_list.append("CMS_res_j")
       RegionDecorr_list.append("CMS_scale_j")
 else:
-  InputWPs = [WP+"_Decorr_JetDecorr" for WP in InputWPs] # FIXME use syst input as a default; can be changed later
+  print("[!!ERROR!!] Non-syst mode currently not supported.")
+  print("Exiting ...")
+  sys.exit(1)
+  #InputWPs = [WP+"_Decorr_JetDecorr" for WP in InputWPs] # FIXME use syst input as a default; can be changed later
 
 OutputTag = "" if args.outputTag == '' else "_"+args.outputTag
 
@@ -96,7 +99,7 @@ else:
   if not (args.Combine == "CR" or (args.Combine == "Era" and args.CR)): OutputTag+="_NoCR" # Combine SR only
 if not args.Syst: OutputTag+="_NoSyst"  # NoSyst
 
-regions_cr = ["sr1_InvMET","sr2_InvMET","sr3_InvMET","sr1_InvBJet","sr2_InvBJet","sr3_InvBJet","wz_cr1","wz_cr2","wz_cr3","zg_cr","zz_cr"]
+regions_cr = ["cr1_InvMET","cr2_InvMET","cr3_InvMET","cr1_InvBJet","cr2_InvBJet","cr3_InvBJet","wz_cr1","wz_cr2","wz_cr3","zg_cr","zz_cr"]
 #regions_cr = args.CR # input from the user
 regions_sr = ["sr1","sr2","sr3"]
 regions_tot = regions_cr+regions_sr
@@ -268,13 +271,40 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
     for i in range(18):
       new_lines.append(this_lines[i])
 
-    # handle each syst
+    ### handle each syst
+    # Define era-correlated syst keys
+    corr_keys = ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet"]
+    if "PNETdecorr" in args.outputTag: corr_keys = [k for k in corr_keys if "ParticleNet" not in k]
+    if "FullJES" in WP: corr_keys+=[
+                                    "AbsoluteMPFBias",
+                                    "AbsoluteScale",  
+                                    "FlavorQCD",      
+                                    "Fragmentation",  
+                                    "PileUpDataMC",   
+                                    "PileUpPtBB",     
+                                    "PileUpPtEC1",    
+                                    "PileUpPtEC2",    
+                                    "PileUpPtHF",     
+                                    "PileUpPtRef",    
+                                    "RelativeBal",    
+                                    "RelativeFSR",    
+                                    "RelativePtBB",   
+                                    "RelativePtHF",   
+                                    "SinglePionECAL", 
+                                    "SinglePionHCAL", 
+                                   ]
     for line in this_lines[18:]:
+      if line.startswith("#"): continue # skip the commented lines
 
       if args.Syst:
+        # full JES treatment
+        if "FullJES" in WP:
+          if line.split()[0].endswith("CMS_scale_j"): continue
+        else:
+          if "CMS_scale_j_" in line: continue
 
         # channel-dependent fake syst
-        if "CMS_fake_syst" in line:
+        if "CMS_SUS24014_fake_syst" in line:
           if channel=="EMu":
             line = line.replace('1.2','1.25')
           elif channel=="EE":
@@ -283,9 +313,6 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
         if is_syst_line(line):
           syst_name = line.split()[0]
 
-          # era-correlated systs
-          corr_keys = ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet"]
-          if "PNETdecorr" in args.outputTag: corr_keys = [k for k in corr_keys if "ParticleNet" not in k]
           if any(f"{key}_" in f"{syst_name}_" for key in corr_keys):
             pass
           # partial correlation (lumi)
@@ -475,13 +502,18 @@ def NuisanceGrouping(this_card):
       group_nuis["xsec"].append(line)
     elif "QCD" in line or "pdf" in line:
       group_nuis["theory"].append(line)
-    elif "CMS_fake" in line:
+    elif "CMS_SUS24014_fake" in line:
       group_nuis["fake"].append(line)
-    elif "CMS_cf" in line:
+    elif "CMS_SUS24014_cf" in line:
       group_nuis["cf"].append(line)
     elif "CMS_res_j" in line or "CMS_scale_j" in line or "ParticleNet" in line or "PUJetID" in line:
-      group_nuis["jet_uncert"].append(line)
-    elif ("CMS_res_m" in line or "CMS_scale_m" in line or "CMS_eff_m" in line or "CMS_res_e" in line or "CMS_scale_e" in line or "CMS_eff_e" in line) and "CMS_scale_met" not in line:
+      if "FullJES" in this_card:
+        if re.search(r'CMS_scale_j_\d',line): continue # pass combined JES
+        group_nuis["jet_uncert"].append(line)
+      else: # use combined JES
+        if re.search('CMS_scale_j_[A-Za-z]',line): continue # pass combined JES
+        group_nuis["jet_uncert"].append(line)
+    elif ("CMS_res_m" in line or "CMS_scale_m" in line or "eff_m" in line or "CMS_res_e" in line or "CMS_scale_e" in line or "eff_e" in line) and "CMS_scale_met" not in line:
       group_nuis["lep_uncert"].append(line)
     elif "CMS_btag" in line:
       group_nuis["btag_sf"].append(line)

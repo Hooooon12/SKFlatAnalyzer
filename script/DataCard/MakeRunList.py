@@ -10,7 +10,7 @@ parser.add_argument('dirNames', nargs='+') # nargs='+' force a user to feed this
 parser.add_argument('-e', dest='eras', default=[], choices=['2016preVFP','2016postVFP','2017','2018','Run2'], nargs='+')
 parser.add_argument('-c', dest='channels', default=[], choices=['MuMu','EE','EMu'], nargs='+') # store [] if nothing is fed
 parser.add_argument('-m', dest='masses', default=[], choices=["85","90","95","100","125","150","200","250","300","350","400","450","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000","25000","30000","40000","50000","60000"], nargs='+')
-parser.add_argument('-s', dest='signals', default=[], choices=["","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+')
+parser.add_argument('-s', dest='signals', default=[], choices=["HNL","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+')
 parser.add_argument('-t', dest='tags', default=["AllSR"], choices=["AllSR","SR1","SR2","SR3"], nargs='+')
 parser.add_argument('--Ext', action='store_true', help='Extend cut based approach to M500')
 parser.add_argument('--Work', action='store_true', help='for workspace production purposes')
