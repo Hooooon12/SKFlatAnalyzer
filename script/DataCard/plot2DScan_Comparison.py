@@ -10,10 +10,16 @@ ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 ROOT.gStyle.SetPalette(ROOT.kBird) # Color palette
 
+# [FIX] Thicker Lines & Ticks on all sides
+ROOT.gStyle.SetLineWidth(2)        # General line thickness
+ROOT.gStyle.SetFrameLineWidth(3)   # Thick frame border
+ROOT.gStyle.SetPadTickX(1)         # Ticks on Top
+ROOT.gStyle.SetPadTickY(1)         # Ticks on Right
+
 # ------------------------------------------------------------------------------
 # [User Configuration] File Names and Settings
 # ------------------------------------------------------------------------------
-INPUT_FILE = "higgsCombine_Run2_EMu_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+INPUT_FILE = "higgsCombine_Run2_3ch_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 
 X_TITLE = "Flavor fraction f = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
 Y_TITLE = "Mixing strength r = |V_{e}|^{2} + |V_{#mu}|^{2}"
@@ -60,6 +66,7 @@ g2d.SetHistogram(h_frame)
 h_raw = g2d.GetHistogram() 
 h_raw.SetTitle("")
 h_raw.GetXaxis().SetTitle(X_TITLE)
+h_raw.GetXaxis().SetTitleOffset(1.2)
 h_raw.GetYaxis().SetTitle(Y_TITLE)
 h_raw.GetZaxis().SetTitle(Z_TITLE)
 
@@ -165,10 +172,12 @@ g_naive_ssww.SetLineStyle(7)
 c1 = ROOT.TCanvas("c1", "HNL 2D Scan", 800, 750) # Height increased slightly
 
 # [FIX] Set margins explicitly to control text position
-c1.SetTopMargin(0.07)    # Top space
+top_margin = 0.07
+right_margin = 0.17
+c1.SetTopMargin(top_margin)    # Top space
 c1.SetBottomMargin(0.12) # X-axis title space
 c1.SetLeftMargin(0.12)   # Y-axis title space
-c1.SetRightMargin(0.17)  # Z-axis (Color bar) space
+c1.SetRightMargin(right_margin)  # Z-axis (Color bar) space
 
 c1.cd()
 
@@ -212,8 +221,22 @@ latex.SetTextFont(52)
 latex.SetTextSize(0.04) # Increased from 0.03
 latex.DrawLatex(0.23, 0.94, "Work in Progress") # Placed next to CMS
 
-c1.Update()
-c1.SaveAs("HNL_2D_Scan_Final.png")
-c1.SaveAs("HNL_2D_Scan_Final.pdf")
+# [FIX] Lumi & Energy Info (Right aligned to the frame end)
+latex.SetTextFont(42)
+latex.SetTextSize(0.035)
+latex.SetTextAlign(31) # Right-bottom alignment
+# x-pos = 1.0 - right_margin (Right edge of the frame)
+latex.DrawLatex(1.0 - right_margin, 1.0 - top_margin + 0.01, "138 fb^{-1} (13 TeV)")
 
-print("Done! Check HNL_2D_Scan_Final.png")
+# Redraw axes to avoid color overlaid on the axes
+border = ROOT.TBox(X_MIN, Y_MIN, X_MAX, Y_MAX)
+border.SetFillStyle(0)   # An empty box
+border.SetLineWidth(3)   # Assign the same line width with the axes
+border.SetLineColor(ROOT.kBlack)
+border.Draw("l same")    # l: Draw line only
+
+c1.Update()
+c1.SaveAs("HNL_2D_Scan_Comp.png")
+c1.SaveAs("HNL_2D_Scan_Comp.pdf")
+
+print("Done! Check HNL_2D_Scan_Comp.png")

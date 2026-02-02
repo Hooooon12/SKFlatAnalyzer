@@ -325,6 +325,8 @@ for RunList in args.RunLists:
   NCARD = len(cards)
   WP = RunList.split('.')[-2].replace('RunList_','').replace('Run2_','') if args.Input is None else args.Input.split('/')[-2] # Currently, RunList is splitted into Run2 and normal setting (code structure issue -- it doesn't change WP)
 
+  if "EMuFull" in WP or "3ch" in shortcard: AsimovName = f"r{args.r}f{args.f}"
+
   if args.pdf:
     os.system('mkdir -p '+this_check+'/'+WP+'/'+AsimovName)
   elif args.Work or IsNuis: # Make workspace or perform statistical tests
@@ -377,10 +379,10 @@ for RunList in args.RunLists:
       os.system('mkdir -p '+WP+'/'+shortcard)
       os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/submit_Workspace.sh')
     elif IsNuis:
-      os.system('mkdir -p '+WP+'/'+shortcard+'/'+this_check+'/'+AsimovName)
-      os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/'+this_check+'/'+AsimovName+'/submit_'+this_check+'_'+AsimovName+'.sh')
-      os.system('cp '+WP+'/'+shortcard+'/'+shortcard+'.root '+WP+'/'+shortcard+'/'+this_check+'/'+AsimovName)
-      os.system('cp '+WP+'/'+shortcard+'/'+shortcard+'_DefMod.root '+WP+'/'+shortcard+'/'+this_check+'/'+AsimovName)
+      os.system(f'mkdir -p {WP}/{shortcard}/{this_check}/{AsimovName}')
+      os.system(f'cp {WP}/submit_skeleton.sh {WP}/{shortcard}/{this_check}/{AsimovName}/submit_{this_check}_{AsimovName}.sh')
+      os.system(f'cp {WP}/{shortcard}/{shortcard}.root {WP}/{shortcard}/{this_check}/{AsimovName}')
+      os.system(f'cp {WP}/{shortcard}/{shortcard}_DefMod.root {WP}/{shortcard}/{this_check}/{AsimovName}')
     else:
       # CLs extraction
       os.system('mkdir -p Batch/'+WP+'/full_CLs/'+shortcard+'/output/')
@@ -525,7 +527,7 @@ for RunList in args.RunLists:
 
     if IsNuis:
       list_shortcard = [shortcard, shortcard+"_DefMod"] if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else [shortcard]
-      with open(WP+"/"+shortcard+"/"+this_check+"/"+AsimovName+"/Run"+this_check+"_"+AsimovName+".sh",'w') as runfile:
+      with open(f"{WP}/{shortcard}/{this_check}/{AsimovName}/Run{this_check}_{AsimovName}.sh",'w') as runfile:
         runfile.write("#!/bin/bash\n")
         runfile.write("pushd "+pwd+"/"+WP+"/"+shortcard+"/"+this_check+"/"+AsimovName+"\n")
         runfile.write("echo Setting cmsenv environment...\n")
