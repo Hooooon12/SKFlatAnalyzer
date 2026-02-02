@@ -10,12 +10,12 @@ ROOT.gROOT.SetBatch(True)
 # Configuration
 # ------------------------------------------------------------------------------
 #INPUT_FILE = "higgsCombine_grid_2D_expected.MultiDimFit.mH120.root" # Check filename
-INPUT_FILE = "higgsCombine_grid_2D.MultiDimFit.mH120.root" # Check filename
+INPUT_FILE = "higgsCombine_Run2_3ch_M100_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" # Check filename
 TREE_NAME  = "limit"
 
 # Target Cut to find (e.g., 95% CL)
 # The script will find the point with 2dNLL closest to this value.
-TARGET_CUT = 5.99 
+TARGET_CUT = 3.84 # 5.99 for 2D, 3.84 for 1D
 
 OUTPUT_CSV = "limit_points_by_f.csv"
 

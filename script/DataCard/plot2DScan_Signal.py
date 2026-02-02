@@ -18,9 +18,10 @@ ROOT.gStyle.SetPadTickY(1)         # Ticks on Right
 # ------------------------------------------------------------------------------
 # [User Configuration]
 # ------------------------------------------------------------------------------
-INPUT_FILE = "higgsCombine_Run2_3ch_M10000_syst_grid_2D_Asimov_r1f0.5.MultiDimFit.mH120.root"
+#INPUT_FILE = "higgsCombine_Run2_3ch_M100_syst_grid_2D_Asimov_r1f0.5.MultiDimFit.mH120.root"
+INPUT_FILE = "higgsCombine_grid_2D.MultiDimFit.mH120.root"
 
-X_TITLE = "Flavor fraction f = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
+X_TITLE = "Flavor fraction f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
 Y_TITLE = "Mixing strength r = |V_{e}|^{2} + |V_{#mu}|^{2}"
 Z_TITLE = "-2 #Delta ln L"
 
@@ -174,7 +175,7 @@ dummy_68 = ROOT.TLine(); dummy_68.SetLineColor(ROOT.kGray+3); dummy_68.SetLineWi
 dummy_95 = ROOT.TLine(); dummy_95.SetLineColor(ROOT.kGray+3); dummy_95.SetLineWidth(2); dummy_95.SetLineStyle(2)
 dummy_bf = ROOT.TMarker(); dummy_bf.SetMarkerStyle(33); dummy_bf.SetMarkerColor(ROOT.kGray+3); dummy_bf.SetMarkerSize(1.5)
 
-leg.AddEntry(dummy_bf, f"Best Fit: (r={best_r:.2f}, f={best_f:.2f})", "p")
+leg.AddEntry(dummy_bf, f"Best Fit: (r={best_r:.2f}, f_{{e}}={best_f:.2f})", "p")
 leg.AddEntry(dummy_68, "68% CL (1#sigma)", "l")
 leg.AddEntry(dummy_95, "95% CL (2#sigma)", "l")
 leg.Draw()

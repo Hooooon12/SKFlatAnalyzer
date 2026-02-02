@@ -19,14 +19,15 @@ ROOT.gStyle.SetPadTickY(1)         # Ticks on Right
 # ------------------------------------------------------------------------------
 # [User Configuration] File Names and Settings
 # ------------------------------------------------------------------------------
-INPUT_FILE = "higgsCombine_Run2_3ch_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_Run2_3ch_M100_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+INPUT_FILE = "higgsCombine_Run2_EMu_M1000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 
-X_TITLE = "Flavor fraction f = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
+X_TITLE = "Flavor fraction f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
 Y_TITLE = "Mixing strength r = |V_{e}|^{2} + |V_{#mu}|^{2}"
 Z_TITLE = "-2 #Delta ln L"
 
 REF_F_VAL   = 0.5   # Reference point for Naive Scaling
-CL_VAL      = 5.99  # 95% CL (2 DOF), Use 3.84 for 1D
+CL_VAL      = 3.84  # 5.99 for 95% CL (2 DOF), Use 3.84 for 1D
 DISPLAY_CUT = 10    # Values above this will be WHITE in the background
 
 # Fixed Axis Ranges
@@ -203,8 +204,8 @@ dummy_dy   = ROOT.TLine(); dummy_dy.SetLineColor(ROOT.kRed);     dummy_dy.SetLin
 dummy_ssww = ROOT.TLine(); dummy_ssww.SetLineColor(ROOT.kBlue);  dummy_ssww.SetLineWidth(3); dummy_ssww.SetLineStyle(7)
 
 leg.AddEntry(dummy_real, "2D Limit (95% CL)", "l")
-leg.AddEntry(dummy_dy,   f"Naive DY+W#gamma (Ref f={REF_F_VAL})", "l")
-leg.AddEntry(dummy_ssww, f"Naive SSWW (Ref f={REF_F_VAL})", "l")
+leg.AddEntry(dummy_dy,   f"Naive DY+W#gamma (Ref f_{{e}}={REF_F_VAL})", "l")
+leg.AddEntry(dummy_ssww, f"Naive SSWW (Ref f_{{e}}={REF_F_VAL})", "l")
 leg.Draw()
 
 # [FIX] CMS Label - Bigger and closer to the frame
