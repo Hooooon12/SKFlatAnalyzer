@@ -18,15 +18,16 @@ ROOT.gStyle.SetPadTickY(1)         # Ticks on Right
 # ------------------------------------------------------------------------------
 # [User Configuration]
 # ------------------------------------------------------------------------------
-#INPUT_FILE = "higgsCombine_Run2_3ch_M100_syst_grid_2D_Asimov_r1f0.5.MultiDimFit.mH120.root"
-INPUT_FILE = "higgsCombine_grid_2D.MultiDimFit.mH120.root"
+#INPUT_FILE = "higgsCombine_Run2_3ch_M1000_syst_grid_2D_Asimov_r1f0.5.MultiDimFit.mH120.root"
+#INPUT_FILE = "higgsCombine_grid_2D.MultiDimFit.mH120.root"
+INPUT_FILE = "higgsCombine_Run2_EMu_M100_syst_grid_2D_Asimov_r1f0.5.MultiDimFit.mH120.root"
 
 X_TITLE = "Flavor fraction f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
 Y_TITLE = "Mixing strength r = |V_{e}|^{2} + |V_{#mu}|^{2}"
 Z_TITLE = "-2 #Delta ln L"
 
 # Visualization Settings
-DISPLAY_CUT = 10     # Values > 10 will be white
+DISPLAY_CUT = 30     # Values > 10 will be white
 X_MIN, X_MAX = 0.0, 1.0
 Y_MIN, Y_MAX = 0.0, 2.0 
 NBINS = 50

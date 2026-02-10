@@ -325,8 +325,6 @@ for RunList in args.RunLists:
   NCARD = len(cards)
   WP = RunList.split('.')[-2].replace('RunList_','').replace('Run2_','') if args.Input is None else args.Input.split('/')[-2] # Currently, RunList is splitted into Run2 and normal setting (code structure issue -- it doesn't change WP)
 
-  if "EMuFull" in WP or "3ch" in shortcard: AsimovName = f"r{args.r}f{args.f}"
-
   if args.pdf:
     os.system('mkdir -p '+this_check+'/'+WP+'/'+AsimovName)
   elif args.Work or IsNuis: # Make workspace or perform statistical tests
@@ -352,6 +350,8 @@ for RunList in args.RunLists:
     if '#' in card: continue
     shortcard = card.split('/')[-1].replace(".root","").replace(".txt","").replace("card_","") # Run2_EE_Ext_M500_syst
     this_mass = "0" if "Weinberg" in shortcard else shortcard.split('_M')[-1].split('_')[0]
+
+    if "EMuFull" in WP or "3ch" in shortcard: AsimovName = f"r{args.r}f{args.f}"
  
     if args.pdf:
       this_shortcard = shortcard+"_DefMod" if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else shortcard

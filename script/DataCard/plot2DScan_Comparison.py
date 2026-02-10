@@ -20,7 +20,11 @@ ROOT.gStyle.SetPadTickY(1)         # Ticks on Right
 # [User Configuration] File Names and Settings
 # ------------------------------------------------------------------------------
 #INPUT_FILE = "higgsCombine_Run2_3ch_M100_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
-INPUT_FILE = "higgsCombine_Run2_EMu_M1000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_Run2_EMu_M1000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_Run2_EMu_M100_syst_grid_2D_Asimov_r0.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_Run2_EMu_M100_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_Run2_EMu_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+INPUT_FILE = "higgsCombine.Test.MultiDimFit.mH120.root" 
 
 X_TITLE = "Flavor fraction f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
 Y_TITLE = "Mixing strength r = |V_{e}|^{2} + |V_{#mu}|^{2}"
