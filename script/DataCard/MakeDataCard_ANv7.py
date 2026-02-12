@@ -23,7 +23,7 @@ parser.add_argument('-wp', dest='InputWPs', nargs='+', help='List of LimitInput 
 parser.add_argument('-e', dest='eras', default=["2016preVFP","2016postVFP","2017","2018"], choices=["2016preVFP","2016postVFP","2017","2018"], nargs='+')
 parser.add_argument('-c', dest='channels', default=["MuMu","EE","EMu"], choices=["MuMu","EE","EMu"], nargs='+') # store [] if nothing is fed
 parser.add_argument('-m', dest='masses', nargs='+')
-parser.add_argument('-s', dest='signals', default=["HNL","Weinberg"], choices=["HNL","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+')
+parser.add_argument('-s', dest='signals', default=["HNL","Weinberg"], choices=["","HNL","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+')
 parser.add_argument('-o', dest='outputTag', default='', help='tag attached to the output directory')
 parser.add_argument('--Ext', action='store_true', help='Extend cut based approach down to M500')
 parser.add_argument('--CnC', action='store_true', help='One-bin limit')
@@ -414,7 +414,7 @@ def ValidMassSignal(channel: str, mass: str, signal: str) -> bool:
     if channel != "EMu" and int(mass.strip('M')) >= 40000:
       return False
 
-    if signal=="HNL": return True # MakeRateString will handle this
+    if signal=="HNL" or signal=="": return True # MakeRateString will handle this
 
     if int(mass.strip('M'))<300:
       if "DY" in signal:
@@ -493,6 +493,7 @@ def NuisanceGrouping(this_card):
                 'met_energy'  : [],
                 'prefire'     : [],
                 'pileup'      : [],
+                'HEM'         : [],
   }
   for line in lines[:]:
     line = line.split(' ')[0]
@@ -523,6 +524,8 @@ def NuisanceGrouping(this_card):
       group_nuis["prefire"].append(line)
     elif "CMS_pileup" in line:
       group_nuis["pileup"].append(line)
+    elif "HEM" in line:
+      group_nuis["HEM"].append(line)
 
   with open(this_card,'a') as f:
     for key, value in list(group_nuis.items()):
@@ -579,7 +582,7 @@ for InputWP in InputWPs:
       for era, channel, mass, signal in [(era, channel, mass, signal) for era in eras for channel in channels for mass in masses for signal in signals]:
         if not ValidMassSignal(channel, mass, signal): continue
 
-        mass_signal = mass if signal == mass else mass+"_"+signal # Remove duplication like Weinberg_Weinberg
+        mass_signal = mass if (signal == mass or signal == "") else mass+"_"+signal # Remove duplication like Weinberg_Weinberg
 
         this_card = CardSetting(args.CR, InputWP, skel, era, channel, mass, signal)
         if args.CR:
@@ -606,7 +609,7 @@ for InputWP in InputWPs:
       for channel, mass, signal in [(channel, mass, signal) for channel in channels for mass in masses for signal in signals]:
         if not ValidMassSignal(channel, mass, signal): continue
 
-        mass_signal = mass if signal == mass else mass+"_"+signal # Remove duplication like Weinberg_Weinberg
+        mass_signal = mass if (signal == mass or signal == "") else mass+"_"+signal # Remove duplication like Weinberg_Weinberg
         sr_filtered = mass_to_srs(mass)
         cr_filtered = filter_crs(regions_cr, sr_filtered)
 
