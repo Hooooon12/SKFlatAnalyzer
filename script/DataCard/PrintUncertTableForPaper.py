@@ -203,7 +203,7 @@ for mass in TargetMasses:
 
         # 3. Handle Charge Flip for non-EE channels
         if channel != "EE":
-             table_data[mass][channel][label_map["Charge Flip"]] = "\\multicolumn{1}{c}{-}" # Center aligned dash
+             table_data[mass][channel][label_map["Charge Flip"]] = "\\NA" # dash
 
         # 4. Statistical
         stat_pct = (stat_uncert / total_uncert) * 100.0
@@ -222,7 +222,11 @@ for mass in TargetMasses:
 
 # Define the row order strictly as requested
 row_structure = [
-    (r"\multicolumn{1}{c}{\textbf{Simulation:}}", None),
+    #(r"\multicolumn{1}{c}{\textbf{Simulation:}}", None),
+    (r"\multicolumn{1}{c}{\textbf{Simulation:}} &", None),
+    (r"\multicolumn{3}{c|}{} &", None),
+    (r"\multicolumn{3}{c|}{} &", None),
+    (r"\multicolumn{3}{c}{} \\", None),
     ("Luminosity",                  "Luminosity"),
     ("Lepton selection \\& energy", "Lepton selection \\& energy"),
     ("Jet selection \\& energy",    "Jet selection \\& energy"),
@@ -234,10 +238,18 @@ row_structure = [
     ("MC normalisation",            "MC normalisation"),
     ("MC statistical",              "MC statistical"),
     (r"\hline", None),
-    (r"\multicolumn{1}{c}{\textbf{Theory:}}", None),
+    #(r"\multicolumn{1}{c}{\textbf{Theory:}}", None),
+    (r"\multicolumn{1}{c}{\textbf{Theory:}} &", None),
+    (r"\multicolumn{3}{c|}{} &", None),
+    (r"\multicolumn{3}{c|}{} &", None),
+    (r"\multicolumn{3}{c}{} \\", None),
     ("PDF + QCD scale variation",   "PDF + QCD scale variation"),
     (r"\hline", None),
-    (r"\multicolumn{1}{c}{\textbf{Data-driven:}}", None),
+    #(r"\multicolumn{1}{c}{\textbf{Data-driven:}}", None),
+    (r"\multicolumn{1}{c}{\textbf{Data-driven:}} &", None),
+    (r"\multicolumn{3}{c|}{} &", None),
+    (r"\multicolumn{3}{c|}{} &", None),
+    (r"\multicolumn{3}{c}{} \\", None),
     ("Non-prompt",                  "Non-prompt"),
     ("Charge misidentification",    "Charge misidentification"),
     (r"\hline", None),
@@ -250,11 +262,11 @@ print("\n" + "="*50)
 print(" LaTeX Code Output")
 print("="*50 + "\n")
 
-print(r"\begin{tabular}{lccccccccc}")
+print(r"\begin{tabular}{lccc|ccc|ccc}")
 print(r"\hline \hline")
 print(r"\multirow{2}{*}{Source / Channel}")
-print(r"    & \multicolumn{3}{c}{100~\GeV}")
-print(r"    & \multicolumn{3}{c}{1~\TeV}")
+print(r"    & \multicolumn{3}{c|}{100~\GeV}")
+print(r"    & \multicolumn{3}{c|}{1~\TeV}")
 print(r"    & \multicolumn{3}{c}{10~\TeV} \\")
 print(r"    & $\mu\mu$ & $ee$ & $e\mu$")
 print(r"    & $\mu\mu$ & $ee$ & $e\mu$")
@@ -267,7 +279,8 @@ for display_text, lookup_key in row_structure:
         if display_text == r"\hline":
             print(display_text)
         else:
-            print(f"{display_text} \\\\")
+            #print(f"{display_text} \\\\")
+            print(f"{display_text}")
     else:
         # It's a data row
         row_str = f"{display_text}"

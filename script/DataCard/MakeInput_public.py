@@ -491,7 +491,7 @@ for DefFlag in DefFlags:
   for this_prompt in [*(x for x in MergeList['RunPrompt']['Prompt_inc'] if x != "ZZTo4L_powheg"), "WZTo3LNu_mllmin4p0_powheg"]:
     PromptSkim[DefFlag][this_prompt] = "_SkimTree_HNMultiLepBDT_"
   for this_prompt in ["ZZTo4L_powheg"]:
-    PromptSkim[DefFlag][this_prompt] = "_SkimTree_SSDileptonBDT_"
+    PromptSkim[DefFlag][this_prompt] = "_SkimTree_HNMultiLepBDT_" if args.CR else "_SkimTree_SSDileptonBDT_"
 MCSkim = {DefFlag: {**ConvSkim[DefFlag], **PromptSkim[DefFlag]} for DefFlag in DefFlags}
 
 

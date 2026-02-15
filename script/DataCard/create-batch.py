@@ -575,17 +575,14 @@ for RunList in args.RunLists:
               runfile.write(f"plot1DScan.py higgsCombine.{this_shortcard}_{AsimovName}_rRange100.MultiDimFit.mH120.root -o MDfit_rRange100_{this_shortcard}_{AsimovName}\n")
           elif args.Breakdown:
             rRange = {}
-            #if (float(this_mass) <= 100.):
-            #  rRange['rMin'] = -0.05
-            #  rRange['rMax'] = 0.05
-            #  rRange['points'] = 41
-            #else:
-            #  rRange['rMin'] = -5
-            #  rRange['rMax'] = 5
-            #  rRange['points'] = 21
-            rRange['rMin'] = -5
-            rRange['rMax'] = 5
-            rRange['points'] = 21
+            if (float(this_mass) <= 100.):
+              rRange['rMin'] = -0.5
+              rRange['rMax'] = 0.5
+              rRange['points'] = 21
+            else:
+              rRange['rMin'] = -5
+              rRange['rMax'] = 5
+              rRange['points'] = 21
             runfile.write(f"combine -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --points={rRange['points']} --rMin {rRange['rMin']} --rMax {rRange['rMax']} --alignEdges 1 {AsimovSetting} --saveWorkspace --saveFitResult -n .{this_shortcard}_{AsimovName}_saveWorkspace\n")
             runfile.write(f"combine -M MultiDimFit higgsCombine.{this_shortcard}_{AsimovName}_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r={rRange['rMin']},{rRange['rMax']} {AsimovSetting} --saveFitResult -n .{this_shortcard}_{AsimovName}_total\n")
             runfile.write(f"combine -M MultiDimFit higgsCombine.{this_shortcard}_{AsimovName}_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r={rRange['rMin']},{rRange['rMax']} --freezeNuisanceGroups jet_uncert {AsimovSetting} --saveFitResult -n .{this_shortcard}_{AsimovName}_freeze_jet\n")
