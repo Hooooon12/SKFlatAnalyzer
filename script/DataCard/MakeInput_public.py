@@ -454,16 +454,16 @@ MergeList['RunPrompt']['Prompt_inc'] = [
                                         'WZTo3LNu_amcatnlo','WZ_EWK', # 'WZTo3LNu_mllmin4p0_powheg' : amcatnlo gives better control in Inverted CR3
                                        ] #FIXME time to time
 MergeList['RunPrompt']['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu"] #FIXME time to time
-MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] #FIXME time to time
-MergeList['RunPrompt']['WZ_norm_powheg']         = ["WZTo3LNu_mllmin4p0_powheg","WZ_EWK"] #FIXME time to time
-MergeList['RunPrompt']['WZ_norm_amcatnlo']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] #FIXME time to time
+MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] if not ("EMuCF" in inputTag) else ["WZTo3LNu_amcatnlo"] #FIXME time to time
+#MergeList['RunPrompt']['WZ_norm_powheg']         = ["WZTo3LNu_mllmin4p0_powheg","WZ_EWK"] #FIXME time to time
+#MergeList['RunPrompt']['WZ_norm_amcatnlo']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] #FIXME time to time
 MergeList['RunPrompt']['WW_norm']       = ["WpWp_QCD","WpWp_EWK"] #FIXME time to time
 MergeList['RunPrompt']['Prompt_others'] = [
                                            x for x in MergeList['RunPrompt']['Prompt_inc']
                                            if x not in MergeList['RunPrompt']['ZZ_norm']
                                            and x not in MergeList['RunPrompt']['WZ_norm']
-                                           and x not in MergeList['RunPrompt']['WZ_norm_powheg']
-                                           and x not in MergeList['RunPrompt']['WZ_norm_amcatnlo']
+                                           #and x not in MergeList['RunPrompt']['WZ_norm_powheg']
+                                           #and x not in MergeList['RunPrompt']['WZ_norm_amcatnlo']
                                            and x not in MergeList['RunPrompt']['WW_norm']
                                           ]
 
@@ -533,7 +533,7 @@ if args.CheckFiles:
         if not os.path.exists(this_path):
           print(this_path,"-->",os.path.exists(this_path))
       for this_proc in DataList[era]:
-        if "Muon" in this_proc: continue
+        if ("EMuCF" in inputTag and "DoubleMuon" in this_proc) or ("EMuCF" not in inputTag and "Muon" in this_proc): continue
         this_path=SRPath + "/" + era + "/" + PreFlag+"RunCF__"+PostFlag+"/DATA/HNL_SignalRegion_Plotter_SkimTree_DileptonBDT_"+this_proc+".root"
         if not os.path.exists(this_path):
           print(this_path,"-->",os.path.exists(this_path))
@@ -559,7 +559,7 @@ if args.CheckFiles:
           if not os.path.exists(this_path):
             print(this_path,"-->",os.path.exists(this_path))
       for this_proc in DataList[era]:
-        if "Muon" in this_proc: continue
+        if ("EMuCF" in inputTag and "DoubleMuon" in this_proc) or ("EMuCF" not in inputTag and "Muon" in this_proc): continue
         for DefFlag in DefFlags_CR:
           this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+"RunCF__"+PostFlag+"/DATA/HNL_ControlRegion_Plotter_SkimTree_DileptonBDT_"+this_proc+".root"
           if not os.path.exists(this_path):
@@ -1386,7 +1386,7 @@ for tag in args.histTag:
                 hist_pdfUp.Reset()
                 hist_pdfDown = h_data.Clone()
                 hist_pdfDown.Reset()
-                if 'signal' in input_list[i][2]:
+                if ('signal' in input_list[i][2]) or (("EMuCF" in inputTag) and ('wz' in input_list[i][2])):
                   Nreplica = 100
                   pdf_hists = []
                   for it_rep in range(Nreplica):
@@ -1402,9 +1402,10 @@ for tag in args.histTag:
                     elif 'Weinberg' in input_list[i][2]:
                       h_pdf.Scale(Weinbergscaler)
                     else:
-                      print("[ERROR] in PDF uncertainty calculation: There is no hist",this_pdf_hist,".")
-                      print("[ERROR] Exiting ...")
-                      exit()
+                      #print("[ERROR] in PDF uncertainty calculation: There is no hist",this_pdf_hist,".")
+                      #print("[ERROR] Exiting ...")
+                      #exit()
+                      pass
                     pdf_hists.append(h_pdf)
                   for it_bin in range(1, this_nbins + 1):
                     bin_values = [pdf_hists[it_rep].GetBinContent(it_bin) for it_rep in range(Nreplica)]
@@ -1421,7 +1422,7 @@ for tag in args.histTag:
 
                 this_name_syst = SystNameMap[era][this_syst]
                 if ('PDF' in this_syst) or (('Scale' in this_syst) and ('Jet' not in this_syst)):
-                  if 'signal' not in input_list[i][2]: continue
+                  if ('signal' not in input_list[i][2]) or not (("EMuCF" in inputTag) and ('wz' in input_list[i][2])): continue
                   else:
                     if "DYVBF" in input_list[i][2]:
                       this_name_syst = this_name_syst.replace('pdf','pdf_DYVBF').replace('scale','scale_DYVBF')
