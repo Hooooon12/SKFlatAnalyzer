@@ -223,7 +223,8 @@ SIGNAL_LIBRARY: Dict[str, SignalTemplate] = {
     "Weinberg": SignalTemplate(
         key="Weinberg",
         hnames=("signalWeinberg",),
-        label_tmpl="#splitline{Weinberg op.}{c^{#mu}_{5}=1, #Lambda=200 TeV}",
+        #label_tmpl="#splitline{Weinberg op.}{c^{#mu}_{5}=1, #Lambda=200 TeV}",
+        label_tmpl="Weinberg op.",
         family="Weinberg",
     ),
 }

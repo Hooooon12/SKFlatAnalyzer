@@ -2,7 +2,8 @@ python - <<'PY'
 import ROOT
 import math
 
-fname = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_EMuCF_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_beforeFixData/2018/sr3/M400_EMu_card_input.root"
+#fname = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_EMuCF_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_beforeFixData/2018/sr3/M400_EMu_card_input.root"
+fname = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_EMuCF_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr/2018/sr3/M400_EMu_card_input.root"
 
 f = ROOT.TFile.Open(fname)
 
