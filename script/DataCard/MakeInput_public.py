@@ -454,14 +454,18 @@ MergeList['RunPrompt']['Prompt_inc'] = [
                                         'WZTo3LNu_amcatnlo','WZ_EWK', # 'WZTo3LNu_mllmin4p0_powheg' : amcatnlo gives better control in Inverted CR3
                                        ] #FIXME time to time
 MergeList['RunPrompt']['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu"] #FIXME time to time
-MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] if not ("EMuCF" in inputTag) else ["WZTo3LNu_amcatnlo"] #FIXME time to time
+MergeList['RunPrompt']['WZ']            = ["WZTo3LNu_amcatnlo"]
+MergeList['RunPrompt']['WZ_EWK']        = ["WZ_EWK"]
+#MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] if not ("EMuCF" in inputTag) else ["WZTo3LNu_amcatnlo"] #FIXME time to time
 #MergeList['RunPrompt']['WZ_norm_powheg']         = ["WZTo3LNu_mllmin4p0_powheg","WZ_EWK"] #FIXME time to time
 #MergeList['RunPrompt']['WZ_norm_amcatnlo']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] #FIXME time to time
 MergeList['RunPrompt']['WW_norm']       = ["WpWp_QCD","WpWp_EWK"] #FIXME time to time
 MergeList['RunPrompt']['Prompt_others'] = [
                                            x for x in MergeList['RunPrompt']['Prompt_inc']
                                            if x not in MergeList['RunPrompt']['ZZ_norm']
-                                           and x not in MergeList['RunPrompt']['WZ_norm']
+                                           and x not in MergeList['RunPrompt']['WZ']
+                                           and x not in MergeList['RunPrompt']['WZ_EWK']
+                                           #and x not in MergeList['RunPrompt']['WZ_norm']
                                            #and x not in MergeList['RunPrompt']['WZ_norm_powheg']
                                            #and x not in MergeList['RunPrompt']['WZ_norm_amcatnlo']
                                            and x not in MergeList['RunPrompt']['WW_norm']
@@ -533,7 +537,8 @@ if args.CheckFiles:
         if not os.path.exists(this_path):
           print(this_path,"-->",os.path.exists(this_path))
       for this_proc in DataList[era]:
-        if ("EMuCF" in inputTag and "DoubleMuon" in this_proc) or ("EMuCF" not in inputTag and "Muon" in this_proc): continue
+        #if ("EMuCF" in inputTag and "DoubleMuon" in this_proc) or ("EMuCF" not in inputTag and "Muon" in this_proc): continue
+        if "DoubleMuon" in this_proc: continue
         this_path=SRPath + "/" + era + "/" + PreFlag+"RunCF__"+PostFlag+"/DATA/HNL_SignalRegion_Plotter_SkimTree_DileptonBDT_"+this_proc+".root"
         if not os.path.exists(this_path):
           print(this_path,"-->",os.path.exists(this_path))
@@ -559,7 +564,8 @@ if args.CheckFiles:
           if not os.path.exists(this_path):
             print(this_path,"-->",os.path.exists(this_path))
       for this_proc in DataList[era]:
-        if ("EMuCF" in inputTag and "DoubleMuon" in this_proc) or ("EMuCF" not in inputTag and "Muon" in this_proc): continue
+        #if ("EMuCF" in inputTag and "DoubleMuon" in this_proc) or ("EMuCF" not in inputTag and "Muon" in this_proc): continue
+        if "DoubleMuon" in this_proc: continue
         for DefFlag in DefFlags_CR:
           this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+"RunCF__"+PostFlag+"/DATA/HNL_ControlRegion_Plotter_SkimTree_DileptonBDT_"+this_proc+".root"
           if not os.path.exists(this_path):
@@ -1031,7 +1037,9 @@ for tag in args.histTag:
         #  f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_SkimTree_HNMultiLepBDT_WZ_norm.root"
         #else:
         #  f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_norm.root"
-        f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_norm.root"
+        #f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_norm.root"
+        f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ.root"
+        f_path_wz_ewk            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_EWK.root"
       #if args.CR: #FIXME this is due to old CR...
       #  f_path_zz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_SkimTree_HNMultiLepBDT_ZZ_norm.root"
       #  f_path_ww            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_SkimTree_HNMultiLepBDT_WW_norm.root"
@@ -1056,6 +1064,7 @@ for tag in args.histTag:
       f_conv_inc      = TFile.Open(f_path_conv_inc)
       f_conv_others   = TFile.Open(f_path_conv_others)
       f_wz            = TFile.Open(f_path_wz)
+      f_wz_ewk        = TFile.Open(f_path_wz_ewk)
       f_zz            = TFile.Open(f_path_zz)
       f_ww            = TFile.Open(f_path_ww)
       f_prompt_inc    = TFile.Open(f_path_prompt_inc)
@@ -1151,11 +1160,13 @@ for tag in args.histTag:
           print("##### Initiating",region,mass,channel,"...")
           if not Blinded: h_data        = f_data.Get(input_hist)
           h_fake          = f_fake.Get(input_hist)
-          h_cf            = f_cf.Get(input_hist) if "EE" in channel else ""
+          #h_cf            = f_cf.Get(input_hist) if ("EE" in channel or ("EMuCF" in inputTag and "EMu" in channel)) else ""
+          h_cf            = f_cf.Get(input_hist) if "E" in channel else ""
           h_zg            = f_zg.Get(input_hist)
           h_conv_inc      = f_conv_inc.Get(input_hist)
           h_conv_others   = f_conv_others.Get(input_hist)
           h_wz            = f_wz.Get(input_hist)
+          h_wz_ewk        = f_wz_ewk.Get(input_hist)
           h_zz            = f_zz.Get(input_hist)
           h_ww            = f_ww.Get(input_hist)
           h_prompt_inc    = f_prompt_inc.Get(input_hist)
@@ -1172,6 +1183,7 @@ for tag in args.histTag:
                         [f_path_conv_inc,    h_conv_inc,    "conv_inc"],
                         [f_path_conv_others, h_conv_others, "conv_others"],
                         [f_path_wz, h_wz, "wz"],
+                        [f_path_wz_ewk, h_wz_ewk, "wz_ewk"],
                         [f_path_zz, h_zz, "zz"],
                         [f_path_ww, h_ww, "ww"],
                         [f_path_prompt_inc,    h_prompt_inc,    "prompt_inc"],
@@ -1180,8 +1192,9 @@ for tag in args.histTag:
                         [f_path_mc_others, h_mc_others, "mc_others"],
                        ]
 
-          #### Remove CF if not EE
-          if "EE" not in channel:
+          #### Remove CF if not EE --> if MuMu
+          #if "EE" not in channel:
+          if "MuMu" in channel:
             print("This is",channel,"channel --> Remove CF item:")
             print(input_list.pop(1))
 
@@ -1228,7 +1241,8 @@ for tag in args.histTag:
                         #[f_path_conv_inc, h_conv_inc, "conv_inc"], #NOTE deprecated. only preservation purposes. PREVIOUSLY: start from prompt_inc, add fake, cf, conv_inc. Now, start from mc_inc and add fake, cf and that's all.
                        ]
           
-            if "Mu" in channel:
+            #if ("EMuCF" in inputTag and "MuMu" in channel) or ("EMuCF" not in inputTag and "Mu" in channel):
+            if "MuMu" in channel:
               print("This is",channel,"channel. --> Remove CF item in bkg list:")
               print(bkg_list.pop(1))
 
@@ -1352,6 +1366,44 @@ for tag in args.histTag:
                 print("Please delete this in the datacard ...")
                 NoNOMs.add(iProc)
   
+          # ------------------------------------------------------------
+          # Fix Asimov data_obs to exactly match the final (truncated) bkg sum
+          # ------------------------------------------------------------
+          if Blinded:
+            # These are the ONLY backgrounds you said you actually use in Combine
+            used_bkgs = ["fake", "cf", "zg", "zz", "wz", "wz_ewk", "ww", "mc_others"]
+            if "MuMu" in channel and "cf" in used_bkgs:
+              used_bkgs.remove("cf")
+
+            # Map name -> hist (nominals only, already truncated above)
+            name_to_hist = {item[2]: item[1] for item in input_list}
+
+            # Choose a template hist to clone/reset (any existing bkg hist is fine)
+            tmpl_name = used_bkgs[0]
+            if tmpl_name not in name_to_hist:
+              raise RuntimeError(f"[AsimovFix] Template hist '{tmpl_name}' not found in input_list")
+
+            h_asimov = name_to_hist[tmpl_name].Clone("data_obs")
+            h_asimov.Reset("ICES")   # reset contents/errors
+            h_asimov.SetDirectory(0)
+
+            for bname in used_bkgs:
+              h = name_to_hist.get(bname, None)
+              if h is None:
+                print(f"[AsimovFix][WARNING] Missing bkg '{bname}' when building data_obs; skipping it.")
+                continue
+              h_asimov.Add(h)
+
+            # Replace existing data_obs hist in input_list
+            replaced = False
+            for k in range(len(input_list)):
+              if input_list[k][2] == "data_obs":
+                input_list[k][1] = h_asimov
+                replaced = True
+                break
+            if not replaced:
+              input_list.append(["fake_data_path", h_asimov, "data_obs"])
+
           if args.Syst:
             print("##### Systematics activated.")
   
@@ -1386,7 +1438,8 @@ for tag in args.histTag:
                 hist_pdfUp.Reset()
                 hist_pdfDown = h_data.Clone()
                 hist_pdfDown.Reset()
-                if ('signal' in input_list[i][2]) or (("EMuCF" in inputTag) and ('wz' in input_list[i][2])):
+                #if ('signal' in input_list[i][2]) or (("EMuCF" in inputTag) and ('wz' in input_list[i][2]) and not args.CR):
+                if ('signal' in input_list[i][2]) or (input_list[i][2]=='wz'):
                   Nreplica = 100
                   pdf_hists = []
                   for it_rep in range(Nreplica):
@@ -1422,7 +1475,8 @@ for tag in args.histTag:
 
                 this_name_syst = SystNameMap[era][this_syst]
                 if ('PDF' in this_syst) or (('Scale' in this_syst) and ('Jet' not in this_syst)):
-                  if ('signal' not in input_list[i][2]) or not (("EMuCF" in inputTag) and ('wz' in input_list[i][2])): continue
+                  #if ('signal' not in input_list[i][2]) and not (("EMuCF" in inputTag) and ('wz' in input_list[i][2]) and not args.CR): continue
+                  if ('signal' not in input_list[i][2]) and (input_list[i][2] != 'wz'): continue
                   else:
                     if "DYVBF" in input_list[i][2]:
                       this_name_syst = this_name_syst.replace('pdf','pdf_DYVBF').replace('scale','scale_DYVBF')
