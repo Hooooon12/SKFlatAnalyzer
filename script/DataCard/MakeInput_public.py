@@ -1356,6 +1356,7 @@ for tag in args.histTag:
                   print("!!!!!! bin",j+1,":",input_list[iProc][1].GetBinContent(j+1),"!!!!!!")
                   print("!!!!!! Setting this bin to 0 ...")
                   input_list[iProc][1].SetBinContent(j+1,0.)
+                  input_list[iProc][1].SetBinError(j+1,0.)
             except AttributeError:
               print("[!!WARNING!!] There is no NOMINAL hist named "+input_hist+" in "+input_list[iProc][0]+" .")
               print("[!!WARNING!!] Please delete this in the datacard ...")
@@ -1366,44 +1367,6 @@ for tag in args.histTag:
                 print("Please delete this in the datacard ...")
                 NoNOMs.add(iProc)
   
-          # ------------------------------------------------------------
-          # Fix Asimov data_obs to exactly match the final (truncated) bkg sum
-          # ------------------------------------------------------------
-          if Blinded:
-            # These are the ONLY backgrounds you said you actually use in Combine
-            used_bkgs = ["fake", "cf", "zg", "zz", "wz", "wz_ewk", "ww", "mc_others"]
-            if "MuMu" in channel and "cf" in used_bkgs:
-              used_bkgs.remove("cf")
-
-            # Map name -> hist (nominals only, already truncated above)
-            name_to_hist = {item[2]: item[1] for item in input_list}
-
-            # Choose a template hist to clone/reset (any existing bkg hist is fine)
-            tmpl_name = used_bkgs[0]
-            if tmpl_name not in name_to_hist:
-              raise RuntimeError(f"[AsimovFix] Template hist '{tmpl_name}' not found in input_list")
-
-            h_asimov = name_to_hist[tmpl_name].Clone("data_obs")
-            h_asimov.Reset("ICES")   # reset contents/errors
-            h_asimov.SetDirectory(0)
-
-            for bname in used_bkgs:
-              h = name_to_hist.get(bname, None)
-              if h is None:
-                print(f"[AsimovFix][WARNING] Missing bkg '{bname}' when building data_obs; skipping it.")
-                continue
-              h_asimov.Add(h)
-
-            # Replace existing data_obs hist in input_list
-            replaced = False
-            for k in range(len(input_list)):
-              if input_list[k][2] == "data_obs":
-                input_list[k][1] = h_asimov
-                replaced = True
-                break
-            if not replaced:
-              input_list.append(["fake_data_path", h_asimov, "data_obs"])
-
           if args.Syst:
             print("##### Systematics activated.")
   
@@ -1538,6 +1501,7 @@ for tag in args.histTag:
                         print("!!!!!! bin",j+1,":",h_syst.GetBinContent(j+1),"!!!!!!")
                         print("!!!!!! Setting this bin to 0 ...")
                         h_syst.SetBinContent(j+1,0.)
+                        h_syst.SetBinError(j+1,0.)
                   #### Now check zero norm ... ####
                   if h_syst.Integral()<=0.:
                     print("!!!!!! Zero norm detected in",input_list[i][2],input_hist,"with syst:",name_syst,"!!!!!!")
@@ -1591,6 +1555,48 @@ for tag in args.histTag:
             print("Erase nominal zero norm:")
             print(input_list.pop(i))
   
+          # ------------------------------------------------------------
+          # Fix Asimov data_obs to exactly match the final (truncated) bkg sum
+          # (do this AFTER NoNOMs are removed)
+          # ------------------------------------------------------------
+          if Blinded:
+            used_bkgs = ["fake", "cf", "zg", "zz", "wz", "wz_ewk", "ww", "mc_others"]
+            if "MuMu" in channel and "cf" in used_bkgs:
+              used_bkgs.remove("cf")
+          
+            name_to_hist = {item[2]: item[1] for item in input_list}
+          
+            # pick a valid template
+            tmpl = None
+            for bn in used_bkgs:
+              h = name_to_hist.get(bn, None)
+              if h and hasattr(h, "InheritsFrom") and h.InheritsFrom("TH1"):
+                tmpl = h
+                break
+            if tmpl is None:
+              raise RuntimeError("[AsimovFix] No valid TH1 template found among used_bkgs")
+          
+            h_asimov = tmpl.Clone("data_obs")
+            h_asimov.Reset("ICES")
+            h_asimov.SetDirectory(0)
+          
+            for bn in used_bkgs:
+              h = name_to_hist.get(bn, None)
+              if not (h and hasattr(h, "InheritsFrom") and h.InheritsFrom("TH1")):
+                print(f"[AsimovFix][WARNING] '{bn}' is missing or not a TH1; skipping it in data_obs sum.")
+                continue
+              h_asimov.Add(h)
+          
+            # replace existing data_obs
+            replaced = False
+            for k in range(len(input_list)):
+              if input_list[k][2] == "data_obs":
+                input_list[k][1] = h_asimov
+                replaced = True
+                break
+            if not replaced:
+              input_list.append(["fake_data_path", h_asimov, "data_obs"])
+
           print("##### Now creating a limit input root file...")
           outName = OutputPath+era+"/"+region+"/"+mass+"_"+channel+ExtTag
           outfile = TFile.Open(outName+"_card_input.root","RECREATE")
