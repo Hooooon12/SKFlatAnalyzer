@@ -169,8 +169,12 @@ def Initialize_Process():
 def MakeRateString(region, era, channel, mass, signal, WP):
   this_process = Initialize_Process()
 
-  if "Mu" in channel:
-    this_process['cf'] = '0'
+  if "EMuCF" in WP:
+    if "MuMu" in channel:
+      this_process['cf'] = '0'
+  else:
+    if "Mu" in channel:
+      this_process['cf'] = '0'
 
   if mass.startswith("M") and mass[1:].isdigit():
     mass_int = int(mass[1:])
@@ -484,7 +488,8 @@ def NuisanceGrouping(this_card):
   group_nuis = {
                 'lumi'        : [],
                 'xsec'        : [],
-                'theory'      : [],
+                'pdf'         : [],
+                'scale '      : [],
                 'fake'        : [],
                 'cf'          : [],
                 'jet_uncert'  : [],
@@ -501,8 +506,10 @@ def NuisanceGrouping(this_card):
       group_nuis["lumi"].append(line)
     elif "xsec" in line:
       group_nuis["xsec"].append(line)
-    elif "QCD" in line or "pdf" in line:
-      group_nuis["theory"].append(line)
+    elif "pdf" in line:
+      group_nuis["pdf"].append(line)
+    elif "QCD" in line:
+      group_nuis["scale"].append(line)
     elif "CMS_SUS24014_fake" in line:
       group_nuis["fake"].append(line)
     elif "CMS_SUS24014_cf" in line:

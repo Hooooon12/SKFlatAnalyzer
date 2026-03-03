@@ -108,7 +108,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv5_BDTV3_SR1_FixRepeatBin_HNL_ULIDv2_AltBin_FixCorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
   //TString WP_nom = "ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
   //TString WP_nom = "ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
-  TString WP_nom = "ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
+  //TString WP_nom = "ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
+  TString WP_nom = "ANv7_FullJESNS_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_FullJESNS_Decorr"; // set the nominal WP
   vector<TString> WP_noms;
   if(DrawExt) WP_noms = {WP_nom+"_BDT", WP_nom+"_Ext"}; // nominal working points; BDT: up to 500 GeV, Ext: from 500 GeV
   else WP_noms = {WP_nom}; // nominal working point
@@ -126,7 +127,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString tag_nom = "_DYVBF_sronly_sr123_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_syst_Run2Scaled"; // nominal tag
   //TString tag_nom = "_sronly_sr123_syst"; // nominal tag
-  TString tag_nom = "_syst"; // default setting
+  //TString tag_nom = "_syst"; // default setting
+  TString tag_nom = "_HNL_syst"; // default setting
   //TString tag_nom = "_DY_syst"; // nominal tag
   //TString tag_nom = "_VBF_syst"; // nominal tag
   //TString tag_nom = "_DYVBF_syst"; // nominal tag
@@ -163,7 +165,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //WPs.push_back("ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
-  WPs.push_back("ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
+  //WPs.push_back("ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
+  WPs.push_back("ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
   if(SepLimit) WPs = {WP_nom}; // same name with the nominal, but separate each signal/SR
   vector<TString> tags = {"_syst"}; // Default setting
   //vector<TString> tags = {"_DY_syst"};
@@ -214,10 +217,14 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       if (is >> this_onesig_right) onesig_right.push_back(this_onesig_right);
       if (is >> this_twosig_right) twosig_right.push_back(this_twosig_right);
 
+      // additional fine tune to mass-dependent scales
       double scale = scales.at(i);
       //if(i==0&&this_mass>3000.) scale *= 10; //NOTE SSWW-only region scaled differently, to see SSWW pull with narrower range. Apply this only to nominal WP.
       if(this_mass>3000.) scale *= 10; //NOTE Apply different scale to all WPs.
-      if(this_mass<=100.) scale *= 0.1; //NOTE only for low mass (https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844) // This is applied from ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewCLs @260125
+      if(this_mass<=100.){
+        if(files.at(i).Contains("ANv7_HNL_ULIDv2")||files.at(i).Contains("ANv6_FixSyst")) scale *= 1;
+        else scale *= 0.1; //NOTE only for low mass (https://cms-talk.web.cern.ch/t/too-large-error-with-hybridnew/32844) // This is applied from ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_NewCLs @260125
+      }
 
       obs[dummyint] *= scale;
       limit[dummyint] *= scale;
