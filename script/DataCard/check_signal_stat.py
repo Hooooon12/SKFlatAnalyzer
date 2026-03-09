@@ -279,6 +279,27 @@ def write_summary_table(results, outpath):
         f.write("---------------------------------------------\n")
 
         for sig in ALL_SIGNALS:
+            if sig == "signalWeinberg":
+                vals = []
+
+                for region in REGIONS:
+                    top3 = results.get("Weinberg", {}).get(region, {}).get(sig, None)
+                    if not top3:
+                        continue
+
+                    rel = top3[0]["rel"]
+                    if rel is not None:
+                        vals.append(rel)
+
+                if len(vals) == 0:
+                    f.write(f"{sig:<15} : -\n")
+                else:
+                    mn = min(vals) * 100.0
+                    mx = max(vals) * 100.0
+                    f.write(f"{sig:<15} : {mn:.1f}% - {mx:.1f}%\n")
+
+                continue
+
             vals = []
         
             for mass_label in sorted_masses:
