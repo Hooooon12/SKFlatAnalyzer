@@ -14,7 +14,7 @@ observation -1
 # on each process and bin
 bin                                      bin1   bin1   bin1   bin1        bin1   bin1     bin1   bin1     bin1        bin1           bin1          bin1
 process                                  fake   cf     zg     mc_others   wz     wz_ewk   zz     ww       signalDY    signalVBF      signalSSWW    signalWeinberg
-process                                  1      2      3      4           5      5        6      7        -3          -2             -1            0
+process                                  1      2      3      4           5      6        7      8        -3          -2             -1            0
 rate                                     -1     -1     -1     -1          -1     -1       -1     -1       -1          -1             -1            -1
 lumi_13TeV_16                     lnN    -      -      1.05   1.05        1.05   1.05     1.05   1.05     1.05        1.05           1.05          1.05
 lumi_13TeV_1617                   lnN    -      -      1.05   1.05        1.05   1.05     1.05   1.05     1.05        1.05           1.05          1.05
@@ -81,20 +81,20 @@ CMS_btag_lf_uncorr                shape  -      -      1      1           1     
 CMS_scale_met                     shape  -      -      1      1           1      1        1      1        1           1              1             1
 CMS_l1_prefiring                  shape  -      -      1      1           1      1        1      1        1           1              1             1
 CMS_pileup_13TeV                  shape  -      -      1      1           1      1        1      1        1           1              1             1
-QCDscale_WZ                       shape  -      -      -      -           1      -        -      -        -           -              -             -
+QCDscale                          shape  -      -      -      -           1      -        -      -        -           -              -             -
 QCDscale_DY                       shape  -      -      -      -           -      -        -      -        1           -              -             -
 QCDscale_VBF                      shape  -      -      -      -           -      -        -      -        -           1              -             -
 QCDscale_SSWW                     shape  -      -      -      -           -      -        -      -        -           -              1             -
 QCDscale_Weinberg                 shape  -      -      -      -           -      -        -      -        -           -              -             1
-pdf_WZ                            shape  -      -      -      -           1      -        -      -        -           -              -             -
+pdf                               shape  -      -      -      -           1      -        -      -        -           -              -             -
 pdf_DY                            shape  -      -      -      -           -      -        -      -        1           -              -             -
 pdf_VBF                           shape  -      -      -      -           -      -        -      -        -           1              -             -
 pdf_SSWW                          shape  -      -      -      -           -      -        -      -        -           -              1             -
 pdf_Weinberg                      shape  -      -      -      -           -      -        -      -        -           -              -             1
 * autoMCStats 10 0 1
-WZNorm_sr1             rateParam    REGION    wz    1.0
-WZNorm_sr2             rateParam    REGION    wz    1.0
-WZNorm_sr3             rateParam    REGION    wz    1.0
+WZNorm_sr1             rateParam    REGION    wz*   1.0
+WZNorm_sr2             rateParam    REGION    wz*   1.0
+WZNorm_sr3             rateParam    REGION    wz*   1.0
 ZZNorm                 rateParam    REGION    zz    1.0
 ZGNorm                 rateParam    REGION    zg    1.0
 WWNorm_sr1             rateParam    REGION    ww    1.0

@@ -56,13 +56,13 @@ MASS_CHOICES = [
 ]
 
 # Default backgrounds (stack order is defined by this list)
-BKG_COMPONENTS_DEFAULT = ["fake", "cf", "zg", "wz", "wz_ewk", "zz", "ww", "mc_others"]
+BKG_COMPONENTS_DEFAULT = ["cf", "fake", "wz", "wz_ewk", "zz", "ww", "zg", "mc_others"]
 DATA_COMPONENT_DEFAULT = "data_obs"
 
 # Colors for backgrounds
 COLORS_BKG = {
     # Recommended palette (hex)
-    "cf": ROOT.TColor.GetColor("#b9ac70"),
+    "cf": ROOT.TColor.GetColor("#92dadd"),
     "fake": ROOT.TColor.GetColor("#3f90da"),
     "wz": ROOT.TColor.GetColor("#ffa90e"),
     # WZ_EWK is merged into WZ in plots; keep same color for safety
@@ -70,7 +70,7 @@ COLORS_BKG = {
     "zz": ROOT.TColor.GetColor("#bd1f01"),
     "ww": ROOT.TColor.GetColor("#94a4a2"),
     "zg": ROOT.TColor.GetColor("#832db6"),
-    "mc_others": ROOT.TColor.GetColor("#92dadd"),
+    "mc_others": ROOT.TColor.GetColor("#b9ac70"),
 }
 
 # Sentinel values for "no effect" in syst shapes
@@ -198,26 +198,26 @@ SIGNAL_LIBRARY: Dict[str, SignalTemplate] = {
     "DY": SignalTemplate(
         key="DY",
         hnames=("signalDY",),
-        label_tmpl="DY M={mass} GeV",
+        label_tmpl="DY m = {mass} GeV",
         family="HNL",
     ),
     "VBF": SignalTemplate(
         key="VBF",
         hnames=("signalVBF",),
-        label_tmpl="W#gamma M={mass} GeV",
+        label_tmpl="W#gamma m = {mass} GeV",
         family="HNL",
     ),
     "DYVBF": SignalTemplate(
         key="DYVBF",
         hnames=("signalDYVBF",),
         fallback_sum_hnames=("signalDY", "signalVBF"),
-        label_tmpl="DY+W#gamma M={mass} GeV",
+        label_tmpl="DY+W#gamma m = {mass} GeV",
         family="HNL",
     ),
     "SSWW": SignalTemplate(
         key="SSWW",
         hnames=("signalSSWW",),
-        label_tmpl="SSWW M={mass} GeV",
+        label_tmpl="SSWW m = {mass} GeV",
         family="HNL",
     ),
     "Weinberg": SignalTemplate(
@@ -381,9 +381,11 @@ def get_hist_maybe(f: ROOT.TFile, hname: str) -> Optional[ROOT.TH1]:
     return h
 
 def make_zero_like(template: ROOT.TH1, name: str) -> ROOT.TH1:
-    h = ROOT.TH1D(name, "", template.GetNbinsX(),
-                  template.GetXaxis().GetXmin(), template.GetXaxis().GetXmax())
-    h.Sumw2()
+    h = template. Clone(name)
+    h.Reset("ICES")   # reset contents but keep axis structure and labels
+    #h = ROOT.TH1D(name, "", template.GetNbinsX(),
+    #              template.GetXaxis().GetXmin(), template.GetXaxis().GetXmax())
+    #h.Sumw2()
     h.SetDirectory(0)
     return h
 
@@ -714,7 +716,7 @@ def build_grand_bkg_scaled(
     return grand_var
 
 def make_bkg_unc_band_abs(h_bkg_total: ROOT.TH1, syst_keys: List[str], build_var_hist_fn) -> ROOT.TGraphAsymmErrors:
-    """Absolute uncertainty band for total background (stat ⊕ syst)."""
+    """Absolute uncertainty band for total background (stat + syst)."""
     n = h_bkg_total.GetNbinsX()
     var_up   = {k: build_var_hist_fn(k, "Up")   for k in syst_keys}
     var_down = {k: build_var_hist_fn(k, "Down") for k in syst_keys}
@@ -1200,24 +1202,25 @@ def make_stack_plot(
 
     # Canvas / pads
     c = ROOT.TCanvas("c", "c", 2400, 950)
-    pad_main  = ROOT.TPad("pad_main",  "pad_main",  0.00, 0.32, 0.84, 1.00)
+    pad_main  = ROOT.TPad("pad_main",  "pad_main",  0.00, 0.30, 0.84, 1.00)
     pad_ratio = ROOT.TPad("pad_ratio", "pad_ratio", 0.00, 0.00, 0.84, 0.30)
-    pad_leg   = ROOT.TPad("pad_leg",   "pad_leg",   0.84, 0.32, 1.00, 1.00)
+    pad_leg   = ROOT.TPad("pad_leg",   "pad_leg",   0.84, 0.30, 1.00, 1.00)
 
     for p in (pad_main, pad_leg, pad_ratio):
         p.SetFillStyle(0)
 
-    pad_main.SetRightMargin(0.02)
+    pad_main.SetRightMargin(0.01)
     pad_main.SetTopMargin(max(0.13, pad_main.GetTopMargin()))
     pad_main.SetBottomMargin(0.02)
-    pad_main.SetLeftMargin(0.12)
+    pad_main.SetLeftMargin(0.08)
 
-    pad_ratio.SetLeftMargin(0.12)
-    pad_ratio.SetRightMargin(0.02)
-    pad_ratio.SetTopMargin(0.08)
+    pad_ratio.SetLeftMargin(0.08)
+    pad_ratio.SetRightMargin(0.01)
+    pad_ratio.SetTopMargin(0.05)
     pad_ratio.SetBottomMargin(0.32)
 
-    pad_leg.SetLeftMargin(0.02)
+    pad_leg.SetLeftMargin(0.01)
+    pad_leg.SetRightMargin(0.01)
 
     pad_main.Draw(); pad_leg.Draw(); pad_ratio.Draw()
 
@@ -1237,9 +1240,10 @@ def make_stack_plot(
     stack.GetYaxis().SetTitle("Events/bin")
     stack.GetXaxis().SetLabelSize(0)
 
-    stack.GetYaxis().SetTitleOffset(0.95)
-    stack.GetYaxis().SetTitleSize(0.055)
-    stack.GetYaxis().SetLabelSize(0.045)
+    stack.GetYaxis().SetTitleOffset(0.45)
+    stack.GetYaxis().SetTitleSize(0.075)
+    stack.GetYaxis().SetLabelOffset(0.001)
+    stack.GetYaxis().SetLabelSize(0.055)
 
     # Y range (log-safe) using SR maxima (signals drawn in SR only by default)
     ymax_stack = stack.GetMaximum()
@@ -1299,12 +1303,14 @@ def make_stack_plot(
     cms = ROOT.TLatex()
     cms.SetNDC(True); cms.SetTextFont(61)
     cms.SetTextSize(0.75 * t); cms.SetTextAlign(11)
-    cms.DrawLatex(l + 0.01, 1 - t + 0.02, "CMS")
+    cms.DrawLatex(l + 0.02, 1 - t + 0.03 - 1.2 * t, "CMS")
+    #cms.DrawLatex(l + 0.01, 1 - t + 0.02, "CMS")
 
     pre = ROOT.TLatex()
     pre.SetNDC(True); pre.SetTextFont(52)
     pre.SetTextSize(0.76 * 0.75 * t); pre.SetTextAlign(11)
-    pre.DrawLatex(l + 0.01, 1 - t + 0.02 - 1.2 * 0.75 * t, "Preliminary")
+    pre.DrawLatex(l + 0.01, 1 - t + 0.02, "Work in progress")
+    #pre.DrawLatex(l + 0.01, 1 - t + 0.02 - 1.2 * 0.75 * t, "Preliminary")
 
     lumi_txt = ROOT.TLatex()
     lumi_txt.SetNDC(True); lumi_txt.SetTextFont(42)
@@ -1448,7 +1454,7 @@ def make_stack_plot(
         # Other edges: single dashed grey line
         for edge in region_edges[1:]:
             x_ndc = x_user_to_ndc(edge + 0.5)
-            ln = _draw_vline_ndc(x_ndc, color=ROOT.kGray + 1, style=9, width=3)
+            ln = _draw_vline_ndc(x_ndc, color=ROOT.kGray + 3, style=9, width=3)
             if ln:
                 lines_main.append(ln)
 
@@ -1458,7 +1464,7 @@ def make_stack_plot(
     # Place region titles in top band
     t = pad_main.GetTopMargin()
     y_label_ndc = 1.0 - t - 0.2
-    text_size_ndc = 0.045
+    text_size_ndc = 0.05
 
     starts = [0] + region_edges
     ends   = region_edges + [h_bkg_total.GetNbinsX() if h_bkg_total else (region_edges[-1] if region_edges else 0)]
@@ -1483,12 +1489,13 @@ def make_stack_plot(
 
     # LEGEND pad
     pad_leg.cd()
-    leg = ROOT.TLegend(0.10, 0.08, 0.95, 0.88)
+    leg = ROOT.TLegend(0.02, 0.08, 0.90, 0.88)
     leg.SetBorderSize(0)
     leg.SetLineWidth(0)
     leg.SetLineColor(0)
     leg.SetFillStyle(0)
-    leg.SetTextSize(0.055)
+    leg.SetTextSize(0.06)
+    leg.SetTextAlign(12)
 
     def _add_fill_entry(leg: ROOT.TLegend, obj, label: str):
         e = leg.AddEntry(obj, label, "f")
@@ -1503,14 +1510,17 @@ def make_stack_plot(
     if h_data:
         leg.AddEntry(h_data, "Data", "pe")
 
+    if g_bkg_band_main:
+        _add_fill_entry(leg, g_bkg_band_main, "Total unc.")
+
     # Background labels
-    for label, hb in hists_bkg:
+    for label, hb in reversed(hists_bkg):
         if label == "fake":
             _add_fill_entry(leg, hb, "Nonprompt")
         elif label == "cf":
             _add_fill_entry(leg, hb, "Charge MisID.")
         elif label == "mc_others":
-            _add_fill_entry(leg, hb, "others")
+            _add_fill_entry(leg, hb, "Others")
         elif label == "ww":
             _add_fill_entry(leg, hb, "W^{#pm}W^{#pm}")
         elif label == "wz":
@@ -1523,9 +1533,6 @@ def make_stack_plot(
             _add_fill_entry(leg, hb, "Z#gamma")
         else:
             _add_fill_entry(leg, hb, label)
-
-    if g_bkg_band_main:
-        _add_fill_entry(leg, g_bkg_band_main, "Bkg. unc.(stat #oplus syst)")
 
     def _fmt_scale(x: float) -> str:
         """Pretty formatting for legend scale factors."""
@@ -1555,24 +1562,26 @@ def make_stack_plot(
     # RATIO pad (Prediction / Data)
     pad_ratio.cd()
     if h_data and h_bkg_total and h_data.Integral() > 0:
-        ratio = h_bkg_total.Clone("ratio_bkg_over_data")
+        ratio = h_data.Clone("ratio_data_over_bkg")
         ratio.SetStats(0)
         ratio.SetLineWidth(1)
         ratio.SetLineColor(ROOT.kBlack)
         ratio.SetMarkerStyle(20)
         ratio.SetMarkerSize(1.0)
 
-        ratio.Divide(h_data)
+        ratio.Divide(h_bkg_total)
         ratio.SetTitle("")
         ratio.GetYaxis().SetRangeUser(0.5, 1.5)
-        ratio.GetYaxis().SetTitle("#frac{Prediction}{Data}")
+        ratio.GetYaxis().SetTitle("Data / Pred.")
         ratio.GetYaxis().SetNdivisions(505)
-        ratio.GetYaxis().SetTitleSize(0.10)
-        ratio.GetYaxis().SetLabelSize(0.09)
-        ratio.GetYaxis().SetTitleOffset(0.55)
-        ratio.GetXaxis().SetLabelSize(0.09)
+        ratio.GetYaxis().SetTitleSize(0.15)
+        ratio.GetYaxis().SetTitleOffset(0.22)
+        ratio.GetYaxis().CenterTitle(True)
+        ratio.GetYaxis().SetLabelSize(0.11)
+        ratio.GetYaxis().SetLabelOffset(0.005)
         ratio.GetXaxis().SetTitleSize(0.12)
         ratio.GetXaxis().SetTitleOffset(1.0)
+        ratio.GetXaxis().SetLabelSize(0.09)
         # Horizontal bin labels (more readable than vertical)
         ratio.GetXaxis().LabelsOption("h")
         ratio.GetXaxis().SetLabelOffset(0.02)
@@ -2157,10 +2166,10 @@ def main():
         if h_bkg_total_plot and syst_keys:
             g_bkg_band_main = make_bkg_unc_band_abs(h_bkg_total_plot, syst_keys, build_var_hist_fn)
             g_bkg_band_ratio = make_bkg_unc_band_ratio(h_bkg_total_plot, g_bkg_band_main)
-            g_bkg_band_main.SetFillColor(ROOT.kGray + 1)
+            g_bkg_band_main.SetFillColor(ROOT.kGray + 2)
             g_bkg_band_main.SetLineColor(ROOT.kBlack)
             g_bkg_band_main.SetLineWidth(1)
-            g_bkg_band_ratio.SetFillColor(ROOT.kGray + 1)
+            g_bkg_band_ratio.SetFillColor(ROOT.kGray + 2)
             g_bkg_band_ratio.SetLineColor(ROOT.kBlack)
             g_bkg_band_ratio.SetLineWidth(1)
 

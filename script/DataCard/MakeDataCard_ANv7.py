@@ -148,8 +148,22 @@ lumi_systs = { # https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun
 
 ################################################################################################################################################
 
-def Initialize_Process():
+def Initialize_Process(WP):
     return OrderedDict([
+        ('fake', '-1'),
+        ('cf', '-1'),
+        ('zg', '-1'),
+        ('mc_others', '-1'), # conv_others + prompt_others
+        ('wz', '-1'),
+        ('wz_ewk', '-1'),
+        ('zz', '-1'),
+        ('ww', '-1'),
+        ('signalDY', '-1'),
+        ('signalVBF', '-1'),
+        ('signalSSWW', '-1'),
+        ('signalWeinberg', '-1'),
+    ]) if "EMuCF" in WP else\
+    OrderedDict([
         ('fake', '-1'),
         ('cf', '-1'),
         ('zg', '-1'),
@@ -167,7 +181,7 @@ def Initialize_Process():
     ])
 
 def MakeRateString(region, era, channel, mass, signal, WP):
-  this_process = Initialize_Process()
+  this_process = Initialize_Process(WP)
 
   if "EMuCF" in WP:
     if "MuMu" in channel:
@@ -489,7 +503,7 @@ def NuisanceGrouping(this_card):
                 'lumi'        : [],
                 'xsec'        : [],
                 'pdf'         : [],
-                'scale '      : [],
+                'scale'       : [],
                 'fake'        : [],
                 'cf'          : [],
                 'jet_uncert'  : [],
