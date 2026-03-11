@@ -95,22 +95,23 @@ table_data = {m: {c: {} for c in TargetChannels} for m in TargetMasses}
 # Mapping: Script Internal Label -> Paper Label
 # Keys must match the 'group_labels' definition order in the loop below
 label_map = {
-    "Luminosity":     "Luminosity",
+    "Luminosity":     "Integrated luminosity",
     "Lepton uncert.": "Lepton selection \\& energy",
     "Jet uncert.":    "Jet selection \\& energy",
-    "MET scale":      "Missing transverse momentum",
-    "b-tagging":      "b-tagging efficiency",
+    "MET scale":      "Unclustered energy",
+    "b-tagging":      "b tagging efficiency",
     "Pileup":         "Pileup modeling",
-    "Prefire":        "L1 prefire",
+    "Prefiring":      "L1 prefiring",
     "HEM":            "HEM",
-    "Cross section":  "MC normalisation",
-    "MC stats":       "MC statistical",
-    "Theory":         "PDF + QCD scale variation",
-    "Fake rate":      "Non-prompt",
+    "Cross section":  "Cross-section uncertainty",
+    "MC stats":       "Template statistical",
+    "PDF":            "PDF variation",
+    "Scale":          "QCD scale variation",
+    "Fake rate":      "Nonprompt leptons",
     "Charge Flip":    "Charge misidentification", 
     # Special Keys
     "Total systematic": "Total systematic",
-    "Statistical":      "Statistical"
+    "Statistical":      "Data statistical"
 }
 
 print(f"Collecting data for {args.InputWP} ({args.era})...")
@@ -126,39 +127,41 @@ for mass in TargetMasses:
         files = [
             ("Total",            f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_total.MultiDimFit.mH120.root"),
             ("Freeze Jet",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet.MultiDimFit.mH120.root"),
-            ("Freeze Theory",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory.MultiDimFit.mH120.root"),
-            ("Freeze Fake",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake.MultiDimFit.mH120.root"),
-            ("Freeze Lep",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root"),
-            ("Freeze Pileup",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root"),
-            ("Freeze Lumi",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root"),
-            ("Freeze Btag",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root"),
-            ("Freeze Prefire",   f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root"),
-            ("Freeze MET",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root"),
-            ("Freeze Xsec",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root"),
-            ("Freeze HEM",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM.MultiDimFit.mH120.root"),
-            ("Freeze MCstat",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat.MultiDimFit.mH120.root"),
+            ("Freeze PDF",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf.MultiDimFit.mH120.root"),
+            ("Freeze Scale",     f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale.MultiDimFit.mH120.root"),
+            ("Freeze Fake",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake.MultiDimFit.mH120.root"),
+            ("Freeze Lep",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep.MultiDimFit.mH120.root"),
+            ("Freeze Pileup",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup.MultiDimFit.mH120.root"),
+            ("Freeze Lumi",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi.MultiDimFit.mH120.root"),
+            ("Freeze Btag",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root"),
+            ("Freeze Prefire",   f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root"),
+            ("Freeze MET",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root"),
+            ("Freeze Xsec",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root"),
+            ("Freeze HEM",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM.MultiDimFit.mH120.root"),
+            ("Freeze MCstat",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat.MultiDimFit.mH120.root"),
         ]
         
         # Labels for the step-by-step subtraction
         # Order MUST correspond to the 'files' list indices [1] to [N]
         step_labels = [
             "Jet uncert.",
-            "Theory",
+            "PDF",
+            "Scale",
             "Fake rate",
             "Lepton uncert.",
             "Pileup",
             "Luminosity",
             "b-tagging",
-            "Prefire",
+            "Prefiring",
             "MET scale",
             "Cross section",
             "HEM",
             "MC stats",
         ]
         
-        # Handle Charge Flip for EE
-        if channel == "EE":
-            files.append(("Freeze CF", f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat_cf.MultiDimFit.mH120.root"))
+        # Handle Charge Flip for EE, EMu
+        if "E" in channel:
+            files.append(("Freeze CF", f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat_cf.MultiDimFit.mH120.root"))
             step_labels.append("Charge Flip")
             
         files.append(("Stat Only", f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_all.MultiDimFit.mH120.root"))
@@ -201,8 +204,8 @@ for mass in TargetMasses:
             
             prev_width = width_after
 
-        # 3. Handle Charge Flip for non-EE channels
-        if channel != "EE":
+        # 3. Handle Charge Flip for MuMu channel
+        if channel == "MuMu":
              table_data[mass][channel][label_map["Charge Flip"]] = "\\NA" # dash
 
         # 4. Statistical
@@ -227,34 +230,35 @@ row_structure = [
     (r"\multicolumn{3}{c|}{} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
     (r"\multicolumn{3}{c}{} \\", None),
-    ("Luminosity",                  "Luminosity"),
+    ("Integrated luminosity",       "Integrated luminosity"),
     ("Lepton selection \\& energy", "Lepton selection \\& energy"),
     ("Jet selection \\& energy",    "Jet selection \\& energy"),
-    ("Missing transverse momentum", "Missing transverse momentum"),
-    ("b-tagging efficiency",        "b-tagging efficiency"),
+    ("Unclustered energy",          "Unclustered energy"),
+    ("b tagging efficiency",        "b tagging efficiency"),
     ("Pileup modeling",             "Pileup modeling"),
-    ("L1 prefire",                  "L1 prefire"),
+    ("L1 prefiring",                "L1 prefiring"),
     ("HEM",                         "HEM"),
-    ("MC normalisation",            "MC normalisation"),
-    ("MC statistical",              "MC statistical"),
+    ("Cross-section uncertainty",   "Cross-section uncertainty"),
+    ("Template statistical",        "Template statistical"),
     (r"\hline", None),
     #(r"\multicolumn{1}{c}{\textbf{Theory:}}", None),
     (r"\multicolumn{1}{c}{\textbf{Theory:}} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
     (r"\multicolumn{3}{c}{} \\", None),
-    ("PDF + QCD scale variation",   "PDF + QCD scale variation"),
+    ("PDF variation",               "PDF variation"),
+    ("QCD scale variation",         "QCD scale variation"),
     (r"\hline", None),
     #(r"\multicolumn{1}{c}{\textbf{Data-driven:}}", None),
     (r"\multicolumn{1}{c}{\textbf{Data-driven:}} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
     (r"\multicolumn{3}{c}{} \\", None),
-    ("Non-prompt",                  "Non-prompt"),
+    ("Nonprompt leptons",           "Nonprompt leptons"),
     ("Charge misidentification",    "Charge misidentification"),
     (r"\hline", None),
     (r"\textbf{Total systematic}",  "Total systematic"),
-    (r"\textbf{Statistical}",       "Statistical"),
+    (r"\textbf{Data statistical}",       "Data statistical"),
     (r"\hline", None),
 ]
 

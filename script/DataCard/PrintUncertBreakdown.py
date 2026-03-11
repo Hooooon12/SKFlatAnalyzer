@@ -6,8 +6,8 @@ import argparse
 parser = argparse.ArgumentParser(description='script for printing uncertainty breakdown.',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-wp', dest='InputWPs', nargs='+', help='List of LimitInput working points')
 parser.add_argument('-e', dest='eras', default=["Run2"], choices=["2016preVFP","2016postVFP","2017","2018","Run2"], nargs='+')
-parser.add_argument('-c', dest='channels', choices=["MuMu","EE","EMu"], nargs='+') # store [] if nothing is fed
-parser.add_argument('-m', dest='masses', nargs='+')
+parser.add_argument('-c', dest='channels', default=["MuMu","EE","EMu"], choices=["MuMu","EE","EMu"], nargs='+') # store [] if nothing is fed
+parser.add_argument('-m', dest='masses', default=["100","1000","10000"], nargs='+')
 parser.add_argument('-s', dest='signals', default=["HNL"], choices=["","HNL","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+')
 parser.add_argument('--InjectSignal', default='0', help='inject signals to asimov')
 args = parser.parse_args()
@@ -99,35 +99,37 @@ for InputWP, era, channel, mass, signal in [(InputWP, era, channel, mass, signal
       # 1. Freeze Jet
       ("Freeze Jet",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet.MultiDimFit.mH120.root"),
       # 2. Freeze +Theory
-      ("Freeze Theory",    f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory.MultiDimFit.mH120.root"),
+      ("Freeze PDF",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf.MultiDimFit.mH120.root"),
+      ("Freeze Scale",     f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale.MultiDimFit.mH120.root"),
       # 3. Freeze +Fake
-      ("Freeze Fake",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake.MultiDimFit.mH120.root"),
+      ("Freeze Fake",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake.MultiDimFit.mH120.root"),
       # 4. Freeze +Lep
-      ("Freeze Lep",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep.MultiDimFit.mH120.root"),
+      ("Freeze Lep",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep.MultiDimFit.mH120.root"),
       # 5. Freeze +Pileup
-      ("Freeze Pileup",    f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup.MultiDimFit.mH120.root"),
+      ("Freeze Pileup",    f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup.MultiDimFit.mH120.root"),
       # 6. Freeze +Lumi
-      ("Freeze Lumi",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi.MultiDimFit.mH120.root"),
+      ("Freeze Lumi",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi.MultiDimFit.mH120.root"),
       # 7. Freeze +Btag
-      ("Freeze Btag",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root"),
+      ("Freeze Btag",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root"),
       # 8. Freeze +Prefire
-      ("Freeze Prefire",   f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root"),
+      ("Freeze Prefire",   f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root"),
       # 9. Freeze +Met
-      ("Freeze MET",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root"),
+      ("Freeze MET",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root"),
       # 10. Freeze +Xsec
-      ("Freeze Xsec",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root"),
+      ("Freeze Xsec",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root"),
       # 11. Freeze +HEM
-      ("Freeze HEM",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM.MultiDimFit.mH120.root"),
+      ("Freeze HEM",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM.MultiDimFit.mH120.root"),
       # 12. Freeze +MCstat
-      ("Freeze MCstat",    f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat.MultiDimFit.mH120.root"),
+      ("Freeze MCstat",    f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat.MultiDimFit.mH120.root"),
   ]
-  if channel == "EE": file_structure.append(("Freeze CF",f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_theory_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat_cf.MultiDimFit.mH120.root"))
+  if "E" in channel: file_structure.append(("Freeze CF",f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat_cf.MultiDimFit.mH120.root"))
   file_structure.append(("Stat Only",f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_all.MultiDimFit.mH120.root"))
   
   # Output Labels corresponding to the steps above
   group_labels = [
       "Jet uncert.",
-      "Theory",
+      "PDF",
+      "Scale",
       "Fake rate",
       "Lepton uncert.",
       "Pileup",
@@ -139,7 +141,7 @@ for InputWP, era, channel, mass, signal in [(InputWP, era, channel, mass, signal
       "HEM",
       "MC stats",
   ]
-  if channel == "EE": group_labels.append("Charge Flip")
+  if "E" in channel: group_labels.append("Charge Flip")
   
   print(f"<{InputWP} {era} {channel} {mass} {signal}>")
   #print("Processing Uncertainty Breakdown...")

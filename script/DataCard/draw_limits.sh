@@ -1,7 +1,7 @@
 #void DrawLimits(TString year = "", TString channel = "", bool DrawExt = false, bool AddPub = true, int SepLimit = 0, bool CompareLimits = false, bool AppendLimitTable = false, bool IsXsecLimit = false, bool Logy = true)
 
-#for ch in MuMu EE EMu;
-for ch in MuMu EE;
+for ch in MuMu EE EMu;
+#for ch in MuMu EE;
 #for ch in MuMu;
   do
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",true,true,0,false,false,false,true)"; # Ext, AddPub, mixing limit, logy
