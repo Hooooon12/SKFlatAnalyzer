@@ -322,6 +322,13 @@ public:
     return false;
   }
 
+   inline bool IsMainPrompt() const {
+    if(MCSample.Contains("WZTo3LNu_amcatnlo")) return true;
+    return false;
+  }
+
+  
+
   TString MatchGenPID(int PID, vector<Gen> gens, Gen gen);
   TString MatchGenDef(std::vector<Gen>& gens,const Lepton& Lep,bool DEBUG=false);
 

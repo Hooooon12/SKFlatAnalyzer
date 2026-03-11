@@ -54,6 +54,12 @@ std::vector<Muon> HNL_LeptonCore::SelectMuons(AnalyzerParameter& param, const TS
   // Apply high pt smearing and scale systematics
   HighPtMuonCorr(muons);
 
+  if(HasFlag("DEBUGMUON")){
+    for ( auto this_muon : muons){
+      cout << "this_muon pt = " << this_muon.Pt() << endl;
+      cout << "this_muon.MomentumShift(1) = " << this_muon.MomentumShift(1) << " " "this_muon.MomentumShift(-1) = " << this_muon.MomentumShift(-1)  << endl;
+    }
+  }
   if (param.syst_ == AnalyzerParameter::MuonEnUp) {
     muons = ScaleMuons(muons, +1);
   } else if (param.syst_ == AnalyzerParameter::MuonEnDown) {

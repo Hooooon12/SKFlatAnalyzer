@@ -1,0 +1,13 @@
+GluGluHToZZTo4L
+GluGluToZZto2e2mu
+GluGluToZZto4e
+GluGluToZZto4mu
+GluGluToZZto4tau
+GluGluToZZto2mu2tau
+GluGluToZZto2e2tau
+TTTT
+TTZZ
+tZq
+VBF_HToZZTo4L
+VHToNonbb
+ttHToNonbb

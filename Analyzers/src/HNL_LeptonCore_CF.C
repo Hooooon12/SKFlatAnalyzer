@@ -133,8 +133,10 @@ double HNL_LeptonCore::GetCFWeightElectron(std::vector<Lepton* > leps ,  Analyze
 	el_cf_rate *= GetCFSF(param,ilep,ApplySF);
         cf_weight += (el_cf_rate / (1.-el_cf_rate));
       }
+
+      /// Add to electron counter
+      nElIt++;
     }
-    nElIt++;
   }
   
 

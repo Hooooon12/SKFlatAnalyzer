@@ -827,13 +827,17 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
   //if(!HasFlag("Plots")) return;
   
   double HT = GetHT(jets, fatjets);
-  FillHist( plot_dir+ region+ "/SKEvent/Ev_HT", HT  , w, 200, 0.0, 2000.0,"H_{T} GeV");
+  FillHist( plot_dir+ region+ "/SKEvent/Ev_HT", HT, w, 3000, 0.0, 3000.0, "H_{T} GeV");
   
   FillHist( plot_dir+ region+ "/SKEvent/nPV",  nvtx , w, 120, 0.0, 120.);
   FillHist( plot_dir+ region+ "/SKEvent/nPileUp",  nPileUp, w, 120, 0.0, 120.);
 
-  //double MET2ST = GetMET2ST(leps, jets, fatjets, met);
-  //FillHist( plot_dir+ region+ "/SKEvent/Ev_MET2ST", MET2ST  , w, 25, 0, 25,"MET^{2}/S_{T} GeV");
+  double ST = GetST(leps, jets, fatjets, met);
+  double XT = ST - met.Pt();
+  
+  FillHist( plot_dir+ region+ "/SKEvent/Ev_ST", ST, w, 5000, 0.0, 5000.0, "S_{T} GeV");
+  FillHist( plot_dir+ region+ "/SKEvent/Ev_XT", XT, w, 5000, 0.0, 5000.0, "X_{T} GeV");
+  FillHist( plot_dir+ region+ "/SKEvent/XT_PT1", XT/leps[0]->Pt(), w, 100, 0.0, 10.0, "XT/PT(1)");
 
   //FillHist( plot_dir+ region+ "/SKEvent/Ev_MET", met.Pt()  , w, 100, 0, 100,"MET GeV"); //JH
 

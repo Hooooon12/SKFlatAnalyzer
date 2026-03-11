@@ -1,7 +1,8 @@
 #include "HNL_LeptonCore.h"
 
 double HNL_LeptonCore::GetPDFUncertainty(const TString& signalRegionBin, int sys){
-  if (!IsSignal() || sys == 0) return 1.0;
+
+  if (!(IsSignal()||IsMainPrompt()) || sys == 0) return 1.0;
 
   // Determine Signal Range
   int SignalRange = 2; // Default
@@ -64,7 +65,7 @@ double HNL_LeptonCore::GetPDFUncertainty(const TString& signalRegionBin, int sys
 
 TString HNL_LeptonCore::GetPDFUncertainty(int weightIndex, double& ev_weight) {
   // Ensure MCSample contains "Type", otherwise return an empty string
-  if (!IsSignal()){
+  if (!(IsSignal()||IsMainPrompt())){
     return "";
   }
 
@@ -83,8 +84,9 @@ TString HNL_LeptonCore::GetPDFUncertainty(int weightIndex, double& ev_weight) {
 
 double HNL_LeptonCore::GetScaleUncertainty(int sys, TString tag_debug) {
   // Basic guards
-  if (!IsSignal() || sys == 0 || !weight_Scale || weight_Scale->empty()) {
-    return 1.0;
+
+  if (!(IsSignal()||IsMainPrompt()) || sys == 0 || !weight_Scale || weight_Scale->empty()) {
+   return 1.0;
   }
   // Expect at least a couple of scale weights; ignore the last two entries as before
   if (weight_Scale->size() < 2) {

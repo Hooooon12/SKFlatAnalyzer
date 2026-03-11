@@ -19,11 +19,10 @@ echo ""
 for era in "${era_list[@]}"; do
     echo "[INFO] Submitting jobs for era: $era"
     SKFlat.py -a "$analyzer" \
-              -l "$sigpath/Private/New.txt" \
+              -i "WZTo3LNu_amcatnlo" \
               -n "$njobs_sig" \
               --nmax "$nmax" \
-              -e "$era" \
-              --skim "$skim" &
+              -e "$era" &
 done
 
 wait

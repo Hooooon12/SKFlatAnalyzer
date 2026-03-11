@@ -846,14 +846,14 @@ std::vector<Photon> AnalyzerCore::GetAllPhotons(){
 
 std::vector<Jet> AnalyzerCore::GetAllJets(bool applySmear){
 
-  if(HasFlag("DEBUG")) cout << "GetAllJets " << " step : " << jet_pt->size() <<  endl;
+  if(HasFlag("JETDEBUG")) cout << "GetAllJets " << " step : " << jet_pt->size() <<  endl;
 
   std::vector<Jet> out;
   for(unsigned int i=0; i<jet_pt->size(); i++){
     Jet jet;
-    if(HasFlag("DEBUG")) cout << "GetAllJets " << i <<  " step 0" << endl;
+    if(HasFlag("JETDEBUG")) cout << "GetAllJets " << i <<  " step 0" << endl;
 
-    if(HasFlag("DEBUG")){
+    if(HasFlag("JETDEBUG")){
       cout << jet_pt->size() << endl;
       cout << jet_eta->size() << endl;
       cout << jet_phi->size() << endl; 
@@ -863,7 +863,7 @@ std::vector<Jet> AnalyzerCore::GetAllJets(bool applySmear){
     jet.SetPxUnSmeared(jet.Px());
     jet.SetPyUnSmeared(jet.Py());
 
-    if(HasFlag("DEBUG")) cout << "GetAllJets " << i <<  " step 1" << endl;
+    if(HasFlag("JETDEBUG")) cout << "GetAllJets " << i <<  " step 1" << endl;
 
 
     jet.SetJEC(jet_JECL1FastJet->at(i), jet_JECFull->at(i));
@@ -884,7 +884,7 @@ std::vector<Jet> AnalyzerCore::GetAllJets(bool applySmear){
     jet.SetCJetNNCorrection(jet_cJetNN_corr->at(i),jet_cJetNN_res->at(i));
     jet.SetCharge(jet_charge->at(i));
 
-    if(HasFlag("DEBUG")) cout << "GetAllJets " << i <<  " step 2" << endl;
+    if(HasFlag("JETDEBUG")) cout << "GetAllJets " << i <<  " step 2" << endl;
 
     jet.SetArea(jet_area->at(i));
     std::vector<double> tvs = {
@@ -897,17 +897,17 @@ std::vector<Jet> AnalyzerCore::GetAllJets(bool applySmear){
     };
     jet.SetTaggerResults(tvs);
 
-    if(HasFlag("DEBUG")) cout << "GetAllJets " << i <<  " step 3" << endl;
+    if(HasFlag("JETDEBUG")) cout << "GetAllJets " << i <<  " step 3" << endl;
 
     jet.SetEnergyFractions(jet_chargedHadronEnergyFraction->at(i), jet_neutralHadronEnergyFraction->at(i), jet_neutralEmEnergyFraction->at(i), jet_chargedEmEnergyFraction->at(i), jet_muonEnergyFraction->at(i));
 
-    if(HasFlag("DEBUG")) cout << "GetAllJets " << i <<  " step 4" << endl;
+    if(HasFlag("JETDEBUG")) cout << "GetAllJets " << i <<  " step 4" << endl;
     jet.SetMultiplicities(jet_chargedMultiplicity->at(i), jet_neutralMultiplicity->at(i));
     jet.SetPileupJetId(jet_PileupJetId->at(i));
     jet.SetTightJetID(jet_tightJetID->at(i));
     jet.SetTightLepVetoJetID(jet_tightLepVetoJetID->at(i));
     
-    if(HasFlag("DEBUG")) cout << "GetAllJets " << i <<  " step 5" << endl;
+    if(HasFlag("JETDEBUG")) cout << "GetAllJets " << i <<  " step 5" << endl;
     out.push_back(jet);
   }
 
@@ -1183,13 +1183,13 @@ void AnalyzerCore::beginEvent(){
 
     }
   }
-  if(HasFlag("DEBUG")) cout << "GetAllJets " << endl;
+  if(HasFlag("JETDEBUG")) cout << "GetAllJets " << endl;
   All_Jets      = GetAllJets();
   All_FatJets   = GetAllFatJets();
-  if(HasFlag("DEBUG")) cout << "GetAllMuons " <<endl;
+  if(HasFlag("MuonDEBUG")) cout << "GetAllMuons " <<endl;
 
   All_Muons     = GetAllMuons();
-  if(HasFlag("DEBUG")) cout << "GetAllElectrons " <<endl;
+  if(HasFlag("ElDEBUG")) cout << "GetAllElectrons " <<endl;
 
   All_Electrons = GetAllElectrons();
   _Event = GetEvent();

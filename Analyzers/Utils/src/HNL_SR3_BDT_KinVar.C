@@ -331,7 +331,10 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
 
     double weightDYSignal = 1., weightDYZ = 1.;
 
-    if(MCSample.Contains("DYTypeI")) weightDYSignal = 0.5;
+    if(MCSample.Contains("DYTypeI")){
+      if(MCSample.Contains("M350") || MCSample.Contains("M450")) weightDYSignal = 1.0;
+      else weightDYSignal = 0.5;
+    }
     else weightDYSignal = 1.;
 
     if(MCSample=="DYJets" || MCSample=="DYJets_MG"){
@@ -375,21 +378,21 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
             if(dilep_channel == EMu) FillHist("CutFlow_EMu", 8.5, 1., 12, 0., 12.);
 
             //if(!PassVBFInitial(AK4_JetColl_VBF)){
-            //if(!PassVBF(AK4_JetColl_VBF, LepsT, 0., true)){ // Used for V3
-            if(!PassVBF(AK4_JetColl_VBF, LepsT, 750., true)){
+            if(!PassVBF(AK4_JetColl_VBF, LepsT, 0., true)){ // Used for V3
+            //if(!PassVBF(AK4_JetColl_VBF, LepsT, 750., true)){
 
               if(dilep_channel == MuMu) FillHist("CutFlow_MuMu", 9.5, 1., 12, 0., 12.);
               if(dilep_channel == EE) FillHist("CutFlow_EE", 9.5, 1., 12, 0., 12.);
               if(dilep_channel == EMu) FillHist("CutFlow_EMu", 9.5, 1., 12, 0., 12.);
 
-              /*if(LepsT[1]->Pt() > 15.){
+              if(LepsT[1]->Pt() > 15.){
                 if(AK4_JetColl_VBF.size() >= 2){
                   if(fabs(AK4_JetColl_VBF[0].Eta() - AK4_JetColl_VBF[1].Eta()) > 2.5){
                     if((AK4_JetColl_VBF[0] + AK4_JetColl_VBF[1]).M() < 750.) passVBFHighMass = false;
                     else passVBFHighMass = true;
                   }
                 }
-              }*/ // Used for V3
+              } // Used for V3
 
               if(passVBFHighMass){
 

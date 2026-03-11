@@ -650,7 +650,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
 
       }
 
-      bool RunFullJEC=false;
+      bool RunFullJEC=HasFlag("FullJESNS");
       if(RunFullJEC){
         SystList.push_back(AnalyzerParameter::JetAbsoluteStatUp);
         SystList.push_back(AnalyzerParameter::JetAbsoluteStatDown);
@@ -708,7 +708,7 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
     }
   }
   
-  if(IsSignal()){
+  if(IsSignal() || MCSample.Contains("WZ")){
     SystList.push_back(AnalyzerParameter::PDF);
     SystList.push_back(AnalyzerParameter::PDFUp);
     SystList.push_back(AnalyzerParameter::PDFDown);
@@ -1778,6 +1778,8 @@ double HNL_LeptonCore::GetXsec(TString SigProcess, int mass){
 
   return 0.;
 }
+
+
 
 
 double  HNL_LeptonCore::GetRecoObjMass(TString METHOD , std::vector<Jet> jets, std::vector<FatJet> fatjets,vector<Lepton*> leps){

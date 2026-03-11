@@ -1641,7 +1641,15 @@ double HNL_LeptonCore::EvaluateEventMVA(TString mN, TString bkgType, TString ver
                          All_JetColl, JetColl,VBF_JetColl,B_JetColl,
                          ev,METv,param);
 
-  if(isVarPlots && version=="V3" && mN=="100" && bkgType=="Incl"){
+  bool isFillInputVar = false;
+  if(isVarPlots && version=="V3" && bkgType=="Incl"){
+    if(MCSample.Contains("DYTypeI") || MCSample.Contains("VBFTypeI")) isFillInputVar = true;
+    else if(mN == "100") isFillInputVar = true;
+  }
+  else isFillInputVar = false;
+
+  //if(isVarPlots && version=="V3" && mN=="100" && bkgType=="Incl"){
+  if(isFillInputVar){
 
     FillHist("HNL_HighMassSR3_TwoLepton_CR/"+param.Name+"/BDT/Nvbfj", ev_bdt_Nvbfj, weight, 10, 0., 10.);
     FillHist("HNL_HighMassSR3_TwoLepton_CR/"+param.Name+"/BDT/Nb", ev_bdt_Nb, weight, 10, 0., 10.);

@@ -67,7 +67,8 @@ void HNL_ControlRegion_Plotter::executeEvent(){
       
       AnalyzerParameter param_cr = Setup_Param_HNL_ULIDv2(id,GetChannelString(channel));
       if(HasFlag("RunSyst")){
-	/// Some code to remove unnecessary Syst runs                                                                                                                                                              
+	/// Some code to remove unnecessary Syst runs
+
 	if(!PassMETFilter()) return;
 	
 	Event ev = GetEvent();
@@ -139,6 +140,12 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param_cr, ve
   TString Electron_ID = SetLeptonID("Electron",param_cr);
   TString Muon_ID     = SetLeptonID("Muon", param_cr);
 
+  TString ScaleTag = "";
+
+  if(param_cr.syst_ == AnalyzerParameter::ScaleUp)   weight *= GetScaleUncertainty(1, ScaleTag);
+  if(param_cr.syst_ == AnalyzerParameter::ScaleDown) weight *= GetScaleUncertainty(-1,ScaleTag);
+
+  
   double Min_FakeMuon_Pt     =  5;
   double Min_FakeElectron_Pt =  10 ;
   std::vector<Muon>       MuonTightColl_Init     = SelectMuons    ( param_cr,Muon_ID,     Min_FakeMuon_Pt,     2.4,weight); 
@@ -157,35 +164,166 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param_cr, ve
 
   std::vector<Jet>    AK4_JetCollLoose            = GetHNLJets("Loose",     param_cr);
   std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param_cr);
+
+
+  // Evaluate jet weights
+  EvalJetWeight(
+		AK4_JetColl,
+		AK4_VBF_JetColl,
+		AK8_JetColl,
+		weight,
+		param_cr
+		);
   
-  EvalJetWeight(AK4_JetColl,AK4_VBF_JetColl, AK8_JetColl, weight, param_cr);
-
-  Particle METv = GetvMET("PuppiT1xyULCorr", param_cr, MuonTightColl,ElectronTightColl);
-
-  if(CRs.size() == 0) return;
   
-  vector<int> RunEl ;
-  if(RunCF) RunEl =  {0,1} ;
-  else RunEl = {-1};
-
-   
-
-  ///// Scan Tau ID                                              
-
-  std::vector<Lepton *> leps_veto  = MakeLeptonPointerVector(MuonVetoColl,ElectronVetoColl);
+  // MET
+  Particle METv = GetvMET(
+			  "PuppiT1xyULCorr",
+			  param_cr,
+			  MuonTightColl,
+			  ElectronTightColl
+			  );
   
-  //// Add check for Taus                                                                                                                                                                                                                                                     
-  std::vector<Tau>  TauColl_Cleaned= SelectTaus   (leps_veto, AK8_JetColl, param_cr.Tau_Tight_ID,20., 2.3,false);
   
-  for(auto ir : RunEl){
-    RunAllControlRegions(ElectronTightColl,ElectronVetoColl,MuonTightColl,MuonVetoColl, TauColl_Cleaned,
-			 
-			 AK4_JetCollLoose,AK4_JetColl,AK4_VBF_JetColl,AK8_JetColl, AK4_BJetColl, 
-			 ev,METv, param_cr, CRs,ir,weight);
+  // Nothing to do if no CRs
+  if (CRs.empty()) return;
+  
+  
+  // --------------------------------------------------
+  // Charge flip electron running setup (run twice for RunCF)
+  // --------------------------------------------------
+  
+  vector<int> RunEl;
+  
+  if (RunCF) {
+    
+    if (param_cr.Channel == "EE")
+      RunEl = {0, 1};
+    else
+      RunEl = {0};
+    
   }
+  else {
+    
+    RunEl = {-1};
+    
+  }
+  
+  
+  // --------------------------------------------------
+  // Tau cleaning
+  // --------------------------------------------------
+  
+  vector<Lepton*> leps_veto =    MakeLeptonPointerVector(
+							 MuonVetoColl,
+							 ElectronVetoColl
+							 );
+  
+  
+  vector<Tau> TauColl_Cleaned =    SelectTaus(
+					      leps_veto,
+					      AK8_JetColl,
+					      param_cr.Tau_Tight_ID,
+					      20.,
+					      2.3,
+					      false
+					      );
+  
+  
+  // --------------------------------------------------
+  // PDF systematics
+  // --------------------------------------------------
+  
+  if (param_cr.syst_ == AnalyzerParameter::PDF) {
+    
+    TString origName    = param_cr.Name;
+    TString origDefName = param_cr.DefName;
+    
+    
+    for (auto ir : RunEl) {
+      
+      for (unsigned int iw = 0; iw < weight_PDF->size(); iw++) {
+	
+	double pdfWeight = 1.0;
+	
+	TString pdfName =
+	  GetPDFUncertainty(iw, pdfWeight);
+	
+	
+	param_cr.Name =	  origName + pdfName;
+	
+	param_cr.DefName =	  origDefName + pdfName;
+	
+	
+	RunAllControlRegions(
 
+			     ElectronTightColl,
+			     ElectronVetoColl,
+			     
+			     MuonTightColl,
+			     MuonVetoColl,
+			     
+			     TauColl_Cleaned,
+			     
+			     AK4_JetCollLoose,
+			     AK4_JetColl,
+			     AK4_VBF_JetColl,
+			     AK8_JetColl,
+			     AK4_BJetColl,
+			     
+			     ev,
+			     METv,
+			     
+			     param_cr,
+			     CRs,
+			     ir,
+			     
+			     weight * pdfWeight
+			     );
+      }
+    }
+    
+    return;
+  }
+  
+  
+  // --------------------------------------------------
+  // Nominal case
+  // --------------------------------------------------
+  
+  for (auto ir : RunEl) {
+    
+    RunAllControlRegions(
+			 
+			 ElectronTightColl,
+			 ElectronVetoColl,
+			 
+			 MuonTightColl,
+			 MuonVetoColl,
+			 
+			 TauColl_Cleaned,
+			 
+			 AK4_JetCollLoose,
+			 AK4_JetColl,
+			 AK4_VBF_JetColl,
+			 AK8_JetColl,
+			 AK4_BJetColl,
+			 
+			 ev,
+			 METv,
+			 
+			 param_cr,
+			 CRs,
+			 ir,
+			 
+			 weight
+			 );
+  }
+  
+  
 }
 
+  
 
 
 

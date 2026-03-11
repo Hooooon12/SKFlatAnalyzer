@@ -362,7 +362,7 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(AnalyzerParameter param,TString id, 
   std::vector<Jet> jets_uncorr = All_Jets;
   std::vector<Jet> jets;
   
-  /*std::unordered_map<AnalyzerParameter::Syst, std::pair<int, std::string>> syst_map = {
+  std::unordered_map<AnalyzerParameter::Syst, std::pair<int, std::string>> syst_map = {
     {AnalyzerParameter::JetAbsoluteStatUp, {1, "AbsoluteStat"}},       {AnalyzerParameter::JetAbsoluteStatDown, {-1, "AbsoluteStat"}},
     {AnalyzerParameter::JetAbsoluteScaleUp, {1, "AbsoluteScale"}},     {AnalyzerParameter::JetAbsoluteScaleDown, {-1, "AbsoluteScale"}},
     {AnalyzerParameter::JetAbsoluteMPFBiasUp, {1, "AbsoluteMPFBias"}}, {AnalyzerParameter::JetAbsoluteMPFBiasDown, {-1, "AbsoluteMPFBias"}},
@@ -390,15 +390,15 @@ std::vector<Jet> HNL_LeptonCore::SelectJets(AnalyzerParameter param,TString id, 
     {AnalyzerParameter::JetPileUpPtEC2Up, {1, "PileUpPtEC2"}},         {AnalyzerParameter::JetPileUpPtEC2Down, {-1, "PileUpPtEC2"}},
     {AnalyzerParameter::JetPileUpPtHFUp, {1, "PileUpPtHF"}},           {AnalyzerParameter::JetPileUpPtHFDown, {-1, "PileUpPtHF"}}
   };
-  */
+  
   
   if(param.syst_ == AnalyzerParameter::JetEnUp)            jets    = ScaleJets( jets_uncorr, +1 );
   else if(param.syst_ == AnalyzerParameter::JetEnDown)     jets    = ScaleJets( jets_uncorr, -1 );
   else if(param.syst_ == AnalyzerParameter::JetResUp)      jets    = SmearJets(jets_uncorr, +1 );
   else if(param.syst_ == AnalyzerParameter::JetResDown)    jets    = SmearJets(jets_uncorr, -1 );
-  //else if (syst_map.find(param.syst_) != syst_map.end()) {
-  //  jets = ScaleJetsIndividualSource(jets_uncorr, syst_map[param.syst_].first, syst_map[param.syst_].second);
-  // }
+  else if (HasFlag("FullJESNS") && syst_map.find(param.syst_) != syst_map.end()) {
+    jets = ScaleJetsIndividualSource(jets_uncorr, syst_map[param.syst_].first, syst_map[param.syst_].second);
+  }
   else jets =jets_uncorr;
   
   std::vector<Jet> out;

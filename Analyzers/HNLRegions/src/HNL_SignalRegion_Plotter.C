@@ -230,7 +230,10 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
   FillTimer("START_SR");
 
   vector<int> RunEl ;
-  if(RunCF) RunEl =  {0,1} ;
+  if(RunCF) {
+    if(param_sr.Channel == "EE") RunEl =  {0,1} ;
+    else  RunEl =  {0};
+  }
   else RunEl = {-1};
 
 
