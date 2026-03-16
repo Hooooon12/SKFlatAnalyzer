@@ -14,12 +14,13 @@ bool HNL_LeptonCore::DrawSyst(AnalyzerParameter& param_sys){
   
   vector<AnalyzerParameter::Syst> SystToPlot;
   if(IsData){
-    if(RunFake) SystToPlot= {AnalyzerParameter::Syst::FRUp,AnalyzerParameter::Syst::FRDown, AnalyzerParameter::Syst::FRAJUp,AnalyzerParameter::Syst::FRAJDown,AnalyzerParameter::Syst::FRPartonSFUp, AnalyzerParameter::Syst::FRPartonSFDown};
-    if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown, AnalyzerParameter::Syst::CFSFUp,AnalyzerParameter::Syst::CFSFDown};
+    if(RunFake) SystToPlot= {AnalyzerParameter::Syst::FRUp,AnalyzerParameter::Syst::FRDown};
+    
+    if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown};
     
   }
   else {
-    SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown};
+    SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown,AnalyzerParameter::ScaleUp,AnalyzerParameter::ScaleDown, AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,AnalyzerParameter::MuonResUp,AnalyzerParameter::MuonResDown,AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,AnalyzerParameter::ElectronResUp,AnalyzerParameter::ElectronResDown,AnalyzerParameter::RenScaleUp,AnalyzerParameter::RenScaleDown,AnalyzerParameter::FacScaleUp,AnalyzerParameter::FacScaleDown};
   }
   
   SystToPlot.push_back(AnalyzerParameter::Syst::Central);
@@ -131,12 +132,31 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter& param, TString  region, TS
   return;
 }
 
-void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter& param, TString plot_dir, vector<Tau>& taus,   std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w){
-  
-  if (HasFlag("RunSyst")) return;
-  if (Analyzer == "HNL_SignalRegion_TestRun")  return;
+bool  HNL_LeptonCore::RunPlotter(AnalyzerParameter& param,TString label ){
 
-    
+  if (Analyzer == "HNL_SignalRegion_TestRun")  return false;
+  
+  if (label == "Standard") {
+
+    /// Only run main nuisance but not if running runsyst
+    if (HasFlag("RunSyst")) return false;
+    //  if(!DrawSyst(param)) return false;
+    return true;
+  }
+  if (label == "Main") {
+    //if(!DrawSyst(param)) return false;
+    return true;
+  }
+
+  if (HasFlag("RunSyst")) return false;
+  return false;
+
+}
+
+void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter& param, TString plot_dir, vector<Tau>& taus,   std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w){
+
+  if(!param.runPlotter)  return;
+  
   // Initial region plots
   Fill_RegionPlotsFull(param, plot_dir, taus, jets, fatjets, leps, met, nvtx, w);
   
@@ -164,7 +184,7 @@ void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter& param, TString plot_dir
 void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter& param, TString plot_dir,   std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w){
 
 
-  if (HasFlag("RunSyst")) return;
+  if(!param.runPlotter)  return;
 
   std::vector<Tau> emptyTaus;
   Fill_RegionPlotsFull(param, plot_dir, emptyTaus, jets, fatjets, leps, met, nvtx, w);
@@ -221,7 +241,7 @@ void HNL_LeptonCore::Fill_Standard_Plots(AnalyzerParameter& param, TString  regi
              Particle&  met, double nvtx,  double w){
 
   //// Draw stndard plots, not Limit setting  variables, so only default Systs ran
-  if(!DrawSyst(param)) return;
+  if (!RunPlotter(param,"Standard")) return;
   
   if(leps.size() < 2) return;
 
@@ -286,6 +306,8 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter& param, TString  region, 
                                 vector<Tau>& TauColl,  std::vector<Jet>& jets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps ,
                                 Particle&  met, double nvtx,  double w){
 
+  if (!RunPlotter(param,"Main")) return;
+  
   if(leps.size() < 2) return;
 
   double ST      = GetST(leps, jets, fatjets, met);
@@ -302,9 +324,9 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter& param, TString  region, 
     FillHist( plot_dir+ region+ "/MainPlots/HT_PT1",     leps[0]->HTOverPt(),     w, 100, 0, 10, "H_{T}/p_{T}");
     double ll_dphi = fabs(TVector2::Phi_mpi_pi( ( (*leps[0]).Phi() - (*leps[1]).Phi() )) );
 
-    if(User("jalmond"))  {
-      FillHist( plot_dir+ region+ "/MainPlots/SR2_Scan",  min(9.0,leps[0]->HTOverPt()), ll_dphi, min(199.0,(*leps[1]).Pt()), w, 100, 0, 10,50, 0, 5.0, 20, 0, 200);
-    }
+    //    if(User("jalmond"))  {
+    //   FillHist( plot_dir+ region+ "/MainPlots/SR2_Scan",  min(9.0,leps[0]->HTOverPt()), ll_dphi, min(199.0,(*leps[1]).Pt()), w, 100, 0, 10,50, 0, 5.0, 20, 0, 200);
+    // }
     
     
     if(ll_dphi > 2.)     FillHist( plot_dir+ region+ "/MainPlots/HT_PT1_HighDphi",     leps[0]->HTOverPt(),     w, 100, 0, 10, "H_{T}/p_{T}");
@@ -326,6 +348,8 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter& param, TString  region, 
   if(leps.size() > 2) FillHist( plot_dir + region + "/MainPlots/Lepton_pt", leps[2]->Pt(), w, 9999, 0, 9999, "l p_{T} GeV");
   if(leps.size() > 3) FillHist( plot_dir + region + "/MainPlots/Lepton_pt", leps[3]->Pt(), w, 9999, 0, 9999, "l p_{T} GeV");
 
+  if(leps.size() > 2)  LT+= leps[2]->Pt();
+  if(leps.size() > 3)  LT+= leps[3]->Pt();
   FillHist( plot_dir + region + "/MainPlots/L_T", LT, w, 9999, 0, 9999, "l_{T} p_{T} GeV");
 
   if(User("jalmond"))  {
@@ -341,6 +365,9 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
         vector<Tau>& TauColl,  std::vector<Jet>& jets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , 
         Particle&  met, double nvtx,  double w){
 
+  if (!RunPlotter(param,"Fill_Plots")) return;
+
+  
   TString regionAK8 = region + "/AK8";
   TString lepregion = region + "/LeptonMVA";
 

@@ -89,6 +89,10 @@ void HNL_SignalRegion_Plotter::executeEvent(){
       
       //// Central run...
       AnalyzerParameter param_sr = Setup_Param_HNL_ULIDv2(id,GetChannelString(channel));
+      if(HasFlag("RunSyst")&& !HasFlag("RunSystPlotter"))  param_sr.runPlotter = false;
+      else if(HasFlag("RunSyst")&&HasFlag("RunSystPlotter")) param_sr.runPlotter = true;
+      else  param_sr.runPlotter = true;
+
       RunULAnalysis(param_sr);
       
       /// Systematic run ...
@@ -96,8 +100,8 @@ void HNL_SignalRegion_Plotter::executeEvent(){
       TString param_sr_defname = param_sr.DefName;
       TString SystLabel = GetChannelString(channel);
 
-      if(HasFlag("RunSyst")){
-
+      if(runSyst){
+  
         if(!PassMETFilter()) return;
 
         Event ev = GetEvent();
@@ -117,8 +121,24 @@ void HNL_SignalRegion_Plotter::executeEvent(){
         }
       }
 
+      //// Run plotter for specific systematics 
+      vector<AnalyzerParameter::Syst> SystToPlot = {AnalyzerParameter::Syst::Central};
+      if(HasFlag("RunSyst") && HasFlag("RunSystPlotter")){
+  if(IsData){
+    if(RunFake) SystToPlot= {AnalyzerParameter::Syst::FRUp,AnalyzerParameter::Syst::FRDown};
+    if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown};
+  }
+  else {
+    SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown,AnalyzerParameter::ScaleUp,AnalyzerParameter::ScaleDown, AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,AnalyzerParameter::MuonResUp,AnalyzerParameter::MuonResDown,AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,AnalyzerParameter::ElectronResUp,AnalyzerParameter::ElectronResDown,AnalyzerParameter::RenScaleUp,AnalyzerParameter::RenScaleDown,AnalyzerParameter::FacScaleUp,AnalyzerParameter::FacScaleDown};
+  }
+      }
+         
       //// Run Systematics
       for(auto isyst : GetSystList(SystLabel)){
+
+        if(std::find(SystToPlot.begin(), SystToPlot.end(), isyst) != SystToPlot.end()) param_sr.runPlotter = true;
+        else  param_sr.runPlotter = false;
+        
         bool runJob = UpdateParamBySyst(id,param_sr,AnalyzerParameter::Syst(isyst),param_sr_name);
         if(runJob) RunULAnalysis(param_sr);
 
@@ -162,8 +182,12 @@ void HNL_SignalRegion_Plotter::RunULAnalysis(AnalyzerParameter param_sr){
 
   //std::vector<FatJet> AK8_JetColl2 = GetHNLAK8Jets(param_sr.AK8JetColl,  param_sr);
   //if(AK8_JetColl2.size()==1) ScaleTag = param_sr.Name+param_sr.Channel;
-  if(param_sr.syst_ == AnalyzerParameter::ScaleUp)   weight *= GetScaleUncertainty(1, ScaleTag);
-  if(param_sr.syst_ == AnalyzerParameter::ScaleDown) weight *= GetScaleUncertainty(-1,ScaleTag);
+  //if(param_sr.syst_ == AnalyzerParameter::ScaleUp)   weight *= GetScaleUncertainty(1, ScaleTag);
+  //if(param_sr.syst_ == AnalyzerParameter::ScaleDown) weight *= GetScaleUncertainty(-1,ScaleTag);
+  if(param_sr.syst_ == AnalyzerParameter::RenScaleUp)   weight *= GetRenScaleUncertainty(1, ScaleTag);
+  if(param_sr.syst_ == AnalyzerParameter::RenScaleDown) weight *= GetRenScaleUncertainty(-1,ScaleTag);
+  if(param_sr.syst_ == AnalyzerParameter::FacScaleUp)   weight *= GetFacScaleUncertainty(1, ScaleTag);
+  if(param_sr.syst_ == AnalyzerParameter::FacScaleDown) weight *= GetFacScaleUncertainty(-1,ScaleTag);
 
   double Min_FakeMuon_Pt     =  5;   double Min_FakeElectron_Pt =  10 ;
   std::vector<Muon>       MuonTightColl_Init     = SelectMuons    ( param_sr,mu_ID,     Min_FakeMuon_Pt, 2.4, weight);

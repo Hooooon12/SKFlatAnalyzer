@@ -81,12 +81,12 @@ CMS_btag_lf_uncorr                shape  -      -      1      1           1     
 CMS_scale_met                     shape  -      -      1      1           1      1        1      1        1           1              1             1
 CMS_l1_prefiring                  shape  -      -      1      1           1      1        1      1        1           1              1             1
 CMS_pileup_13TeV                  shape  -      -      1      1           1      1        1      1        1           1              1             1
-QCDscale                          shape  -      -      -      -           1      -        -      -        -           -              -             -
+QCDscale_WZ                       shape  -      -      -      -           1      -        -      -        -           -              -             -
 QCDscale_DY                       shape  -      -      -      -           -      -        -      -        1           -              -             -
 QCDscale_VBF                      shape  -      -      -      -           -      -        -      -        -           1              -             -
 QCDscale_SSWW                     shape  -      -      -      -           -      -        -      -        -           -              1             -
 QCDscale_Weinberg                 shape  -      -      -      -           -      -        -      -        -           -              -             1
-pdf                               shape  -      -      -      -           1      -        -      -        -           -              -             -
+pdf_WZ                            shape  -      -      -      -           1      -        -      -        -           -              -             -
 pdf_DY                            shape  -      -      -      -           -      -        -      -        1           -              -             -
 pdf_VBF                           shape  -      -      -      -           -      -        -      -        -           1              -             -
 pdf_SSWW                          shape  -      -      -      -           -      -        -      -        -           -              1             -

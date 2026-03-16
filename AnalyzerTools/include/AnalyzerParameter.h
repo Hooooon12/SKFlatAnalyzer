@@ -53,7 +53,8 @@ class AnalyzerParameter{
   /// Other
   TString SRConfig;
   int SystDir_PU,WriteOutVerbose, PlottingVerbose;
-
+  bool runPlotter;
+  
   std::string SystDir_BTag,  BJet_Method,   FakeMethod,CFMethod,  ConvMethod;
 
   vector<TString> Jobs;
@@ -190,11 +191,14 @@ class AnalyzerParameter{
     CFRateUp,CFRateDown,
     CFSFUp,CFSFDown,
     FRUp,FRDown,
+    FRRateUp,FRRateDown,
     PrefireUp,PrefireDown,
     PUUp,PUDown,
     JetPUIDUp, JetPUIDDown,
     PDF,PDFUp,PDFDown,
     ScaleUp,ScaleDown,
+    RenScaleUp,RenScaleDown,
+    FacScaleUp,FacScaleDown,
     NSyst
   };
 

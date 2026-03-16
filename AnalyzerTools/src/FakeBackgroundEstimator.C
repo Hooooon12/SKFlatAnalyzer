@@ -230,6 +230,9 @@ double FakeBackgroundEstimator::GetElectronFakeRate(TString ID, TString key, TSt
   }
   if(value > 0.5) value= 0.5;
 
+  if(sys == 2)   return ApplyHighPtCorr*(value*1.3);
+  if(sys == -2)   return ApplyHighPtCorr*(value/1.3);
+  
   return ApplyHighPtCorr*(value+double(sys)*error);
 
 }
@@ -308,7 +311,10 @@ double FakeBackgroundEstimator::GetMuonFakeRate(TString ID, TString key, TString
   error = (mapit->second)->GetBinError(this_bin);
 
   if(value > 0.5) value = 0.5;
-  
+
+  if(sys == 2)   return  value*1.2;
+  if(sys == -2)   return value/1.2;
+
   return value+double(sys)*error;
 
 }

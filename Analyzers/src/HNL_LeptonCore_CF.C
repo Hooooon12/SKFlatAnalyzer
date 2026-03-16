@@ -116,6 +116,7 @@ double HNL_LeptonCore::GetCFWeightElectron(std::vector<Lepton* > leps ,  Analyze
   int sysR  = 0;
   if(param.syst_ == AnalyzerParameter::CFRateUp) sysR = 1;
   if(param.syst_ == AnalyzerParameter::CFRateDown) sysR = -1;
+ 
   
   TString TightID = param.Electron_Tight_ID;
   if(TightID.Contains("HNL_ULID")) TightID=TightID.ReplaceAll("_"+GetYearString(),"");

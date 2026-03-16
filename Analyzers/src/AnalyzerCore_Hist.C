@@ -410,7 +410,7 @@ void AnalyzerCore::WriteHist() {
   WriteProfile();
 
   // Determine if in memory-saving mode
-  bool doOptimize = HasFlag("RunSyst");
+  bool doOptimize = runSyst;
 
   // Lambda to write THxD maps (TH1D/TH2D/TH3D)
   auto write_hist_map = [&](auto& hist_map) {

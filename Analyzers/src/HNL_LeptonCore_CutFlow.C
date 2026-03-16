@@ -3,7 +3,7 @@
 
 void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histname, double weight, vector<TString> bin_lables, TString fill_label){
 
-  if(HasFlag("RunSyst")) return;
+  if(runSyst) return;
   
 
   // Check if the last character is a '/'
@@ -194,7 +194,7 @@ void HNL_LeptonCore::FillCutflow2D(TString cutflow_dirname,TString cutflow_histn
 
 void HNL_LeptonCore::FillCutflowDef(TString cutflow_dirname,TString cutflow_histname, double weight, vector<TString> bin_lables, TString fill_label){
 
-  if(HasFlag("RunSyst")) {
+  if(runSyst){
     if (!cutflow_dirname.Contains("LimitExtraction"))    return;
   }
 
@@ -280,7 +280,7 @@ void HNL_LeptonCore::FillLimitInput(HNL_LeptonCore::SearchRegion sr, double even
 
   FillCutflowDef(hist_path,   histname, event_weight,lables, label);
 
-  if(HasFlag("RunSyst")) return;
+  if(runSyst) return;
   
   FillCutflow2D (hist_path+"_2D",   histname, event_weight,lables, label);
   

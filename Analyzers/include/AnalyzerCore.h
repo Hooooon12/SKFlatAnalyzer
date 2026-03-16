@@ -161,12 +161,15 @@ public:
 
 
   bool SelectEvent(int evnumber);
+
+  //// Syst check
+  bool runSyst;
   
   //// =================  BDT Functions AnalyzerCore_IDBDT.C ================= 
 
   bool iSetupLeptonBDTv4;
   bool iSetupLeptonBDTv5;
-
+  
   TMVA::Reader *MuonIDv5_FakeMVAReader;
   TMVA::Reader *MuonIDv4_FakeMVAReader;
 

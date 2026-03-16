@@ -251,6 +251,9 @@ double HNL_LeptonCore::GetFakeWeight(std::vector<Lepton *> leps, AnalyzerParamet
     if(_param.syst_ == AnalyzerParameter::FRUp)FRStatSyst=1;
     if(_param.syst_ == AnalyzerParameter::FRDown) FRStatSyst=-1;
 
+    if(_param.syst_ == AnalyzerParameter::FRRateUp)FRStatSyst=2;
+    if(_param.syst_ == AnalyzerParameter::FRRateDown) FRStatSyst=-2;
+
     /// Use FRStatSyst to set for High Pt syst
     if(_param.syst_ ==AnalyzerParameter::FRHighPtUp)  FRStatSyst=10;
 

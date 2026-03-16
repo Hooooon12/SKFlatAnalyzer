@@ -133,6 +133,116 @@ double HNL_LeptonCore::GetScaleUncertainty(int sys, TString tag_debug) {
   return 1.0;
 }
 
+double HNL_LeptonCore::GetRenScaleUncertainty(int sys, TString tag_debug) {
+
+  // /data9/Users/jihkim_public/Type1/Type1_gridpacks/untar/SSWWTypeI_NLO_SF_M3000/cmsgrid_final.lhe
+  // Madgraph weight convention:
+  //<weight id="1001" MUR="1.0" MUF="1.0" PDF="325500" >  </weight>
+  //<weightgroup name="Central scale variation" combine="envelope">
+  //<weight id="1002" MUR="2.0" MUF="1.0" PDF="325500" > MUR=2.0  </weight>
+  //<weight id="1003" MUR="0.5" MUF="1.0" PDF="325500" > MUR=0.5  </weight>
+  //<weight id="1004" MUR="1.0" MUF="2.0" PDF="325500" > MUF=2.0  </weight>
+  //<weight id="1005" MUR="2.0" MUF="2.0" PDF="325500" > MUR=2.0 MUF=2.0  </weight>
+  //<weight id="1006" MUR="0.5" MUF="2.0" PDF="325500" > MUR=0.5 MUF=2.0  </weight>
+  //<weight id="1007" MUR="1.0" MUF="0.5" PDF="325500" > MUF=0.5  </weight>
+  //<weight id="1008" MUR="2.0" MUF="0.5" PDF="325500" > MUR=2.0 MUF=0.5  </weight>
+  //<weight id="1009" MUR="0.5" MUF="0.5" PDF="325500" > MUR=0.5 MUF=0.5  </weight>
+  //</weightgroup> # scale
+
+  // Basic guards
+  if (!(IsSignal()||IsMainPrompt()) || sys == 0 || !weight_Scale || weight_Scale->empty()) {
+   return 1.0;
+  }
+  // Expect at least a couple of scale weights; ignore the last two entries as before
+  if (weight_Scale->size() < 2) {
+    return 1.0;
+  }
+
+  // Scan valid (finite) weights among all entries
+  const size_t n = weight_Scale->size();
+  size_t n_valid = 0;
+  
+  for (size_t i = 0; i < n; ++i) {
+    const double w = static_cast<double>(weight_Scale->at(i));
+    if (!std::isfinite(w)) continue;  // skip NaN, +Inf, -Inf
+    ++n_valid;
+  }
+  
+  // If nothing usable, fall back to neutral
+  if (n_valid == 0) {
+    return 1.0;
+  }
+
+  if(tag_debug != "") {
+    if((sys==1 && weight_Scale->at(1)==weight_Scale->at(0))||(sys==-1 && weight_Scale->at(2)==weight_Scale->at(0))) {
+      cout << "Renomalization Scale Uncertainty " << sys << "  " << tag_debug << endl;
+      for (size_t i = 0; i < n; ++i) {
+        const double w = static_cast<double>(weight_Scale->at(i));
+        cout << "i " << i <<  " w = " << w << endl;
+      }
+    }   
+  }
+  if (sys == 1)  return weight_Scale->at(1);
+  if (sys == -1) return weight_Scale->at(2);
+ 
+  return 1.0;
+}
+
+double HNL_LeptonCore::GetFacScaleUncertainty(int sys, TString tag_debug) {
+
+  // /data9/Users/jihkim_public/Type1/Type1_gridpacks/untar/SSWWTypeI_NLO_SF_M3000/cmsgrid_final.lhe
+  // Madgraph weight convention:
+  //<weight id="1001" MUR="1.0" MUF="1.0" PDF="325500" >  </weight>
+  //<weightgroup name="Central scale variation" combine="envelope">
+  //<weight id="1002" MUR="2.0" MUF="1.0" PDF="325500" > MUR=2.0  </weight>
+  //<weight id="1003" MUR="0.5" MUF="1.0" PDF="325500" > MUR=0.5  </weight>
+  //<weight id="1004" MUR="1.0" MUF="2.0" PDF="325500" > MUF=2.0  </weight>
+  //<weight id="1005" MUR="2.0" MUF="2.0" PDF="325500" > MUR=2.0 MUF=2.0  </weight>
+  //<weight id="1006" MUR="0.5" MUF="2.0" PDF="325500" > MUR=0.5 MUF=2.0  </weight>
+  //<weight id="1007" MUR="1.0" MUF="0.5" PDF="325500" > MUF=0.5  </weight>
+  //<weight id="1008" MUR="2.0" MUF="0.5" PDF="325500" > MUR=2.0 MUF=0.5  </weight>
+  //<weight id="1009" MUR="0.5" MUF="0.5" PDF="325500" > MUR=0.5 MUF=0.5  </weight>
+  //</weightgroup> # scale
+
+  // Basic guards
+  if (!(IsSignal()||IsMainPrompt()) || sys == 0 || !weight_Scale || weight_Scale->empty()) {
+   return 1.0;
+  }
+  // Expect at least a couple of scale weights; ignore the last two entries as before
+  if (weight_Scale->size() < 2) {
+    return 1.0;
+  }
+
+  // Scan valid (finite) weights among all entries
+  const size_t n = weight_Scale->size();
+  size_t n_valid = 0;
+  
+  for (size_t i = 0; i < n; ++i) {
+    const double w = static_cast<double>(weight_Scale->at(i));
+    if (!std::isfinite(w)) continue;  // skip NaN, +Inf, -Inf
+    ++n_valid;
+  }
+  
+  // If nothing usable, fall back to neutral
+  if (n_valid == 0) {
+    return 1.0;
+  }
+
+  if(tag_debug != "") {
+    if((sys==1 && weight_Scale->at(3)==weight_Scale->at(0))||(sys==-1 && weight_Scale->at(6)==weight_Scale->at(0))) {
+      cout << "Factorization Scale Uncertainty " << sys << "  " << tag_debug << endl;
+      for (size_t i = 0; i < n; ++i) {
+        const double w = static_cast<double>(weight_Scale->at(i));
+        cout << "i " << i <<  " w = " << w << endl;
+      }
+    }   
+  }
+  if (sys == 1)  return weight_Scale->at(3);
+  if (sys == -1) return weight_Scale->at(6);
+ 
+  return 1.0;
+}
+
 
 double HNL_LeptonCore::GetMuonIDWeight(const std::vector<Muon>& muons, AnalyzerParameter& param) {
   double weight = 1.0;

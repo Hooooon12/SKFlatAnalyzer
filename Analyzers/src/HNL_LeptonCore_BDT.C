@@ -63,7 +63,9 @@ void HNL_LeptonCore::SetupEventMVAReaderInit(TString version, bool ee, bool mm, 
     MVAReaderMM->AddVariable("M_W2_jj", &ev_bdt_M_W2_jj);
     MVAReaderMM->AddVariable("M_N1_l1jj", &ev_bdt_M_N1_l1jj);
     MVAReaderMM->AddVariable("M_N2_l2jj", &ev_bdt_M_N2_l2jj);
-    MVAReaderMM->AddSpectator("w_tot", &w_tot);
+
+    if(HasFlag("Merged")) MVAReaderMM->AddSpectator("w_norm", &w_tot);
+    else MVAReaderMM->AddSpectator("w_tot", &w_tot);
 
     if(version=="V1"){
       MVAReaderMMFake->AddVariable("Nvbfj", &ev_bdt_Nvbfj);
@@ -179,7 +181,9 @@ void HNL_LeptonCore::SetupEventMVAReaderInit(TString version, bool ee, bool mm, 
     MVAReaderEE->AddVariable("M_W2_jj", &ev_bdt_M_W2_jj);
     MVAReaderEE->AddVariable("M_N1_l1jj", &ev_bdt_M_N1_l1jj);
     MVAReaderEE->AddVariable("M_N2_l2jj", &ev_bdt_M_N2_l2jj);
-    MVAReaderEE->AddSpectator("w_tot", &w_tot);
+
+    if(HasFlag("Merged")) MVAReaderEE->AddSpectator("w_norm", &w_tot);
+    else MVAReaderEE->AddSpectator("w_tot", &w_tot);
 
     if(version=="V1"){
 
@@ -297,7 +301,9 @@ void HNL_LeptonCore::SetupEventMVAReaderInit(TString version, bool ee, bool mm, 
     MVAReaderEM->AddVariable("M_W2_jj", &ev_bdt_M_W2_jj);
     MVAReaderEM->AddVariable("M_N1_l1jj", &ev_bdt_M_N1_l1jj);
     MVAReaderEM->AddVariable("M_N2_l2jj", &ev_bdt_M_N2_l2jj);
-    MVAReaderEM->AddSpectator("w_tot", &w_tot);
+
+    if(HasFlag("Merged")) MVAReaderEM->AddSpectator("w_norm", &w_tot);
+    else MVAReaderEM->AddSpectator("w_tot", &w_tot);
 
     if(version=="V1"){
       MVAReaderEMFake->AddVariable("Nvbfj", &ev_bdt_Nvbfj);
@@ -381,6 +387,7 @@ void HNL_LeptonCore::SetupEventMVAReaderXML(TString version, bool ee, bool mm, b
   TString AnalyzerPath=std::getenv("SKFlat_WD");
   TString MVAPath = "/data/Run2UltraLegacy_v3/Run2/BDTClassifier/results_xml/HNL_ULID/"+version+"/";
   TString MVAPathV1 = "/data/Run2UltraLegacy_v3/Run2/BDTClassifier/results_xml/HNL_ULID/V1/";
+  if(HasFlag("Merged")) MVAPath = "/data/Run2UltraLegacy_v3/Run2/BDTClassifier/results_xml_merged/HNL_ULID/V3/"; // Only valid for V3
 
   MNStrList = {"85", "90", "95", "100", "125", "150", "200", "250", "300", "400", "500"};
   if(version == "V3")   MNStrList = {"85", "90", "95", "100", "125", "150", "200", "250", "300","350", "400", "450","500"};
@@ -437,6 +444,8 @@ void HNL_LeptonCore::SetupEventMVAReaderXML(TString version, bool ee, bool mm, b
       if(im == 9){ NTreeMM = "1000", NCutMM = "100", NTreeEE = "1000", NCutEE = "200", NTreeEM = "1000", NCutEM = "300"; }  // mN = 400 GeV
       if(im == 10){ NTreeMM = "1000", NCutMM = "150", NTreeEE = "700", NCutEE = "300", NTreeEM = "1000", NCutEM = "150"; }  // mN = 500 GeV
     }
+
+    if(HasFlag("Merged")){ NTreeMM = "850", NCutMM = "200", NTreeEE = "850", NCutEE = "200", NTreeEM = "850", NCutEM = "200"; }
 
     TString FileNameMM        = "output_DY_MuMu_M"+MNStrList.at(im)+"_Incl_Run2_NTrees"+NTreeMM+"_NCuts"+NCutMM+"_MaxDepth3_BDT.weights.xml";
     TString FileNameMMFake    = "output_DY_MuMu_M"+MNStrList.at(im)+"_Fake_Run2_NTrees850_NCuts200_MaxDepth3_BDT.weights.xml";
