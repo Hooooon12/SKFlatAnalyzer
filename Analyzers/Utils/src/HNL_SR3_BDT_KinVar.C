@@ -308,7 +308,13 @@ void HNL_SR3_BDT_KinVar::executeEvent(){
 
     bool passCharge = false;
 
-    if(MCSample.Contains("TypeI")) passCharge = true;
+    if(MCSample.Contains("TypeI")){
+      passCharge = true;
+      if(HasFlag("OnlySS")){
+        if(SameCharge(LepsT)) passCharge = true;
+        else passCharge = false;
+      }
+    }
     else if(MCSample.Contains("WGToLNuG") || MCSample.Contains("WGJJ")) passCharge = true;
     else if(RunFake) passCharge = true;
     else{

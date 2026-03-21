@@ -388,6 +388,7 @@ void HNL_LeptonCore::SetupEventMVAReaderXML(TString version, bool ee, bool mm, b
   TString MVAPath = "/data/Run2UltraLegacy_v3/Run2/BDTClassifier/results_xml/HNL_ULID/"+version+"/";
   TString MVAPathV1 = "/data/Run2UltraLegacy_v3/Run2/BDTClassifier/results_xml/HNL_ULID/V1/";
   if(HasFlag("Merged")) MVAPath = "/data/Run2UltraLegacy_v3/Run2/BDTClassifier/results_xml_merged/HNL_ULID/V3/"; // Only valid for V3
+  if(HasFlag("OnlySS")) MVAPath = "/data/Run2UltraLegacy_v3/Run2/BDTClassifier/results_xml_onlySS/HNL_ULID/V3/"; // Only valid for V3
 
   MNStrList = {"85", "90", "95", "100", "125", "150", "200", "250", "300", "400", "500"};
   if(version == "V3")   MNStrList = {"85", "90", "95", "100", "125", "150", "200", "250", "300","350", "400", "450","500"};
