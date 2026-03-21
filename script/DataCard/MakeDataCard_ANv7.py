@@ -162,7 +162,7 @@ def Initialize_Process(WP):
         ('signalVBF', '-1'),
         ('signalSSWW', '-1'),
         ('signalWeinberg', '-1'),
-    ]) if "EMuCF" in WP else\
+    ]) if "EMuCF" in WP or "Preapproval" in WP else\
     OrderedDict([
         ('fake', '-1'),
         ('cf', '-1'),
@@ -183,7 +183,7 @@ def Initialize_Process(WP):
 def MakeRateString(region, era, channel, mass, signal, WP):
   this_process = Initialize_Process(WP)
 
-  if "EMuCF" in WP:
+  if "EMuCF" in WP or "Preapproval" in WP:
     if "MuMu" in channel:
       this_process['cf'] = '0'
   else:
@@ -261,7 +261,7 @@ def MakeRateString(region, era, channel, mass, signal, WP):
   return this_string
 
 def is_syst_line(line):
-  return (line.startswith("lumi") or line.startswith("mc_") or line.startswith("CMS_") or line.startswith("QCDscale_") or line.startswith("pdf_"))
+  return (line.startswith("lumi") or line.startswith("mc_") or line.startswith("CMS_") or line.startswith("QCDscale_") or line.startswith("RenScale_") or line.startswith("FacScale_") or line.startswith("pdf_"))
 
 def is_rateParam_line(line):
   return "rateParam" in line
@@ -291,7 +291,7 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
 
     ### handle each syst
     # Define era-correlated syst keys
-    corr_keys = ["xsec", "pileup", "QCDscale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet"]
+    corr_keys = ["xsec", "pileup", "QCDscale", "RenScale", "FacScale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet"]
     if "PNETdecorr" in args.outputTag: corr_keys = [k for k in corr_keys if "ParticleNet" not in k]
     if "FullJES" in WP: corr_keys+=[
                                     "AbsoluteMPFBias",
@@ -522,7 +522,7 @@ def NuisanceGrouping(this_card):
       group_nuis["xsec"].append(line)
     elif "pdf" in line:
       group_nuis["pdf"].append(line)
-    elif "QCD" in line:
+    elif "QCDscale" in line or "RenScale" in line or "FacScale" in line:
       group_nuis["scale"].append(line)
     elif "CMS_SUS24014_fake" in line:
       group_nuis["fake"].append(line)

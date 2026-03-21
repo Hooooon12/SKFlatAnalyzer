@@ -12,6 +12,7 @@ for ch in MuMu EE EMu;
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,1,true,false,false,true)"; # Sig sep limits, compare, mixing limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,2,true,false,false,true)"; # SR sep limits, compare, mixing limit, logy
 
-#root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,0,true,false,false,true)"; # compare, write table, mixing limit, logy #internal limit comparison setting
-root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,0,true,true,false,false)"; # compare, append table, mixing limit, linear #internal limit comparison setting
+root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,0,true,false,false,true)"; # compare, write table, mixing limit, logy #internal limit comparison setting
+#root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,0,true,true,false,false)"; # compare, append table, mixing limit, linear #internal limit comparison setting
+#root -l -q -b "DrawLimits.C(\"2017\",\"${ch}\",false,false,0,true,true,false,false)"; # compare, append table, mixing limit, linear #internal limit comparison setting
   done;

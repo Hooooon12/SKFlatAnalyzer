@@ -165,11 +165,14 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //WPs.push_back("ANv6_NewSignals_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
-  WPs.push_back("ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
+  //WPs.push_back("ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
+  WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Merged_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
   if(SepLimit) WPs = {WP_nom}; // same name with the nominal, but separate each signal/SR
-  vector<TString> tags = {"_syst"}; // Default setting
+  //vector<TString> tags = {"_syst"}; // Default setting
+  vector<TString> tags = {"_HNL_syst"}; // Default setting
   //vector<TString> tags = {"_DY_syst"};
   //vector<TString> tags = {"_VBF_syst"};
   //vector<TString> tags = {"_DYVBF_syst"};
@@ -181,8 +184,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   else if(SepLimit==2) tags = {"_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"};
   for(int i=0; i<WPs.size(); i++){
     for(int j=0; j<tags.size(); j++){
-      //files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
-      files.push_back(filepath+WPs[i]+"/Run2_"+channel+tags[j]+"_"+method+"_limit.txt"); // add files systematically
+      files.push_back(filepath+WPs[i]+"/"+year+"_"+channel+tags[j]+"_"+method+"_limit.txt"); // add year-by-year files systematically
+      //files.push_back(filepath+WPs[i]+"/Run2_"+channel+tags[j]+"_"+method+"_limit.txt"); // add Run2 files systematically
       scales.push_back(0.01); // scales for compared WPs
     }
   }

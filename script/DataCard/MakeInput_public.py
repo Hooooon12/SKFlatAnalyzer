@@ -263,10 +263,13 @@ SystList = [
             "PrefireUp","PrefireDown",
             "PUUp","PUDown",
             "CFRateUp","CFRateDown",
-            "FRUp","FRDown",
+            "FRUp","FRDown", # fake rate stat
+            "FRRateUp","FRRateDown", # fake rate syst
             "FRHighPtUp","FRHighPtDown",
             "PDFUp","PDFDown",
             "ScaleUp","ScaleDown",
+            "RenScaleUp","RenScaleDown",
+            "FacScaleUp","FacScaleDown",
             "HEMJetUp","HEMJetDown",
            ]
 
@@ -332,9 +335,12 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["PUUp"]                = "CMS_pileup_13TeV"+"Up" # full correlation
   SystNameMap[era]["CFRateUp"]            = "CMS_SUS24014_cf_stat_"+era+"Up"
   SystNameMap[era]["FRUp"]                = "CMS_SUS24014_fake_stat_"+era+"Up"
+  SystNameMap[era]["FRRateUp"]            = "CMS_SUS24014_fake_syst_"+era+"Up"
   SystNameMap[era]["FRHighPtUp"]          = "CMS_SUS24014_fake_highpt_"+era+"Up"
   SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation
   SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation
+  SystNameMap[era]["RenScaleUp"]          = "RenScale"+"Up" # full correlation
+  SystNameMap[era]["FacScaleUp"]          = "FacScale"+"Up" # full correlation
   SystNameMap[era]["HEMJetUp"]            = "CMS_HEM_"+era+"Up"
 
   ### Down variations
@@ -395,14 +401,18 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["PUDown"]                = "CMS_pileup_13TeV"+"Down" # full correlation
   SystNameMap[era]["CFRateDown"]            = "CMS_SUS24014_cf_stat_"+era+"Down"
   SystNameMap[era]["FRDown"]                = "CMS_SUS24014_fake_stat_"+era+"Down"
+  SystNameMap[era]["FRRateDown"]            = "CMS_SUS24014_fake_syst_"+era+"Down"
   SystNameMap[era]["FRHighPtDown"]          = "CMS_SUS24014_fake_highpt_"+era+"Down"
   SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation
   SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation
+  SystNameMap[era]["RenScaleDown"]          = "RenScale"+"Down" # full correlation
+  SystNameMap[era]["FacScaleDown"]          = "FacScale"+"Down" # full correlation
   SystNameMap[era]["HEMJetDown"]            = "CMS_HEM_"+era+"Down"
 
   # SR-decorrelated sources -- Don't remove this, it is used below
   SystNameMap[era]["CFRate"]            = "CMS_SUS24014_cf_stat_"+era
   SystNameMap[era]["FR"]                = "CMS_SUS24014_fake_stat_"+era
+  SystNameMap[era]["FRRate"]            = "CMS_SUS24014_fake_syst_"+era
   SystNameMap[era]["FRHighPt"]          = "CMS_SUS24014_fake_highpt_"+era
   SystNameMap[era]["JetRes"]            = "CMS_res_j_"+era
   SystNameMap[era]["JetEn"]             = "CMS_scale_j_"+era
@@ -1441,16 +1451,18 @@ for tag in args.histTag:
                   #if ('signal' not in input_list[i][2]) and not (("EMuCF" in inputTag) and ('wz' in input_list[i][2]) and not args.CR): continue
                   if ('signal' not in input_list[i][2]) and (input_list[i][2] != 'wz'): continue
                   else:
-                    if "DYVBF" in input_list[i][2]:
-                      this_name_syst = this_name_syst.replace('pdf','pdf_DYVBF').replace('scale','scale_DYVBF')
+                    if "wz" == input_list[i][2]:
+                      this_name_syst = this_name_syst.replace('pdf','pdf_WZ').replace('scale','scale_WZ').replace('Scale','Scale_WZ')
+                    elif "DYVBF" in input_list[i][2]:
+                      this_name_syst = this_name_syst.replace('pdf','pdf_DYVBF').replace('scale','scale_DYVBF').replace('Scale','Scale_DYVBF')
                     elif "DY" in input_list[i][2]:
-                      this_name_syst = this_name_syst.replace('pdf','pdf_DY').replace('scale','scale_DY')
+                      this_name_syst = this_name_syst.replace('pdf','pdf_DY').replace('scale','scale_DY').replace('Scale','Scale_DY')
                     elif "VBF" in input_list[i][2]:
-                      this_name_syst = this_name_syst.replace('pdf','pdf_VBF').replace('scale','scale_VBF')
+                      this_name_syst = this_name_syst.replace('pdf','pdf_VBF').replace('scale','scale_VBF').replace('Scale','Scale_VBF')
                     elif "SSWW" in input_list[i][2]:
-                      this_name_syst = this_name_syst.replace('pdf','pdf_SSWW').replace('scale','scale_SSWW')
+                      this_name_syst = this_name_syst.replace('pdf','pdf_SSWW').replace('scale','scale_SSWW').replace('Scale','Scale_SSWW')
                     elif "Weinberg" in input_list[i][2]:
-                      this_name_syst = this_name_syst.replace('pdf','pdf_Weinberg').replace('scale','scale_Weinberg')
+                      this_name_syst = this_name_syst.replace('pdf','pdf_Weinberg').replace('scale','scale_Weinberg').replace('Scale','Scale_Weinberg')
                 name_syst = input_list[i][2]+"_"+this_name_syst # new output syst hist name
 
                 if args.Decorr: # Redefine output syst hist name
@@ -1466,7 +1478,7 @@ for tag in args.histTag:
                     #print("[!!ERROR!!] Exiting ...")
                     #sys.exit() # Some CRs (zg, zz) are now correlated to all SRs altogether
 
-                  DecorrList = ["CFRate","FR","FRHighPt"] if not args.JetDecorr else ["CFRate","FR","FRHighPt","JetRes","JetEn"]
+                  DecorrList = ["CFRate","FR","FRRate","FRHighPt"] if not args.JetDecorr else ["CFRate","FR","FRRate","FRHighPt","JetRes","JetEn"]
                   this_syst_source = this_syst.replace('Up','').replace('Down','')
                   if this_syst_source in DecorrList: # if this is Fake of CF syst source
                     this_syst_nameSep = SystNameMap[era][this_syst_source]+regionName_Decorr+this_syst.replace(this_syst_source,'') # JetRes_sr1Up
