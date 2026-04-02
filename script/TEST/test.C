@@ -199,6 +199,9 @@ void test(TString era, bool isdata, TString sample, TString skim, TString flag){
   else if(era=="2017" && !isdata && sample=="VBFTypeI_M500" && skim==""){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/MC/VBFTypeI_NLO_DF_M500/220712_175932/0000/SKFlatNtuple_2017_MC_1.root")) exit(EIO);
   }
+  else if(era=="2018" && !isdata && sample=="DYTypeI_DF_M700" && skim==""){
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/DYTypeI_NLO_DF_M500/220712_181951/0000/SKFlatNtuple_2018_MC_1.root")) exit(EIO);
+  }
   else if(era=="2017" && !isdata && sample=="SSWWTypeI_SF_M1000"){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2017/MC_SkimTree_HNMultiLepBDT/SSWWTypeI_NLO_SF_M1000/2023_09_04_164552/SKFlatNtuple_2017_MC_0.root")) exit(EIO);
   }

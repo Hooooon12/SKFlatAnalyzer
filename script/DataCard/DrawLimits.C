@@ -110,7 +110,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
   //TString WP_nom = "ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
   //TString WP_nom = "ANv7_FullJESNS_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_FullJESNS_Decorr"; // set the nominal WP
-  TString WP_nom = "ANv7_EMuCF_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_EMuCF"; // set the nominal WP
+  //TString WP_nom = "ANv7_EMuCF_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_EMuCF"; // set the nominal WP
+  TString WP_nom = "ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
   vector<TString> WP_noms;
   if(DrawExt) WP_noms = {WP_nom+"_BDT", WP_nom+"_Ext"}; // nominal working points; BDT: up to 500 GeV, Ext: from 500 GeV
   else WP_noms = {WP_nom}; // nominal working point
@@ -168,8 +169,15 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //WPs.push_back("ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning_Decorr_JetDecorr"); // add WP you want to overlay
   //WPs.push_back("ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"); // add WP you want to overlay
-  WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Merged_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Merged_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
   //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_OnlySS_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_SigInCR_Preapproval"); // add WP you want to overlay
+  WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavDep_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavEraDep_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Merged_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval_FakelnN"); // add WP you want to overlay
   if(SepLimit) WPs = {WP_nom}; // same name with the nominal, but separate each signal/SR
   //vector<TString> tags = {"_syst"}; // Default setting
   vector<TString> tags = {"_HNL_syst"}; // Default setting
@@ -191,6 +199,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   }
   //if(channel=="EE"||channel=="MuMu") files.push_back(filepath+"240503_exo17028/"+channel+"_HNTightV2_Run2_Asym_limit.txt"); // add additional files
   //scales.push_back(1.); // already scaled when extracting limits...
+  bool hasMerged = std::any_of(WPs.begin(), WPs.end(),[](const auto& wp){ return wp.Contains("Merged"); }); // NOTE hard-coded check to pass mass > 500 GeV
+  bool hasFlavDep = std::any_of(WPs.begin(), WPs.end(),[](const auto& wp){ return wp.Contains("FlavDep"); }); // NOTE hard-coded check to pass mass < 1000 GeV
 
   vector<vector<double>> masses, obss, limits, onesig_lefts, onesig_rights, twosig_lefts, twosig_rights;
   vector<int> n_centrals;
@@ -213,13 +223,26 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       std::istringstream is( elline );
       TString this_line = elline;
       if(this_line.Contains("#")||this_line=="") continue;
-      if (is >> this_mass) mass.push_back(this_mass);
-      if (is >> this_obs) obs.push_back(this_obs);
-      if (is >> this_twosig_left) twosig_left.push_back(this_twosig_left);
-      if (is >> this_onesig_left) onesig_left.push_back(this_onesig_left);
-      if (is >> this_limit) limit.push_back(this_limit);
-      if (is >> this_onesig_right) onesig_right.push_back(this_onesig_right);
-      if (is >> this_twosig_right) twosig_right.push_back(this_twosig_right);
+      if(!(is >> this_mass >> this_obs >> this_twosig_left >> this_onesig_left
+              >> this_limit >> this_onesig_right >> this_twosig_right)) {
+        continue;
+      }
+      if(hasMerged && this_mass > 500.) continue; // NOTE hard-coded check to pass mass > 500 GeV
+      if(hasFlavDep && this_mass < 1000.) continue; // NOTE hard-coded check to pass mass < 1000 GeV
+      mass.push_back(this_mass);
+      obs.push_back(this_obs);
+      twosig_left.push_back(this_twosig_left);
+      onesig_left.push_back(this_onesig_left);
+      limit.push_back(this_limit);
+      onesig_right.push_back(this_onesig_right);
+      twosig_right.push_back(this_twosig_right);
+      //if(is >> this_mass) mass.push_back(this_mass);
+      //if(is >> this_obs) obs.push_back(this_obs);
+      //if(is >> this_twosig_left) twosig_left.push_back(this_twosig_left);
+      //if(is >> this_onesig_left) onesig_left.push_back(this_onesig_left);
+      //if(is >> this_limit) limit.push_back(this_limit);
+      //if(is >> this_onesig_right) onesig_right.push_back(this_onesig_right);
+      //if(is >> this_twosig_right) twosig_right.push_back(this_twosig_right);
 
       // additional fine tune to mass-dependent scales
       double scale = scales.at(i);
@@ -408,7 +431,12 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   if(SepLimit==1) colors = {kRed+2, kOrange-2, kRed, kBlue, kCyan, kPink+6, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7, kViolet+7,};
   //vector<int> styles = {1, 2, 3, 4, 5, 6};
   //vector<TString> descrps = {"BDTV3_Strict","BDTV3_Loose","BDTV4_Strict","BDTV4_Loose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose","BDTV4_VeryLoose"};
-  vector<TString> descrps;
+  //vector<TString> descrps = {"FlavDep","FlavEraDep"};
+  //vector<TString> descrps = {"FlavEraDep"};
+  //vector<TString> descrps = {"mass merged BDT"};
+  //vector<TString> descrps = {"lnN fake syst"};
+  vector<TString> descrps = {"FlavDep"};
+  //vector<TString> descrps;
 
   if(SepLimit){
     for (auto &tag : tags) { // sr-dependent descriptions (tags: _sr1_syst_Combined, _sr2_syst_Combined, ...)
@@ -1730,6 +1758,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //else dummy2->GetYaxis()->SetRangeUser(0.85, 2);
     //else dummy2->GetYaxis()->SetRangeUser(0.94, 1.06);
     else dummy2->GetYaxis()->SetRangeUser(0.5, 1.5);
+    for(int i=0; i<WPs.size(); i++){if(WPs[i].Contains("Merged")) dummy2->GetYaxis()->SetRangeUser(0.5, 3);}
     dummy2->SetTitle("");
     dummy2->Draw("hist");
 

@@ -382,7 +382,7 @@ for RunList in args.RunLists:
       os.system(f'mkdir -p {WP}/{shortcard}/{this_check}/{AsimovName}')
       os.system(f'cp {WP}/submit_skeleton.sh {WP}/{shortcard}/{this_check}/{AsimovName}/submit_{this_check}_{AsimovName}.sh')
       os.system(f'cp {WP}/{shortcard}/{shortcard}.root {WP}/{shortcard}/{this_check}/{AsimovName}')
-      os.system(f'cp {WP}/{shortcard}/{shortcard}_DefMod.root {WP}/{shortcard}/{this_check}/{AsimovName}')
+      if ((float(this_mass) > 3000.) or "SSWW" in shortcard): os.system(f'cp {WP}/{shortcard}/{shortcard}_DefMod.root {WP}/{shortcard}/{this_check}/{AsimovName}')
     else:
       # CLs extraction
       os.system('mkdir -p Batch/'+WP+'/full_CLs/'+shortcard+'/output/')

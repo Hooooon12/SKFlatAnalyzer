@@ -62,6 +62,7 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter& param, TString  region, TS
   FillHist(plot_dir + region + "/AK8J_NB", NAK8B, w, 5, 0.0, 5.0, "N_{AK8 jets}");
 
   // Create Particle combinations for mass calculations
+  Particle WCand = fatjets[0];
   Particle N1Cand = fatjets[0] + *leps[0];
   Particle N2Cand = fatjets[0] + *leps[1];
   Particle llJCand = *leps[0] + *leps[1] + fatjets[0];
@@ -70,27 +71,31 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter& param, TString  region, TS
   double AK8bins[nAk8bins+1] = { 0.0,300.0,500.0,2000.0};
 
   // Fill mass histograms [binned for python plotter, Main plots for unbinned]
-  FillHist(plot_dir + region + "/AK8J_Mass/l1J", N1Cand.M(), w, nAk8bins,AK8bins, "Reco M_{l1J}");
-  FillHist(plot_dir + region + "/AK8J_Mass/l2J", N2Cand.M(), w,nAk8bins,AK8bins , "Reco M_{l2J}");
-  FillHist(plot_dir + region + "/AK8J_Mass/llJ", llJCand.M(), w, nAk8bins,AK8bins, "Reco M_{llJ}");
+  //FillHist(plot_dir + region + "/AK8J_Mass/l1J", N1Cand.M(), w, nAk8bins,AK8bins, "Reco M_{l1J}");
+  //FillHist(plot_dir + region + "/AK8J_Mass/l2J", N2Cand.M(), w,nAk8bins,AK8bins , "Reco M_{l2J}");
+  //FillHist(plot_dir + region + "/AK8J_Mass/llJ", llJCand.M(), w, nAk8bins,AK8bins, "Reco M_{llJ}");
   
   //// Now Add detailed plots by adding userflag
-  if(!User("jalmond")) return;
+  //if(!User("jalmond")) return;
 
-  FillHist(plot_dir + region + "/AK8J_Unbinned_Mass/l1J", N1Cand.M(), w, 1000,0.0,5000.0, "Reco M_{l1J}");
-  FillHist(plot_dir + region + "/AK8J_Unbinned_Mass/l2J", N2Cand.M(), w,  1000,0.0,5000.0, "Reco M_{l2J}");
-  FillHist(plot_dir + region + "/AK8J_Unbinned_Mass/llJ", llJCand.M(), w, 1000,0.0,5000.0, "Reco M_{llJ}");
+  FillHist(plot_dir + region + "/AK8JW_Mass/l1J", N1Cand.M(), w, 1000,0.0,5000.0, "Reco M_{l1J}");
+  FillHist(plot_dir + region + "/AK8JW_Mass/l2J", N2Cand.M(), w,  1000,0.0,5000.0, "Reco M_{l2J}");
+  FillHist(plot_dir + region + "/AK8JW_Mass/llJ", llJCand.M(), w, 1000,0.0,5000.0, "Reco M_{llJ}");
+  FillHist(plot_dir + region + "/AK8JW_Mass/J_SD", fatjets[0].SDMass(), w, 200,0.0,1000.0, "Reco M_{J,SD}");
+  FillHist(plot_dir + region + "/AK8JW_Mass/J", fatjets[0].M(), w, 200,0.0,1000.0, "Reco M_{J}");
+  FillHist(plot_dir + region + "/AK8JW_Mass/l1J_SD_corr", N1Cand.M()-fatjets[0].SDMass()+80., w, 1000,0.0,5000.0, "Reco M_{l1J,SDcorr}");
+  FillHist(plot_dir + region + "/AK8JW_Mass/l1J_corr", N1Cand.M()-fatjets[0].M()+80., w, 1000,0.0,5000.0, "Reco M_{l1J,corr}"); //JH
 
   
   // Loop over FatJets and perform necessary calculations
   for (auto& fatjet : fatjets) {
 
     for (auto& ilep : leps) {
-      FillHist(plot_dir + region + "/AK8Jet_dR_" + ilep->GetFlavour(), fatjet.DeltaR(*ilep), w, 50, 0.0, 10.0, "#DeltaR (WAK8," + ilep->GetFlavour() + ")");
+      FillHist(plot_dir + region + "/AK8Jet_dR_" + ilep->GetFlavour(), fatjet.DeltaR(*ilep), w, 50, 0.0, 10.0, "#DeltaR (AK8," + ilep->GetFlavour() + ")");
     }
 
-    FillHist(plot_dir + region + "/AK8Jet_dR_lep1" , fatjet.DeltaR(*leps[0]), w, 50, 0.0, 10.0, "#DeltaR (WAK8,lep1)");
-    FillHist(plot_dir + region + "/AK8Jet_dR_lep2" , fatjet.DeltaR(*leps[1]), w, 50, 0.0, 10.0, "#DeltaR (WAK8,lep2)");
+    FillHist(plot_dir + region + "/AK8Jet_dR_lep1" , fatjet.DeltaR(*leps[0]), w, 50, 0.0, 10.0, "#DeltaR (AK8,lep1)");
+    FillHist(plot_dir + region + "/AK8Jet_dR_lep2" , fatjet.DeltaR(*leps[1]), w, 50, 0.0, 10.0, "#DeltaR (AK8,lep2)");
     
     double J_l1_dphi = fabs(TVector2::Phi_mpi_pi( ( (*leps[0]).Phi() - (fatjet).Phi() )) );
     double J_l2_dphi = fabs(TVector2::Phi_mpi_pi( ( (*leps[1]).Phi() - (fatjet).Phi() )) );
@@ -99,33 +104,35 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter& param, TString  region, TS
     
     
     // Additional Histograms for FatJets
-    FillHist(plot_dir + region + "/AK8J_SDMass", fatjet.SDMass(), w, 100, 0.0, 500.0, "Mass_{softdrop} GeV");
-    FillHist(plot_dir + region + "/AK8J_tau21", fatjet.PuppiTau21(), w, 200, 0.0, 1.0, "#tau_{21}");
+    FillHist(plot_dir + region + "/AK8Jet_SDMass", fatjet.SDMass(), w, 200, 0.0, 1000.0, "Mass_{softdrop} GeV");
+    FillHist(plot_dir + region + "/AK8Jet_Mass", fatjet.M(), w, 200, 0.0, 1000.0, "Mass GeV");
+    FillHist(plot_dir + region + "/AK8Jet_tau21", fatjet.PuppiTau21(), w, 200, 0.0, 1.0, "#tau_{21}");
   }
 
     // Other calculations for particles, DeltaR, and DeltaPhi
-  Particle WCand = fatjets[0];
   Particle NCand = (leps[1]->Pt() < leps[0]->Pt()) ? N2Cand : N1Cand;
   Lepton Nlep = (leps[1]->Pt() < 100.) ? *leps[1] : *leps[0];
   Lepton Wlep = (leps[1]->Pt() > 100.) ? *leps[1] : *leps[0];
   
   for(unsigned int ij =0; ij < jets.size(); ij++){
-   FillHist( plot_dir+region+ "/AK8J_DeltaR/AK8J_AK4J",   fatjets[0].DeltaR(jets[ij]),  w, 50, 0, 5, "#DeltaR (WAK8,j)");    
+   FillHist( plot_dir+region+ "/AK8JW_DeltaR/AK8J_AK4J",   fatjets[0].DeltaR(jets[ij]),  w, 100, 0, 10, "#DeltaR (WAK8,j)");
   }
+  FillHist( plot_dir+region+ "/AK8JW_DeltaR/AK8J_lep1",   fatjets[0].DeltaR(*leps[0]),  w, 100, 0, 10, "#DeltaR (WAK8,lep1)");
+  FillHist( plot_dir+region+ "/AK8JW_DeltaR/AK8J_lep2",   fatjets[0].DeltaR(*leps[1]),  w, 100, 0, 10, "#DeltaR (WAK8,lep2)"); //JH
   
   
-  for(auto ijet : jets){
-    FillHist( plot_dir+ region + "/AK8Jets/CHFracCJ"      , ijet.ChargedHadEnergyFraction(), w, 100, 0.0, 1.0, "");
-    FillHist( plot_dir+ region + "/AK8Jets/NEMFracCJ"     , ijet.NeutralEmEnergyFraction(), w, 100, 0.0, 1.0, "");
-    FillHist( plot_dir+ region + "/AK8Jets/CEMFracCJ"     , ijet.ChargedEmEnergyFraction(), w, 100, 0.0, 1.0, "");
-    FillHist( plot_dir+ region + "/AK8Jets/NFracCJ"       , ijet.NeutralHadEnergyFraction(), w, 100, 0.0, 1.0, "");
-    FillHist( plot_dir+ region + "/AK8Jets/MuonEnergyFraction", ijet.MuonEnergyFraction(), w, 100, 0.0, 1.0, "");
-    FillHist( plot_dir+ region + "/AK8Jets/NVtxTracks", ijet.NVtxTracks(), w, 50, 0.0, 50, "");
-    FillHist( plot_dir+ region + "/AK8Jets/Multiplicity", ijet.NMult() + ijet.CHMult(),w, 50, 0.0, 50, "");
-    if(fabs(ijet.Eta()) < 2.4) FillHist( plot_dir+ region + "/AK8Jets/PileupJetId_Central",ijet.PileupJetId() , w, 100, 0.0, 1.0, "");
-    else FillHist( plot_dir+ region + "/AK8Jets/PileupJetId_Endcap",ijet.PileupJetId() , w, 100, 0.0, 1.0, "");
-    
-  }
+  //for(auto ijet : jets){
+  //  FillHist( plot_dir+ region + "/AK8Jets/CHFracCJ"      , ijet.ChargedHadEnergyFraction(), w, 100, 0.0, 1.0, "");
+  //  FillHist( plot_dir+ region + "/AK8Jets/NEMFracCJ"     , ijet.NeutralEmEnergyFraction(), w, 100, 0.0, 1.0, "");
+  //  FillHist( plot_dir+ region + "/AK8Jets/CEMFracCJ"     , ijet.ChargedEmEnergyFraction(), w, 100, 0.0, 1.0, "");
+  //  FillHist( plot_dir+ region + "/AK8Jets/NFracCJ"       , ijet.NeutralHadEnergyFraction(), w, 100, 0.0, 1.0, "");
+  //  FillHist( plot_dir+ region + "/AK8Jets/MuonEnergyFraction", ijet.MuonEnergyFraction(), w, 100, 0.0, 1.0, "");
+  //  FillHist( plot_dir+ region + "/AK8Jets/NVtxTracks", ijet.NVtxTracks(), w, 50, 0.0, 50, "");
+  //  FillHist( plot_dir+ region + "/AK8Jets/Multiplicity", ijet.NMult() + ijet.CHMult(),w, 50, 0.0, 50, "");
+  //  if(fabs(ijet.Eta()) < 2.4) FillHist( plot_dir+ region + "/AK8Jets/PileupJetId_Central",ijet.PileupJetId() , w, 100, 0.0, 1.0, "");
+  //  else FillHist( plot_dir+ region + "/AK8Jets/PileupJetId_Endcap",ijet.PileupJetId() , w, 100, 0.0, 1.0, "");
+  //  
+  //}
 
 
   
@@ -365,7 +372,7 @@ void HNL_LeptonCore::Fill_Plots(AnalyzerParameter& param, TString  region,  TStr
         vector<Tau>& TauColl,  std::vector<Jet>& jets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , 
         Particle&  met, double nvtx,  double w){
 
-  if (!RunPlotter(param,"Fill_Plots")) return;
+  //if (!RunPlotter(param,"Fill_Plots")) return; //JH
 
   
   TString regionAK8 = region + "/AK8";

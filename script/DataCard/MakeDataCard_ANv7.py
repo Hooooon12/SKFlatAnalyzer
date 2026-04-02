@@ -206,7 +206,7 @@ def MakeRateString(region, era, channel, mass, signal, WP):
 
   is_Weinberg = (mass == "Weinberg")
 
-  if not is_Weinberg:
+  if not is_Weinberg: # HNL
     this_process['signalWeinberg'] = '0'
 
     if "DYVBF" in signal:
@@ -236,19 +236,21 @@ def MakeRateString(region, era, channel, mass, signal, WP):
       #this_process['signalDYVBF'] = '0'
       this_process['signalDY'] = '0'
       this_process['signalVBF'] = '0'
-  else:
+  else: # Weinberg
     #this_process['signalDYVBF'] = '0'
     this_process['signalDY'] = '0'
     this_process['signalVBF'] = '0'
     this_process['signalSSWW'] = '0'
 
   #FIXME current setting: No signal in CR
-  if region in regions_cr:
-    #this_process['signalDYVBF'] = '0'
-    this_process['signalDY'] = '0'
-    this_process['signalVBF'] = '0'
-    this_process['signalSSWW'] = '0'
-    this_process['signalWeinberg'] = '0'
+  if args.outputTag=="SigInCR": pass
+  else:
+    if region in regions_cr:
+      #this_process['signalDYVBF'] = '0'
+      this_process['signalDY'] = '0'
+      this_process['signalVBF'] = '0'
+      this_process['signalSSWW'] = '0'
+      this_process['signalWeinberg'] = '0'
 
   #print(this_process)
 

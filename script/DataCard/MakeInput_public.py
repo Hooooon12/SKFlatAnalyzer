@@ -535,7 +535,7 @@ if args.CheckFiles:
   SRPath = "/data9/Users/HNL_public/SUS-24-014/SKFlatOutput/Systematic_Run/HNL_SignalRegion_Plotter_"+inputTag
   CRPath = "/data9/Users/HNL_public/SUS-24-014/SKFlatOutput/Systematic_Run/HNL_ControlRegion_Plotter_"+inputTag
 
-  for era in args.eras:
+  for era in args.eras: # TODO include signals
     if not args.CR:
       # SR
       #for this_proc in DataList[era]:
@@ -746,81 +746,81 @@ if args.Merge:
   
   if MergeSignal:
   
-    if args.CR:
-      print("##### This is CR setting.")
-      print("##### Skipping signal merging ...")
-      pass
-    else:
-      for era in args.eras:
-        for mass in args.masses:
-          if era=="Run2":
-            for DefFlag in DefFlags:
-              os.system("mkdir -p "+MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/" + PreFlag+DefFlag + "RunSignal__"+PostFlag)
-              OutFileDY    = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
-              OutFileVBF   = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
-              OutFileDYVBF = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-              OutFileSSWW  = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
-              # First, create DY, VBF, SSWWTypeI seperately
-              if os.system("hadd -f " + OutFileDY
+    #if args.CR:
+    #  print("##### This is CR setting.")
+    #  print("##### Skipping signal merging ...")
+    #  pass
+    #else:
+    for era in args.eras:
+      for mass in args.masses:
+        if era=="Run2":
+          for DefFlag in DefFlags:
+            os.system("mkdir -p "+MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/" + PreFlag+DefFlag + "RunSignal__"+PostFlag)
+            OutFileDY    = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
+            OutFileVBF   = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
+            OutFileDYVBF = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+            OutFileSSWW  = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/Run2/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+            # First, create DY, VBF, SSWWTypeI seperately
+            if os.system("hadd -f " + OutFileDY
+                                                + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                                                + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
+                         ) != 0:
+              os.system("rm " + OutFileDY) # remove the output if there is any unmatched process
+            if os.system("hadd -f " + OutFileVBF
+                                                 + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                 + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                 + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                 + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                         ) != 0:
+              os.system("rm " + OutFileVBF) # remove the output if there is any unmatched process
+              os.system("hadd -f " + OutFileSSWW + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root")
+            if os.system("hadd -f " + OutFileSSWW
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
+                         ) != 0:
+              os.system("rm " + OutFileSSWW) # remove the output if there is any unmatched process
+            # Now treat DYVBF depending on the mass
+            if int(mass.replace("M","")) < 300: # DY only
+              os.system("hadd -f " + OutFileDYVBF
                                                   + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
                                                   + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
                                                   + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
-                           ) != 0:
-                os.system("rm " + OutFileDY) # remove the output if there is any unmatched process
-              if os.system("hadd -f " + OutFileVBF
-                                                   + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                   + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                   + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                   + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                           ) != 0:
-                os.system("rm " + OutFileVBF) # remove the output if there is any unmatched process
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root")
+            else: # DY+VBF
+              os.system("hadd -f " + OutFileDYVBF
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
+                                                  + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root")
+        else:
+          for DefFlag in DefFlags:
+            os.system("mkdir -p "+MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunSignal__"+PostFlag)
+  
+            if mass=="Weinberg":
+              OutFileWeinberg  = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalWeinberg.root"
+              # Merge Weinberg samples
+              os.system("hadd -f " + OutFileWeinberg + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*Weinberg*")
+            else:
+              OutFileDY    = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
+              OutFileVBF   = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
+              OutFileDYVBF = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+              OutFileSSWW  = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+              # First, create DY, VBF, SSWWTypeI seperately
+              os.system("cp " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDY)
+              os.system("cp " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root " + OutFileVBF)
+              if 500 <= int(mass.replace("M","")) and int(mass.replace("M","")) <= 30000: # SSWW
                 os.system("hadd -f " + OutFileSSWW + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root")
-              if os.system("hadd -f " + OutFileSSWW
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root"\
-                           ) != 0:
-                os.system("rm " + OutFileSSWW) # remove the output if there is any unmatched process
+              elif int(mass.replace("M","")) > 30000: # SSWW EMu
+                os.system("cp " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root " + OutFileSSWW)
               # Now treat DYVBF depending on the mass
               if int(mass.replace("M","")) < 300: # DY only
-                os.system("hadd -f " + OutFileDYVBF
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root")
-              else: # DY+VBF
-                os.system("hadd -f " + OutFileDYVBF
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016preVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2016postVFP/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2017/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root"\
-                                                    + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/2018/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root")
-          else:
-            for DefFlag in DefFlags:
-              os.system("mkdir -p "+MainPath + "/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/" + PreFlag+DefFlag + "RunSignal__"+PostFlag)
-  
-              if mass=="Weinberg":
-                OutFileWeinberg  = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalWeinberg.root"
-                # Merge Weinberg samples
-                os.system("hadd -f " + OutFileWeinberg + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*Weinberg*")
-              else:
-                OutFileDY    = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
-                OutFileVBF   = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
-                OutFileDYVBF = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-                OutFileSSWW  = MainPath +"/MergedFiles/" + Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
-                # First, create DY, VBF, SSWWTypeI seperately
-                os.system("cp " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDY)
-                os.system("cp " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root " + OutFileVBF)
-                if 500 <= int(mass.replace("M","")) and int(mass.replace("M","")) <= 30000: # SSWW
-                  os.system("hadd -f " + OutFileSSWW + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root")
-                elif int(mass.replace("M","")) > 30000: # SSWW EMu
-                  os.system("cp " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*SSWWTypeI*"+mass+"_private.root " + OutFileSSWW)
-                # Now treat DYVBF depending on the mass
-                if int(mass.replace("M","")) < 300: # DY only
-                  os.system("cp " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDYVBF)
-                elif int(mass.replace("M","")) <= 3000: # DY+VBF
-                  os.system("hadd -f " + OutFileDYVBF + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root")
+                os.system("cp " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root " + OutFileDYVBF)
+              elif int(mass.replace("M","")) <= 3000: # DY+VBF
+                os.system("hadd -f " + OutFileDYVBF + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*DYTypeI*"+mass+"_private.root" + " " + SKFlatOutputPath+"/"+Analyzer+"_"+inputTag+"/"+era+"/"+PreFlag+DefFlag+"RunSignal__"+PostFlag+"/*VBFTypeI*"+mass+"_private.root")
 
   exit()
 
@@ -945,7 +945,7 @@ def generate_exception_code(excepts):
             if len(eras_sorted) == 1:
                 era_cond = f'(era == "{eras_sorted[0]}")'
             else:
-                era_cond = "(" + " or ".join([f'(era == "{e}")' for e in eras_sorted]) + ")"
+                era_cond = " or ".join([f'(era == "{e}")' for e in eras_sorted])
 
             # channel, mass
             conds = [" or ".join(region_conds), era_cond, f'(channel == "{channel}")', mass_condition(mass)]
@@ -1095,11 +1095,11 @@ for tag in args.histTag:
 
         for channel in args.channels: # ...and each channel
 
-          if not is_Weinberg:
+          if not is_Weinberg: # HNL
             if "EMu" not in channel and (mass_int > 30000):
               continue # NOTE Only EMu extends above M30000
 
-            if (("sr3" in region) or ("cr3_Inv" in region)) and (mass_int <= 500):
+            if (("sr3" in region) or ("cr3_Inv" in region)) and (mass_int <= 500): # BDT selection
               LimitDir = "LimitExtractionBDT"
               InputHistMass = mass+"/"
               if 'BDT' not in RegionToHistSuffixMap[region][channel]:
@@ -1128,13 +1128,13 @@ for tag in args.histTag:
                   else:
                     RegionToChannelMap[region][channel] = RegionToChannelMap[region][channel].replace("_"+BDTver,'')
 
-            else:
+            else: # SR1/2 or mass > 500 GeV: cut-based selection
               #if region=='sr2' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR2 alternative optimization : use the same binning for all era, flavor. (deprecated)
               #else: LimitDir = "LimitExtraction"
               if region=='sr1' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR1 alternative optimization : bin optimized with sqrt-removed-FOM.
               else: LimitDir = "LimitExtraction"
 
-              if (region=="sr1") and (mass_int <= 3000):
+              if (region=="sr1") and (mass_int <= 3000): #TODO what happen to this with signalSSWW
                 if mass_int <= 400: InputHistMass = "M400/"
                 elif mass_int >= 900: InputHistMass = "M900/"
                 else: InputHistMass = mass+"/"
@@ -1154,7 +1154,7 @@ for tag in args.histTag:
             if mass_int > 3000: DYVBFscaler = 0.1 # relax the scale for SSWW impact
             SSWWscaler = DYVBFscaler*DYVBFscaler # Set the signalSSWW scaler
 
-          else: # TODO let's merge Weinberg and other signals later, e.g. setting mass_int = 999999 for the Weinberg
+          else: # Weinberg. #TODO let's merge Weinberg and other signals later, e.g. setting mass_int = 999999 for the Weinberg
             #if region=='sr2' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR2 alternative optimization : use the same binning for all era, flavor. (deprecated)
             #else: LimitDir = "LimitExtraction"
             if region=='sr1' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR1 alternative optimization : bin optimized with sqrt-removed-FOM.
@@ -1283,79 +1283,79 @@ for tag in args.histTag:
           print("##### Data done.")
   
           # Now list has bkg, (pseudo) data. Finally let's add signals
-          if args.CR:
-            print("##### This is CR setting.")
-            print("##### Skipping signal ...")
-          else:
-            if not is_Weinberg:
-              f_path_signalDYVBF = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
-              f_path_signalDY = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
-              f_path_signalVBF = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
-              f_path_signalSSWW  = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
+          #if args.CR:
+          #  print("##### This is CR setting.")
+          #  print("##### Skipping signal ...")
+          #else:
+          if not is_Weinberg:
+            f_path_signalDYVBF = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDYVBF_"+mass+".root"
+            f_path_signalDY = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalDY_"+mass+".root"
+            f_path_signalVBF = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
+            f_path_signalSSWW  = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
   
-              f_signalDYVBF = CheckFile(f_path_signalDYVBF)
-              if f_signalDYVBF:
-                h_signalDYVBF = CheckHist(f_signalDYVBF,input_hist,"signalDYVBF")
-                if h_signalDYVBF:
-                  h_signalDYVBF.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
-                  input_list.append([f_path_signalDYVBF, h_signalDYVBF, "signalDYVBF"])
-                  #print("Scaled signalDYVBF :", h_signalDYVBF.Integral())
-                if args.Scan:
-                  print("##### Making 2D hist for","signalDYVBF","#####")
-                  FillScan(h_scan,h_signalDYVBF,"signalDYVBF") # out, in, name
+            f_signalDYVBF = CheckFile(f_path_signalDYVBF)
+            if f_signalDYVBF:
+              h_signalDYVBF = CheckHist(f_signalDYVBF,input_hist,"signalDYVBF")
+              input_list.append([f_path_signalDYVBF, h_signalDYVBF, "signalDYVBF"])
+              if h_signalDYVBF:
+                h_signalDYVBF.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
+                #print("Scaled signalDYVBF :", h_signalDYVBF.Integral())
+              if args.Scan:
+                print("##### Making 2D hist for","signalDYVBF","#####")
+                FillScan(h_scan,h_signalDYVBF,"signalDYVBF") # out, in, name
 
-              f_signalDY = CheckFile(f_path_signalDY)
-              if f_signalDY:
-                h_signalDY = CheckHist(f_signalDY,input_hist,"signalDY")
-                if h_signalDY:
-                  h_signalDY.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
-                  input_list.append([f_path_signalDY, h_signalDY, "signalDY"])
-                  #print("Scaled signalDY :", h_signalDY.Integral())
-                if args.Scan:
-                  print("##### Making 2D hist for","signalDY","#####")
-                  FillScan(h_scan,h_signalDY,"signalDY") # out, in, name
+            f_signalDY = CheckFile(f_path_signalDY)
+            if f_signalDY:
+              h_signalDY = CheckHist(f_signalDY,input_hist,"signalDY")
+              input_list.append([f_path_signalDY, h_signalDY, "signalDY"])
+              if h_signalDY:
+                h_signalDY.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
+                #print("Scaled signalDY :", h_signalDY.Integral())
+              if args.Scan:
+                print("##### Making 2D hist for","signalDY","#####")
+                FillScan(h_scan,h_signalDY,"signalDY") # out, in, name
 
-              f_signalVBF = CheckFile(f_path_signalVBF)
-              if f_signalVBF:
-                h_signalVBF = CheckHist(f_signalVBF,input_hist,"signalVBF")
-                if h_signalVBF:
-                  h_signalVBF.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
-                  input_list.append([f_path_signalVBF, h_signalVBF, "signalVBF"])
-                  #print("Scaled signalVBF :", h_signalVBF.Integral())
-                if args.Scan:
-                  print("##### Making 2D hist for","signalVBF","#####")
-                  FillScan(h_scan,h_signalVBF,"signalVBF") # out, in, name
+            f_signalVBF = CheckFile(f_path_signalVBF)
+            if f_signalVBF:
+              h_signalVBF = CheckHist(f_signalVBF,input_hist,"signalVBF")
+              input_list.append([f_path_signalVBF, h_signalVBF, "signalVBF"])
+              if h_signalVBF:
+                h_signalVBF.Scale(DYVBFscaler) # Scaling the signal due to Combine fitting
+                #print("Scaled signalVBF :", h_signalVBF.Integral())
+              if args.Scan:
+                print("##### Making 2D hist for","signalVBF","#####")
+                FillScan(h_scan,h_signalVBF,"signalVBF") # out, in, name
 
-              f_signalSSWW = CheckFile(f_path_signalSSWW)
-              if f_signalSSWW:
-                h_signalSSWW = CheckHist(f_signalSSWW,input_hist,"signalSSWW")
-                if h_signalSSWW:
-                  h_signalSSWW.Scale(SSWWscaler) # Scaling the signal due to Combine fitting
-                  input_list.append([f_path_signalSSWW, h_signalSSWW, "signalSSWW"])
-                  #print("Scaled signalSSWW :", h_signalSSWW.Integral())
-                if args.Scan:
-                  print("##### Making 2D hist for","signalSSWW","#####")
-                  FillScan(h_scan,h_signalSSWW,"signalSSWW") # out, in, name
-            else:
-              f_path_signalWeinberg  = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalWeinberg.root"
+            f_signalSSWW = CheckFile(f_path_signalSSWW)
+            if f_signalSSWW:
+              h_signalSSWW = CheckHist(f_signalSSWW,input_hist,"signalSSWW")
+              input_list.append([f_path_signalSSWW, h_signalSSWW, "signalSSWW"])
+              if h_signalSSWW:
+                h_signalSSWW.Scale(SSWWscaler) # Scaling the signal due to Combine fitting
+                #print("Scaled signalSSWW :", h_signalSSWW.Integral())
+              if args.Scan:
+                print("##### Making 2D hist for","signalSSWW","#####")
+                FillScan(h_scan,h_signalSSWW,"signalSSWW") # out, in, name
+          else:
+            f_path_signalWeinberg  = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalWeinberg.root"
 
-              f_signalWeinberg = CheckFile(f_path_signalWeinberg)
-              if f_signalWeinberg:
-                h_signalWeinberg = CheckHist(f_signalWeinberg,input_hist,"signalWeinberg")
-                if h_signalWeinberg:
-                  h_signalWeinberg.Scale(Weinbergscaler) # Scaling the signal due to Impact
-                  input_list.append([f_path_signalWeinberg, h_signalWeinberg, "signalWeinberg"])
-                  #print("signalWeinberg :", h_signalWeinberg.Integral())
-                if args.Scan:
-                  print("##### Making 2D hist for","signalWeinberg","#####")
-                  FillScan(h_scan,h_signalWeinberg,"signalWeinberg") # out, in, name
+            f_signalWeinberg = CheckFile(f_path_signalWeinberg)
+            if f_signalWeinberg:
+              h_signalWeinberg = CheckHist(f_signalWeinberg,input_hist,"signalWeinberg")
+              if h_signalWeinberg:
+                h_signalWeinberg.Scale(Weinbergscaler) # Scaling the signal due to Impact
+                input_list.append([f_path_signalWeinberg, h_signalWeinberg, "signalWeinberg"])
+                #print("signalWeinberg :", h_signalWeinberg.Integral())
+              if args.Scan:
+                print("##### Making 2D hist for","signalWeinberg","#####")
+                FillScan(h_scan,h_signalWeinberg,"signalWeinberg") # out, in, name
 
-            if args.Scan:
-              scan_list.append(h_scan)
+          if args.Scan:
+            scan_list.append(h_scan)
 
-            print("##### Signal done.")
+          print("##### Signal done.")
 
-          Nproc = len(input_list) # Update the Nproc to include signals
+          Nproc = len(input_list)
           NoNOMs = set()
           #### Treat negative events for nominal histograms ####
           for iProc in range(Nproc):
@@ -1382,12 +1382,13 @@ for tag in args.histTag:
   
             for i in range(Nproc):
 
-              if "fake_data_path" in input_list[i][0]: continue # There is no file like "fake_data_path" so pass this in the iteration
+              if input_list[i][2] == "data_obs": continue # Skip the data.
               if i in NoNOMs:
                 print("No nominal hist for",input_list[i][2],"in",tag,era,region,mass,channel,".")
-                print("Making exception list ...") # TODO better to make exception list outside of the Syst iteration later
+                print("Making exception list ...") # TODO better to make exception list outside of the Syst iteration later (exceptions need to be handled even when args.Syst is off)
                 if "signal" in input_list[i][2]:
-                  Except_list.append((tag, input_list[i][2], region, era, channel, mass))
+                  if "signalDYVBF" in input_list[i][2]: pass # We don't use signalDYVBF in the datacard anymore. We split DY and VBF.
+                  else: Except_list.append((tag, input_list[i][2], region, era, channel, mass))
                 elif "conv" in input_list[i][2] or "prompt" in input_list[i][2]: pass # We don't use conv or prompt anymore. We use mc_others
                 else:
                   Except_list.append((tag, input_list[i][2], region, era, channel, mass)) if (not is_Weinberg and mass_int < 600) else Except_list.append((tag, input_list[i][2], region, era, channel, "highmass"))

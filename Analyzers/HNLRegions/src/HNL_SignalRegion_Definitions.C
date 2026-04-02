@@ -116,11 +116,14 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     //// Dont plot if running all systematics     
     if(!runSyst&&param.runPlotter){
       if(param.IsCentral()){
-        if(IsSignal())Fill_RegionPlots(param,"Signal_NoCut" , TauColl,
-                     All_Jets,  All_FatJets, LepsV,
-                     METv, nPV, weight_ll);
+        if(IsSignal()){
+                Fill_RegionPlots(param,"Signal_NoCut_RAW" , TauColl, All_Jets,  All_FatJets, LepsV, METv, nPV, weight_ll);
+                Fill_RegionPlots(param,"Signal_NoCut_ID" , TauColl, JetColl, AK8_JetColl, LepsT, METv, nPV, weight_ll);
+        }
       }
     }
+
+    //return; //JH
 
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));
@@ -147,43 +150,43 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
 
       if(RunCutFlow){
   
-  FillCutflow(CutFlow_Region, weight_Cutflow, "NoCut", param);
-  if (PassTriggerSelection(dilep_channel, ev, LepsT,param.TriggerSelection)){
-    FillCutflow(CutFlow_Region, weight_Cutflow, "Trigger",param);
-    
-    if(PassGenMatchFilter(LepsT,param)){
-      if(ConversionSplitting(LepsT,RunConv,2,param)){
-        FillCutflow(CutFlow_Region, weight_Cutflow, "GENMatched",param);
-        if(PassHEMVeto(LepsV,weight_Cutflow)) {
-    FillCutflow(CutFlow_Region, weight_Cutflow, "HEMVeto", param);
-    if(PassMETFilter()) {
-      FillCutflow(CutFlow_Region, weight_Cutflow, "METFilter",param);
-      if(CheckLeptonFlavourForChannel(dilep_channel, LepsT)) {
-        if(LepsT.size()==2){
-          FillCutflow(CutFlow_Region, weight_Cutflow, "LeptonFlavour",param);
-          if(SameCharge(LepsT) || (CFRun)){
-      
-      FillCutflow(CutFlow_Region, weight_Cutflow, "SSLepton",param);
-      if(LepsV.size()==2) {
-        
-        FillCutflow(CutFlow_Region, weight_Cutflow, "LepVeto",param);
-        Particle ll =  (*LepsT[0]) + (*LepsT[1]);
-        if(ll.M() > 20){
-          if(dilep_channel!=EE ||  ( (fabs(ll.M()-M_Z) > M_ZWINDOW_VETO))){
-            FillCutflow(CutFlow_Region, weight_Cutflow, "DiLepMass",param);
-            if(B_JetColl.size()==0)     FillCutflow(CutFlow_Region, weight_Cutflow, "BJet",param);
-            if(B_JetColl.size()==0 && ev.MET2ST() < 15)   FillCutflow(CutFlow_Region, weight_Cutflow, "MET",param);
+        FillCutflow(CutFlow_Region, weight_Cutflow, "NoCut", param);
+        if (PassTriggerSelection(dilep_channel, ev, LepsT,param.TriggerSelection)){
+          FillCutflow(CutFlow_Region, weight_Cutflow, "Trigger",param);
+          
+          if(PassGenMatchFilter(LepsT,param)){
+            if(ConversionSplitting(LepsT,RunConv,2,param)){
+              FillCutflow(CutFlow_Region, weight_Cutflow, "GENMatched",param);
+              if(PassHEMVeto(LepsV,weight_Cutflow)) {
+                FillCutflow(CutFlow_Region, weight_Cutflow, "HEMVeto", param);
+                if(PassMETFilter()) {
+                  FillCutflow(CutFlow_Region, weight_Cutflow, "METFilter",param);
+                  if(CheckLeptonFlavourForChannel(dilep_channel, LepsT)) {
+                    if(LepsT.size()==2){
+                      FillCutflow(CutFlow_Region, weight_Cutflow, "LeptonFlavour",param);
+                      if(SameCharge(LepsT) || (CFRun)){
+                  
+                        FillCutflow(CutFlow_Region, weight_Cutflow, "SSLepton",param);
+                        if(LepsV.size()==2) {
+                          
+                          FillCutflow(CutFlow_Region, weight_Cutflow, "LepVeto",param);
+                          Particle ll =  (*LepsT[0]) + (*LepsT[1]);
+                          if(ll.M() > 20){
+                            if(dilep_channel!=EE ||  ( (fabs(ll.M()-M_Z) > M_ZWINDOW_VETO))){
+                              FillCutflow(CutFlow_Region, weight_Cutflow, "DiLepMass",param);
+                              if(B_JetColl.size()==0)     FillCutflow(CutFlow_Region, weight_Cutflow, "BJet",param);
+                              if(B_JetColl.size()==0 && ev.MET2ST() < 15)   FillCutflow(CutFlow_Region, weight_Cutflow, "MET",param);
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }        
+            }
           }
         }
-      }
-          }
-        }
-      }
-    }
-        }        
-      }
-    }
-  }
       }
     }
 
