@@ -80,8 +80,10 @@ void HNL_LeptonCore::initializeAnalyzer(vector<TString> BDTVersions, bool READBK
   if(!IsDATA){
     mcCorr->ReadHistograms();
 
-    TString muon_reco_lowpt_path = "/data6/Users/jalmond/2020/HL_SKFlatAnalyzer_UL_LONG/SKFlatAnalyzer/data/Run2UltraLegacy_v3/"+GetEra()+"/ID/Muon/json/NUM_TrackerMuons_DEN_genTracks_Z_abseta_pt_"+GetEra()+".json";
-    TString muon_reco_highpt_path = "/data6/Users/jalmond/2020/HL_SKFlatAnalyzer_UL_LONG/SKFlatAnalyzer/data/Run2UltraLegacy_v3/"+GetEra()+"/ID/Muon/json/ScaleFactors_Muon_highPt_RECO_"+GetEra()+"_schemaV2.json";
+    TString datapath = getenv("DATA_DIR");
+      
+    TString muon_reco_lowpt_path = datapath+ "/"+GetEra() +"/ID/Muon/json/NUM_TrackerMuons_DEN_genTracks_Z_abseta_pt_"+GetEra()+".json";
+    TString muon_reco_highpt_path = datapath+ "/"+GetEra() +"/ID/Muon/json/ScaleFactors_Muon_highPt_RECO_"+GetEra()+"_schemaV2.json";
 
     
     std::cout << "[DEBUG] Calling ReadMuonRecoSFs_LowPt with: "

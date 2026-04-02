@@ -3,7 +3,7 @@
 analyzer="HNL_Lepton_ID_BDT_Studies"
 rundir="HNL_Lepton_ID_BDT_Studies"
 datapath="${SKFlat_WD}/runJobs/HNL/${analyzer}/Data/"
-mcpath="${SKFlat_WD}/runJobs/HNL/${analyzer}/Bkg/"
+mcpath="${SKFlat_WD}/runJobs/SampleLists/Bkg/Fake/"
 njobs=250
 nmax=800
 skim="SkimTree_Dilepton"
@@ -63,10 +63,10 @@ run_OS() {
 run_All() {
     local era_list=("2016postVFP" "2016preVFP" "2017" "2018")
     for era in "${era_list[@]}"; do
-        run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Fake.txt -n 250 --nmax 400 -e $era --skim SkimTree_FakeEventSkimBDT &"
-        run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/CF.txt   -n 100 --nmax 400 -e $era --skim SkimTree_CFEventSkim &"
-        run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Conv.txt -n 100 --nmax 400 -e $era --skim SkimTree_ConvEventSkim &"
-        run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Sig.txt  -n 100 --nmax 400 -e $era --skim SkimTree_HNMultiLepBDT &"
+        run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Fake.txt -n 250 --nmax 400 -e $era --skim SkimTree_FakeEventSkimBDT --userflags FakeSplit&"
+        #run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/CF.txt   -n 100 --nmax 400 -e $era --skim SkimTree_CFEventSkim &"
+        #run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Conv.txt -n 100 --nmax 400 -e $era --skim SkimTree_ConvEventSkim &"
+        #run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Sig.txt  -n 100 --nmax 400 -e $era --skim SkimTree_HNMultiLepBDT &"
     done
 }
 

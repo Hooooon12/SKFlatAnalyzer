@@ -871,7 +871,10 @@ TString HNL_RegionDefinitions::RunSignalRegionAK8String(bool ApplyForSR,
   Particle N1cand = AK8_JetColl[0] + *leps[0];
   double MN1 = (N1cand.M() > 2000.) ? 1999. : N1cand.M();
 
-
+  //// Check new suggestion for W mass constraint 
+  if(HasFlag("UseWMassConstraint")) MN1 = N1cand.M() - AK8_JetColl[0].SDMass() + M_W;
+  if(MN1 > 2000.)  MN1 = 1999.;
+  
   vector<double> ml1jbins = GetLimitBinBoundary("SR1",ref_mass,GetChannelString(channel));
   
   for(unsigned int ibin=1; ibin < ml1jbins.size(); ibin++){
@@ -909,7 +912,7 @@ TString HNL_RegionDefinitions::RunSignalRegionWWString(bool ApplyForSR,HNL_Lepto
 
   bool PassRegionReq = ApplyForSR ? (PassHMMet && PassBJetMVeto) :  ((PassHMMet &&B_JetColl.size()==0)|| (PassBJetMVeto)) ;
 
-
+ 
   if (leps_veto.size() != 2) return "false";
 
   if(qq==Plus  && leps[0]->Charge() < 0) return "false";
@@ -940,6 +943,12 @@ TString HNL_RegionDefinitions::RunSignalRegionWWString(bool ApplyForSR,HNL_Lepto
 
   if(use_leadjets){ijet1=0;ijet2=1;}
 
+  if(HasFlag("RemoveCentralVBFJets")){
+
+    if(fabs(JetColl[ijet1].Eta()) < 1.5)  return "false";
+    if(fabs(JetColl[ijet2].Eta()) < 1.5)  return "false";
+  }
+  
   double maxDiJetDeta =fabs(JetColl[ijet1].Eta() - JetColl[ijet2].Eta());
 
   if(maxDiJetDeta < 2.5) return "false";
@@ -1067,6 +1076,36 @@ TString HNL_RegionDefinitions::RunSignalRegionWWString(bool ApplyForSR,HNL_Lepto
       }
       
       if(HasFlag("SingularBinning")) cuts  ={2.0, 2.5, 1.5, 2.5};
+      if(HasFlag("SR_FlavDep")){
+	if(chan == HNL_LeptonCore::Channel::MuMu) cuts = {2.0, 2.5, 1.5, 2.5};
+	if(chan == HNL_LeptonCore::Channel::EE)  cuts =   {1.6, 2.4, 1.0, 2.0};
+	if(chan == HNL_LeptonCore::Channel::EMu) cuts =   {1.5, 2.5, 1.2, 1.7};
+      }
+      if(HasFlag("SR2_BinRefinement")){
+	sr2_cuts = {
+        {"2016preVFP", {
+            {HNL_LeptonCore::Channel::MuMu, {2.0, 2.5, 1.5, 2.5}},
+            {HNL_LeptonCore::Channel::EE,   {1.5, 2.5, 1.0, 2.0}},
+            {HNL_LeptonCore::Channel::EMu,  {1.5, 2.5, 1.0, 2.0}}
+          }},
+        {"2016postVFP", {
+            {HNL_LeptonCore::Channel::MuMu, {2.0, 2.5, 1.5, 2.5}},
+            {HNL_LeptonCore::Channel::EE,   {1.5, 2.5, 1.0, 2.0}},
+            {HNL_LeptonCore::Channel::EMu,  {1.5, 2.5, 1.0, 2.0}}
+          }},
+        {"2017", {
+            {HNL_LeptonCore::Channel::MuMu, {1.5, 2.5, 1.0, 2.0}},
+            {HNL_LeptonCore::Channel::EE,   {1.5, 2.5, 1.0, 2.0}},
+            {HNL_LeptonCore::Channel::EMu,  {1.5, 2.5, 1.0, 2.0}}
+          }},
+        {"2018", {
+            {HNL_LeptonCore::Channel::MuMu, {1.5, 2.5, 1.0, 2.0}},
+            {HNL_LeptonCore::Channel::EE,   {1.5, 2.5, 1.0, 2.0}},
+            {HNL_LeptonCore::Channel::EMu,  {1.5, 2.5, 1.0, 2.0}}
+          }}
+	};
+
+      }
       
       // Bin selection (preserves your original logic)
       if (ll_dphi > 2.0) {

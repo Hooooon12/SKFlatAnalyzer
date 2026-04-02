@@ -1,9 +1,10 @@
 #ifndef HNL_Lepton_ID_BDT_Studies_h
 #define HNL_Lepton_ID_BDT_Studies_h
 
-#include "HNL_RegionDefinitions.h"
+//#include "HNL_RegionDefinitions.h"
+#include "HNL_LeptonCore.h"
 
-class HNL_Lepton_ID_BDT_Studies : public HNL_RegionDefinitions {
+class HNL_Lepton_ID_BDT_Studies : public HNL_LeptonCore {
 
  public:
 

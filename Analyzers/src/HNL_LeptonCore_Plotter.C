@@ -142,7 +142,11 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter& param, TString  region, TS
 bool  HNL_LeptonCore::RunPlotter(AnalyzerParameter& param,TString label ){
 
   if (Analyzer == "HNL_SignalRegion_TestRun")  return false;
-  
+
+  if (label == "Fill_Plots") {
+    if (HasFlag("RunSyst")) return false;
+    return true;
+  }
   if (label == "Standard") {
 
     /// Only run main nuisance but not if running runsyst
@@ -325,6 +329,10 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter& param, TString  region, 
   if(fatjets.size() > 0){
     Particle N1Cand  = fatjets[0] + *leps[0] ;
     FillHist( plot_dir+ region+ "/MainPlots/M_l1J",          N1Cand.M(),       w, 9999, 0, 9999, "M_{Jl_{1}} GeV" );
+
+    double M_corr = N1Cand.M() - fatjets[0].SDMass() + M_W;
+    FillHist( plot_dir+ region+ "/MainPlots/M_l1J_constrained",      M_corr,       w, 9999, 0, 9999, "M_{Jl_{1}} GeV" );
+	
   }
   else{
 

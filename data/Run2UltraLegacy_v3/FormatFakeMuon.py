@@ -11,9 +11,9 @@ for Era in Eras:
     if Era== "2016b":
         EraFull="2016postVFP"
 
-    ScriptDir="/data6/Users/jalmond/2020/HNDiLeptonWorskspace/src/BkgPlots/HNL_Lepton_Fakes/AnalyzerInputFile/"
+    ScriptDir="/data6/Users/jalmond/HNL/HNDiLeptonWorskspace/src/BkgPlots/HNL_Lepton_Fakes/AnalyzerInputFile/"
 
-    AnalyzerFileDir="/data6/Users/jalmond/2020/HL_SKFlatAnalyzer_UL_LONG/SKFlatAnalyzer/data/Run2UltraLegacy_v3/"+EraFull+"/FakeRate/DataFR/MuFR/"
+    AnalyzerFileDir="/data6/Users/jalmond/HNL/SKFlatAnalyzer/data/Run2UltraLegacy_v3/"+EraFull+"/FakeRate/DataFR/MuFR/"
 
 
     os.system("mv  "+ScriptDir + "MakeScanMapFile/scan_histmap_Muon_"+Era+".txt " + AnalyzerFileDir + "/scan_histmap_Muon.txt")

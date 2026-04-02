@@ -231,7 +231,39 @@ void HNL_LeptonCore::DefineLimitBins(){
 vector<double> HNL_LeptonCore::GetLimitBinBoundary(const TString& SR, TString mass_ref, const TString& channel){
 
 
-  if(HasFlag("SingularBinning")) return { 0., 125.0, 375.0, 435.0, 495.0, 575.0, 755.0  , 2000.}; ;
+  if(HasFlag("SR_FlavEraDep")){
+    if(DataEra == "2016preVFP") {
+      if(channel=="MuMu") return { 0., 125.0, 375.0, 435.0, 495.0, 575.0, 755.0 , 2000.};
+      if(channel=="EE")   return { 0., 440.0, 510.0, 605.0, 670.0, 755.0, 985.0 , 2000.};
+      if(channel=="EMu")  return { 0., 215.0, 495.0, 600.0, 715.0, 860.0, 1030.0, 2000};
+    }
+
+    if(DataEra == "2016postVFP") {
+      if(channel=="MuMu") return{ 0., 90.0, 190.0, 420.0, 505.0, 565.0, 765.0, 2000};
+      if(channel=="EE") return { 0., 470.0, 535.0, 635.0, 700.0, 870.0, 1135.0, 2000};
+      if(channel=="EMu")  return { 0., 470.0, 510.0, 540.0, 660.0, 770.0, 1015.0, 2000};
+    }
+    
+    if(DataEra == "2017") {
+      if(channel=="MuMu") return { 0., 450.0, 510.0, 555.0, 610.0, 790.0, 955.0, 2000};
+      if(channel=="EE") return  { 0., 545.0, 595.0, 670.0, 770.0, 900.0, 1085.0, 2000};
+      if(channel=="EMu")  return  { 0., 505.0, 580.0, 735.0, 835.0, 940.0, 1215.0, 2000};
+    }
+    if(DataEra == "2018") {
+      if(channel=="MuMu") return { 0., 470.0, 555.0, 645.0, 720.0, 840.0, 1045.0, 2000};
+      if(channel=="EE")   return { 0., 500.0, 530.0, 575.0, 730.0, 945.0, 1260.0, 2000};
+      if(channel=="EMu")  return { 0., 440.0, 635.0, 755.0, 930.0, 1045.0, 1315.0, 2000};
+      
+    }
+  }
+  if(HasFlag("SR_FlavDep")){
+    if(channel=="MuMu") return { 0., 125.0, 375.0, 435.0, 495.0, 575.0, 755.0 , 2000.};
+    if(channel=="EE")   return { 0., 440.0, 510.0, 605.0, 670.0, 755.0, 985.0 , 2000.};
+    if(channel=="EMu")  return { 0., 215.0, 495.0, 600.0, 715.0, 860.0, 1030.0, 2000};
+  }
+  if(HasFlag("SingularBinning")){
+    return { 0., 125.0, 375.0, 435.0, 495.0, 575.0, 755.0 , 2000.};
+  }
   
   TString key = (channel == "") ? SR : SR+"_"+channel+"_"+mass_ref;
   
@@ -285,7 +317,7 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
   double binLimit1 = 0.0, binLimit2 = 0.0, binLimit3 = 0.0, binLimit4 = 0.0, binLimit5 = 0.0;
 
 
-  if(HasFlag("SingularBinning")) {
+  if(HasFlag("SingularBinning")){
      if (LowJet) {
         // LowJet Bins                                                                                                                                                      
         if (met2_st < met2_st_boundary) {
@@ -302,6 +334,60 @@ TString HNL_LeptonCore::GetSR3StringBin(const TString& RegionTag, const TString&
         }
      }
   }
+  else if( HasFlag("SR_FlavDep")) {
+    if (channel == "MuMu") {
+      if (LowJet) {
+        // LowJet Bins                                                                                                                                                                                             
+        if (met2_st < met2_st_boundary) {
+          binLimit1 = 150; binLimit2 = 175; binLimit3 = 200; binLimit4 = 300;
+        } else {
+          binLimit1 = 175; binLimit2 = 250;
+        }
+      } else {
+        // HighJet Bins                                                                                                                                                                                            
+        if (met2_st < met2_st_boundary) {
+          binLimit1 = 160; binLimit2 = 180; binLimit3 = 200; binLimit4 = 225; binLimit5 = 275;
+        } else {
+          binLimit1 = 175; binLimit2 = 200; binLimit3 = 250;
+        }
+      }
+    }
+    else if (channel == "EE") {
+      if (LowJet) {
+	// LowJet Bins                                                                                                                                                                                           
+	if (met2_st < met2_st_boundary) {
+	  binLimit1 = 200; binLimit2 = 400; binLimit3 = 600; binLimit4 = 900;
+	} else {
+	  binLimit1 = 200; binLimit2 = 500;
+	}
+      } else {
+	// HighJet Bins                                                                                                                                                                                          
+	if (met2_st < met2_st_boundary) {
+	  binLimit1 = 300; binLimit2 = 375; binLimit3 = 450; binLimit4 = 550; binLimit5 = 700;
+	} else {
+	  binLimit1 = 250; binLimit2 = 350; binLimit3 = 400;
+	}
+      }
+    }
+    if (channel == "EMu") {
+      if (LowJet) {
+	// LowJet Bins                                                                                                                                                                                           
+	if (met2_st < met2_st_boundary) {
+	  binLimit1 = 175; binLimit2 = 250; binLimit3 = 325; binLimit4 = 425;
+	} else {
+	  binLimit1 = 250; binLimit2 = 400;
+	}
+      } else {
+	// HighJet Bins                                                                                                                                                                                          
+	if (met2_st < met2_st_boundary) {
+	  binLimit1 = 250; binLimit2 = 290; binLimit3 = 340; binLimit4 = 400; binLimit5 = 500;
+	} else {
+	  binLimit1 = 200; binLimit2 = 300; binLimit3 = 400;
+	}
+      }
+    }
+  }
+      
   else {
     if (channel == "MuMu") {
       

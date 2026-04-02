@@ -557,7 +557,8 @@ void HNL_Signal_Studies::RunLeptonChannel(HNL_LeptonCore::Channel channel_ID, st
   if(GetLLMass(LepsT) > 10.) {
     
     param.Name = param.DefName + "/"+ GetChannelString(channel_ID);
-    
+
+    /*
     FillCutflow(Region1,_weight, "SS"+GetChannelString(channel_ID)+"_LLMass",param);
     FillCutflow(Region1,_weight, "SS"+GetChannelString(channel_ID)+"_Jet",param);
     
@@ -586,6 +587,7 @@ void HNL_Signal_Studies::RunLeptonChannel(HNL_LeptonCore::Channel channel_ID, st
 	} // FAIL SR2                                                                                                       
       }// Fail SR1                                                                                                          
     }// Fail Tau                                                                                                            
+    */
   } // LLMASS      
   param.Name=param.DefName;
 

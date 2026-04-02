@@ -1,4 +1,4 @@
-pathAnaDir='/data6/Users/jalmond/2020/HL_SKFlatAnalyzer_UL_LONG/SKFlatAnalyzer/Analyzers/HNL/src/'
+pathAnaDir='/data6/Users/jalmond/HNL/SKFlatAnalyzer/Analyzers/HNL/src/'
 
 import os
 

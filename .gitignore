@@ -1,61 +1,103 @@
+# =========================
+# General
+# =========================
 *~
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/logs_Nov/
-data_validation/analysis_validation/region_comparison/FlavourSplitPlots/CR3/__pycache__
-data_validation/analysis_validation/limit_input_comparison/SR3/log_scan/
-data_validation/analysis_validation/limit_input_comparison/SR1/old_codes/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/log_scan/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/logs_v1/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/logs_v2/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/logs_v0/
-data_validation/analysis_validation/bdt_input/plots_v3_vs_v4/
-data_validation/analysis_validation/bdt_input/Plot_BDT_Shape/plots/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/plots
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/plots_fomratios/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/plots_version0/
-data_validation/analysis_validation/limit_input_comparison/SR2/log_scan/
-data_validation/analysis_validation/bdt_input/plots_v2_vs_v3/
-data_validation/analysis_validation/limit_input_comparison/SR1/log*
-data_validation/analysis_validation/region_comparison/Plots/ControlRegionLLL/results_lll_ratio*
-data_validation/analysis_validation/limit_input_comparison/NonBDT/log_scan/
-data_validation/analysis_validation/limit_input_comparison/NonBDT/logs
-data_validation/analysis_validation/limit_input_comparison/NonBDT/log
-data_validation/analysis_validation/limit_input_comparison/BDTScan/DetailedScan/LooseScan/log_scan/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/DetailedScan/LooseScan/logs
-data_validation/analysis_validation/limit_input_comparison/BDTScan/DetailedScan/log_scan/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/DetailedScan/logs
-data_validation/analysis_validation/limit_input_comparison/BDTScan/DetailedScan/plots
-data_validation/analysis_validation/limit_input_comparison/BDTScan/ClusterOpt/logs
-data_validation/analysis_validation/limit_input_comparison/BDTScan/LooseScan/logs
-data_validation/analysis_validation/limit_input_comparison/BDTScan/logs/
-data_validation/analysis_validation/limit_input_comparison/BDTScan/log_scan/
-data_validation/analysis_validation/region_comparison/FlavourSplitPlots/*/results_*
-data_validation/analysis_validation/region_comparison/Plots/*/results*
-data_validation/analysis_validation/merged_samples
-data_validation/analysis_validation/region_comparison/ANv5/results*
-data_validation/analysis_validation/merged_samples/AN*
-data_validation/analysis_validation/merged_samples/*log
-data_validation/analysis_validation/era_comparison/EE_2016/results*
-data_validation/analysis_validation/era_comparison/EE_2016/201*
-Tag_Probe/Results
-data/Run2UltraLegacy_v3/*/*/copyFiles.sh
-TMVA/LeptonID/BATCHSubmit
-TMVA/LeptonID/Validation
-Analyzers/.vscode/
 *.pyc
 *.pcm
 *.d
 *.so
 *_Dict.cxx
+
+# =========================
+# IDE / cache
+# =========================
+__pycache__/
+Analyzers/.vscode/
+
+# =========================
+# Common large / generated dirs
+# =========================
+lib/
+*/obj/
+*/*/obj/
+HNDiLeptonWorskspace/
+
+# =========================
+# TMVA
+# =========================
 TMVA/*/*.root
-TMVA/LeptonID/dataset
-TMVA/LeptonID/BATCHSubmit/BDTA
-TMVA/LeptonID/Validation/*/log*
-lib
-lib/*.tar.gz
-lib/*.rootmap
-*/obj
-*/*/obj
-HNDiLeptonWorskspace
+TMVA/dataset/
+TMVA/LeptonID/dataset/
+TMVA/LeptonID/BATCHSubmit/
+TMVA/LeptonID/Validation/
+
+# =========================
+# User / local config
+# =========================
 python/UserInfo_*.py
 python/UserInfo_template.py
-TMVA/dataset
+
+# =========================
+# Tag and Probe
+# =========================
+Tag_Probe/Results/
+
+# =========================
+# Data scripts
+# =========================
+data/Run2UltraLegacy_v3/*/*/copyFiles.sh
+
+# =========================
+# Analysis outputs (GLOBAL RULES)
+# =========================
+
+# Logs (all variants: log, logs, log_scan, logs_v1, etc.)
+data_validation/**/log*/
+data_validation/**/logs*/
+
+# Plots (plots, plots_v*, plots_ratio, etc.)
+data_validation/**/plots*
+
+# Old / temp analysis dirs
+data_validation/**/old_codes/
+data_validation/**/LooseScan/
+
+# Results
+data_validation/**/results*
+
+# =========================
+# Specific analysis patterns
+# =========================
+
+# Merged samples
+data_validation/analysis_validation/merged_samples/
+data_validation/analysis_validation/merged_samples/*log
+data_validation/analysis_validation/merged_samples/AN*
+
+# Region comparison outputs
+data_validation/analysis_validation/region_comparison/FlavourSplitPlots/*/results_*
+data_validation/analysis_validation/region_comparison/Plots/*/results*
+data_validation/analysis_validation/region_comparison/ANv5/results*
+
+# Era comparison
+data_validation/analysis_validation/era_comparison/EE_2016/results*
+data_validation/analysis_validation/era_comparison/EE_2016/201*
+
+# =========================
+# Limit input / binning optimisation
+# =========================
+
+# Covers BOTH:
+# - limit_binning_optimisation
+# - limit_input_comparison
+data_validation/analysis_validation/limit_*/**/log*/
+data_validation/analysis_validation/limit_*/**/logs*/
+data_validation/analysis_validation/limit_*/**/plots*
+data_validation/analysis_validation/limit_*/**/LooseScan/
+data_validation/analysis_validation/limit_*/**/old_codes/
+
+# =========================
+# Misc
+# =========================
+*.rootmap
+lib/*.tar.gz

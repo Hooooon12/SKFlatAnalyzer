@@ -1,13 +1,16 @@
 #!/bin/bash
 
-analyzer="HNL_SR3KinVar"
+analyzer="HNL_SR3_BDT_KinVar"
 rundir="HNL_SR3KinVar"
-sigpath="${SKFlat_WD}/runJobs/${analyzer}/Signals/"
-mcpath="${SKFlat_WD}/runJobs/${analyzer}/Bkg/"
+sigpath="${SKFlat_WD}/runJobs/SampleLists/Signals/Private/"
+mcpath="${SKFlat_WD}/runJobs/SampleLists/Bkg/Fake/"
+
 njobs=250
 nmax=250
-skim="--skim SkimTree_HNMultiLep"
+skim="--skim SkimTree_HNMultiLepBDT"
+fakeskim="--skim SkimTree_FakeEventSkimBDT"
 era_list=("2016postVFP" "2016preVFP" "2017" "2018")
+era_list=("2018")
 dryrun=false
 
 # Enable dry run if second argument is --dryrun
@@ -27,10 +30,10 @@ run_cmd() {
 # Default job submission
 run_default() {
     for era in "${era_list[@]}"; do
-        run_cmd "SKFlat.py -a $analyzer -l ${sigpath}/DY.txt -n 5 --nmax $nmax -e $era &"
-        run_cmd "SKFlat.py -a $analyzer -l ${sigpath}/VBF.txt -n 5 --nmax $nmax -e $era &"
-        run_cmd "SKFlat.py -a $analyzer -l ${sigpath}/SSWW.txt -n 5 --nmax $nmax -e $era &"
-        run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/${era}/MC.txt -n 25 --nmax $nmax -e $era $skim &"
+        run_cmd "SKFlat.py -a $analyzer -l ${sigpath}/DY1.txt -n 5 --nmax $nmax -e $era $skim&"
+        run_cmd "SKFlat.py -a $analyzer -l ${sigpath}/VBF1.txt -n 5 --nmax $nmax -e $era $skim&"
+        #run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/FakeOptAll.txt -n 100 --nmax $nmax --userflags RunFake  -e $era $fakeskim &"
+	#run_cmd "SKFlat.py -a $analyzer -i TTLJ_powheg  -n 100 --nmax $nmax --userflags RunFake  -e $era $fakeskim &"
     done
 }
 

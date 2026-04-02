@@ -34,10 +34,10 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
 
   //// weight WJet and DY by 0.5 to allow weigted sample to be consistent with TTBar when addinh WJet MG && MCatNLO
 
-  std::vector<Electron>   ElectronCollProbe = GetElectrons("MVALoose", 10., 2.5); 
+  std::vector<Electron>   ElectronCollProbe = GetElectrons("HNL_ULID_FO", 10., 2.5); 
   std::vector<Electron>   ElectronColl      = GetElectrons("passPOGTight", 10., 2.5); 
 
-  std::vector<Muon>       MuonCollProbe     = GetMuons    ("HNL_ULID_Baseline", 10., 2.4);
+  std::vector<Muon>       MuonCollProbe     = GetMuons    ("HNL_ULID_FO", 10., 2.4);
   std::vector<Muon>       MuonColl          = GetMuons    ("POGTightWithTightIso", 10., 2.4);
 
 
@@ -100,29 +100,25 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
     
     for(auto ilep : MuonCollProbe){
       if (!ilep.IsFake()) continue;
+      double s_weight = (weight > 0) ? 1 : -1;
       TString LepType = "Fake"+ilep.CloseJet_Flavour();
       double bvsl_score = ilep.CloseJet_BScore();
       double cvsb_score = ilep.CloseJet_CvsBScore();
       double cvsl_score = ilep.CloseJet_CvsLScore();
-      FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/"+LepType+"_BvsLscore", bvsl_score  , weight, 200, -1., 1);
-      FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/"+LepType+"_BvsCscore", cvsb_score  , weight, 200, -1., 1);
-      FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/"+LepType+"_CvsLscore", cvsl_score  , weight, 200, -1., 1);
+      FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/"+LepType+"_BvsLscore", bvsl_score  , s_weight, 200, -1., 1);
+      FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/"+LepType+"_BvsCscore", cvsb_score  , s_weight, 200, -1., 1);
+      FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/"+LepType+"_CvsLscore", cvsl_score  , s_weight, 200, -1., 1);
 
       map<TString, double> mapBDT = ilep.MAPBDT();
-      for(auto imap : mapBDT )  FillHist("BDTVariableFS/"+ ilep.GetFlavour()+ "/"+ LepType+"_"+imap.first, imap.second  , weight, 200, -1., 1);
+      for(auto imap : mapBDT )  FillHist("BDTVariableFS/"+ ilep.GetFlavour()+ "/"+ LepType+"_"+imap.first, imap.second  , s_weight, 200, -1., 1);
 
-      if (bvsl_score < 0.3 && cvsl_score < 0.1 )       FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/JetTaggerBin_"+LepType, 1  , weight, 5, 0., 5);
-      if (bvsl_score > 0.3 && cvsb_score < 0.3 )       FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/JetTaggerBin_"+LepType, 2  , weight, 5, 0., 5);
-      if (cvsl_score > 0.1 && cvsb_score > 0.3 )       FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/JetTaggerBin_"+LepType, 3  , weight, 5, 0., 5);
-      
-      if(ilep.HNL_MVA_Fake("QCD_LFvsHF_v5") > 0) FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/LepQCDTaggerBin_"+LepType, 1  , weight, 5, 0., 5);
-      else  {
-	if(ilep.HNL_MVA_Fake("QCD_BvsC_v5") > 0) FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/LepQCDTaggerBin_"+LepType, 2  , weight, 5, 0., 5);
-	else FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/LepQCDTaggerBin_"+LepType, 3  , weight, 5, 0., 5);
-      } 
+      FillMuonKinematicPlots( param, "Fake_"+ilep.GetFlavour(), ilep, s_weight);
+      FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/MVA_"+LepType, ilep.MVA(), s_weight, 200, -1., 1);
+      FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/MVA", ilep.MVA() ,     s_weight, 200, -1., 1);
+      if(nPileUp < 20)       FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/Pileup0to20_MVA", ilep.MVA() ,     s_weight, 200, -1., 1);
+      else       if(nPileUp < 40)       FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/Pileup20to40_MVA", ilep.MVA() ,     s_weight, 200, -1., 1);
+      else           FillHist("FakeSplit/"+ ilep.GetFlavour()+ "/Pileup40plus_MVA", ilep.MVA() ,     s_weight, 200, -1., 1);
     }
-    
-    
     return;
   }
   
@@ -300,7 +296,7 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
       
       if(i.Contains("IsFake") && HasBjet) continue;
 
-      if(imuon.PassID("HNL_HighPt_ULID_"+GetYearString()))FillMuonKinematicPlots( param, "Tight"+imuon.GetFlavour(), imuon, weight);
+      if(imuon.PassID("HNL_ULID_"+GetYearString()))FillMuonKinematicPlots( param, "Tight"+imuon.GetFlavour(), imuon, weight);
       
       map<TString, double> mapBDT = imuon.MAPBDT();
       for(auto imap : mapBDT )  {
@@ -314,7 +310,7 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
         if(imuon.HNL_MVA_Fake("EDv4")  > 0.6)  FillHist("BDTVariablesNP4/"  + imuon.GetFlavour()+ "/"+ i+"_"+imap.first, imap.second  , weight, 200, -1., 1);
       }
 
-      vector<TString> IDs = {"HNTightV2","HNL_Peking","HNTight_17028","HNL_HN3L","HNL_HighPt_ULID_"+GetYearString()};
+      vector<TString> IDs = {"HNTightV2","HNL_Peking","HNTight_17028","HNL_HN3L","HNL_ULID_"+GetYearString()};
 
       int nbin_pt    =10;
       double ptbins    [nbin_pt    +1] = { 10.,15.,20.,30.,35., 40.,50., 60., 80., 100.,200.};
@@ -370,7 +366,7 @@ void HNL_Lepton_ID_BDT_Studies::executeEvent(){
       if(i.Contains("HF") && !i.Contains("IsFake")) continue;
       if(i.Contains("IsFake") && HasBjet) continue;
       
-
+      
       if(iel.PassID("HNL_ULID_HighPt_"+GetYearString()))FillElectronKinematicPlots(param, "Tight"+iel.GetFlavour(), iel, weight);
       FillElectronKinematicPlots(param,"LooseUL_"+iel.GetFlavour()+i , iel, weight);
 
