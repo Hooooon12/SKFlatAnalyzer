@@ -18,7 +18,8 @@ workdir = "/data9/Users/HNL_public/SUS-24-014/Combine/CMSSW_14_1_0_pre4/src/Dile
 
 #years = ["2016","2017","2018"]
 #years = ["2016preVFP","2016postVFP","2017","2018","Run2"]
-years = ["Run2"]
+#years = ["Run2"]
+years = ["2016preVFP","2016postVFP"]
 #years = ["2017"]
 #years = ["2018"]
 channels = ["MuMu","EE","EMu"]
@@ -107,6 +108,7 @@ IDs = [""] #["_ID"]
 #myWPs = ["ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_SigInCR_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_OnlySS_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval"]
 #myWPs = ["ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavDep_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavEraDep_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval_FakelnN"]
 #myWPs = ["ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval"]
+myWPs = ["ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR2_BinRefinement_Decorr_JetDecorr_Preapproval"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]

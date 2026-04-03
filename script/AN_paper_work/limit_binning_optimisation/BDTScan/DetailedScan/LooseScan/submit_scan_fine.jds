@@ -1,0 +1,15 @@
+universe        = vanilla
+executable      = run_from_scan_fine.sh
+transfer_input_files = scan_fom_fine.py
+arguments       = $(MASS) $(FLAV) $(ERA) $(NBINS) $(MAXITER)
+log             = logs/scan_fine_$(MASS)_$(FLAV)_$(ERA)_$(NBINS).log
+output          = logs/scan_fine_$(MASS)_$(FLAV)_$(ERA)_$(NBINS).out
+error           = logs/scan_fine_$(MASS)_$(FLAV)_$(ERA)_$(NBINS).err
+request_cpus    = 1
+request_memory  = 4 GB
+getenv          = True
++JobFlavour     = "longlunch"
+concurrency_limits = n600.jalmond
+
+
+queue MASS, FLAV, ERA, NBINS, MAXITER from fom_scan_list.txt

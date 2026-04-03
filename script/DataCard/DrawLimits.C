@@ -174,10 +174,11 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_OnlySS_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
   //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
   //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_SigInCR_Preapproval"); // add WP you want to overlay
-  WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavDep_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
+  //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavDep_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
   //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavEraDep_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
   //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Merged_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
   //WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval_FakelnN"); // add WP you want to overlay
+  WPs.push_back("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR2_BinRefinement_Decorr_JetDecorr_Preapproval"); // add WP you want to overlay
   if(SepLimit) WPs = {WP_nom}; // same name with the nominal, but separate each signal/SR
   //vector<TString> tags = {"_syst"}; // Default setting
   vector<TString> tags = {"_HNL_syst"}; // Default setting
