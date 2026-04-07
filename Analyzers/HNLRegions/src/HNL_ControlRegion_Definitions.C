@@ -66,8 +66,11 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));
 
-    FillCutflow(CutFlow_Region, weight_ll, "NoCut", param);
-   
+    if(RunCR("SS_CR",CRs)){
+      FillCutflow(HNL_LeptonCore::ChannelDepInc,  weight_ll, GetChannelString(dilep_channel) +"_NoCut",param);
+      
+      FillCutflow(CutFlow_Region, weight_ll, "NoCut", param);
+    }
 
     double weight_channel = weight_ll;
 
@@ -88,7 +91,8 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
       /// If running OS Region then fakes use Gen
       if(!PassGenMatchFilter(LepsT,param)) continue;
     }
-    
+
+   
     FillCutflow(CutFlow_Region, weight_channel, "GENMatched",param);
     
     if(run_Debug) cout << "HNL_RegionDefinitions::RunAllControlRegions [" << GetChannelString(channels[ic])<<" ]" << endl;
@@ -122,6 +126,8 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
     if(TauColl_Cleaned.size() > 0) continue;
 
     FillCutflow(CutFlow_Region, weight_channel, "TauVeto",param);
+
+    if(LepsT.size() ==2)  FillCutflow(HNL_LeptonCore::ChannelDepDilep, weight_channel, GetChannelString(dilep_channel) +"_Dilep",param);
     
     if(run_Debug) {cout <<"RunAllControlRegions ["<< nlog<< "] pass Lep Flavour" << endl;nlog++;}
     
@@ -141,6 +147,10 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
     EvalTrigWeight(dilep_channel, muons,electrons,param, ev, weight_channel);
 
     FillCutflow(CutFlow_Region, weight_channel, "Trigger",param);
+
+    FillCutflow(HNL_LeptonCore::ChannelDepTrigger, weight_channel, GetChannelString(dilep_channel) +"_MultiTrigger",param); /// test adding SL trigger
+    FillCutflow(HNL_LeptonCore::ChannelDepTrigger, weight_channel, GetChannelString(dilep_channel) +"_Trigger",param);
+
     double weight_OS = weight_channel;
     /// For OS Fakes use SS TT events - VV , but RunFake uses LL so need to apply Tight ID 
     bool PassTight = true;
@@ -250,23 +260,40 @@ void HNL_RegionDefinitions::RunAllControlRegions(std::vector<Electron> electrons
       // LLL / LLLL 
       if(ConversionSplitting(LepsT,RunConv,4,param)){
         //////  SR1+3 ZZ
-        if(FillZZCRPlots (fourlep_channel, LepsT, LepsV,TauColl_Cleaned, JetColl, AK8_JetColl, B_JetColl, ev, METv, paramQuadlep, weight_channel)) passedMain.push_back("ZZ_CR");
+        if(FillZZCRPlots (fourlep_channel, LepsT, LepsV,TauColl_Cleaned, JetColl, AK8_JetColl, B_JetColl, ev, METv, paramQuadlep, weight_channel)) {
+          passedMain.push_back("ZZ_CR");
+          FillCutflow(HNL_LeptonCore::CRLowMass, weight_channel, "ZZ_CR",param);
+        
+        }
       }
-      
+            
       if(ConversionSplitting(LepsT,RunConv,3,param)){
         FillCutflow(CutFlow_Region, weight_channel, "VG_VR",param);
         
         //if(FillWGCRPlots( trilep_channel, LepsT, LepsV,TauColl_Cleaned, JetColl, AK8_JetColl, B_JetColl, ev, METv, paramTrilep, weight_channel)) passedFull.push_back("WG_CR");
-        if(FillZGCRPlots( trilep_channel, LepsT, LepsV,TauColl_Cleaned, JetColl, AK8_JetColl, B_JetColl, ev, METv, paramTrilep, weight_channel)) passedMain.push_back("ZG_CR");
+        if(FillZGCRPlots( trilep_channel, LepsT, LepsV,TauColl_Cleaned, JetColl, AK8_JetColl, B_JetColl, ev, METv, paramTrilep, weight_channel)) {
+          passedMain.push_back("ZG_CR");
+          FillCutflow(HNL_LeptonCore::CRLowMass, weight_channel, "ZG_CR",param);
+        }
         
         ////// WZ CR [SR1+3]
         
         if(FillWZCRPlots (trilep_channel,  LepsT, LepsV,TauColl_Cleaned, JetColl, AK8_JetColl, B_JetColl, ev, METv, paramTrilep, weight_channel))  {
-          if(AK8_JetColl.size() > 0) passedMain.push_back("WZ_SR1");
-          else if(!PassVBF(VBF_JetColl,LepsT,500))  passedMain.push_back("WZ_SR3");
+          if(AK8_JetColl.size() > 0) {
+            passedMain.push_back("WZ_SR1");
+            FillCutflow(HNL_LeptonCore::CRLowMass, weight_channel, "WZ_CR1",param);
+        
+          }
+          else if(!PassVBF(VBF_JetColl,LepsT,500))  {
+            passedMain.push_back("WZ_SR3");
+                  FillCutflow(HNL_LeptonCore::CRLowMass, weight_channel, "WZ_CR3",param);
+          }
         }
         //// AN[2] Table 13 
-        if(FillWZVBFCRPlots      (trilep_channel, LepsT, LepsV,TauColl_Cleaned, VBF_JetColl, AK8_JetColl, B_JetColl, ev, METv, paramTrilep, weight_channel)) passedMain.push_back("WZ_SR2");
+        if(FillWZVBFCRPlots      (trilep_channel, LepsT, LepsV,TauColl_Cleaned, VBF_JetColl, AK8_JetColl, B_JetColl, ev, METv, paramTrilep, weight_channel)) {
+          passedMain.push_back("WZ_SR2");
+          FillCutflow(HNL_LeptonCore::CRLowMass, weight_channel, "WZ_CR2",param);
+        }
         /// AN[3] Table 15
         //if(FillWZVBF2CRPlots      (trilep_channel, LepsT, LepsV,TauColl_Cleaned, VBF_JetColl, AK8_JetColl, B_JetColl, ev, METv, paramTrilep, weight_channel)) passedFull.push_back("WZ_SR2b");
 

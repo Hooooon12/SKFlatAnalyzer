@@ -166,6 +166,27 @@ int  Electron::PassHNLTight(TString ID) const{
 
   //// Now List Fake DeepJet Scan IDs v1-9 a,b,c....                                                                                                                                                                  
 
+  if(ID.Contains("HNL_ULID_FO_Scan")){
+
+    double BJetDeepJetCut = GetDeepJetFromID(ID,"HNL_ULID_FO_Scan") ;
+
+    bool ApplyCloseJet_CvsBScore=ApplyCvsB(ID);
+    bool ApplyCloseJet_CvsLScore=ApplyCvsB(ID);
+    double CBJetDeepJetCut = GetCvsBCut(ID);
+    double CLJetDeepJetCut = GetCvsLCut(ID);
+
+    if(!PassID("HNL_ULID_Defv2_FO")) return 0;
+    if(!BtoI(PassMVABaseLine() && Pass_MVA_BBEC("Fake_EDv5", 0.25, 0.25,   "Fake_v5"))){
+      if(this->HasCloseJet()){
+	if(CloseJet_Ptratio() < CloseJet_PtratioCut)     return 0;
+	if(this->CloseJet_BScore()    >  BJetDeepJetCut) return 0;
+	if(ApplyCloseJet_CvsBScore && this->CloseJet_CvsBScore() <  CBJetDeepJetCut ) return 0;
+	if(ApplyCloseJet_CvsLScore && this->CloseJet_CvsLScore() >  CLJetDeepJetCut ) return 0;
+      }
+    }
+    return 1;
+  }
+  
   if(ID.Contains("HNL_ULID_FO_")){
 
     ///// V0 ID is BASIC loose ID with NO DEEPJET cuts                                                                                                                                                                                                                                                                

@@ -3,7 +3,7 @@
 # === Config ===
 analyzer="HNL_Signal_Studies"
 rundir="HNL_Signal_Studies"
-mcpath="${SKFlat_WD}/runJobs/HNL/${analyzer}/Bkg/"
+mcpath="${SKFlat_WD}/runJobs/SampleLists/Bkg/Fake/"
 sigpath="${SKFlat_WD}/runJobs/SampleLists/Signals/"
 datapath="${SKFlat_WD}/runJobs/HNL/${analyzer}/DATA/"
 
@@ -75,11 +75,12 @@ run_Z() {
 }
 
 run_default() {
-  local era_list=("2017")
+  local era_list=("2016preVFP" "2016postVFP" "2017" "2018")
   for era in "${era_list[@]}"; do
-    run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Conv.txt -n 100 --nmax 400 -e $era --skim SkimTree_ConvEventSkim"
-    run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Fake.txt -n 100 --nmax 400 -e $era --skim SkimTree_FakeEventSkimBDT"
-    run_cmd "SKFlat.py -a $analyzer -i DYJets -n 500 --nmax 400 -e $era --skim SkimTree_DileptonBDT"
+      #run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Conv.txt -n 100 --nmax 400 -e $era --skim SkimTree_ConvEventSkim"
+      run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/FakeSigStudy.txt -n 100 --nmax 400 -e $era --skim SkimTree_FakeEventSkimBDT"
+      run_cmd "SKFlat.py -a $analyzer -i TTLL_powheg -n 500 --nmax 400 -e $era --skim SkimTree_DileptonBDT"
+      run_cmd "SKFlat.py -a $analyzer -i DYJetsToEE_MiNNLO -n 500 --nmax 400 -e $era --skim SkimTree_DileptonBDT"
   done
 }
 

@@ -353,9 +353,44 @@ bool Muon::PassID(TString ID) const {
     return true;
   }
 
+
+  if(ID.Contains("HNL_ULID_FO_Scan")){
+
+    double BJetDeepJetCut = 999;
+    if(ID.Contains("v1")) BJetDeepJetCut = 0.025;   //// Version 1 == TOP                                                                                                                                                                                          
+    if(ID.Contains("v2")) BJetDeepJetCut = 0.05;
+    if(ID.Contains("v3")) BJetDeepJetCut = 0.1;
+    if(ID.Contains("v4")) BJetDeepJetCut = 0.2;
+    if(ID.Contains("v5")) BJetDeepJetCut = 0.3;
+    if(ID.Contains("v6")) BJetDeepJetCut = 0.4;
+    if(ID.Contains("v7")) BJetDeepJetCut = 0.5;
+    if(ID.Contains("v8")) BJetDeepJetCut = 0.75;
+    if(ID.Contains("v9")) BJetDeepJetCut = 0.9;
+    if(!PassID("HNL_ULID_FO_LOOSE")) return false;
+
+    double mva_cut = 0.5;
+    if(ID.Contains("Scan050")) mva_cut = 0.5;   //// Version 1 == TOP
+    if(ID.Contains("Scan064")) mva_cut = 0.64;   //// Version 1 == TOP
+    if(ID.Contains("Scan072")) mva_cut = 0.72;   //// Version 1 == TOP                                                                                                                                                                                                      
+    
+    
+    if(MVA() < mva_cut) {
+      if(this->HasCloseJet()){
+        if(CloseJet_Ptratio() < 0.45)         return false;
+        if(this->CloseJet_BScore()    >  BJetDeepJetCut) return false;
+      }
+    }
+    return true;
+  }
+
+  
+
   
   if(ID == "HNL_ULID")        return (PassID("HNL_ULID_FO_LOOSE") && (MVA() >  MVACut));
   if(ID == "HNL_ULID_"+Year)  return (PassID("HNL_ULID_FO_LOOSE") && (MVA() >  MVACut));
+  if(ID == "HNL_ULID_Scan050")  return (PassID("HNL_ULID_FO_LOOSE") && (MVA() >  0.5));
+  if(ID == "HNL_ULID_Scan064")  return (PassID("HNL_ULID_FO_LOOSE") && (MVA() >  0.64));
+  if(ID == "HNL_ULID_Scan072")  return (PassID("HNL_ULID_FO_LOOSE") && (MVA() >  0.72));
 
   //// ISDF functions to check several WP for each MVA                                                                                                                                                                                                                                                                                                     
 

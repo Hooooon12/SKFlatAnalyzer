@@ -33,6 +33,8 @@ void HNL_Lepton_Conversion_Studies::ProcessLeptonCategory(const std::string& s_l
     if (SameCharge(leptons)) {
       Fill_RegionPlots(param, labelPrefix + "/ConvSS", TauColl_Uncleaned, AK4_JetColl, AK8_JetColl, leptons, METv, nPV, weight);
       FillHist(labelPrefix + "/SS_Photon_Status23", PhotonPt, weight, 500, 0, 1000);
+      //      FillHist(labelPrefix + "/SS_Photon_Status23_Mass", PhotonPt, weight, 500, 0, 1000);
+	    
     } else {
       FillHist(labelPrefix + "/OS_Photon_Status23", PhotonPt, weight, 500, 0, 1000);
       Fill_RegionPlots(param, labelPrefix + "/ConvOS", TauColl_Uncleaned, AK4_JetColl, AK8_JetColl, leptons, METv, nPV, weight);
@@ -52,11 +54,17 @@ void HNL_Lepton_Conversion_Studies::executeEvent(){
   if(_jentry < 100) PrintGen(All_Gens);
 
   double PhotonPt=0;
+  double PhotonMass=0;
   for(unsigned int i=2; i<All_Gens.size(); i++){
     Gen gen = All_Gens.at(i);
     if(gen.PID() == 22 && gen.Status()==23)   PhotonPt=gen.Pt();
     if(gen.PID() == 22 && gen.Status()==23)  FillHist( ("Photon_Status23"), gen.Pt(), weight, 500, 0, 1000);
     if(gen.PID() == 22 && gen.Status()==1)  FillHist( ("Photon_Status1"), gen.Pt(), weight, 500, 0, 1000);
+
+    if(gen.PID() == 22 && gen.Status()==23)   PhotonMass=gen.M();
+    if(gen.PID() == 22 && gen.Status()==23)  FillHist( ("Photon_Status23_mass"), gen.M(), weight, 500, 0, 1000);
+    if(gen.PID() == 22 && gen.Status()==1)  FillHist( ("Photon_Status1_mass"), gen.M(), weight, 500, 0, 1000);
+
     
   }
 

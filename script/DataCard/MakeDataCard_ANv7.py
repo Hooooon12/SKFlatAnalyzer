@@ -162,33 +162,35 @@ def Initialize_Process(WP):
         ('signalVBF', '-1'),
         ('signalSSWW', '-1'),
         ('signalWeinberg', '-1'),
-    ]) if "EMuCF" in WP or "Preapproval" in WP else\
-    OrderedDict([
-        ('fake', '-1'),
-        ('cf', '-1'),
-        ('zg', '-1'),
-        #('conv_others', '-1'), # FIXME deprecated. only preservation purposes
-        ('mc_others', '-1'), # conv_others + prompt_others
-        ('wz', '-1'),
-        ('zz', '-1'),
-        ('ww', '-1'),
-        #('prompt_others', '-1'), # FIXME deprecated. only preservation purposes
-        #('signalDYVBF', '-1'),
-        ('signalDY', '-1'),
-        ('signalVBF', '-1'),
-        ('signalSSWW', '-1'),
-        ('signalWeinberg', '-1'),
-    ])
+    ]) # this is the nominal after EMu CF (wz -> wz/wz_ewk)
+    #OrderedDict([
+    #    ('fake', '-1'),
+    #    ('cf', '-1'),
+    #    ('zg', '-1'),
+    #    #('conv_others', '-1'), # FIXME deprecated. only preservation purposes
+    #    ('mc_others', '-1'), # conv_others + prompt_others
+    #    ('wz', '-1'),
+    #    ('zz', '-1'),
+    #    ('ww', '-1'),
+    #    #('prompt_others', '-1'), # FIXME deprecated. only preservation purposes
+    #    #('signalDYVBF', '-1'),
+    #    ('signalDY', '-1'),
+    #    ('signalVBF', '-1'),
+    #    ('signalSSWW', '-1'),
+    #    ('signalWeinberg', '-1'),
+    #])
 
 def MakeRateString(region, era, channel, mass, signal, WP):
   this_process = Initialize_Process(WP)
 
-  if "EMuCF" in WP or "Preapproval" in WP:
-    if "MuMu" in channel:
-      this_process['cf'] = '0'
-  else:
-    if "Mu" in channel:
-      this_process['cf'] = '0'
+  #if "EMuCF" in WP or "Preapproval" in WP:
+  #  if "MuMu" in channel:
+  #    this_process['cf'] = '0'
+  #else:
+  #  if "Mu" in channel:
+  #    this_process['cf'] = '0'
+  if "MuMu" in channel: # This is the new nominal
+    this_process['cf'] = '0'
 
   if mass.startswith("M") and mass[1:].isdigit():
     mass_int = int(mass[1:])

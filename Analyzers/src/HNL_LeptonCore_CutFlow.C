@@ -510,6 +510,7 @@ TString HNL_LeptonCore::GetCutFlowNameFromRegion(HNL_LeptonCore::SearchRegion sr
   if(sr==ChannelDepSR3HM)   EVHistName ="ChannelDependant_SR3_HighMass";
 
   if(sr==SRLowMass)         EVHistName  ="SR_SummaryBDT";
+  if(sr==CRLowMass)         EVHistName  ="CR_Summary";
   if(sr==SRHighMass)        EVHistName ="SR_Summary";
 
   if(sr==ChannelDepCR1)     EVHistName ="ChannelDependant_CR1";
@@ -663,6 +664,8 @@ vector<TString>  HNL_LeptonCore::GetLabelsFromRegion(HNL_LeptonCore::SearchRegio
   if(sr==SRHighMass)   labels = {"Preselection","Inclusive_SR","SR1","SR2","SR3_HighMass"};
   if(sr == SignalRegion)     labels = {"NoCut","Trigger", "GENMatched","HEMVeto","METFilter","LeptonFlavour","TauVeto","SSLepton","LepVeto","DiLepMass", "BJet","MET"};
   /// CR lanels 
+  if(sr==CRLowMass)    labels = {"Preselection","CR1_IB","CR1_IM","CR2_IB", "CR2_IM","CR3_IB","CR3_IM","WZ_CR1","WZ_CR2","WZ_CR3","ZZ_CR","ZG_CR"};
+  
   if(sr == ControlRegion)    labels = {"NoCut","HEMVeto","METFilter","GENMatched","LeptonFlavour","TauVeto","Trigger","OS_VR","VV_VR","VG_VR","SS_CR","VBF_CR"};
 
   //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       

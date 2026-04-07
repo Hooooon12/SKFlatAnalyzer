@@ -4,7 +4,7 @@
 analyzer="HNL_Signal_Efficiency"
 rundir="HNL_Signal_Efficiency"
 sigpath="${SKFlat_WD}/runJobs/HNL/${analyzer}/Signals/"
-mcpath="${SKFlat_WD}/runJobs/HNL/${analyzer}/Bkg/"
+mcpath="${SKFlat_WD}/runJobs/SampleLists/Bkg/Fake/"
 datapath="${SKFlat_WD}/runJobs/SampleLists/Data/"
 
 njobs=5
@@ -45,9 +45,9 @@ run_default() {
     # run_cmd "SKFlat.py -a $analyzer -l $sigpath/VBF.txt -n $njobs --nmax $nmax -e $era --skim SkimTree_HNMultiLepBDT"
     # run_cmd "SKFlat.py -a $analyzer -l $sigpath/SSWW.txt -n $njobs --nmax $nmax -e $era --skim SkimTree_HNMultiLepBDT"
     # run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Conv.txt -n 100 --nmax 400 -e $era --skim SkimTree_ConvEventSkim"
-    run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/Fake.txt -n 100 --nmax 400 -e $era --skim SkimTree_FakeEventSkimBDT"
-    # run_cmd "SKFlat.py -a $analyzer -i TTLL_powheg -n 400 --nmax 400 -e $era --skim SkimTree_DileptonBDT"
-    # run_cmd "SKFlat.py -a $analyzer -i DYJetsToEE_MiNNLO -n 400 --nmax 400 -e $era --skim SkimTree_DileptonBDT"
+    run_cmd "SKFlat.py -a $analyzer -l ${mcpath}/FakeSigStudy.txt -n 100 --nmax 400 -e $era --skim SkimTree_FakeEventSkimBDT"
+    #run_cmd "SKFlat.py -a $analyzer -i TTLL_powheg -n 400 --nmax 400 -e $era --skim SkimTree_DileptonBDT"
+    #run_cmd "SKFlat.py -a $analyzer -i DYJetsToEE_MiNNLO -n 400 --nmax 400 -e $era --skim SkimTree_DileptonBDT"
   done
 }
 

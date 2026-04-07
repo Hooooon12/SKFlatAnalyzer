@@ -1028,7 +1028,8 @@ void HNL_LeptonCore::FillLeptonKinematicPlots(AnalyzerParameter& param, TString 
 
   label += label_lep;
 
-  /// Kinematics                                                                                                                                                                                                                                                                
+  /// Kinematics
+  if(_jentry < 10000) cout << "Filling " << cut+ "/Lepton_Pt_"+label << endl;
   FillHist( cut+ "/Lepton_Pt_"+label   , lep.Pt() , w, 5000, 0.0, 10000.0, label_lep+"p_{T} GeV");
   FillHist( cut+ "/Lepton_Eta_"+label  , lep.Eta() , w, 60, -3.0, 3.0,label_lep+"#eta");
   FillHist( cut+ "/Lepton_Phi_"+label  , lep.Phi() , w, 200, -10.0, 10.0,label_lep+"#phi");
@@ -1060,7 +1061,7 @@ void HNL_LeptonCore::FillLeptonKinematicPlots(AnalyzerParameter& param, TString 
     FillHist( cut+ "/Lepton_NEMFracCJ_"+label     , JetAllColl.at(IdxMatchJet).NeutralEmEnergyFraction(), w, 100, 0.0, 1.0, "");
     FillHist( cut+ "/Lepton_CEMFracCJ_"+label     , JetAllColl.at(IdxMatchJet).ChargedEmEnergyFraction(), w, 100, 0.0, 1.0, "");
     FillHist( cut+ "/Lepton_NFracCJ_"+label       , JetAllColl.at(IdxMatchJet).NeutralHadEnergyFraction(), w, 100, 0.0, 1.0, "");
-    FillHist( cut+ "/Lepton_JetDiscCJ_"+label     , Jet_Disc , w, 400, -2.0, 2.0, "");
+    FillHist( cut+ "/Lepton_JetDiscCJ_"+label     , Jet_Disc , w, 100, 0, 1.0, "");
     FillHist( cut+ "/Lepton_PtRatioAwayJet_"+label, PtRatioAwayJet , w, 100, 0.0, 5.0, "");
   }
 
@@ -1086,7 +1087,9 @@ void HNL_LeptonCore::FillMuonKinematicPlots(AnalyzerParameter& param, TString  c
   FillLeptonKinematicPlots(param, cut, lepObj,w);
 
   TString label = param.hpostfix;
-  
+
+  if(_jentry < 10000) cout << "Filling Muon " << cut+ "/Muon/Mva_"+label << endl;
+
   FillHist( cut+ "/Muon/Mva_"+label    , lep.MVA(), w, 600, -1.0, 1.0, "MVA");
   FillHist( cut+ "/Muon/Chi2_"+label   , lep.Chi2(), w, 200,0.0, 20.0, "chi2");
   FillHist( cut+ "/Muon/Validhits_"+label  , lep.ValidMuonHits(), w, 100,0.0, 100.0, "");

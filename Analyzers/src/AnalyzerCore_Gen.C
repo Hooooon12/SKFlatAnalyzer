@@ -896,6 +896,7 @@ bool AnalyzerCore::ConversionSplitting(std::vector<Lepton *> leps, bool RunConvM
   if(HasFlag("GENTConv")) SplitExtConv=true;
 
   //  int nlep_pt15(0);
+  bool HasLowPtPrompt = false;
   bool LowPtConv = false;
   /// Only remove events if..
   if(nlep != int(leps.size())) return true;
@@ -904,10 +905,11 @@ bool AnalyzerCore::ConversionSplitting(std::vector<Lepton *> leps, bool RunConvM
   for(auto ilep : leps){
     if(HasMEPhoton(*ilep)) hasExtConv=true;
     if(ilep->Pt() < 15. && ilep->IsConv()) LowPtConv=true;
+    if(nlep == 2 && ilep->Pt() < 15. && !ilep->IsConv()) HasLowPtPrompt = true;
   }
 
   if(MCSample.Contains("ZGTo")){
-    if(LowPtConv) return false;
+    if(LowPtConv || HasLowPtPrompt) return false;
 
     if(SplitExtConv){
       if(hasExtConv) return true;
@@ -917,7 +919,7 @@ bool AnalyzerCore::ConversionSplitting(std::vector<Lepton *> leps, bool RunConvM
   }
   else if(MCSample.Contains("DYJets")) {
 
-    if(LowPtConv) return true;
+    if(LowPtConv || HasLowPtPrompt) return true;
 
     if(SplitExtConv){
       if(!hasExtConv) return true;
@@ -929,12 +931,12 @@ bool AnalyzerCore::ConversionSplitting(std::vector<Lepton *> leps, bool RunConvM
   
   if(MCSample.Contains("WGToLNuG_MG")){
 
-    if(LowPtConv) return true;
+    if(LowPtConv || HasLowPtPrompt) return true;
     else return false;
 
   }
   else if(MCSample.Contains("WGToLNuG")) {
-    if(!LowPtConv) return true;
+    if(!(LowPtConv || HasLowPtPrompt)) return true;
     else return false;
   }
 

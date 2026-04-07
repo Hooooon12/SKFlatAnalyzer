@@ -1237,7 +1237,8 @@ for tag in args.histTag:
               print("##### Making 2D hist for",input_list[i][2],"#####")
               FillScan(h_scan,input_list[i][1],input_list[i][2]) # out, in, name
           
-          if Blinded:
+          #if Blinded:
+          if Blinded or (inputTag=="ANv7_L2review" and not CheckHist(f_data,input_hist,"data_obs")): # NOTE 2016postVFP EE CR2 IB in ANv7_L2review doesn't have data due to Tight Bjet selection # FIXME FIXME later, should fill 0 events instead
             print("##### This analysis is blinded.")
             print("##### Creating Asimov data...")
             #print("Adding prompt...")

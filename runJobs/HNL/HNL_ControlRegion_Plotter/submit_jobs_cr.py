@@ -7,6 +7,8 @@ user = getpass.getuser()
 # Define paths using environment variable
 base_path = os.getenv("SKFlat_WD")
 
+
+sigpath = os.path.join(base_path, "runJobs/SampleLists/Signals/")
 mcpath = os.path.join(base_path, "runJobs/SampleLists/Bkg/")
 datapath = os.path.join(base_path, "runJobs/SampleLists/Data/")
 
@@ -32,6 +34,7 @@ parser.add_argument('-skim', dest='skim', default="SkimTree_HNMultiLepBDT")
 parser.add_argument('-flags', dest='flags', default="")
 
 parser.add_argument('--preGT36', action='store_true')
+parser.add_argument('--RunSignal', action='store_true')
 parser.add_argument('--RunPrompt', action='store_true')
 parser.add_argument('--RunData', action='store_true')
 parser.add_argument('--RunConv',   action='store_true')
@@ -41,7 +44,7 @@ parser.add_argument('--RunCF',     action='store_true')
 ##### Predefined Functions
 parser.add_argument('--WZ',    action='store_true')
 
-
+parser.add_argument('--Signal',      action='store_true')
 parser.add_argument('--Central',     action='store_true')
 parser.add_argument('--Systematics', action='store_true')
 parser.add_argument('--RunAlternativePrompt', action='store_true')
@@ -69,9 +72,10 @@ UseGT36 = not args.preGT36
 IndividualSample = args.samplename != "NULL"
 
 if not IndividualSample and not args.WZ:
-    if not args.Central and not args.Systematics:
+    if not args.Signal and not args.Central and not args.Systematics:
         print ("No inputs submitted. Run either :")
         print ("add -sample X --RunPrompt to run individual sample")
+        print ("add --Signal to run all signal jobs for SR (no systematics)")
         print ("add --Central to run all jobs for SR (no systematics)")
         print ("add --Systematics to run all jobs for SR (with systematics)")
         exit()
@@ -106,6 +110,11 @@ def FlagCommand(JobType, InputFlags):
 
 def GetType(arg):
 
+    if "Type" in arg.samplename:
+        return 'RunSignal'
+    if arg.RunSignal:
+        return 'RunSignal'
+    
     if arg.RunPrompt:
         return 'RunPrompt'
     if arg.RunConv:
@@ -120,6 +129,11 @@ def SampleExists(args):
     samplename = args.samplename
     Era = args.era
     Type="RunBkg"
+
+    if "Type" in samplename:
+        Type="RunSignal"
+    if args.RunSignal:
+        Type="RunSignal"
 
     Sample_List=GetSampleList(samplename, Type, Era)
     if samplename in Sample_List:
@@ -139,6 +153,10 @@ def SampleExists(args):
 def GetSampleList(samplename, Type, Era):
     input_list = os.path.join(base_path, "data/Run2UltraLegacy_v3/"+Era+"/Sample/SampleSummary_MC.txt")
 
+    if Type == "RunSignal":
+        input_list = os.path.join(base_path, "data/Run2UltraLegacy_v3/"+Era+"/Sample/SampleSummary_Signal_Type1.txt")
+
+    
     # Initialize an empty list to store the first words
     first_words = []
     
@@ -202,6 +220,8 @@ if IndividualSample:
     exit()
 
 
+
+    
 if args.WZ:
     RunCommand(TestMode,f"SKFlat.py -a {analyzer} -i WZTo3LNu_mllmin4p0_powheg -n 200 --nmax {nmax} -e 2018 --skim {args.skim} {FlagCommand('RunPrompt', flags)}&")
     exit()
@@ -278,3 +298,18 @@ if args.Central or args.Systematics:
             RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {datapath}/{DATADir}/{era}_DiLepton_EMu.txt      -n 100    --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunCF', flags)} ")
             RunCommand(TestMode,f"SKFlat.py -a {analyzer}  -l {datapath}/{DATADir}/{era}_DiLepton_EE.txt      -n 100    --nmax {nmax}   -e {era} --skim SkimTree_DileptonBDT  {FlagCommand('RunCF', flags)} ")
 
+
+
+
+if args.Signal:
+
+    for era in era_list:
+
+        # Run the signal commands                                                                                                                                                                                    
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW1.txt -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/SSWW2.txt -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/DY.txt   -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/VBF.txt  -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+        RunCommand(TestMode,f"SKFlat.py -a {analyzer} -l {sigpath}/Private/Weinberg.txt  -n 20  --nmax {nmax} -e {era} --skim SkimTree_HNMultiLepBDT {FlagCommand('RunSignal', flags)} &")
+
+            

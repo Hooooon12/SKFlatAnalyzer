@@ -645,7 +645,7 @@ should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 output = job_$(Process).log
 error = job_$(Process).err
-environment = "LANG=C LC_ALL=C LC_CTYPE=C"
+environment = "LANG=C;LC_ALL=C;LC_CTYPE=C;CUDA_COMPATIBILITY="
 transfer_output_remaps = "hists.root = output/hists_$(Process).root"
 queue {0}
 '''.format(str(NJobs), commandsfilename), file=submit_command)
@@ -662,7 +662,7 @@ should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 output = job_$(Process).log
 error = job_$(Process).err
-environment = "LANG=C LC_ALL=C LC_CTYPE=C"                                                                                                                                        
+environment = "LANG=C;LC_ALL=C;LC_CTYPE=C;CUDA_COMPATIBILITY="
 accounting_group=group_cms
 +SingularityImage = "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest"
 +SingularityBind = "/cvmfs, /cms, /share"
@@ -688,7 +688,7 @@ should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 output = job_$(Process).log
 error = job_$(Process).err
-environment = "LANG=C LC_ALL=C LC_CTYPE=C"                                                                                                                            
+environment = "LANG=C;LC_ALL=C;LC_CTYPE=C;CUDA_COMPATIBILITY="
 transfer_output_remaps = "hists.root = output/hists_$(Process).root"
 {2}
 {3}

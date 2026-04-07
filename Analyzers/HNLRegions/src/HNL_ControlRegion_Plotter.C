@@ -64,7 +64,10 @@ void HNL_ControlRegion_Plotter::executeEvent(){
   for (auto id: LepIDs){
     for(auto channel : ChannelsToRun){
       if(channel != MuMu  && id =="TopHN") continue;
-      
+
+
+      if(IsSignal() && !SelectChannel(channel)) continue;
+
       AnalyzerParameter param_cr = Setup_Param_HNL_ULIDv2(id,GetChannelString(channel));
       if(runSyst){
 	/// Some code to remove unnecessary Syst runs
@@ -188,7 +191,13 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param_cr, ve
   std::vector<Jet>    AK4_VBF_JetColl             = GetHNLJets(param_cr.AK4VBFJetColl,  param_cr);
 
   std::vector<Jet>    AK4_JetCollLoose            = GetHNLJets("Loose",     param_cr);
-  std::vector<Jet>    AK4_BJetColl                = GetHNLJets("BJet", param_cr);
+
+  TString bjet_tag = "BJet";
+  if(HasFlag("BJet_PUID")) bjet_tag = "BJet_v6";
+  if(HasFlag("BJet_WPT")) bjet_tag = "BJet_v8";
+  if(HasFlag("BJet_AK8Clean")) bjet_tag = "BJet_v7";
+
+  std::vector<Jet>    AK4_BJetColl                = GetHNLJets(bjet_tag, param_cr);
 
 
   // Evaluate jet weights

@@ -66,6 +66,7 @@ class HNL_LeptonCore : public AnalyzerCore {
     ChannelDepPresel, ChannelDepSR1, ChannelDepSR2, ChannelDepSR3, ChannelDepSR3HM,
     ChannelDepDilep, ChannelDepTrigger, ChannelDepInc, ChannelDepIncQ,
     ChannelDepCR1, ChannelDepCR2, ChannelDepCR3, ChannelDepCR3HM,
+    
 
     // Summary Regions
     MuonSRSummary, ElectronSRSummary, ElectronMuonSRSummary,
@@ -115,7 +116,7 @@ class HNL_LeptonCore : public AnalyzerCore {
     sigmm_17028, sigee_17028, sigem_17028,
 
     // High and Low Mass Regions
-    ControlRegion, SignalRegion, SRLowMass, SRHighMass, CR,CRFull,
+    ControlRegion, SignalRegion, SRLowMass, SRHighMass, CR,CRFull,CRLowMass,
 
     // Specific CR Regions
     WGCR, ZGCR, WZCR, ZZCR, ZZVBFCR, WZBCR, WZVBFCR, WZVBFCR2, ZZCR2,
