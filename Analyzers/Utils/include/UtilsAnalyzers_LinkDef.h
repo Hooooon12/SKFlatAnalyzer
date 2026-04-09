@@ -12,6 +12,7 @@
 #pragma link C++ class HNL_Lepton_FakeRate_MC+;
 #pragma link C++ class HNL_Lepton_ChargeFlip+;
 #pragma link C++ class HNL_Lepton_Conversion_Studies+;
+#pragma link C++ class HNL_Lepton_WG_Overlap_Studies+; #JH
 #pragma link C++ class HNL_Lepton_ID_BDT_Studies+;
 #pragma link C++ class HNL_Lepton_ID_SF+;
 #pragma link C++ class HNL_Lepton_ID_BDT_KinVar+;

@@ -540,7 +540,7 @@ for RunList in args.RunLists:
           if args.FitDiag:
             if "DefMod" in this_shortcard: continue # Must use the actual physics model
             runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose whether Asimov or not
-            runfile.write(f"combine -M FitDiagnostics {pwd}/{WP}/{shortcard}/{this_shortcard}.root --rMin -10 --rMax 10 --saveShapes --saveWithUncertainties --saveNormalizations --saveWorkspace -n _{this_shortcard} --plots {AsimovSetting}\n")
+            runfile.write(f"combine -M FitDiagnostics {pwd}/{WP}/{shortcard}/{this_shortcard}.root --rMin -10 --rMax 10 --saveShapes --saveWithUncertainties --saveNormalizations --saveWorkspace --verbose 3 -n _{this_shortcard} --plots {AsimovSetting}\n")
             runfile.write(f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -a fitDiagnostics_{this_shortcard}.root > pulls_{this_shortcard}.txt\n")
           elif args.GOF:
             if "DefMod" in this_shortcard: continue # Must use the actual physics model
@@ -555,8 +555,10 @@ for RunList in args.RunLists:
               runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
               runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -100 --rMax 100 --robustFit 1 --doFits --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
             else:
-              runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
-              runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doFits --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
+              #runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
+              #runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doFits --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
+              runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --cminDefaultMinimizerStrategy 0 --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
+              runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doFits --cminDefaultMinimizerStrategy 0 --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
             runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --output {this_shortcard}_{AsimovName}_impacts.json --name Impact_{this_shortcard}_{AsimovName}\n")
             runfile.write(f"plotImpacts.py -i {this_shortcard}_{AsimovName}_impacts.json -o Impact_{this_shortcard}_{AsimovName}\n")
           elif args.FastScan:

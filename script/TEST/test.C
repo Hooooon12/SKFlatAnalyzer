@@ -4,9 +4,10 @@ R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_14_1_0_pre4/e
 void test(TString era, bool isdata, TString sample, TString skim, TString flag){ //echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_M500\",\"\",\"\");" | root -l 2>&1 | tee my.log
 
   //HNL_LeptonFakeRate m;
-  HNL_SignalRegion_Plotter m;
+  //HNL_SignalRegion_Plotter m;
   //HNL_ControlRegion_Plotter m;
   //SkimTree_EGammaTnP_HighPt m;
+  HNL_Lepton_WG_Overlap_Studies m;
 
   m.SetTreeName("recoTree/SKFlat");
 
@@ -210,6 +211,12 @@ void test(TString era, bool isdata, TString sample, TString skim, TString flag){
   }
   else if(era=="2018" && !isdata && sample=="SSWWTypeI_SF_M30000"){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC_SkimTree_HNMultiLepBDT/SSWWTypeI_NLO_SF_M30000/2024_11_02_155255/SKFlatNtuple_2018_MC_0.root")) exit(EIO);
+  }
+  else if(era=="2018" && !isdata && sample=="WGToLNuG"){
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/WGToLNuG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8/220621_013511/0000/SKFlatNtuple_2018_MC_1.root")) exit(EIO);
+  }
+  else if(era=="2018" && !isdata && sample=="WZTo3LNu"){
+    if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8/220621_014507/0000/SKFlatNtuple_2018_MC_1.root")) exit(EIO);
   }
   else if(era=="2018" && !isdata && sample=="Weinberg_EE"){
     if(!m.AddFile("/gv0/DATA/SKFlat/Run2UltraLegacy_v3/2018/MC/SSWWjj_DIM5_WeinbergOpt_EE/250729_124410/0000/SKFlatNtuple_2018_MC_1.root")) exit(EIO);
