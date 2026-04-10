@@ -129,7 +129,8 @@ if args.CR:
   Analyzer = "HNL_ControlRegion_Plotter"
 
   #regions = ["cr1_inv","cr2_inv","cr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr1","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
-  regions = ["cr1_InvMET","cr2_InvMET","cr3_InvMET","cr1_InvBJet","cr2_InvBJet","cr3_InvBJet","zg_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr"] if not args.Merge else "" # for CRs
+  #regions = ["cr1_InvMET","cr2_InvMET","cr3_InvMET","cr1_InvBJet","cr2_InvBJet","cr3_InvBJet","zg_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr"] if not args.Merge else "" # for CRs
+  regions = ["cr2_InvBJet"] if not args.Merge else "" # for CRs
   #regions = ["zg_cr","zz_cr"] if not args.Merge else "" # for CRs
 
   RegionToDefFlagMap['cr_inv']     = "MultiLepton__"
@@ -1134,7 +1135,7 @@ for tag in args.histTag:
               if region=='sr1' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR1 alternative optimization : bin optimized with sqrt-removed-FOM.
               else: LimitDir = "LimitExtraction"
 
-              if (region=="sr1") and (mass_int <= 3000): #TODO what happen to this with signalSSWW
+              if (region=="sr1") and (mass_int <= 3000):
                 if mass_int <= 400: InputHistMass = "M400/"
                 elif mass_int >= 900: InputHistMass = "M900/"
                 else: InputHistMass = mass+"/"
@@ -1163,7 +1164,7 @@ for tag in args.histTag:
             RegionToHistSuffixMap[region][channel] = RegionToHistSuffixMap[region][channel].replace('BDT','')
             Weinbergscaler = 10000. # Set the signalWeinberg scaler
 
-          print("f_cf :",f_path_cf)
+          #print("f_cf :",f_path_cf)
           print("input_hist :", LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel])
           input_hist = LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
           
@@ -1218,7 +1219,7 @@ for tag in args.histTag:
                 h_fake.SetBinError(i+1,0.15*0.645)
           except AttributeError:
             print("[!!WARNING!!] There is no hist named "+input_hist+" in "+f_path_fake+":"," .")
-            print("Skipping treatment on zero fakes...") #NOTE This means, if there is no fake hist in this region, just skip this mass/channel
+            print("Skipping treatment on zero fakes...") #NOTE This means, if there is no fake hist in this region, just skip this mass/channel. e.g. M5000 in SR1
             continue
 
           this_nbins = h_fake.GetNbinsX()
@@ -1237,19 +1238,15 @@ for tag in args.histTag:
               print("##### Making 2D hist for",input_list[i][2],"#####")
               FillScan(h_scan,input_list[i][1],input_list[i][2]) # out, in, name
           
-          #if Blinded:
-          if Blinded or (inputTag=="ANv7_L2review" and not CheckHist(f_data,input_hist,"data_obs")): # NOTE 2016postVFP EE CR2 IB in ANv7_L2review doesn't have data due to Tight Bjet selection # FIXME FIXME later, should fill 0 events instead
+          if Blinded:
             print("##### This analysis is blinded.")
             print("##### Creating Asimov data...")
-            #print("Adding prompt...")
-            #h_data = h_prompt_inc.Clone() #NOTE deprecated. only preservation purposes
             print("Adding MCs...")
             h_data = h_mc_inc.Clone()
 
             bkg_list = [ #bkg except mc (which was already added above)
                         [f_path_fake, h_fake, "fake"],
                         [f_path_cf, h_cf, "cf"],
-                        #[f_path_conv_inc, h_conv_inc, "conv_inc"], #NOTE deprecated. only preservation purposes. PREVIOUSLY: start from prompt_inc, add fake, cf, conv_inc. Now, start from mc_inc and add fake, cf and that's all.
                        ]
           
             #if ("EMuCF" in inputTag and "MuMu" in channel) or ("EMuCF" not in inputTag and "Mu" in channel):
@@ -1258,7 +1255,6 @@ for tag in args.histTag:
               print(bkg_list.pop(1))
 
             total_number = 0 # to cross check
-            #total_number += h_prompt_inc.GetEntries() #NOTE deprecated. only preservation purposes
             total_number += h_mc_inc.GetEntries()
           
             for bkg in bkg_list:
@@ -1279,6 +1275,13 @@ for tag in args.histTag:
               sys.exit()
           
             input_list.append(["fake_data_path", h_data, "data_obs"]) # fake data = total bkg. There is no hist path of it.
+          elif (not CheckHist(f_data,input_hist,"data_obs")): # NOTE 2016postVFP EE CR2 IB in ANv7_L2review doesn't have data due to Tight Bjet selection
+            print("##### Data unblinded, but there is no data histogram!!!!!!!!!!!!!")
+            print("##### Check -->",f_path_data,input_hist)
+            print("##### Creating zero data...")
+            h_data = h_mc_inc.Clone()
+            h_data.Reset()
+            input_list.append([f_path_data, h_data, "data_obs"])
           else:
             input_list.append([f_path_data, h_data, "data_obs"])
           print("##### Data done.")
@@ -1376,7 +1379,10 @@ for tag in args.histTag:
               if input_list[iProc][1].Integral()<=0.:
                 print("!!!!!! Zero norm detected in",input_list[iProc][2],input_list[iProc][0],input_hist,"!!!!!!")
                 print("Please delete this in the datacard ...")
-                NoNOMs.add(iProc)
+                if input_list[iProc][2] == "data_obs":
+                  print("This is data. You should have data_obs anyways. Save this ...")
+                else:
+                  NoNOMs.add(iProc)
   
           if args.Syst:
             print("##### Systematics activated.")
