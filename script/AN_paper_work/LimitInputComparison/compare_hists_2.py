@@ -9,7 +9,9 @@ import math
 # ==========================
  
 eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
-flavs = ["MuMu", "EE"]
+#flavs = ["MuMu", "EE"]
+#flavs = ["EE"]
+flavs = ["MuMu"]
  
 base_dir_1 = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"
 base_dir_2 = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr"
@@ -85,10 +87,10 @@ def compute_total_fom(sig_hist, bkg_hist):
  
  
 def print_yields(label, sig, data):
-    #y_sig  = sig.Integral()
-    #y_data = data.Integral()
-    y_sig  = sig.GetBinContent(1)
-    y_data = data.GetBinContent(1)
+    y_sig  = sig.Integral()
+    y_data = data.Integral()
+    #y_sig  = sig.GetBinContent(1)
+    #y_data = data.GetBinContent(1)
  
     print(f"{label}:")
     print(f"  Signal     = {y_sig:.6f}")
@@ -108,8 +110,10 @@ results = []
 for era in eras:
     for flav in flavs:
  
-        file1 = f"{base_dir_1}/{era}/sr2/M1000_{flav}_card_input.root"
-        file2 = f"{base_dir_2}/{era}/sr2/M1000_{flav}_card_input.root"
+        #file1 = f"{base_dir_1}/{era}/sr2/M1000_{flav}_card_input.root"
+        #file2 = f"{base_dir_2}/{era}/sr2/M1000_{flav}_card_input.root"
+        file1 = f"{base_dir_1}/{era}/sr3/M1000_{flav}_card_input.root"
+        file2 = f"{base_dir_2}/{era}/sr3/M1000_{flav}_card_input.root"
  
         print("==================================================")
         print(f"[Old vs New] Era: {era}, Flavour: {flav}")
@@ -131,14 +135,14 @@ for era in eras:
         print("")
  
         # --- Differences ---
-        #sig_old = sig1.Integral()
-        #sig_new = sig2.Integral()
-        #bkg_old = data1.Integral()
-        #bkg_new = data2.Integral()
-        sig_old = sig1.GetBinContent(1)
-        sig_new = sig2.GetBinContent(1)
-        bkg_old = data1.GetBinContent(1)
-        bkg_new = data2.GetBinContent(1)
+        sig_old = sig1.Integral()
+        sig_new = sig2.Integral()
+        bkg_old = data1.Integral()
+        bkg_new = data2.Integral()
+        #sig_old = sig1.GetBinContent(1)
+        #sig_new = sig2.GetBinContent(1)
+        #bkg_old = data1.GetBinContent(1)
+        #bkg_new = data2.GetBinContent(1)
  
         sig_diff = sig_new - sig_old
         bkg_diff = bkg_new - bkg_old

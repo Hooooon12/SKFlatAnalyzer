@@ -20,11 +20,13 @@ ROOT.gStyle.SetPadTickY(1)         # Ticks on Right
 # [User Configuration] File Names and Settings
 # ------------------------------------------------------------------------------
 #INPUT_FILE = "higgsCombine_Run2_3ch_M100_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_Run2_3ch_M1000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+INPUT_FILE = "higgsCombine_Run2_3ch_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_EMu_M1000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_EMu_M100_syst_grid_2D_Asimov_r0.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_EMu_M100_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_EMu_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
-INPUT_FILE = "higgsCombine.Test.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine.Test.MultiDimFit.mH120.root" 
 
 X_TITLE = "Flavor fraction f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
 Y_TITLE = "Mixing strength r = |V_{e}|^{2} + |V_{#mu}|^{2}"
@@ -194,8 +196,8 @@ for gr in final_contours:
     gr.Draw("C SAME")
 
 # (3) Draw Naive Curves
-g_naive_dy.Draw("L SAME")
-g_naive_ssww.Draw("L SAME")
+#g_naive_dy.Draw("L SAME")
+#g_naive_ssww.Draw("L SAME")
 
 # Legend
 leg = ROOT.TLegend(0.45, 0.75, 0.82, 0.88)
@@ -208,8 +210,8 @@ dummy_dy   = ROOT.TLine(); dummy_dy.SetLineColor(ROOT.kRed);     dummy_dy.SetLin
 dummy_ssww = ROOT.TLine(); dummy_ssww.SetLineColor(ROOT.kBlue);  dummy_ssww.SetLineWidth(3); dummy_ssww.SetLineStyle(7)
 
 leg.AddEntry(dummy_real, "2D Limit (95% CL)", "l")
-leg.AddEntry(dummy_dy,   f"Naive DY+W#gamma (Ref f_{{e}}={REF_F_VAL})", "l")
-leg.AddEntry(dummy_ssww, f"Naive SSWW (Ref f_{{e}}={REF_F_VAL})", "l")
+#leg.AddEntry(dummy_dy,   f"Naive DY+W#gamma (Ref f_{{e}}={REF_F_VAL})", "l")
+#leg.AddEntry(dummy_ssww, f"Naive SSWW (Ref f_{{e}}={REF_F_VAL})", "l")
 leg.Draw()
 
 # [FIX] CMS Label - Bigger and closer to the frame
