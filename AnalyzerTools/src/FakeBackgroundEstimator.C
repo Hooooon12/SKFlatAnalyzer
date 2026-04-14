@@ -22,7 +22,7 @@ void FakeBackgroundEstimator::ReadHistograms(bool IsData, bool ScanIDs){
   TDirectory* origDir = gDirectory;
 
   vector<TString> FakeHMaps = {   DataFakePath+"/ElFR/histmap_Electron.txt",
-				  DataFakePath+"/MuFR/histmap_Muon.txt"};
+          DataFakePath+"/MuFR/histmap_Muon.txt"};
   
   if(ScanIDs) FakeHMaps.push_back(DataFakePath+"/MuFR/scan_histmap_Muon.txt");
   if(ScanIDs) FakeHMaps.push_back(DataFakePath+"/ElFR/scan_histmap_Electron.txt");
@@ -30,8 +30,8 @@ void FakeBackgroundEstimator::ReadHistograms(bool IsData, bool ScanIDs){
 
   if(!IsData){
     cout << "Setting up MC Hists" << endl;
-    FakeHMaps = {	  MCFakePath+"/ElFR/histmap_Electron.txt",
-			  MCFakePath+"/MuFR/histmap_Muon.txt"};
+    FakeHMaps = {    MCFakePath+"/ElFR/histmap_Electron.txt",
+        MCFakePath+"/MuFR/histmap_Muon.txt"};
   }
   for(auto ihmap  :  FakeHMaps){
     cout << " --- > " << ihmap << endl;
@@ -128,19 +128,19 @@ double FakeBackgroundEstimator::HighPtCorr(TString ID, double eta, double pt, in
   if (sys == -1 || sys == 0 || sys == 1) {
     if (GetEra().Contains("2016") || GetEra() == "2017" || GetEra() == "2018") {
       if (isEtaLessThan1_5) {
-	if (pt > 200) {
-	  if (sys == -1) correctionFactor = 1.0;
-	  else if (sys == 0) correctionFactor = (GetEra() == "2016" ? 1.25 : (GetEra() == "2017" ? 1.2 : 1.1));
-	  else if (sys == 1) correctionFactor = (GetEra() == "2016" ? 1.5 : (GetEra() == "2017" ? 1.4 : 1.2));
-	} else if (pt > 150) {
-	  if (sys == -1) correctionFactor = 1.0;
-	  else if (sys == 0) correctionFactor = (GetEra() == "2016" ? 1.1 : (GetEra() == "2017" ? 1.1 : 1.1));
-	  else if (sys == 1) correctionFactor = (GetEra() == "2016" ? 1.2 : (GetEra() == "2017" ? 1.2 : 1.2));
-	}
+        if (pt > 200) {
+          if (sys == -1) correctionFactor = 1.0;
+          else if (sys == 0) correctionFactor = (GetEra() == "2016" ? 1.25 : (GetEra() == "2017" ? 1.2 : 1.1));
+          else if (sys == 1) correctionFactor = (GetEra() == "2016" ? 1.5 : (GetEra() == "2017" ? 1.4 : 1.2));
+        } else if (pt > 150) {
+          if (sys == -1) correctionFactor = 1.0;
+          else if (sys == 0) correctionFactor = (GetEra() == "2016" ? 1.1 : (GetEra() == "2017" ? 1.1 : 1.1));
+          else if (sys == 1) correctionFactor = (GetEra() == "2016" ? 1.2 : (GetEra() == "2017" ? 1.2 : 1.2));
+        }
       } else {
-	if (pt > 250) {
-	  correctionFactor = (sys == -1 ? 0.5 : (sys == 0 ? 0.75 : 1.0));
-	}
+        if (pt > 250) {
+          correctionFactor = (sys == -1 ? 0.5 : (sys == 0 ? 0.75 : 1.0));
+        }
       }
     }
   }
