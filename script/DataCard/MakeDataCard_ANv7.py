@@ -32,7 +32,7 @@ parser.add_argument('--JetDecorr', action='store_true', help='Decorrelate jet sc
 parser.add_argument('--CR', action='store_true', help='Make datacards named sr with HNL_SignalRegion_Plotter and sr_inv with HNL_ControlRegion_Plotter input. (Default : SR only)')
 #parser.add_argument('--CR', nargs='*', help='Make datacards with manual CR inputs. (Default : SR only)') # Modify L108 with this line
 parser.add_argument('--Syst', action='store_true', help='Add systematics into the datacards')
-parser.add_argument('--Combine', choices=['CR','SR','Era'], help='CR --> Merge CR and SR datacards in one era,\nEra --> Merge pre-processed (CR+SR) over the Run2,\nSR --> Merge SR only datacards over the Run2')
+parser.add_argument('--Combine', choices=['CR','SR','Era','Channel'], help='CR --> Merge CR and SR datacards in one era,\nEra --> Merge pre-processed (CR+SR) over the Run2,\nChannel --> Merge all lepton channels using Run2 combined datacards,\nSR --> Merge SR only datacards over the Run2')
 parser.add_argument('--Type', choices=['CR', 'SR'], help="(Optional) If --Combine Era is used, specify whether to merge only CR or SR.")
 args = parser.parse_args()
 
@@ -96,7 +96,7 @@ OutputTag = "" if args.outputTag == '' else "_"+args.outputTag
 if args.Combine is None:
   if not args.CR: OutputTag+="_NoCR" # SR only
 else:
-  if not (args.Combine == "CR" or (args.Combine == "Era" and args.CR)): OutputTag+="_NoCR" # Combine SR only
+  if not (args.Combine == "CR" or (args.Combine == "Era" and args.CR) or (args.Combine == "Channel" and args.CR)): OutputTag+="_NoCR" # Combine SR only
 if not args.Syst: OutputTag+="_NoSyst"  # NoSyst
 
 regions_cr = ["cr1_InvMET","cr2_InvMET","cr3_InvMET","cr1_InvBJet","cr2_InvBJet","cr3_InvBJet","wz_cr1","wz_cr2","wz_cr3","zg_cr","zz_cr"]
@@ -325,7 +325,7 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
         else:
           if "CMS_scale_j_" in line: continue
 
-        # channel-dependent fake syst
+        # channel-dependent fake syst ### NOTE deprecated after the L2review. Now fake syst is treated as a shape uncertainty.
         if "CMS_SUS24014_fake_syst" in line:
           if channel=="EMu":
             line = line.replace('1.2','1.25')
@@ -582,6 +582,15 @@ def combine_run2(out_path, card_per_era):
   if getattr(args,"Syst"):
     NuisanceGrouping(os.path.abspath(out_path)) #FIXME comment out this for the faster run
 
+def combine_3ch(out_path, card_per_channel):
+  assigns = []
+  for card in card_per_channel:
+    channel = card.split("_")[2]
+    assigns.append(f"{channel}={card}")
+  os.system("combineCards.py " + " ".join(assigns) + f" > {out_path}")
+  if getattr(args,"Syst"):
+    NuisanceGrouping(os.path.abspath(out_path)) #FIXME comment out this for the faster run
+
 #########################################
 #
 # MAIN
@@ -674,9 +683,35 @@ for InputWP in InputWPs:
             combine_run2(run2_full, per_era_full)
 
             for sr in sr_filtered:
-              per_era_each = [f"card_{e}_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt" for era in eras]
+              per_era_each = [f"card_{era}_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt" for era in eras]
               run2_each = f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt"
               combine_run2(run2_each, per_era_each)
+
+        if args.Combine == "Channel":
+          if channel != "EMu": continue # iterate lepton combination only once. EMu has the widest mass range
+          if signal == "Weinberg":
+            print("Weinberg 3ch is not supported. Skipping...")
+            continue
+
+          if args.CR: # with CR
+            per_channel_full = [f"card_Run2_{channel}{ExtTag}_{mass_signal}{systTag}.txt" for channel in channels]
+            comb3ch_full = f"card_Run2_3ch{ExtTag}_{mass_signal}{systTag}.txt"
+            combine_3ch(comb3ch_full, per_channel_full)
+
+            for sr in sr_filtered:
+              per_channel_each = [f"card_Run2_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt" for channel in channels]
+              comb3ch_each = f"card_Run2_3ch{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
+              combine_3ch(comb3ch_each, per_channel_each)
+
+          else:
+            per_channel_full = [f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt" for channel in channels]
+            comb3ch_full = f"card_Run2_3ch{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
+            combine_3ch(comb3ch_full, per_channel_full)
+
+            for sr in sr_filtered:
+              per_channel_each = [f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt" for channel in channels]
+              comb3ch_each = f"card_Run2_3ch{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt"
+              combine_3ch(comb3ch_each, per_channel_each)
 
       os.system('echo \'Done.\'')
       os.chdir(pwd)

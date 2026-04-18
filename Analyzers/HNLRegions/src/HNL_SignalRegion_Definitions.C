@@ -117,13 +117,91 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     if(!runSyst&&param.runPlotter){
       if(param.IsCentral()){
         if(IsSignal()){
-                Fill_RegionPlots(param,"Signal_NoCut_RAW" , TauColl, All_Jets,  All_FatJets, LepsV, METv, nPV, weight_ll);
-                Fill_RegionPlots(param,"Signal_NoCut_ID" , TauColl, JetColl, AK8_JetColl, LepsT, METv, nPV, weight_ll);
+          Fill_RegionPlots(param,"Signal_NoCut_RAW" , TauColl, All_Jets,  All_FatJets, LepsV, METv, nPV, weight_ll);
+          Fill_RegionPlots(param,"Signal_NoCut_ID" , TauColl, JetColl, AK8_JetColl, LepsT, METv, nPV, weight_ll);
+
+          double sumw = 0.;
+          double sumw2 = 0.;
+          double sumsq = 0.;
+          int nrep = 0;
+          for(unsigned int iw=0; iw<weight_PDF->size(); iw++){
+            double PDF_W = 1.;
+            TString PNAME_PDF = GetPDFUncertainty(iw,PDF_W);
+            cout << "PDF_W: " << PDF_W << endl;
+
+            sumw  += PDF_W;
+            sumw2 += PDF_W * PDF_W;
+            sumsq += (PDF_W - 1.) * (PDF_W - 1.);
+            nrep++;
+          }
+
+          double meanw = 1.;
+          double sigmaw = 0.;
+          if(nrep > 0){
+            meanw = sumw / nrep;
+            //cout << "meanw: " << meanw << endl;
+            double var;
+            if(MCSample.Contains("VBFTypeI")){
+              var = sumw2 / nrep - meanw * meanw;
+            }
+            else if(MCSample.Contains("DYTypeI")||MCSample.Contains("SSWWTypeI")||MCSample.Contains("WZTo3LNu_amcatnlo")){
+              var = sumsq;
+            }
+            else{
+              cout << "Unknown MC sample:" << MCSample << endl;
+              cout << "return;" << MCSample << endl;
+              return;
+            }
+            if(var < 0.) var = 0.;
+            sigmaw = sqrt(var);
+          }
+
+          double rel_pdf_unc = 0.;
+          if(meanw != 0.) rel_pdf_unc = sigmaw / meanw;
+          if(rel_pdf_unc > 1.){
+            cout << "[NOTE] rel_pdf_unc > 1. --> " << rel_pdf_unc << endl;
+            cout << "Check below logs!!" << endl;
+            PrintGen(All_Gens);
+          }
+          FillHist("NoCut_Q"   , genWeight_Q  , 1, 250, 0, 5000, "Q");
+          FillHist("NoCut_X1"  , genWeight_X1 , 1, 50,  0, 1,    "Bjorken x_{1}");
+          FillHist("NoCut_X2"  , genWeight_X2 , 1, 50,  0, 1,    "Bjorken x_{2}");
+          FillHist("NoCut_PID1", genWeight_id1, 1, 40,  -10, 30,  "PID_{1}");
+          FillHist("NoCut_PID2", genWeight_id2, 1, 40,  -10, 30,  "PID_{2}");
+          FillHist("NoCut_X1_Q", genWeight_X1, genWeight_Q, 1, 50, 0, 1, 250, 0, 5000);
+          FillHist("NoCut_X2_Q", genWeight_X2, genWeight_Q, 1, 50, 0, 1, 250, 0, 5000);
+          FillHist("NoCut_X1_X2", genWeight_X1, genWeight_X2, 1, 50, 0, 1, 50, 0, 1);
+
+          FillProf("PDFUnc_vs_Q"   , genWeight_Q  , rel_pdf_unc, 1, 250, 0, 5000);
+          FillProf("PDFUnc_vs_X1"  , genWeight_X1 , rel_pdf_unc, 1, 50,  0, 1);
+          FillProf("PDFUnc_vs_X2"  , genWeight_X2 , rel_pdf_unc, 1, 50,  0, 1);
+          FillProf("PDFUnc_vs_PID1", genWeight_id1, rel_pdf_unc, 1, 40,  -10, 30);
+          FillProf("PDFUnc_vs_PID2", genWeight_id2, rel_pdf_unc, 1, 40,  -10, 30);
+          FillProf("PDFUnc_X1_Q", genWeight_X1, genWeight_Q, rel_pdf_unc, 1, 50, 0, 1, 250, 0, 5000);
+          FillProf("PDFUnc_X2_Q", genWeight_X2, genWeight_Q, rel_pdf_unc, 1, 50, 0, 1, 250, 0, 5000);
+          FillProf("PDFUnc_X1_X2", genWeight_X1, genWeight_X2, rel_pdf_unc, 1, 50, 0, 1, 50, 0, 1);
+
+          if(genWeight_id1==22){ // beam 1 is photon
+            FillHist("NoCut_Xphoton"  , genWeight_X1 , 1, 50,  0, 1,    "Bjorken x_{#gamma}");
+            FillHist("NoCut_Xparton"  , genWeight_X2 , 1, 50,  0, 1,    "Bjorken x_{q/g}");
+            FillProf("PDFUnc_vs_Xphoton", genWeight_X1, rel_pdf_unc, 1, 50, 0, 1);
+            FillProf("PDFUnc_vs_Xparton", genWeight_X2, rel_pdf_unc, 1, 50, 0, 1);
+            FillProf("PDFUnc_Xphoton_Q", genWeight_X1, genWeight_Q, rel_pdf_unc, 1, 50, 0, 1, 250, 0, 5000);
+            FillProf("PDFUnc_Xparton_Q", genWeight_X2, genWeight_Q, rel_pdf_unc, 1, 50, 0, 1, 250, 0, 5000);
+          }
+          else if(genWeight_id2==22){ // beam 2 is photon
+            FillHist("NoCut_Xphoton"  , genWeight_X2 , 1, 50,  0, 1,    "Bjorken x_{#gamma}");
+            FillHist("NoCut_Xparton"  , genWeight_X1 , 1, 50,  0, 1,    "Bjorken x_{q/g}");
+            FillProf("PDFUnc_vs_Xphoton", genWeight_X2, rel_pdf_unc, 1, 50, 0, 1);
+            FillProf("PDFUnc_vs_Xparton", genWeight_X1, rel_pdf_unc, 1, 50, 0, 1);
+            FillProf("PDFUnc_Xphoton_Q", genWeight_X2, genWeight_Q, rel_pdf_unc, 1, 50, 0, 1, 250, 0, 5000);
+            FillProf("PDFUnc_Xparton_Q", genWeight_X1, genWeight_Q, rel_pdf_unc, 1, 50, 0, 1, 250, 0, 5000);
+          }
         }
       }
     }
 
-    //return; //JH
+    return; //JH
 
     //// Set METST value after shifting Electrons                                                                                                                                                                                             
     ev.SetMET2ST(GetMET2ST(LepsT, JetColl, AK8_JetColl, METv));

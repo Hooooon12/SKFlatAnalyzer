@@ -25,7 +25,7 @@ flag=$5
 #echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"LimitOnly\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_LimitOnly".log
 #echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"NoSyst,RemoveHEMJet\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000_NoSyst_RemoveHEMJet".log # TEST RemoveHEMJet
 #echo -e ".L test.C\n test(\"2017\",false,\"DYTypeI_DF_M1000\",\"HNMultiLepBDT\",\"RunHighPt,MuMu\");" | root -l 2>&1 | tee "DYTypeI_DF_M1000".log
-#echo -e ".L test.C\n test(\"2017\",false,\"VBFTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "VBFTypeI_DF_M1000".log
+echo -e ".L test.C\n test(\"2017\",false,\"VBFTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "VBFTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_DF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_DF_M1000".log
 #echo -e ".L test.C\n test(\"2017\",false,\"SSWWTypeI_SF_M1000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M1000".log
 #echo -e ".L test.C\n test(\"2018\",false,\"SSWWTypeI_SF_M30000\",\"HNMultiLepBDT\",\"\");" | root -l 2>&1 | tee "SSWWTypeI_SF_M30000".log
@@ -70,5 +70,5 @@ flag=$5
 
 
 # HNL_Lepton_WG_Overlap_Studies
-echo -e ".L test.C\n test(\"2018\",false,\"WGToLNuG\",\"\",\"\");" | root -l 2>&1 | tee "2018_WGToLNuG".log
-echo -e ".L test.C\n test(\"2018\",false,\"WZTo3LNu\",\"\",\"\");" | root -l 2>&1 | tee "2018_WZTo3LNu".log
+#echo -e ".L test.C\n test(\"2018\",false,\"WGToLNuG\",\"\",\"\");" | root -l 2>&1 | tee "2018_WGToLNuG".log
+#echo -e ".L test.C\n test(\"2018\",false,\"WZTo3LNu\",\"\",\"\");" | root -l 2>&1 | tee "2018_WZTo3LNu".log

@@ -379,6 +379,8 @@ for RunList in args.RunLists:
       os.system('mkdir -p '+WP+'/'+shortcard)
       os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/submit_Workspace.sh')
     elif IsNuis:
+      if "EMuFull" in WP or "3ch" in shortcard:
+        if "DefMod" in shortcard: continue # Must use the actual physics model
       os.system(f'mkdir -p {WP}/{shortcard}/{this_check}/{AsimovName}')
       os.system(f'cp {WP}/submit_skeleton.sh {WP}/{shortcard}/{this_check}/{AsimovName}/submit_{this_check}_{AsimovName}.sh')
       os.system(f'cp {WP}/{shortcard}/{shortcard}.root {WP}/{shortcard}/{this_check}/{AsimovName}')
@@ -469,18 +471,48 @@ for RunList in args.RunLists:
       os.system('mkdir -p Batch/'+WP+'/Asymptotic/'+shortcard+'/output/')
       os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/Asymptotic/'+shortcard+'/submit_Asymptotic.sh')
 
-      with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
-        runfile.write("#!/bin/bash\n")
-        runfile.write("combine -M AsymptoticLimits "+card+" --run blind\n")
+      if "EMuFull" in WP or "3ch" in shortcard:
+        # 1. Shell Script: Accept f value as an argument
+        with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
+          runfile.write("#!/bin/bash\n")
+          runfile.write("F_VAL=$1\n") # Get f value from Condor arguments
 
-      with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
-        submitfile.write("executable = run_Asymptotic.sh\n")
-        submitfile.write("log = "+shortcard+"_Asymptotic.log\n")
-        submitfile.write("output = "+shortcard+"_Asymptotic.out\n")
-        submitfile.write("error = "+shortcard+"_Asymptotic.out\n")
-        submitfile.write("transfer_output_files = higgsCombineTest.AsymptoticLimits.mH120.root\n")
-        submitfile.write("transfer_output_remaps = \"higgsCombineTest.AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic.root\"\n")
-        submitfile.write("queue\n")
+          # Increase stack size to prevent RooFit/Combine segmentation faults
+          runfile.write("ulimit -s unlimited\n")
+          
+          # Add --setParameters, --freezeParameters, and -n (name suffix)
+          runfile.write("combine -M AsymptoticLimits "+card+" --run blind --setParameters r=0,f=${F_VAL} --freezeParameters f -n _f${F_VAL}\n")
+
+        # 2. HTCondor Submit Script: Loop over f values
+        with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
+          submitfile.write("executable = run_Asymptotic.sh\n")
+          submitfile.write("arguments = $(f_val)\n") # Pass f_val to the shell script
+          
+          # Separate log files for each f value
+          submitfile.write("log = "+shortcard+"_Asymptotic_f$(f_val).log\n")
+          submitfile.write("output = "+shortcard+"_Asymptotic_f$(f_val).out\n")
+          submitfile.write("error = "+shortcard+"_Asymptotic_f$(f_val).out\n")
+          
+          # Transfer the correct root file based on -n suffix
+          submitfile.write("transfer_output_files = higgsCombine_f$(f_val).AsymptoticLimits.mH120.root\n")
+          submitfile.write("transfer_output_remaps = \"higgsCombine_f$(f_val).AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic_f$(f_val).root\"\n")
+          
+          # Queue multiple jobs by iterating over f_val
+          submitfile.write("queue f_val in (0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0)\n")
+
+      else:
+        with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
+          runfile.write("#!/bin/bash\n")
+          runfile.write("combine -M AsymptoticLimits "+card+" --run blind\n")
+
+        with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
+          submitfile.write("executable = run_Asymptotic.sh\n")
+          submitfile.write("log = "+shortcard+"_Asymptotic.log\n")
+          submitfile.write("output = "+shortcard+"_Asymptotic.out\n")
+          submitfile.write("error = "+shortcard+"_Asymptotic.out\n")
+          submitfile.write("transfer_output_files = higgsCombineTest.AsymptoticLimits.mH120.root\n")
+          submitfile.write("transfer_output_remaps = \"higgsCombineTest.AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic.root\"\n")
+          submitfile.write("queue\n")
 
       os.chdir('Batch/'+WP+'/Asymptotic/'+shortcard)
       os.system('condor_submit -a "priority = -15" submit_Asymptotic.sh -batch-name '+shortcard+'_'+WP+'_Asymptotic')
@@ -500,7 +532,7 @@ for RunList in args.RunLists:
             elif (float(this_mass) <= 100.):
               runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=1 --channel-masks -o "+shortcard+".root\n")
             else:
-              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.01 --channel-masks -o "+shortcard+".root\n")
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --channel-masks -o "+shortcard+".root\n")
         elif "EMu" in shortcard:
           if "EMuFull" in WP:
             if (float(this_mass) > 3000.):
@@ -508,12 +540,12 @@ for RunList in args.RunLists:
             elif (float(this_mass) <= 100.):
               runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu_Full "+card+" --PO r0=1 --channel-masks -o "+shortcard+".root\n")
             else:
-              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu_Full "+card+" --PO r0=0.01 --channel-masks -o "+shortcard+".root\n")
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu_Full "+card+" --PO r0=0.1 --channel-masks -o "+shortcard+".root\n")
           else:
             runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu "+card+" --channel-masks -o "+shortcard+".root\n")
         else:
           runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel "+card+" --channel-masks -o "+shortcard+".root\n")
-        if (float(this_mass) > 3000.) or "SSWW" in shortcard: # mass is above 3000 GeV so it only contains SSWW, or SSWW only --> add DefMod for impact check
+        if not("EMuFull" in WP or "3ch" in shortcard) and ((float(this_mass) > 3000.) or "SSWW" in shortcard): # mass is above 3000 GeV so it only contains SSWW, or SSWW only --> add DefMod for impact check
           runfile.write("text2workspace.py "+card+" --channel-masks -o "+shortcard+"_DefMod.root\n") # impact with default physics model with SSWW: see https://cms-talk.web.cern.ch/t/0-impact-on-poi-negative-bin-issue/42793
       with open(WP+"/"+shortcard+"/submit_Workspace.sh",'a') as submitfile:
         submitfile.write("executable = MakeWorkspace.sh\n")
@@ -555,10 +587,10 @@ for RunList in args.RunLists:
               runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
               runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -100 --rMax 100 --robustFit 1 --doFits --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
             else:
-              #runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
-              #runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doFits --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
-              runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --cminDefaultMinimizerStrategy 0 --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
-              runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doFits --cminDefaultMinimizerStrategy 0 --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
+              runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
+              runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doFits --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
+              #runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doInitialFit --cminDefaultMinimizerStrategy 0 --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")
+              #runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -10 --rMax 10 --robustFit 1 --doFits --cminDefaultMinimizerStrategy 0 --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n") # Use this only when the autoMCStat gives fit failure and everything is ok
             runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --output {this_shortcard}_{AsimovName}_impacts.json --name Impact_{this_shortcard}_{AsimovName}\n")
             runfile.write(f"plotImpacts.py -i {this_shortcard}_{AsimovName}_impacts.json -o Impact_{this_shortcard}_{AsimovName}\n")
           elif args.FastScan:
@@ -567,7 +599,7 @@ for RunList in args.RunLists:
           elif args.MDfit:
             if "EMuFull" in WP or "3ch" in shortcard:
               if "DefMod" in this_shortcard: continue # Must use the actual physics model
-              runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r={args.r},f={args.f} --setParameterRanges r=0,2:f=0,1 --algo grid --points=2601 --robustFit 1 --saveNLL --name _{this_shortcard}_grid_2D_Asimov_r{args.r}f{args.f}\n")
+              runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r={args.r},f={args.f} --setParameterRanges r=0,2:f=0,1 --algo grid --points=2601 --alignEdges 1 --robustFit 1 --saveNLL --name _{this_shortcard}_grid_2D_Asimov_r{args.r}f{args.f}\n") # setParameter --> Asimov setting. default args.r = 0 --> b-only Asimov. Also setParameters is a starting point for the scan.
             else:
               runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --algo grid --points=41 --rMin -1 --rMax 1 --alignEdges 1 {AsimovSetting} --name .{this_shortcard}_{AsimovName}_rRange1\n")
               runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 {AsimovSetting} --name .{this_shortcard}_{AsimovName}_rRange10\n")

@@ -7,8 +7,8 @@ parser = argparse.ArgumentParser(description='script for printing uncertainty br
 parser.add_argument('-wp', dest='InputWPs', nargs='+', help='List of LimitInput working points')
 parser.add_argument('-e', dest='eras', default=["Run2"], choices=["2016preVFP","2016postVFP","2017","2018","Run2"], nargs='+')
 parser.add_argument('-c', dest='channels', default=["MuMu","EE","EMu"], choices=["MuMu","EE","EMu"], nargs='+') # store [] if nothing is fed
-parser.add_argument('-m', dest='masses', default=["100","1000","10000"], nargs='+')
-parser.add_argument('-s', dest='signals', default=["HNL"], choices=["","HNL","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+')
+parser.add_argument('-m', dest='masses', default=["100","1000","10000","Weinberg"], nargs='+')
+parser.add_argument('-s', dest='signals', default=["HNL"], choices=["","HNL","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+') # "" : to handle old file name convention
 parser.add_argument('--InjectSignal', default='0', help='inject signals to asimov')
 args = parser.parse_args()
 
@@ -91,39 +91,42 @@ def get_precision_width(filename, tree_name="limit"):
 # ------------------------------------------------------------------------------
 for InputWP, era, channel, mass, signal in [(InputWP, era, channel, mass, signal) for InputWP in args.InputWPs for era in args.eras for channel in args.channels for mass in args.masses for signal in args.signals]:
 
-  WorkPath = f"{BasePath}/{InputWP}/{era}_{channel}_M{mass}_{signal}_syst/Breakdown/{AsimovName}"
+  if (signal!="Weinberg" and mass=="Weinberg") or (signal=="Weinberg" and mass!="Weinberg"): continue
+  mass_signal = "Weinberg" if signal=="Weinberg" else f"M{mass}_{signal}"
+
+  WorkPath = f"{BasePath}/{InputWP}/{era}_{channel}_{mass_signal}_syst/Breakdown/{AsimovName}"
 
   file_structure = [
       # 0. Total
-      ("Total",            f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_total.MultiDimFit.mH120.root"),
+      ("Total",            f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_total.MultiDimFit.mH120.root"),
       # 1. Freeze Jet
-      ("Freeze Jet",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet.MultiDimFit.mH120.root"),
+      ("Freeze Jet",       f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet.MultiDimFit.mH120.root"),
       # 2. Freeze +Theory
-      ("Freeze PDF",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf.MultiDimFit.mH120.root"),
-      ("Freeze Scale",     f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale.MultiDimFit.mH120.root"),
+      ("Freeze PDF",       f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf.MultiDimFit.mH120.root"),
+      ("Freeze Scale",     f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale.MultiDimFit.mH120.root"),
       # 3. Freeze +Fake
-      ("Freeze Fake",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake.MultiDimFit.mH120.root"),
+      ("Freeze Fake",      f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake.MultiDimFit.mH120.root"),
       # 4. Freeze +Lep
-      ("Freeze Lep",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep.MultiDimFit.mH120.root"),
+      ("Freeze Lep",       f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep.MultiDimFit.mH120.root"),
       # 5. Freeze +Pileup
-      ("Freeze Pileup",    f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup.MultiDimFit.mH120.root"),
+      ("Freeze Pileup",    f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup.MultiDimFit.mH120.root"),
       # 6. Freeze +Lumi
-      ("Freeze Lumi",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi.MultiDimFit.mH120.root"),
+      ("Freeze Lumi",      f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi.MultiDimFit.mH120.root"),
       # 7. Freeze +Btag
-      ("Freeze Btag",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root"),
+      ("Freeze Btag",      f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root"),
       # 8. Freeze +Prefire
-      ("Freeze Prefire",   f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root"),
+      ("Freeze Prefire",   f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root"),
       # 9. Freeze +Met
-      ("Freeze MET",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root"),
+      ("Freeze MET",       f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root"),
       # 10. Freeze +Xsec
-      ("Freeze Xsec",      f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root"),
+      ("Freeze Xsec",      f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root"),
       # 11. Freeze +HEM
-      ("Freeze HEM",       f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM.MultiDimFit.mH120.root"),
+      ("Freeze HEM",       f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM.MultiDimFit.mH120.root"),
       # 12. Freeze +MCstat
-      ("Freeze MCstat",    f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat.MultiDimFit.mH120.root"),
+      ("Freeze MCstat",    f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat.MultiDimFit.mH120.root"),
   ]
-  if "E" in channel: file_structure.append(("Freeze CF",f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat_cf.MultiDimFit.mH120.root"))
-  file_structure.append(("Stat Only",f"{WorkPath}/higgsCombine.{era}_{channel}_M{mass}_{signal}_syst_{AsimovName}_freeze_all.MultiDimFit.mH120.root"))
+  if "E" in channel: file_structure.append(("Freeze CF",f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat_cf.MultiDimFit.mH120.root"))
+  file_structure.append(("Stat Only",f"{WorkPath}/higgsCombine.{era}_{channel}_{mass_signal}_syst_{AsimovName}_freeze_all.MultiDimFit.mH120.root"))
   
   # Output Labels corresponding to the steps above
   group_labels = [
@@ -139,7 +142,7 @@ for InputWP, era, channel, mass, signal in [(InputWP, era, channel, mass, signal
       "MET scale",
       "Cross section",
       "HEM",
-      "MC stats",
+      "Template statistical",
   ]
   if "E" in channel: group_labels.append("Charge Flip")
   
@@ -165,7 +168,7 @@ for InputWP, era, channel, mass, signal in [(InputWP, era, channel, mass, signal
       print("Error: Total uncertainty is 0. Check the input files.")
       sys.exit()
   
-  print(f"{'Total Uncertainty':<20} | {total_uncert:.5f}      | {'100.0%':<12} | {'100.0%':<12} | {total_uncert:.5f}")
+  print(f"{'Total Uncertainty':<20} | {total_uncert:.5f}      | {'':<12} | {'100.0%':<12} | {total_uncert:.5f}")
   print("-" * 105)
   
   # 2. Iterate through defined systematic groups
@@ -233,10 +236,10 @@ for InputWP, era, channel, mass, signal in [(InputWP, era, channel, mass, signal
   var_percent_stat = (stat_uncert**2 / total_uncert**2) * 100.0
   sum_sq_contributions += var_percent_stat
   
-  print(f"{'Statistical':<20} | {stat_uncert:.5f}      | {rel_percent_stat:5.1f}%       | {var_percent_stat:5.1f}%       | {stat_uncert:.5f}")
+  print(f"{'Data statistical':<20} | {stat_uncert:.5f}      | {rel_percent_stat:5.1f}%       | {var_percent_stat:5.1f}%       | {stat_uncert:.5f}")
   
   print("-" * 105)
   print(f"Sum of % Variance (should be ~100%): {sum_sq_contributions:.1f}%")
-  print("Note: 'Relative %' sums > 100% because uncertainties add in quadrature.")
+  #print("Note: 'Relative %' sums > 100% because uncertainties add in quadrature.")
   print("=" * 105)
   print()

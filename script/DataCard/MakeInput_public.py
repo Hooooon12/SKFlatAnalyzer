@@ -129,8 +129,8 @@ if args.CR:
   Analyzer = "HNL_ControlRegion_Plotter"
 
   #regions = ["cr1_inv","cr2_inv","cr3_inv","cf_cr1","cf_cr2","cf_cr3","ww_cr1","ww_cr2","zg_cr3","wz_cr1","wz_cr2","wz_cr3","zz_cr1","zz_cr2","zz_cr3"] if not args.Merge else "" # for CRs
-  #regions = ["cr1_InvMET","cr2_InvMET","cr3_InvMET","cr1_InvBJet","cr2_InvBJet","cr3_InvBJet","zg_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr"] if not args.Merge else "" # for CRs
-  regions = ["cr2_InvBJet"] if not args.Merge else "" # for CRs
+  regions = ["cr1_InvMET","cr2_InvMET","cr3_InvMET","cr1_InvBJet","cr2_InvBJet","cr3_InvBJet","zg_cr","wz_cr1","wz_cr2","wz_cr3","zz_cr"] if not args.Merge else "" # for CRs
+  #regions = ["cr2_InvBJet"] if not args.Merge else "" # for CRs
   #regions = ["zg_cr","zz_cr"] if not args.Merge else "" # for CRs
 
   RegionToDefFlagMap['cr_inv']     = "MultiLepton__"
@@ -460,11 +460,11 @@ MergeList['RunPrompt']['Prompt_inc'] = [
                                         #WW
                                         'WpWp_QCD','WpWp_EWK',
                                         #ZZ
-                                        'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu',
+                                        'ZZTo4L_powheg','GluGluToZZto4e','GluGluToZZto4mu','GluGluToZZto2e2mu','GluGluToZZto2e2tau','GluGluToZZto2mu2tau','GluGluToZZto4tau',
                                         #WZ
                                         'WZTo3LNu_amcatnlo','WZ_EWK', # 'WZTo3LNu_mllmin4p0_powheg' : amcatnlo gives better control in Inverted CR3
                                        ] #FIXME time to time
-MergeList['RunPrompt']['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu"] #FIXME time to time
+MergeList['RunPrompt']['ZZ_norm']       = ["ZZTo4L_powheg","GluGluToZZto4e","GluGluToZZto4mu","GluGluToZZto2e2mu","GluGluToZZto2e2tau","GluGluToZZto2mu2tau","GluGluToZZto4tau"] #FIXME time to time
 MergeList['RunPrompt']['WZ']            = ["WZTo3LNu_amcatnlo"]
 MergeList['RunPrompt']['WZ_EWK']        = ["WZ_EWK"]
 #MergeList['RunPrompt']['WZ_norm']       = ["WZTo3LNu_amcatnlo","WZ_EWK"] if not ("EMuCF" in inputTag) else ["WZTo3LNu_amcatnlo"] #FIXME time to time
@@ -893,6 +893,30 @@ def CheckHist(f_root,h_path,hist_name):
   else:
     print("[CheckHist] Good!")
     return this_hist
+
+def get_pdf_delta(bin_values, nom, pdf_mode=""):
+    vals = np.asarray(bin_values, dtype=float)
+
+    if pdf_mode == "replica":
+        # MC replica / Monte Carlo PDF sets
+        return np.std(vals, ddof=1)
+
+    elif pdf_mode == "symmhessian":
+        # Symmetric Hessian members around nominal
+        diffs = vals - nom
+        return np.sqrt(np.sum(diffs * diffs))
+
+    elif pdf_mode == "hessian_pm":
+        # Paired (+/-) Hessian eigenvectors:
+        # delta = 1/2 * sqrt(sum_i (X_i^+ - X_i^-)^2)
+        if len(vals) % 2 != 0:
+            raise ValueError("hessian_pm mode requires an even number of PDF members")
+        plus  = vals[0::2]
+        minus = vals[1::2]
+        return 0.5 * np.sqrt(np.sum((plus - minus) ** 2))
+
+    else:
+        raise ValueError(f"Unknown pdf_mode: {pdf_mode}")
 
 ########### Exception rules snippets ###############
 from collections import defaultdict
@@ -1421,34 +1445,81 @@ for tag in args.histTag:
                 hist_pdfDown.Reset()
                 #if ('signal' in input_list[i][2]) or (("EMuCF" in inputTag) and ('wz' in input_list[i][2]) and not args.CR):
                 if ('signal' in input_list[i][2]) or (input_list[i][2]=='wz'):
-                  Nreplica = 100
+                  #Nreplica = 100
+                  #pdf_hists = []
+                  #for it_rep in range(Nreplica):
+                  #  this_pdf_hist = LimitDir+"/Syst_PDF"+tag+"_Syst_PDF"+str(it_rep)+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
+                  #  #print(this_pdf_hist)
+                  #  #CheckHist(f_syst,this_pdf_hist,"PDF"+str(it_rep))
+                  #  h_pdf = f_syst.Get(this_pdf_hist)
+                  #  # apply the same scale to the pdf variations
+                  #  if 'DY' in input_list[i][2] or 'VBF' in input_list[i][2]:
+                  #    h_pdf.Scale(DYVBFscaler)
+                  #  elif 'SSWW' in input_list[i][2]:
+                  #    h_pdf.Scale(SSWWscaler)
+                  #  elif 'Weinberg' in input_list[i][2]:
+                  #    h_pdf.Scale(Weinbergscaler)
+                  #  else:
+                  #    #print("[ERROR] in PDF uncertainty calculation: There is no hist",this_pdf_hist,".")
+                  #    #print("[ERROR] Exiting ...")
+                  #    #exit()
+                  #    pass
+                  #  pdf_hists.append(h_pdf)
+                  #for it_bin in range(1, this_nbins + 1):
+                  #  bin_values = [pdf_hists[it_rep].GetBinContent(it_bin) for it_rep in range(Nreplica)]
+                  #  std = np.std(bin_values, ddof=1)
+                  #  nom = input_list[i][1].GetBinContent(it_bin)
+                  #  if nom < 0.: print("[ERROR] signal",input_list[i][2],"has negative events!!! Check bin",it_bin,":",nom)
+                  #
+                  #  hist_pdfUp.SetBinContent(it_bin, nom + std)
+                  #  hist_pdfDown.SetBinContent(it_bin, max(nom - std, 0.))
+
+                  # default setting
+                  pdf_mode = ""
+                  Npdfmember = 100
+
+                  # process split
+                  if input_list[i][2]=="signalDY" or input_list[i][2]=="signalSSWW" or input_list[i][2]=="signalWeinberg" or input_list[i][2]=="wz": # 325300/325500
+                    pdf_mode = "symmhessian"
+                  elif input_list[i][2]=="signalVBF" or input_list[i][2]=="signalDYVBF": # 325100 ... Well, signalDYVBF is wrong ...
+                    pdf_mode = "replica"
+                  else:
+                    raise ValueError("Unknown pdf:",pdf_mode)
+
                   pdf_hists = []
-                  for it_rep in range(Nreplica):
-                    this_pdf_hist = LimitDir+"/Syst_PDF"+tag+"_Syst_PDF"+str(it_rep)+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
-                    #print(this_pdf_hist)
-                    #CheckHist(f_syst,this_pdf_hist,"PDF"+str(it_rep))
+                  for it_rep in range(Npdfmember):
+                    this_pdf_hist = (
+                      LimitDir
+                      + "/Syst_PDF" + tag + "_Syst_PDF" + str(it_rep)
+                      + "/" + RegionToChannelMap[region][channel]
+                      + "/" + InputHistMass + RegionToHistSuffixMap[region][channel]
+                    )
+
                     h_pdf = f_syst.Get(this_pdf_hist)
-                    # apply the same scale to the pdf variations
+                    if not h_pdf:
+                      raise ValueError("No PDF variation!! -->",this_pdf_hist)
+                      #continue
+
                     if 'DY' in input_list[i][2] or 'VBF' in input_list[i][2]:
                       h_pdf.Scale(DYVBFscaler)
                     elif 'SSWW' in input_list[i][2]:
                       h_pdf.Scale(SSWWscaler)
                     elif 'Weinberg' in input_list[i][2]:
                       h_pdf.Scale(Weinbergscaler)
-                    else:
-                      #print("[ERROR] in PDF uncertainty calculation: There is no hist",this_pdf_hist,".")
-                      #print("[ERROR] Exiting ...")
-                      #exit()
-                      pass
+
                     pdf_hists.append(h_pdf)
+
                   for it_bin in range(1, this_nbins + 1):
-                    bin_values = [pdf_hists[it_rep].GetBinContent(it_bin) for it_rep in range(Nreplica)]
-                    std = np.std(bin_values, ddof=1)
+                    bin_values = [h.GetBinContent(it_bin) for h in pdf_hists]
                     nom = input_list[i][1].GetBinContent(it_bin)
-                    if nom < 0.: print("[ERROR] signal",input_list[i][2],"has negative events!!! Check bin",it_bin,":",nom)
-                  
-                    hist_pdfUp.SetBinContent(it_bin, nom + std)
-                    hist_pdfDown.SetBinContent(it_bin, max(nom - std, 0.))
+
+                    if nom < 0.:
+                      print("[ERROR] signal", input_list[i][2], "has negative events!!! Check bin", it_bin, ":", nom)
+
+                    delta = get_pdf_delta(bin_values, nom, pdf_mode)
+
+                    hist_pdfUp.SetBinContent(it_bin, nom + delta)
+                    hist_pdfDown.SetBinContent(it_bin, max(nom - delta, 0.))
 
               for this_syst in SystList: # Define new input_hist with each syst name
 

@@ -22,7 +22,8 @@ years = ["Run2"]
 #years = ["2016preVFP","2016postVFP"]
 #years = ["2017"]
 #years = ["2018"]
-channels = ["MuMu","EE","EMu"]
+#channels = ["MuMu","EE","EMu"]
+channels = ["3ch"]
 #channels = ["MuMu","EE"]
 #channels = ["EE"]
 #channels = ["MuMu"]
@@ -109,7 +110,8 @@ IDs = [""] #["_ID"]
 #myWPs = ["ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavDep_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR_FlavEraDep_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval_FakelnN"]
 #myWPs = ["ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval"]
 #myWPs = ["ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR2_BinRefinement_Decorr_JetDecorr_Preapproval"]
-myWPs = ["ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"]
+#myWPs = ["ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"]
+myWPs = ["ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
@@ -133,53 +135,124 @@ for WP in myWPs:
   for year, channel, ID, tag in [[year, channel, ID, tag] for year in years for channel in channels for ID in IDs for tag in tags]:
     
     if args.Asymptotic:
-      with open("limits/"+WP+"/"+year+"_"+channel+ID+tag+"_Asym_limit.txt", 'w') as f:
-      #with open("limits/"+WP+"/"+year+"_"+channel+ID+tag+"_Run2Scaled_Asym_limit.txt", 'w') as f:
-      #with open("limits/"+WP+"/"+year+"_"+channel+ID+tag+"_Run23Scaled_Asym_limit.txt", 'w') as f:
-  
-        for mass in (masses if channel!="EMu" else masses_EMu):
-          if tag=="_sr2_syst_Combined":
-            if float(mass)<=500.: continue # no significantly meaningful to check M125-500 SR2 limit (they exist though... just in case)
 
-          this_name = year+"_"+channel+"_M"+mass+ID+tag
-          if args.BDT:
-            if float(mass)>500.: continue
-          elif args.Ext:
-            if float(mass)<500.:
+      if channel=="3ch":
+        with open("limits/"+WP+"/"+year+"_"+channel+ID+tag+"_Asym_limit.txt", 'w') as f:
+
+          # Write header for 2D landscape format
+          f.write("Mass\tf\tObs\tExp_m2s\tExp_m1s\tExp\tExp_p1s\tExp_p2s\n")
+          
+          # Define the f values used in the condor queue
+          f_values = ["0.0", "0.05", "0.1", "0.15", "0.2", "0.25", "0.3", "0.35", "0.4", "0.45", "0.5", "0.55", "0.6", "0.65", "0.7", "0.75", "0.8", "0.85", "0.9", "0.95", "1.0"]
+          
+          for mass in masses_EMu:
+            if tag=="_sr2_syst_Combined":
+              if float(mass)<=500.: continue 
+
+            this_name = year+"_"+channel+"_M"+mass+ID+tag
+            if args.BDT:
+              if float(mass)>500.: continue
+            elif args.Ext:
+              if float(mass)<500.: continue
+              elif float(mass)==500: 
+                this_name = year+"_"+channel+ExtTag+"_M"+mass+ID+tag
+
+            if (float(mass) > 3000.):
+              scaler_3ch = 1.
+            elif (float(mass) <= 100.):
+              scaler_3ch = 0.001
+            else:
+              scaler_3ch = 0.1
+                
+            print("Parsing 2D limit for "+this_name+" ...")
+            
+            for f_val in f_values:
+              # Construct path mapping to create-batch.py output format
+              path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic_f"+f_val+".root"
+              
+              try: 
+                f_Asym = TFile.Open(path)
+                if not f_Asym or f_Asym.IsZombie():
+                  continue
+              except Exception:
+                continue
+                
+              tree_Asym = f_Asym.Get("limit")
+              if not tree_Asym:
+                f_Asym.Close()
+                continue
+                
+              try: 
+                tree_Asym.GetEntry(2) # Fallback to entry 2 for 'obs' placeholder as in 1D code
+                obs_val = tree_Asym.limit
+              except AttributeError:
+                f_Asym.Close()
+                continue
+                
+              # Write Mass and f value first
+              f.write(mass+"\t"+f_val+"\t"+str(round(obs_val*scaler_3ch, 5))+"\t")
+              
+              # Write 5 expected limit values
+              for i in range(5): 
+                tree_Asym.GetEntry(i)
+                f.write(str(round(tree_Asym.limit*scaler_3ch, 5))+"\t")
+                
+              f.write("\n")
+              f_Asym.Close()
+              print("done.")
+
+      else:
+        with open("limits/"+WP+"/"+year+"_"+channel+ID+tag+"_Asym_limit.txt", 'w') as f:
+        #with open("limits/"+WP+"/"+year+"_"+channel+ID+tag+"_Run2Scaled_Asym_limit.txt", 'w') as f:
+        #with open("limits/"+WP+"/"+year+"_"+channel+ID+tag+"_Run23Scaled_Asym_limit.txt", 'w') as f:
+  
+          for mass in (masses if channel!="EMu" else masses_EMu):
+            if tag=="_sr2_syst_Combined":
+              if float(mass)<=500.: continue # no significantly meaningful to check M125-500 SR2 limit (they exist though... just in case)
+
+            this_name = year+"_"+channel+"_M"+mass+ID+tag
+            if args.BDT:
+              if float(mass)>500.: continue
+            elif args.Ext:
+              if float(mass)<500.:
+                f.write("\n")
+                continue
+              elif float(mass)==500: 
+                this_name = year+"_"+channel+ExtTag+"_M"+mass+ID+tag
+            print(this_name)
+            path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic.root"
+  
+            try: f_Asym = TFile.Open(path)
+            except OSError:
               f.write("\n")
               continue
-            elif float(mass)==500: 
-              this_name = year+"_"+channel+ExtTag+"_M"+mass+ID+tag
-          print(this_name)
-          path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic.root"
+            tree_Asym = f_Asym.Get("limit")
   
-          try: f_Asym = TFile.Open(path)
-          except OSError:
+            try: tree_Asym.GetEntry(2) # substitute for obs. limit for now
+            except AttributeError:
+              f.write("\n")
+              continue
+            f.write(mass+"\t"+str(round(tree_Asym.limit,3))+"\t")
+            #f.write(mass+"\t"+str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
+            #f.write(mass+"\t"+str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
+            #f.write(mass+"\t"+str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
+            #f.write(mass+"\t"+str(round(tree_Asym.limit/1.77,3))+"\t") # FIXME estimating full Run2+3 from Run2
+  
+            for i in range(5): # expected limits
+              tree_Asym.GetEntry(i)
+              f.write(str(round(tree_Asym.limit,3))+"\t")
+              #f.write(str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
+              #f.write(str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
+              #f.write(str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
+              #f.write(str(round(tree_Asym.limit/1.77,3))+"\t") # FIXME estimating full Run2+3 from Run2
             f.write("\n")
-            continue
-          tree_Asym = f_Asym.Get("limit")
-  
-          try: tree_Asym.GetEntry(2) # substitute for obs. limit for now
-          except AttributeError:
-            f.write("\n")
-            continue
-          f.write(mass+"\t"+str(round(tree_Asym.limit,3))+"\t")
-          #f.write(mass+"\t"+str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
-          #f.write(mass+"\t"+str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
-          #f.write(mass+"\t"+str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
-          #f.write(mass+"\t"+str(round(tree_Asym.limit/1.77,3))+"\t") # FIXME estimating full Run2+3 from Run2
-  
-          for i in range(5): # expected limits
-            tree_Asym.GetEntry(i)
-            f.write(str(round(tree_Asym.limit,3))+"\t")
-            #f.write(str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
-            #f.write(str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
-            #f.write(str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
-            #f.write(str(round(tree_Asym.limit/1.77,3))+"\t") # FIXME estimating full Run2+3 from Run2
-          f.write("\n")
-          print("done.")
+            print("done.")
   
     if args.Full:
+      if channel=="3ch":
+        print("3ch doesn't support full CLs. skipping...")
+        continue
+
       with open("out/"+WP+"/"+year+"_"+channel+ID+tag+"_Full_limit.txt", 'w') as f:
   
         for mass in (masses if channel!="EMu" else masses_EMu):

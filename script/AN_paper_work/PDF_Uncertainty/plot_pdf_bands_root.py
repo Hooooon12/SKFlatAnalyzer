@@ -8,12 +8,12 @@ import ROOT
 
 ROOT.gROOT.SetBatch(True)
 
-DEFAULT_BASE = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv5_BDTV2to4_HNL_ULIDv2_WZ_amcatnlo_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"
+DEFAULT_BASE = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"
 DEFAULT_ERAS = ["2016preVFP", "2016postVFP", "2017", "2018"]
 DEFAULT_FLAVOURS = ["MuMu", "EE", "EMu"]
 DEFAULT_MASSES = [
     100,125,150,200,250,300,400,500,600,700,800,900,
-    1000,1500,2000,5000,10000,15000,25000,30000
+    1000,1500,2000,3000,5000,10000,15000,25000,30000
 ]
 
 # ----------------- helpers -----------------
@@ -162,12 +162,14 @@ def draw_edge_lines(xs, ymins, ymaxs, color, style=1, width=3):
         g.Draw("L same")
     return [g_lo, g_hi]  # keep alive
 
-def draw_per_bin_lines(xs, dy_lo, dy_hi, ss_lo, ss_hi):
+def draw_per_bin_lines(xs, dy_lo, dy_hi, wg_lo, wg_hi, ss_lo, ss_hi):
     drawn = []
     col_dy = ROOT.kAzure - 9
+    col_wg = ROOT.kMagenta - 4
     col_ss = ROOT.kOrange - 3
     lw = 3
     style_dy = 1  # solid
+    style_wg = 1  # solid
     style_ss = 2  # dashed
 
     for i, x in enumerate(xs):
@@ -183,14 +185,23 @@ def draw_per_bin_lines(xs, dy_lo, dy_hi, ss_lo, ss_hi):
             l2.SetLineColor(col_dy); l2.SetLineStyle(style_dy); l2.SetLineWidth(lw); l2.Draw()
             drawn.append(l2)
 
-        if ss_lo[i] is not None:
-            l3 = ROOT.TLine(x1, ss_lo[i], x2, ss_lo[i])
-            l3.SetLineColor(col_ss); l3.SetLineStyle(style_ss); l3.SetLineWidth(lw); l3.Draw()
+        if wg_lo[i] is not None:
+            l3 = ROOT.TLine(x1, wg_lo[i], x2, wg_lo[i])
+            l3.SetLineColor(col_wg); l3.SetLineStyle(style_wg); l3.SetLineWidth(lw); l3.Draw()
             drawn.append(l3)
-        if ss_hi[i] is not None:
-            l4 = ROOT.TLine(x1, ss_hi[i], x2, ss_hi[i])
-            l4.SetLineColor(col_ss); l4.SetLineStyle(style_ss); l4.SetLineWidth(lw); l4.Draw()
+        if wg_hi[i] is not None:
+            l4 = ROOT.TLine(x1, wg_hi[i], x2, wg_hi[i])
+            l4.SetLineColor(col_wg); l4.SetLineStyle(style_wg); l4.SetLineWidth(lw); l4.Draw()
             drawn.append(l4)
+
+        if ss_lo[i] is not None:
+            l5 = ROOT.TLine(x1, ss_lo[i], x2, ss_lo[i])
+            l5.SetLineColor(col_ss); l5.SetLineStyle(style_ss); l5.SetLineWidth(lw); l5.Draw()
+            drawn.append(l5)
+        if ss_hi[i] is not None:
+            l6 = ROOT.TLine(x1, ss_hi[i], x2, ss_hi[i])
+            l6.SetLineColor(col_ss); l6.SetLineStyle(style_ss); l6.SetLineWidth(lw); l6.Draw()
+            drawn.append(l6)
 
     return drawn
 
@@ -201,9 +212,9 @@ def maybe_filter_masses_by_sr(masses, sr):
         return masses
     s = str(sr).lower()
     if s == "sr1":
-        return [m for m in masses if 500 <= m < 3000]
+        return [m for m in masses if 500 <= m <= 3000]
     if s == "sr2":
-        return [m for m in masses if m >= 600]
+        return [m for m in masses if m >= 500]
     if s == "sr3":
         return [m for m in masses if m <= 3000]
     
@@ -231,6 +242,7 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
     nbins = len(labels)
     xs = list(range(1, nbins + 1))
     dy_lo, dy_hi = [], []
+    wg_lo, wg_hi = [], []
     ss_lo, ss_hi = [], []
     wb_lo, wb_hi = [], []
 
@@ -245,14 +257,20 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
         if not os.path.isfile(fpath):
             print(f"[{lab}] FILE missing: {fpath} -> DYVBF=None, SSWW=None, Weinberg=None")
             dy_lo.append(None); dy_hi.append(None)
+            wg_lo.append(None); wg_hi.append(None)
             ss_lo.append(None); ss_hi.append(None)
             wb_lo.append(None); wb_hi.append(None)
             continue
 
         tf = ROOT.TFile.Open(fpath, "READ")
+        print(tf.GetName())
+        print(tf.Get("signalDY"))
+        print(tf.Get("signalVBF"))
+        print(tf.Get("signalDYVBF"))
         if not tf or tf.IsZombie():
             print(f"[{lab}] FILE unreadable: {fpath} -> DYVBF=None, SSWW=None, Weinberg=None")
             dy_lo.append(None); dy_hi.append(None)
+            wg_lo.append(None); wg_hi.append(None)
             ss_lo.append(None); ss_hi.append(None)
             wb_lo.append(None); wb_hi.append(None)
             continue
@@ -272,28 +290,49 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
                 "signalWeinberg_pdf_WeinbergDown"
             )
             if w_status is None:
-                print(f"[Weinberg] i_nom={w_inom:.6g}, i_up={w_iup:.6g}, i_dn={w_idn:.6g} "
-                      f"-> r_up={max(w_lo, w_hi):.6f}, r_dn={min(w_lo, w_hi):.6f}")
+                #print(f"[Weinberg] i_nom={w_inom:.6g}, i_up={w_iup:.6g}, i_dn={w_idn:.6g} "
+                #      f"-> r_up={max(w_lo, w_hi):.6f}, r_dn={min(w_lo, w_hi):.6f}")
                 wb_lo.append(w_lo); wb_hi.append(w_hi)
             else:
                 print(f"[Weinberg] missing: {w_status} -> None")
                 wb_lo.append(None); wb_hi.append(None)
             # pad DY/SS arrays for alignment
             dy_lo.append(None); dy_hi.append(None)
+            wg_lo.append(None); wg_hi.append(None)
             ss_lo.append(None); ss_hi.append(None)
 
         else:
-            # DYVBF (always considered)
-            d_lo, d_hi, d_inom, d_iup, d_idn, d_paths, d_status = read_ratio_band_with_details(
-                tf, all_keys, "signalDYVBF", "signalDYVBF_pdf_DYVBFUp", "signalDYVBF_pdf_DYVBFDown"
-            )
-            if d_status is None:
-                print(f"[{lab}] DYVBF: i_nom={d_inom:.6g}, i_up={d_iup:.6g}, i_dn={d_idn:.6g} "
-                      f"-> r_up={max(d_lo, d_hi):.6f}, r_dn={min(d_lo, d_hi):.6f}")
-                dy_lo.append(d_lo); dy_hi.append(d_hi)
-            else:
-                print(f"[{lab}] DYVBF missing: {d_status} -> None")
+            # DY (skip for SR2)
+            if str(sr).lower() == "sr2":
+                print(f"[{lab}] DY : skipped for SR2")
                 dy_lo.append(None); dy_hi.append(None)
+            else:
+                d_lo, d_hi, d_inom, d_iup, d_idn, d_paths, d_status = read_ratio_band_with_details(
+                    tf, all_keys, "signalDY", "signalDY_pdf_DYUp", "signalDY_pdf_DYDown"
+                )
+                if d_status is None:
+                    #print(f"[{lab}] DY: i_nom={d_inom:.6g}, i_up={d_iup:.6g}, i_dn={d_idn:.6g} "
+                    #      f"-> r_up={max(d_lo, d_hi):.6f}, r_dn={min(d_lo, d_hi):.6f}")
+                    dy_lo.append(d_lo); dy_hi.append(d_hi)
+                else:
+                    print(f"[{lab}] DY missing: {d_status} -> None")
+                    dy_lo.append(None); dy_hi.append(None)
+
+            # Wgamma (skip for SR2)
+            if str(sr).lower() == "sr2":
+                print(f"[{lab}] WG : skipped for SR2")
+                wg_lo.append(None); wg_hi.append(None)
+            else:
+                w_lo, w_hi, w_inom, w_iup, w_idn, w_paths, w_status = read_ratio_band_with_details(
+                    tf, all_keys, "signalVBF", "signalVBF_pdf_VBFUp", "signalVBF_pdf_VBFDown"
+                )
+                if w_status is None:
+                    #print(f"[{lab}] WG: i_nom={w_inom:.6g}, i_up={w_iup:.6g}, i_dn={w_idn:.6g} "
+                    #      f"-> r_up={max(w_lo, w_hi):.6f}, r_dn={min(w_lo, w_hi):.6f}")
+                    wg_lo.append(w_lo); wg_hi.append(w_hi)
+                else:
+                    print(f"[{lab}] WG missing: {w_status} -> None")
+                    wg_lo.append(None); wg_hi.append(None)
 
             # SSWW: skip entirely for SR1 (no reading, no plotting)
             if str(sr).lower() == "sr1":
@@ -304,8 +343,8 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
                     tf, all_keys, "signalSSWW", "signalSSWW_pdf_SSWWUp", "signalSSWW_pdf_SSWWDown"
                 )
                 if s_status is None:
-                    print(f"[{lab}] SSWW : i_nom={s_inom:.6g}, i_up={s_iup:.6g}, i_dn={s_idn:.6g} "
-                          f"-> r_up={max(s_lo, s_hi):.6f}, r_dn={min(s_lo, s_hi):.6f}")
+                    #print(f"[{lab}] SSWW : i_nom={s_inom:.6g}, i_up={s_iup:.6g}, i_dn={s_idn:.6g} "
+                    #      f"-> r_up={max(s_lo, s_hi):.6f}, r_dn={min(s_lo, s_hi):.6f}")
                     ss_lo.append(s_lo); ss_hi.append(s_hi)
                 else:
                     print(f"[{lab}] SSWW  missing: {s_status} -> None")
@@ -317,6 +356,7 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
 
     # y-range from existing values only
     vals = [v for pair in zip(dy_lo, dy_hi) for v in pair if v is not None] + \
+           [v for pair in zip(wg_lo, wg_hi) for v in pair if v is not None] + \
            [v for pair in zip(ss_lo, ss_hi) for v in pair if v is not None] + \
            [v for pair in zip(wb_lo, wb_hi) for v in pair if v is not None]
     if not vals:
@@ -350,6 +390,10 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
     have_dy = has_any_pair(dy_lo, dy_hi)
     dy_w = avg_band_height(dy_lo, dy_hi)
 
+    g_wg = graph_band_from_points(xs, wg_lo, wg_hi, ROOT.kMagenta-4, alpha=0.40)
+    have_wg = has_any_pair(wg_lo, wg_hi)
+    wg_w = avg_band_height(wg_lo, wg_hi)
+
     # For SR1, do not include SSWW at all
     is_sr1 = (str(sr).lower() == "sr1")
     g_ss = None
@@ -370,15 +414,34 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
         g_wb.Draw("E2 same")
         bands_keep.append(g_wb)
 
-    if (not is_sr1) and have_ss and (ss_w >= dy_w):
-        g_ss.Draw("E2 same"); bands_keep.append(g_ss)
-        if have_dy: g_dy.Draw("E2 same"); bands_keep.append(g_dy)
-    else:
-        if have_dy: g_dy.Draw("E2 same"); bands_keep.append(g_dy)
-        if (not is_sr1) and have_ss: g_ss.Draw("E2 same"); bands_keep.append(g_ss)
+    bands_to_draw = []
+    
+    if have_dy:
+        bands_to_draw.append((dy_w, g_dy))
+    if have_wg:
+        bands_to_draw.append((wg_w, g_wg))
+    if (not is_sr1) and have_ss:
+        bands_to_draw.append((ss_w, g_ss))
+    
+    # widest first
+    bands_to_draw.sort(key=lambda x: x[0], reverse=True)
+    
+    for _, g in bands_to_draw:
+        g.Draw("E2 same")
+        bands_keep.append(g)
+
+    #if (not is_sr1) and have_ss and (ss_w >= dy_w):
+    #    g_ss.Draw("E2 same"); bands_keep.append(g_ss)
+    #    if have_dy: g_dy.Draw("E2 same"); bands_keep.append(g_dy)
+    #    if have_wg: g_wg.Draw("E2 same"); bands_keep.append(g_wg)
+    #else:
+    #    if have_dy: g_dy.Draw("E2 same"); bands_keep.append(g_dy)
+    #    if have_wg: g_wg.Draw("E2 same"); bands_keep.append(g_wg)
+    #    if (not is_sr1) and have_ss: g_ss.Draw("E2 same"); bands_keep.append(g_ss)
 
     # edge outlines
     bands_keep += draw_edge_lines(xs, dy_lo, dy_hi, ROOT.kAzure-3, style=1, width=3)
+    bands_keep += draw_edge_lines(xs, wg_lo, wg_hi, ROOT.kMagenta-4, style=1, width=3)
     if not is_sr1:
         bands_keep += draw_edge_lines(xs, ss_lo, ss_hi, ROOT.kOrange+7, style=2, width=3)
 
@@ -388,9 +451,13 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
     leg1 = ROOT.TLegend(0.60, 0.78, 0.90, 0.92)
     leg1.SetBorderSize(0); leg1.SetFillStyle(0)
     if have_dy:
-        leg1.AddEntry(g_dy, "DYVBF PDF band", "f")
+        leg1.AddEntry(g_dy, "CCDY PDF band", "f")
+    if have_wg:
+        leg1.AddEntry(g_wg, "W#gamma PDF band", "f")
     if (not is_sr1) and have_ss:
         leg1.AddEntry(g_ss, "SSWW PDF band", "f")
+    if (not is_sr1) and have_wb:
+        leg1.AddEntry(g_wb, "Weinberg PDF band", "f")
     leg1.Draw()
 
     # era/flavour label
@@ -436,7 +503,7 @@ def draw_one_plot(base_dir, era, flavour, masses, sr, outdir, print_all_keys=Fal
     unity2.Draw()
 
     keep = []
-    keep += draw_per_bin_lines(xs, dy_lo, dy_hi, ss_lo if not is_sr1 else [None]*nbins, ss_hi if not is_sr1 else [None]*nbins)
+    keep += draw_per_bin_lines(xs, dy_lo, dy_hi, wg_lo, wg_hi, ss_lo if not is_sr1 else [None]*nbins, ss_hi if not is_sr1 else [None]*nbins)
     hframe2.Draw("AXIS same")
 
     leg2 = ROOT.TLegend(0.58, 0.76, 0.92, 0.92)

@@ -50,7 +50,7 @@ int AnalyzerCore::GetZZFinalState( ){
     if((nel_gen + nmu_gen+ntau_gen) > 4) {                                                                                                                                   
       cout << "FS  " << nel_gen << " "<< nmu_gen << " " << ntau_gen << endl;                                                                                                 
       cout << nel_gen_Zdaughter << " " << nmu_gen_Zdaughter << " " << ntau_gen_Zdaughter << endl;
-      PrintGen(All_Gens);				
+      PrintGen(All_Gens);        
     }
   }
   
@@ -73,7 +73,7 @@ Particle AnalyzerCore::GetZZ(){
     
     if(abs(gen.PID() ) ==11 || abs(gen.PID() ) ==13 || abs(gen.PID() ) ==15){
       if(abs(mother_p.PID() ) == 23 ){
-	GenL_indices.push_back(i);
+  GenL_indices.push_back(i);
       }
     }
 
@@ -126,8 +126,8 @@ double AnalyzerCore::GetGenJJMass(){
     Gen gen = All_Gens.at(i);
     if(gen.Status()==23){
       if(abs(gen.PID() ) < 6) {
-	if(nmatched < 2) JJ=JJ+gen;
-	nmatched++;
+  if(nmatched < 2) JJ=JJ+gen;
+  nmatched++;
       }
     }    
   }
@@ -147,9 +147,9 @@ double AnalyzerCore::GetGenJJMass(){
     for(int i=2; i<int(All_Gens.size()); i++){
       Gen gen = All_Gens.at(i);
       if ((abs(gen.PID())==13 || abs(gen.PID())==11  ) && gen.Pt() > 10){ // is lepton, and pt > 10
-	if (gen.isPrompt()){ // is prompt flag
-	  goodleptons.push_back(i);
-	}
+  if (gen.isPrompt()){ // is prompt flag
+    goodleptons.push_back(i);
+  }
       }
     }
     
@@ -158,18 +158,18 @@ double AnalyzerCore::GetGenJJMass(){
       // check if this jet is cleaned
 
       for (std::vector<float>::size_type j=0; j<goodleptons.size();j++){
-	// conesize 0.4
-	if(sqrt(pow(genjet_eta->at(i)-All_Gens[goodleptons[j]].Eta(),2)+pow(genjet_phi->at(i) - All_Gens[goodleptons[j]].Phi(),2))<0.4){ // not cleaned
-	  goodjet=false;
-	  break;
-	}
+  // conesize 0.4
+  if(sqrt(pow(genjet_eta->at(i)-All_Gens[goodleptons[j]].Eta(),2)+pow(genjet_phi->at(i) - All_Gens[goodleptons[j]].Phi(),2))<0.4){ // not cleaned
+    goodjet=false;
+    break;
+  }
       }
       // save this jet if goodjet
       if (goodjet){
-	Particle p;
-	p.SetPtEtaPhiM(genjet_pt->at(i), genjet_eta->at(i), genjet_phi->at(i), genjet_mass->at(i));
-	parts.push_back(p);
-	ngoodjet++;
+  Particle p;
+  p.SetPtEtaPhiM(genjet_pt->at(i), genjet_eta->at(i), genjet_phi->at(i), genjet_mass->at(i));
+  parts.push_back(p);
+  ngoodjet++;
       }
       // break if get 2 goodjets
       if (ngoodjet>1) break;
@@ -207,8 +207,8 @@ bool AnalyzerCore::HasMEPhoton(Lepton lep){
     Gen gen = All_Gens.at(i);
     if(lep.DeltaR(gen) < minDr)  {
       if(gen.Status()==1){
-	minDr = lep.DeltaR(gen) ;
-	closest_index = i;
+  minDr = lep.DeltaR(gen) ;
+  closest_index = i;
       }
     }
   }
@@ -268,12 +268,12 @@ int AnalyzerCore::HotFixLeptonType(Lepton lep){
     int motherindex = All_Gens[Idx_Closest].MotherIndex();
     for(int i=2; i< int(All_Gens.size()); i++){
       if(motherindex == All_Gens[i].MotherIndex()){
-	if(All_Gens[i].Status() == 1 && ((fabs(All_Gens[i].PID()) == 11) || (fabs(All_Gens[i].PID()) == 13 ) || (fabs(All_Gens[i].PID()) == 15 ))){
-	  matched_lep_check.push_back(i);
-	  if(i == Idx_Closest){
-	    if(matched_lep_check.size() > 2) return 5;
-	  }
-	}
+  if(All_Gens[i].Status() == 1 && ((fabs(All_Gens[i].PID()) == 11) || (fabs(All_Gens[i].PID()) == 13 ) || (fabs(All_Gens[i].PID()) == 15 ))){
+    matched_lep_check.push_back(i);
+    if(i == Idx_Closest){
+      if(matched_lep_check.size() > 2) return 5;
+    }
+  }
       }
     }
 
@@ -292,18 +292,18 @@ int AnalyzerCore::HotFixLeptonType(Lepton lep){
       bool PromptLepEl = (MotherPID == 11) || (MotherPID == 15);
       
       while (MotherPID > 10 && MotherPID < 16){
-	mindex = All_Gens.at(mindex).MotherIndex();
-	MotherPID= fabs(All_Gens.at(mindex).PID());
+  mindex = All_Gens.at(mindex).MotherIndex();
+  MotherPID= fabs(All_Gens.at(mindex).PID());
       }
       
       bool PromptLepMuFull = PromptLepMu &&  ((MotherPID == 21)  || (MotherPID < 6));
       bool PromptLepElFull = PromptLepEl &&  ((MotherPID == 21)  || (MotherPID < 6));
       
       if(fabs(gen.PID()) == 13){
-	if(PromptLepMuFull && lep.LeptonFlavour() == Lepton::MUON && lep.DeltaR(gen) < 0.1) LepPrompt=true;
+  if(PromptLepMuFull && lep.LeptonFlavour() == Lepton::MUON && lep.DeltaR(gen) < 0.1) LepPrompt=true;
       }
       if(fabs(gen.PID()) == 11){
-	if(PromptLepElFull &&lep.LeptonFlavour() != Lepton::MUON && lep.DeltaR(gen) < 0.1) LepPrompt=true;
+  if(PromptLepElFull &&lep.LeptonFlavour() != Lepton::MUON && lep.DeltaR(gen) < 0.1) LepPrompt=true;
       }
     }
     if (LepPrompt) return 1;
@@ -328,13 +328,13 @@ void AnalyzerCore::PrintGen(const std::vector<Gen>& gens){
     else     cout << i << "\t" << gen.PID() << "\t" << gen.Status() << "\t" << gen.MotherIndex() << "\t"  ;
 
     printf("%.2f\t%.2f\t%.2f\t%.2f\n",gen.Pt(), gen.Eta(), gen.Phi(), gen.M());
-    if(fabs(gen.PID()) == 11 || fabs(gen.PID()) == 13 || fabs(gen.PID()) == 15) {
-      if( (fabs(gen.PID()) == 11 && gen.isPromptFinalState()) || (fabs(gen.PID()) == 13 && gen.isPromptFinalState()) ||(fabs(gen.PID()) == 15 && gen.isPrompt()) ){
-	cout << "GenIsPrompt(gen) = " << GenIsPrompt(gen) << endl;
-	cout << "gen.IsPrompt() = " <<  gen.isPrompt() <<  " gen.IsPromptTauDecayProduct() =  " << gen.isPromptTauDecayProduct() << " gen.isPromptFinalState() " << gen.isPromptFinalState() << endl;
-	cout <<  gen.isPromptFinalState()  << " " <<  gen.isPromptDecayed() << endl;
-      }
-    }
+    //if(fabs(gen.PID()) == 11 || fabs(gen.PID()) == 13 || fabs(gen.PID()) == 15) {
+    //  if( (fabs(gen.PID()) == 11 && gen.isPromptFinalState()) || (fabs(gen.PID()) == 13 && gen.isPromptFinalState()) ||(fabs(gen.PID()) == 15 && gen.isPrompt()) ){
+    //    cout << "GenIsPrompt(gen) = " << GenIsPrompt(gen) << endl;
+    //    cout << "gen.IsPrompt() = " <<  gen.isPrompt() <<  " gen.IsPromptTauDecayProduct() =  " << gen.isPromptTauDecayProduct() << " gen.isPromptFinalState() " << gen.isPromptFinalState() << endl;
+    //    cout <<  gen.isPromptFinalState()  << " " <<  gen.isPromptDecayed() << endl;
+    //  }
+    //} //JH
   }
 
 }
@@ -351,10 +351,10 @@ bool AnalyzerCore::GenTypeMatched(TString gen_string){
 vector<TString> AnalyzerCore::GetGenListPlot(){
 
   vector<TString> lables = {"electron","muon","pi0","pi+", "ph","tau","q",
-			    "c","b","t","g","K","K*","K+","D","D0","D+",
-			    "B","B0","B+","D0_K+","B0_K+","LightMeson",
-			    "ccMeson","bbMeson","CMeson", "BMeson","CBaryon",
-			    "BBaryon", "proton", "conv", "__"};
+          "c","b","t","g","K","K*","K+","D","D0","D+",
+          "B","B0","B+","D0_K+","B0_K+","LightMeson",
+          "ccMeson","bbMeson","CMeson", "BMeson","CBaryon",
+          "BBaryon", "proton", "conv", "__"};
                             
 
   return lables;
@@ -365,10 +365,10 @@ vector<TString> AnalyzerCore::GetGenListPlot(){
 vector<TString> AnalyzerCore::GetGenList(){
 
   vector<TString> lables = {"electron", "muon", "pi0ph", "pi0", "pi+", "ph",
-			    "tau", "q", "c", "b", "t", "g", "JPsi", "K", "K*",
-			    "K+", "D", "D0", "D+", "B", "B0", "B+", "D0_K+", "B0_K+",
-			    "LightMeson", "CMeson", "ccMeson", "BMeson", "bbMeson",
-			    "CBaryon", "BBaryon", "proton", "conv", "__"};
+          "tau", "q", "c", "b", "t", "g", "JPsi", "K", "K*",
+          "K+", "D", "D0", "D+", "B", "B0", "B+", "D0_K+", "B0_K+",
+          "LightMeson", "CMeson", "ccMeson", "BMeson", "bbMeson",
+          "CBaryon", "BBaryon", "proton", "conv", "__"};
   
   return lables;
 
@@ -441,7 +441,7 @@ TString AnalyzerCore::MatchGenDef(std::vector<Gen>& gens,const Lepton& Lep, bool
           }
           MatchedGensID.push_back(i);
         }
-	CloseGensID.push_back(i);
+  CloseGensID.push_back(i);
       }
       if(Lep.DeltaR(gen) < mindR ){
         mindR=Lep.DeltaR(gen) ;
@@ -456,12 +456,12 @@ TString AnalyzerCore::MatchGenDef(std::vector<Gen>& gens,const Lepton& Lep, bool
         mindR=Lep.DeltaR(gens[j]);
         if(fabs(gens[j].Pt() - Lep.Pt() ) / Lep.Pt() < 0.25) {
           pid_matched=Lep.PIDToString(fabs(gens[j].PID()));
-	  int mind = gens.at(j).MotherIndex();
+    int mind = gens.at(j).MotherIndex();
           int pdid = j;
           while(std::find(CloseGensID.begin(), CloseGensID.end(), mind) != CloseGensID.end()) {
             if(fabs(gens.at(mind).PID()) <= 6)  break;
             if(fabs(gens.at(mind).PID()) == 2212)  break;
-	    pdid = mind;
+      pdid = mind;
             mind = gens.at(mind).MotherIndex();
           }
           if(fabs(gens[pdid].PID()) == 423) return "D";
@@ -665,15 +665,15 @@ void AnalyzerCore::PrintMatchedGen(std::vector<Gen>& gens,const Lepton& Lep){
       if(Lep.DeltaR(gen) < 0.4)  {
         cout <<  i << "\t" << gen.SPID() << "\t" << gen.Status() << "\t" << gen.MotherIndex() << "\t";
         printf("%.2f\t%.2f\t%.2f\t%.2f =======> DrMatched %.2f\t "  +addon+ "\n",gen.Pt(), gen.Eta(), gen.Phi(), gen.M(),Lep.DeltaR(gen));
-	
+  
       }
     }
     else{
       if(Lep.DeltaR(gen) < 0.4)  {
-	vector<int> history = TrackGenSelfHistory(gen, gens);
-	cout <<  i << "\t" << gen.SPID() << "\t" << gen.Status() << "\t" << gen.MotherIndex() << "\t" << gens.at(gen.MotherIndex()).SPID()<< "\t" << history[0] << "\t";
-	printf("%.2f\t%.2f\t%.2f\t%.2f =======> DrMatched %.2f\t "  +addon+ "\n",gen.Pt(), gen.Eta(), gen.Phi(), gen.M(),Lep.DeltaR(gen));
-	
+  vector<int> history = TrackGenSelfHistory(gen, gens);
+  cout <<  i << "\t" << gen.SPID() << "\t" << gen.Status() << "\t" << gen.MotherIndex() << "\t" << gens.at(gen.MotherIndex()).SPID()<< "\t" << history[0] << "\t";
+  printf("%.2f\t%.2f\t%.2f\t%.2f =======> DrMatched %.2f\t "  +addon+ "\n",gen.Pt(), gen.Eta(), gen.Phi(), gen.M(),Lep.DeltaR(gen));
+  
       }
     }
   }
@@ -702,8 +702,8 @@ bool AnalyzerCore::HasPromptConv(Electron el){
     if(All_Gens[TruthIdx].MotherIndex() == All_Gens[i].MotherIndex()){
       if(All_Gens[i].Status() == 1) {
         if(fabs(All_Gens[i].PID()) == 11) {
-	  nSt1el++;
-	}
+    nSt1el++;
+  }
       }
     }
   }
@@ -736,19 +736,19 @@ bool AnalyzerCore::HasPromptConv(Electron el){
   if( !GenGetMother(All_Gens.at(TruthIdx)).IsEmpty()  && !GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).IsEmpty()){
 
     if( GenGetMother(All_Gens.at(TruthIdx)).PID() == 22 && 
-	fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 11) return true;
+  fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 11) return true;
     
     if( GenGetMother(All_Gens.at(TruthIdx)).PID() == 22 &&
-	fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 13) return true;
+  fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 13) return true;
     
     if( GenGetMother(All_Gens.at(TruthIdx)).PID() == 22 &&
-	fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 15) return true;
+  fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 15) return true;
     
     if( GenGetMother(All_Gens.at(TruthIdx)).PID() == 22 &&
-	fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 23) return true;
+  fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 23) return true;
     
     if( GenGetMother(All_Gens.at(TruthIdx)).PID() == 22 &&
-	fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 24) return true;
+  fabs(GenGetMother(GenGetMother(All_Gens.at(TruthIdx))).PID()) == 24) return true;
   }
 
   /// if nSt1el (number of status 1 electrons in dR < 0.4 from same mother , if > 1 e->eee  that passes JH Gen code                                                                                                                                                                                                                                  
@@ -849,8 +849,8 @@ bool AnalyzerCore::PassGenFilterPhotonPt(){
       if (gen.MotherIndex() < 0) continue;
       if (gen.PID() != 22 || gen.Status() != 1) continue;
       if (gen.isPromptFinalState() && gen.Pt() > maxPt) {
-	NearPhotonIdx = static_cast<int>(i);
-	maxPt = gen.Pt();
+  NearPhotonIdx = static_cast<int>(i);
+  maxPt = gen.Pt();
       }
     }
   }
@@ -1011,8 +1011,8 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
     int genpid=gens.at(i).PID();
     if(gens.at(i).isHardProcess()){
       if(abs(genpid)<7||genpid==21||genpid==22){
-	if(parton0.IsEmpty()) parton0=gens[i];
-	else if(parton1.IsEmpty()) parton1=gens[i];
+  if(parton0.IsEmpty()) parton0=gens[i];
+  else if(parton1.IsEmpty()) parton1=gens[i];
       }
     }
     if(gens.at(i).Status()==1){
@@ -1033,7 +1033,7 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
     for(int i=0;i<nlepton;i++){
       if(leptons[i]->PID()!=lhe_l0.ID()) continue;
       if(l0.PID()==0 || leptons[i]->DeltaR(lhe_l0)<l0.DeltaR(lhe_l0)){
-	l0=*leptons[i];
+  l0=*leptons[i];
       }
     }
   }
@@ -1048,7 +1048,7 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
     for(int i=0;i<nlepton;i++){
       if(leptons[i]->PID()!=lhe_l1.ID()) continue;
       if(l1.PID()==0 || leptons[i]->DeltaR(lhe_l1)<l1.DeltaR(lhe_l1)){
-	l1=*leptons[i];
+  l1=*leptons[i];
       }
     }
   }
@@ -1060,17 +1060,17 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
   if(mode>=3){
     if(nlepton>=4){
       for(int i=0;i<nlepton;i++){
-	if(leptons[i]->Index()==l0.Index()||leptons[i]->Index()==l1.Index()) continue;
-	for(int j=i+1;j<nlepton;j++){
-	  if(leptons[j]->Index()==l0.Index()||leptons[j]->Index()==l1.Index()) continue;
-	  if(!(leptons[i]->PID()+leptons[j]->PID()==0)) continue;
-	  vector<int> history_i=TrackGenSelfHistory(*leptons[i],gens);
-	  vector<int> history_j=TrackGenSelfHistory(*leptons[j],gens);
-	  if(history_i.at(1)==history_j.at(1)){
-	    photons.push_back(leptons[i]);
-	    photons.push_back(leptons[j]);
-	  }
-	}
+  if(leptons[i]->Index()==l0.Index()||leptons[i]->Index()==l1.Index()) continue;
+  for(int j=i+1;j<nlepton;j++){
+    if(leptons[j]->Index()==l0.Index()||leptons[j]->Index()==l1.Index()) continue;
+    if(!(leptons[i]->PID()+leptons[j]->PID()==0)) continue;
+    vector<int> history_i=TrackGenSelfHistory(*leptons[i],gens);
+    vector<int> history_j=TrackGenSelfHistory(*leptons[j],gens);
+    if(history_i.at(1)==history_j.at(1)){
+      photons.push_back(leptons[i]);
+      photons.push_back(leptons[j]);
+    }
+  }
       }
     }
     for(const auto& photon:photons){
@@ -1078,8 +1078,8 @@ void AnalyzerCore::GetAFBGenParticles(const vector<Gen>& gens,Gen& parton0,Gen& 
       if(gens[history.at(1)].PID()==l0.PID()) l0+=*photon;
       else if(gens[history.at(1)].PID()==l1.PID()) l1+=*photon;
       else if(gens[history.at(1)].PID()==23){ // for minnlo+photos
-	if(photon->DeltaR(l0)<photon->DeltaR(l1)) l0+=*photon;
-	else l1+=*photon;
+  if(photon->DeltaR(l0)<photon->DeltaR(l1)) l0+=*photon;
+  else l1+=*photon;
       }
     }    
   }else if(mode>=1){
@@ -1109,8 +1109,8 @@ void  AnalyzerCore::GetAFBLHEParticles(const vector<LHE>& lhes,LHE& p0,LHE& p1,L
     if(l0.ID()==0&&(abs(lhes[i].ID())==11||abs(lhes[i].ID())==13||abs(lhes[i].ID())==15)) l0=lhes[i];
     if(l0.ID()&&(abs(lhes[i].ID())==11||abs(lhes[i].ID())==13||abs(lhes[i].ID())==15)) l1=lhes[i];
     if(lhes[i].Status()==1)
-      if(abs(lhes[i].ID())<=6||lhes[i].ID()==21)
-	if(lhes[i].Pt()>j0.Pt()) j0=lhes[i];
+    if(abs(lhes[i].ID())<=6||lhes[i].ID()==21)
+  if(lhes[i].Pt()>j0.Pt()) j0=lhes[i];
   }
   if(p0.ID()==0||p1.ID()==0||l0.ID()==0||l1.ID()==0){
     cout <<"[AFBAnalyzer::GetLHEParticles] something is wrong"<<endl;
