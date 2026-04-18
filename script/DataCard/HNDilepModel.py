@@ -99,32 +99,46 @@ class HNDilepModel_EMu_Full(PhysicsModel):
 
 class HNDilepModel_3Ch(PhysicsModel):
     """
-    POIs:
-      r = |VeN|^2 + |VmuN|^2
-      f = |VeN|^2 / (|VeN|^2 + |VmuN|^2)
+    mode = hnl
+      POIs:
+        r = |VeN|^2 + |VmuN|^2
+        f = |VeN|^2 / (|VeN|^2 + |VmuN|^2)
 
-    Channel factors:
-      EE   : f^2
-      MuMu : (1-f)^2
-      EMu  : f(1-f)
+      Channel factors:
+        EE   : f^2
+        MuMu : (1-f)^2
+        EMu  : f(1-f)
 
-    Process dependence:
-      DY/VBF : (|V_l1|^2 |V_l2|^2)/r  -> r * channel_factor
-      SSWW   : |V_l1|^2 |V_l2|^2      -> r^2 * channel_factor
+      Process dependence:
+        DY/VBF/DYVBF : r   * channel_factor / r0
+        SSWW         : r^2 * channel_factor / r0^2
 
-    One single template-scale parameter:
-      preprocessing always scales:
-        DY/VBF templates by r0 (= s)
-        SSWW   templates by r0^2 (= s^2)
-      This model divides by those factors so the fitted r,f are "physical".
+    mode = weinberg
+      POI:
+        r = overall signal-strength for the reference sample
+            (current convention: r = (200 TeV / Lambda)^2 )
+
+      Fixed non-POI parameters:
+        wEE, wEMu, wMuMu
+
+      Channel dependence:
+        signalWeinberg(EE)   : r * wEE
+        signalWeinberg(EMu)  : r * wEMu
+        signalWeinberg(MuMu) : r * wMuMu
+
+      Important:
+        wEE, wEMu, wMuMu are NOT POIs.
+        They are theory-point-dependent fixed numbers set with --setParameters and then frozen with --freezeParameters.
     """
 
     def __init__(self):
         super().__init__()
+
+        # POI ranges
         self.rRange = (0.0, 10.0)
         self.fRange = (0.0, 1.0)
 
-        # single scale parameter (your preprocessing s)
+        # single scale parameter
         self.r0 = 1.0
 
         # bin-name patterns (override via --PO if needed)
@@ -134,7 +148,9 @@ class HNDilepModel_3Ch(PhysicsModel):
 
     def setPhysicsOptions(self, physOptions):
         for po in physOptions:
-            if po.startswith("rRange="):
+            if po.startswith("mode="):
+                self.mode = po.replace("mode=", "").strip().lower()
+            elif po.startswith("rRange="):
                 lo, hi = po.replace("rRange=", "").split(",")
                 self.rRange = (float(lo), float(hi))
             elif po.startswith("fRange="):
@@ -148,6 +164,11 @@ class HNDilepModel_3Ch(PhysicsModel):
                 self.re_MuMu = re.compile(po.replace("reMuMu=", ""))
             elif po.startswith("reEMu="):
                 self.re_EMu = re.compile(po.replace("reEMu=", ""))
+            else:
+                raise RuntimeError(f"Unknown physics option: {po}")
+
+        if self.mode not in ("hnl", "weinberg"):
+            raise RuntimeError("mode must be either 'hnl' or 'weinberg'")
 
         if self.r0 == 0.0:
             raise RuntimeError("Invalid r0: must be non-zero.")
@@ -164,14 +185,7 @@ class HNDilepModel_3Ch(PhysicsModel):
             "Include EE/MuMu/EMu in bin name, or pass --PO reEE=..., reMuMu=..., reEMu=..."
         )
 
-    def doParametersOfInterest(self):
-        rLo, rHi = self.rRange
-        fLo, fHi = self.fRange
-
-        self.modelBuilder.doVar(f"r[1.0,{rLo},{rHi}]")
-        self.modelBuilder.doVar(f"f[0.5,{fLo},{fHi}]")
-        self.modelBuilder.doSet("POI", "r,f")
-
+    def _define_hnl_scalings(self):
         r0 = self.r0
         r0sq = r0 * r0
 
@@ -185,18 +199,57 @@ class HNDilepModel_3Ch(PhysicsModel):
         self.modelBuilder.factory_(f"expr::scale_quad_MuMu('(@0*@0*(1-@1)*(1-@1))/{r0sq}', r, f)")
         self.modelBuilder.factory_(f"expr::scale_quad_EMu('(@0*@0*@1*(1-@1))/{r0sq}', r, f)")
 
+    def _define_weinberg_scalings(self):
+        # These are fixed per theory point at runtime:
+        # --setParameters wEE=...,wEMu=...,wMuMu=...
+        # --freezeParameters wEE,wEMu,wMuMu
+        self.modelBuilder.doVar("wEE[1.0,0.0,1000000.0]")
+        self.modelBuilder.doVar("wEMu[1.0,0.0,1000000.0]")
+        self.modelBuilder.doVar("wMuMu[1.0,0.0,1000000.0]")
+
+        # Weinberg is linear in r
+        self.modelBuilder.factory_("expr::scale_w_EE('(@0*@1)', r, wEE)")
+        self.modelBuilder.factory_("expr::scale_w_EMu('(@0*@1)', r, wEMu)")
+        self.modelBuilder.factory_("expr::scale_w_MuMu('(@0*@1)', r, wMuMu)")
+
+    def doParametersOfInterest(self):
+        rLo, rHi = self.rRange
+        self.modelBuilder.doVar(f"r[1.0,{rLo},{rHi}]")
+
+        if self.mode == "hnl":
+            fLo, fHi = self.fRange
+            self.modelBuilder.doVar(f"f[0.5,{fLo},{fHi}]")
+            self._define_hnl_scalings()
+            self.modelBuilder.doSet("POI", "r,f")
+
+        elif self.mode == "weinberg":
+            self._define_weinberg_scalings()
+            self.modelBuilder.doSet("POI", "r")        
+
     def getYieldScale(self, bin, process):
-        if process not in ["signalDY", "signalVBF", "signalSSWW"]:
-            return 1
 
         ch = self._channel_from_bin(bin)
 
-        if process in ["signalDY", "signalVBF"]:
-            return f"scale_lin_{ch}"
-        if process == "signalSSWW":
-            return f"scale_quad_{ch}"
+        # ---------------------------
+        # HNL mode
+        # ---------------------------
+        if self.mode == "hnl":
+            if process in ["signalDY", "signalVBF", "signalDYVBF"]:
+                return f"scale_lin_{ch}"
 
-        return 1
+            if process in ["signalSSWW"]:
+                return f"scale_quad_{ch}"
+
+        # ---------------------------
+        # Weinberg mode
+        # ---------------------------
+        if self.mode == "weinberg":
+            if process in ["signalWeinberg"]:
+                ch = self._channel_from_bin(bin)
+                return f"scale_w_{ch}"
+
+        if process not in ["signalDY", "signalVBF", "signalDYVBF", "signalSSWW", "signalWeinberg"]:
+            return 1
 
 hnDilepModel_3ch = HNDilepModel_3Ch()
 hnDilepModel_EMu_Full = HNDilepModel_EMu_Full()

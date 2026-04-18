@@ -527,12 +527,15 @@ for RunList in args.RunLists:
         runfile.write("cmsenv\n")
         card = card.replace(".root",".txt") # The Runlist contains card_name.root by default.
         if "3ch" in shortcard:
+          if("Weinberg" in shortcard):
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=10000 --PO mode=Weinberg --channel-masks -o "+shortcard+".root\n") # consistent scaling with the LimitInput
+          else:
             if (float(this_mass) > 3000.):
-              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --channel-masks -o "+shortcard+".root\n")
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --PO mode=HNL --channel-masks -o "+shortcard+".root\n") # consistent r0 with the LimitInput
             elif (float(this_mass) <= 100.):
-              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=1 --channel-masks -o "+shortcard+".root\n")
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=1   --PO mode=HNL --channel-masks -o "+shortcard+".root\n") # for MDfit showing; LimitInput was scaled by 0.001
             else:
-              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --channel-masks -o "+shortcard+".root\n")
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --PO mode=HNL --channel-masks -o "+shortcard+".root\n") # for MDfit showing; LimitInput was scaled by 0.01
         elif "EMu" in shortcard:
           if "EMuFull" in WP:
             if (float(this_mass) > 3000.):
