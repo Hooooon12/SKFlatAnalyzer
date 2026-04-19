@@ -119,12 +119,12 @@ class HNDilepModel_3Ch(PhysicsModel):
             (current convention: r = (200 TeV / Lambda)^2 )
 
       Fixed non-POI parameters:
-        wEE, wEMu, wMuMu
+        wEE, wEMu, wMuMu : C^2s
 
       Channel dependence:
-        signalWeinberg(EE)   : r * wEE
-        signalWeinberg(EMu)  : r * wEMu
-        signalWeinberg(MuMu) : r * wMuMu
+        signalWeinberg(EE)   : r * wEE   / r0
+        signalWeinberg(EMu)  : r * wEMu  / r0
+        signalWeinberg(MuMu) : r * wMuMu / r0
 
       Important:
         wEE, wEMu, wMuMu are NOT POIs.
@@ -203,14 +203,17 @@ class HNDilepModel_3Ch(PhysicsModel):
         # These are fixed per theory point at runtime:
         # --setParameters wEE=...,wEMu=...,wMuMu=...
         # --freezeParameters wEE,wEMu,wMuMu
-        self.modelBuilder.doVar("wEE[1.0,0.0,1000000.0]")
-        self.modelBuilder.doVar("wEMu[1.0,0.0,1000000.0]")
-        self.modelBuilder.doVar("wMuMu[1.0,0.0,1000000.0]")
+
+        r0 = self.r0
+
+        self.modelBuilder.doVar("wEE[1.0,0.0,1.0]")
+        self.modelBuilder.doVar("wEMu[1.0,0.0,1.0]")
+        self.modelBuilder.doVar("wMuMu[1.0,0.0,1.0]")
 
         # Weinberg is linear in r
-        self.modelBuilder.factory_("expr::scale_w_EE('(@0*@1)', r, wEE)")
-        self.modelBuilder.factory_("expr::scale_w_EMu('(@0*@1)', r, wEMu)")
-        self.modelBuilder.factory_("expr::scale_w_MuMu('(@0*@1)', r, wMuMu)")
+        self.modelBuilder.factory_(f"expr::scale_w_EE('(@0*@1)/{r0}', r, wEE)")
+        self.modelBuilder.factory_(f"expr::scale_w_EMu('(@0*@1)/{r0}', r, wEMu)")
+        self.modelBuilder.factory_(f"expr::scale_w_MuMu('(@0*@1)/{r0}', r, wMuMu)")
 
     def doParametersOfInterest(self):
         rLo, rHi = self.rRange
@@ -240,16 +243,24 @@ class HNDilepModel_3Ch(PhysicsModel):
             if process in ["signalSSWW"]:
                 return f"scale_quad_{ch}"
 
+            if process in ["signalWeinberg"]:
+                return 0
+
+            return 1
+
         # ---------------------------
         # Weinberg mode
         # ---------------------------
         if self.mode == "weinberg":
             if process in ["signalWeinberg"]:
-                ch = self._channel_from_bin(bin)
                 return f"scale_w_{ch}"
 
-        if process not in ["signalDY", "signalVBF", "signalDYVBF", "signalSSWW", "signalWeinberg"]:
+            if process in ["signalDY", "signalVBF", "signalDYVBF", "signalSSWW"]:
+                return 0
+
             return 1
+
+        return 1
 
 hnDilepModel_3ch = HNDilepModel_3Ch()
 hnDilepModel_EMu_Full = HNDilepModel_EMu_Full()

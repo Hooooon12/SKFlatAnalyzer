@@ -36,7 +36,10 @@ parser.add_argument('--Impact', action='store_true', help='check impacts')
 parser.add_argument('--FastScan', action='store_true', help='fast scan')
 parser.add_argument('--MDfit', action='store_true', help='multidimension fits')
 parser.add_argument('--r', default='0', help='(3ch, EMuFull only) inject r')
-parser.add_argument('--f', default='0.5', help='(3ch, EMuFull only) inject f')
+parser.add_argument('--f', default='0.5', help='(3ch, EMuFull for HNL only) inject f')
+parser.add_argument('--wMuMu', default='1', help='(3ch, for Weinberg only) inject wMuMu')
+parser.add_argument('--wEE',   default='0', help='(3ch, for Weinberg only) inject wEE')
+parser.add_argument('--wEMu',  default='0', help='(3ch, for Weinberg only) inject wEMu')
 parser.add_argument('--Breakdown', action='store_true', help='uncertainty breakdown')
 parser.add_argument('--GOF', action='store_true', help='goodness of fit test')
 parser.add_argument('--InjectSignal', default='0', help='inject signals to asimov')
@@ -318,6 +321,43 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
 
     return dag_filename
 
+def fmt_w_label(x): # formatting with label
+    """
+    0.25 -> 0p25
+    1.0  -> 1p0
+    """
+    return str(x).replace(".", "p").replace("-", "m")
+
+def make_weinberg_w_points(step=0.25):
+    """
+    Simplex scan:
+      wMuMu + wEMu + wEE = 1
+
+    step=0.25 gives 15 points.
+    step=0.20 gives 21 points.
+    step=0.10 gives 66 points.
+    """
+    n = int(round(1.0 / step))
+    points = []
+
+    for i in range(n + 1):
+        for j in range(n + 1 - i):
+            k = n - i - j
+
+            wMuMu = round(i * step, 10)
+            wEMu = round(j * step, 10)
+            wEE = round(k * step, 10)
+
+            label = (
+                "wMuMu" + fmt_w_label(wMuMu)
+                + "_wEMu" + fmt_w_label(wEMu)
+                + "_wEE" + fmt_w_label(wEE)
+            )
+
+            points.append((wMuMu, wEMu, wEE, label))
+
+    return points
+
 # --- Main Logic ---
 
 for RunList in args.RunLists:
@@ -351,7 +391,9 @@ for RunList in args.RunLists:
     shortcard = card.split('/')[-1].replace(".root","").replace(".txt","").replace("card_","") # Run2_EE_Ext_M500_syst
     this_mass = "0" if "Weinberg" in shortcard else shortcard.split('_M')[-1].split('_')[0]
 
-    if "EMuFull" in WP or "3ch" in shortcard: AsimovName = f"r{args.r}f{args.f}"
+    if "EMuFull" in WP or "3ch" in shortcard:
+      if "Weinberg" not in shortcard: AsimovName = fmt_w_label(f"r{args.r}f{args.f}") # HNL
+      else: AsimovName = fmt_w_label(f"r{args.r}wMuMu{args.wMuMu}wEE{args.wEE}wEMu{args.wEMu}") # Weinberg
  
     if args.pdf:
       this_shortcard = shortcard+"_DefMod" if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else shortcard
@@ -472,33 +514,109 @@ for RunList in args.RunLists:
       os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/Asymptotic/'+shortcard+'/submit_Asymptotic.sh')
 
       if "EMuFull" in WP or "3ch" in shortcard:
-        # 1. Shell Script: Accept f value as an argument
-        with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
-          runfile.write("#!/bin/bash\n")
-          runfile.write("F_VAL=$1\n") # Get f value from Condor arguments
+        if "Weinberg" not in shortcard:
+          # 1. Shell Script: Accept f value as an argument
+          with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
+            runfile.write("#!/bin/bash\n")
+            runfile.write("F_VAL=$1\n") # Get f value from Condor arguments
 
-          # Increase stack size to prevent RooFit/Combine segmentation faults
-          runfile.write("ulimit -s unlimited\n")
-          
-          # Add --setParameters, --freezeParameters, and -n (name suffix)
-          runfile.write("combine -M AsymptoticLimits "+card+" --run blind --setParameters r=0,f=${F_VAL} --freezeParameters f -n _f${F_VAL}\n")
+            # Increase stack size to prevent RooFit/Combine segmentation faults
+            runfile.write("ulimit -s unlimited\n")
+            
+            # Add --setParameters, --freezeParameters, and -n (name suffix)
+            runfile.write("combine -M AsymptoticLimits "+card+" --run blind --setParameters r=0,f=${F_VAL} --freezeParameters f -n _f${F_VAL}\n")
 
-        # 2. HTCondor Submit Script: Loop over f values
-        with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
-          submitfile.write("executable = run_Asymptotic.sh\n")
-          submitfile.write("arguments = $(f_val)\n") # Pass f_val to the shell script
-          
-          # Separate log files for each f value
-          submitfile.write("log = "+shortcard+"_Asymptotic_f$(f_val).log\n")
-          submitfile.write("output = "+shortcard+"_Asymptotic_f$(f_val).out\n")
-          submitfile.write("error = "+shortcard+"_Asymptotic_f$(f_val).out\n")
-          
-          # Transfer the correct root file based on -n suffix
-          submitfile.write("transfer_output_files = higgsCombine_f$(f_val).AsymptoticLimits.mH120.root\n")
-          submitfile.write("transfer_output_remaps = \"higgsCombine_f$(f_val).AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic_f$(f_val).root\"\n")
-          
-          # Queue multiple jobs by iterating over f_val
-          submitfile.write("queue f_val in (0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0)\n")
+          # 2. HTCondor Submit Script: Loop over f values
+          with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
+            submitfile.write("executable = run_Asymptotic.sh\n")
+            submitfile.write("arguments = $(f_val)\n") # Pass f_val to the shell script
+            
+            # Separate log files for each f value
+            submitfile.write("log = "+shortcard+"_Asymptotic_f$(f_val).log\n")
+            submitfile.write("output = "+shortcard+"_Asymptotic_f$(f_val).out\n")
+            submitfile.write("error = "+shortcard+"_Asymptotic_f$(f_val).out\n")
+            
+            # Transfer the correct root file based on -n suffix
+            submitfile.write("transfer_output_files = higgsCombine_f$(f_val).AsymptoticLimits.mH120.root\n")
+            submitfile.write("transfer_output_remaps = \"higgsCombine_f$(f_val).AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic_f$(f_val).root\"\n")
+            
+            # Queue multiple jobs by iterating over f_val
+            submitfile.write("queue f_val in (0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0)\n")
+
+        else:
+          batch_dir = "Batch/" + WP + "/Asymptotic/" + shortcard
+          output_dir = batch_dir + "/output"
+
+          os.makedirs(batch_dir, exist_ok=True)
+          os.makedirs(output_dir, exist_ok=True)
+
+          # Proof-of-concept scan.
+          # step=0.25/0.5 is modest.
+          w_points = make_weinberg_w_points(step=0.5)
+
+          # set the points manually
+          # w_points = [
+          #     (1.0, 0.0, 0.0, "MuMuonly"),
+          #     (0.0, 1.0, 0.0, "EMuonly"),
+          #     (0.0, 0.0, 1.0, "EEonly"),
+          #     (1.0/3.0, 1.0/3.0, 1.0/3.0, "flat"),
+          #     (0.2, 0.3, 0.5, "w0p2_0p3_0p5"),
+          # ]
+
+          # 1. Shell script: accept wMuMu, wEMu, wEE, label
+          with open(batch_dir + "/run_Asymptotic.sh", "w") as runfile:
+            runfile.write("#!/bin/bash\n")
+            runfile.write("W_MuMu=$1\n")
+            runfile.write("W_EMU=$2\n")
+            runfile.write("W_EE=$3\n")
+            runfile.write("W_LABEL=$4\n")
+            runfile.write("\n")
+            runfile.write("ulimit -s unlimited\n")
+            runfile.write("\n")
+
+            runfile.write("echo \"Running Weinberg point: ${W_LABEL}\"\n")
+            runfile.write("echo \"  wMuMu = ${W_MuMu}\"\n")
+            runfile.write("echo \"  wEMu  = ${W_EMU}\"\n")
+            runfile.write("echo \"  wEE   = ${W_EE}\"\n")
+            runfile.write("\n")
+
+            runfile.write(
+                "combine -M AsymptoticLimits " + card +
+                " --run blind"
+                " --setParameters r=0,wMuMu=${W_MuMu},wEMu=${W_EMU},wEE=${W_EE}"
+                " --freezeParameters wMuMu,wEMu,wEE"
+                " --setParameterRanges r=0,10000"
+                " -n _${W_LABEL}\n"
+            )
+
+          os.system("chmod +x " + batch_dir + "/run_Asymptotic.sh")
+
+          # 2. HTCondor submit script
+          with open(batch_dir + "/submit_Asymptotic.sh", "a") as submitfile:
+            submitfile.write("executable = run_Asymptotic.sh\n")
+            submitfile.write("arguments = $(w_mumu) $(w_emu) $(w_ee) $(w_label)\n")
+            submitfile.write("\n")
+
+            submitfile.write("log = " + shortcard + "_Asymptotic_$(w_label).log\n")
+            submitfile.write("output = " + shortcard + "_Asymptotic_$(w_label).out\n")
+            submitfile.write("error = " + shortcard + "_Asymptotic_$(w_label).out\n")
+            submitfile.write("\n")
+
+            submitfile.write(
+                "transfer_output_files = "
+                "higgsCombine_$(w_label).AsymptoticLimits.mH120.root\n"
+            )
+            submitfile.write(
+                "transfer_output_remaps = "
+                "\"higgsCombine_$(w_label).AsymptoticLimits.mH120.root"
+                " = output/" + shortcard + "_Asymptotic_$(w_label).root\"\n"
+            )
+            submitfile.write("\n")
+
+            submitfile.write("queue w_mumu,w_emu,w_ee,w_label from (\n")
+            for wMuMu, wEMu, wEE, label in w_points:
+                submitfile.write(f"{wMuMu} {wEMu} {wEE} {label}\n")
+            submitfile.write(")\n")
 
       else:
         with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
@@ -527,9 +645,9 @@ for RunList in args.RunLists:
         runfile.write("cmsenv\n")
         card = card.replace(".root",".txt") # The Runlist contains card_name.root by default.
         if "3ch" in shortcard:
-          if("Weinberg" in shortcard):
+          if "Weinberg" in shortcard: # Weinberg
               runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=10000 --PO mode=Weinberg --channel-masks -o "+shortcard+".root\n") # consistent scaling with the LimitInput
-          else:
+          else: # HNL
             if (float(this_mass) > 3000.):
               runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --PO mode=HNL --channel-masks -o "+shortcard+".root\n") # consistent r0 with the LimitInput
             elif (float(this_mass) <= 100.):
@@ -602,7 +720,10 @@ for RunList in args.RunLists:
           elif args.MDfit:
             if "EMuFull" in WP or "3ch" in shortcard:
               if "DefMod" in this_shortcard: continue # Must use the actual physics model
-              runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r={args.r},f={args.f} --setParameterRanges r=0,2:f=0,1 --algo grid --points=2601 --alignEdges 1 --robustFit 1 --saveNLL --name _{this_shortcard}_grid_2D_Asimov_r{args.r}f{args.f}\n") # setParameter --> Asimov setting. default args.r = 0 --> b-only Asimov. Also setParameters is a starting point for the scan.
+              if "Weinberg" not in this_shortcard: # HNL
+                runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r={args.r},f={args.f} --setParameterRanges r=0,2:f=0,1 --algo grid --points=2601 --alignEdges 1 --robustFit 1 --saveNLL --name _{this_shortcard}_grid_2D_Asimov_r{fmt_w_label(args.r)}f{fmt_w_label(args.f)}\n") # setParameter --> Asimov setting. default args.r = 0 --> b-only Asimov. Also setParameters is a starting point for the scan.
+              else: # Weinberg
+                runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r={args.r},wMuMu={args.wMuMu},wEE={args.wEE},wEMu={args.wEMu} --setParameterRanges r=0,2 --algo grid --points=201 --alignEdges 1 --robustFit 1 --saveNLL --name _{this_shortcard}_grid_2D_Asimov_r{fmt_w_label(args.r)}wMuMu{fmt_w_label(args.wMuMu)}wEE{fmt_w_label(args.wEE)}wEMu{fmt_w_label(args.wEMu)}\n") # setParameter --> Asimov setting. default args.r = 0 --> b-only Asimov. Also setParameters is a starting point for the scan.
             else:
               runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --algo grid --points=41 --rMin -1 --rMax 1 --alignEdges 1 {AsimovSetting} --name .{this_shortcard}_{AsimovName}_rRange1\n")
               runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --algo grid --points=41 --rMin -10 --rMax 10 --alignEdges 1 {AsimovSetting} --name .{this_shortcard}_{AsimovName}_rRange10\n")
@@ -679,7 +800,10 @@ for RunList in args.RunLists:
         submitfile.write("queue\n")
       os.chdir(WP+"/"+shortcard+"/"+this_check+"/"+AsimovName)
       if args.MDfit and ("EMuFull" in WP or "3ch" in shortcard):
-        os.system(f'condor_submit -a "priority = -15" submit_{this_check}_{AsimovName}.sh -batch-name {shortcard}_{WP}_{this_check}_grid_2D_Asimov_r{args.r}f{args.f}')
+        if "Weinberg" not in shortcard: # HNL
+          os.system(f'condor_submit -a "priority = -15" submit_{this_check}_{AsimovName}.sh -batch-name {shortcard}_{WP}_{this_check}_grid_2D_Asimov_r{fmt_w_label(args.r)}f{fmt_w_label(args.f)}')
+        else: # Weinberg
+          os.system(f'condor_submit -a "priority = -15" submit_{this_check}_{AsimovName}.sh -batch-name {shortcard}_{WP}_{this_check}_grid_2D_Asimov_r{fmt_w_label(args.r)}wMuMu{fmt_w_label(args.wMuMu)}wEE{fmt_w_label(args.wEE)}wEMu{fmt_w_label(args.wEMu)}')
       else:
         os.system(f'condor_submit -a "priority = -15" submit_{this_check}_{AsimovName}.sh -batch-name {shortcard}_{WP}_{this_check}_{AsimovName}')
       os.chdir(pwd)

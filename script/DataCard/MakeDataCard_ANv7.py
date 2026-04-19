@@ -688,10 +688,10 @@ for InputWP in InputWPs:
               combine_run2(run2_each, per_era_each)
 
         if args.Combine == "Channel":
-          if channel != "EMu": continue # iterate lepton combination only once. EMu has the widest mass range
-          if signal == "Weinberg":
-            print("Weinberg 3ch is not supported. Skipping...")
-            continue
+          if channel != "MuMu": continue # iterate lepton combination only once. 3ch combination can be done up to M30000
+          #if signal == "Weinberg":
+          #  print("Weinberg 3ch is not supported. Skipping...")
+          #  continue
 
           if args.CR: # with CR
             per_channel_full = [f"card_Run2_{channel}{ExtTag}_{mass_signal}{systTag}.txt" for channel in channels]
