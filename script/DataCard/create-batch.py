@@ -391,7 +391,7 @@ for RunList in args.RunLists:
     shortcard = card.split('/')[-1].replace(".root","").replace(".txt","").replace("card_","") # Run2_EE_Ext_M500_syst
     this_mass = "0" if "Weinberg" in shortcard else shortcard.split('_M')[-1].split('_')[0]
 
-    if "EMuFull" in WP or "3ch" in shortcard:
+    if "EMuFull" in WP or "3ch" in shortcard or "3ch" in WP:
       if "Weinberg" not in shortcard: AsimovName = fmt_w_label(f"r{args.r}f{args.f}") # HNL
       else: AsimovName = fmt_w_label(f"r{args.r}wMuMu{args.wMuMu}wEE{args.wEE}wEMu{args.wEMu}") # Weinberg
  
@@ -421,7 +421,7 @@ for RunList in args.RunLists:
       os.system('mkdir -p '+WP+'/'+shortcard)
       os.system('cp '+WP+'/submit_skeleton.sh '+WP+'/'+shortcard+'/submit_Workspace.sh')
     elif IsNuis:
-      if "EMuFull" in WP or "3ch" in shortcard:
+      if "EMuFull" in WP or "3ch" in shortcard or "3ch" in WP:
         if "DefMod" in shortcard: continue # Must use the actual physics model
       os.system(f'mkdir -p {WP}/{shortcard}/{this_check}/{AsimovName}')
       os.system(f'cp {WP}/submit_skeleton.sh {WP}/{shortcard}/{this_check}/{AsimovName}/submit_{this_check}_{AsimovName}.sh')
@@ -513,7 +513,7 @@ for RunList in args.RunLists:
       os.system('mkdir -p Batch/'+WP+'/Asymptotic/'+shortcard+'/output/')
       os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/Asymptotic/'+shortcard+'/submit_Asymptotic.sh')
 
-      if "EMuFull" in WP or "3ch" in shortcard:
+      if "EMuFull" in WP or "3ch" in shortcard or "3ch" in WP:
         if "Weinberg" not in shortcard:
           # 1. Shell Script: Accept f value as an argument
           with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
@@ -541,7 +541,14 @@ for RunList in args.RunLists:
             submitfile.write("transfer_output_remaps = \"higgsCombine_f$(f_val).AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic_f$(f_val).root\"\n")
             
             # Queue multiple jobs by iterating over f_val
-            submitfile.write("queue f_val in (0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0)\n")
+            if "MuMu" in shortcard: # MuMu 3ch envelope study
+              submitfile.write("queue f_val in (0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95)\n")
+            elif "EE" in shortcard: # EE 3ch envelope study
+              submitfile.write("queue f_val in (0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0)\n")
+            elif "EMu" in shortcard: # EMu 3ch envelope study
+              submitfile.write("queue f_val in (0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95)\n")
+            else: # Actual 3ch combined limit
+              submitfile.write("queue f_val in (0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0)\n")
 
         else:
           batch_dir = "Batch/" + WP + "/Asymptotic/" + shortcard
@@ -654,6 +661,22 @@ for RunList in args.RunLists:
               runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=1   --PO mode=HNL --channel-masks -o "+shortcard+".root\n") # for MDfit showing; LimitInput was scaled by 0.001
             else:
               runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --PO mode=HNL --channel-masks -o "+shortcard+".root\n") # for MDfit showing; LimitInput was scaled by 0.01
+        elif "3ch" in WP: # "3ch" not in shortcard but still WP is 3ch --> HNL 3ch vs 1D envelope test
+          if "Weinberg" in shortcard: # Weinberg
+            continue
+          else: # HNL
+            ForceChannel = (
+                            "--PO 'reMuMu=.*' --PO 'reEE=^$' --PO 'reEMu=^$'" if "MuMu" in shortcard else
+                            "--PO 'reEE=.*' --PO 'reMuMu=^$' --PO 'reEMu=^$'" if "EE" in shortcard else
+                            "--PO 'reEMu=.*' --PO 'reEE=^$' --PO 'reMuMu=^$'" if "EMu" in shortcard else
+                            "ERROR"
+                        )
+            if (float(this_mass) > 3000.):
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --PO mode=HNL "+ForceChannel+" --channel-masks -o "+shortcard+".root\n") # consistent r0 with the LimitInput
+            elif (float(this_mass) <= 100.):
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=1   --PO mode=HNL "+ForceChannel+" --channel-masks -o "+shortcard+".root\n") # for MDfit showing; LimitInput was scaled by 0.001
+            else:
+              runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_3ch "+card+" --PO r0=0.1 --PO mode=HNL "+ForceChannel+" --channel-masks -o "+shortcard+".root\n") # for MDfit showing; LimitInput was scaled by 0.01
         elif "EMu" in shortcard:
           if "EMuFull" in WP:
             if (float(this_mass) > 3000.):
@@ -666,7 +689,7 @@ for RunList in args.RunLists:
             runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel_EMu "+card+" --channel-masks -o "+shortcard+".root\n")
         else:
           runfile.write("text2workspace.py -P HiggsAnalysis.CombinedLimit.HNDilepModel:hnDilepModel "+card+" --channel-masks -o "+shortcard+".root\n")
-        if not("EMuFull" in WP or "3ch" in shortcard) and ((float(this_mass) > 3000.) or "SSWW" in shortcard): # mass is above 3000 GeV so it only contains SSWW, or SSWW only --> add DefMod for impact check
+        if not("EMuFull" in WP or "3ch" in shortcard or "3ch" in WP) and ((float(this_mass) > 3000.) or "SSWW" in shortcard): # mass is above 3000 GeV so it only contains SSWW, or SSWW only --> add DefMod for impact check
           runfile.write("text2workspace.py "+card+" --channel-masks -o "+shortcard+"_DefMod.root\n") # impact with default physics model with SSWW: see https://cms-talk.web.cern.ch/t/0-impact-on-poi-negative-bin-issue/42793
       with open(WP+"/"+shortcard+"/submit_Workspace.sh",'a') as submitfile:
         submitfile.write("executable = MakeWorkspace.sh\n")
@@ -718,7 +741,7 @@ for RunList in args.RunLists:
             runfile.write(f"combineTool.py -M FastScan -w {pwd}/{WP}/{shortcard}/{this_shortcard}.root:w -o {this_shortcard}_Asimov_nll {AsimovSetting}\n")
             runfile.write(f"combineTool.py -M FastScan -w {pwd}/{WP}/{shortcard}/{this_shortcard}.root:w -o {this_shortcard}_nll\n")
           elif args.MDfit:
-            if "EMuFull" in WP or "3ch" in shortcard:
+            if "EMuFull" in WP or "3ch" in shortcard or "3ch" in WP:
               if "DefMod" in this_shortcard: continue # Must use the actual physics model
               if "Weinberg" not in this_shortcard: # HNL
                 runfile.write(f"combineTool.py -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r={args.r},f={args.f} --setParameterRanges r=0,2:f=0,1 --algo grid --points=2601 --alignEdges 1 --robustFit 1 --saveNLL --name _{this_shortcard}_grid_2D_Asimov_r{fmt_w_label(args.r)}f{fmt_w_label(args.f)}\n") # setParameter --> Asimov setting. default args.r = 0 --> b-only Asimov. Also setParameters is a starting point for the scan.
@@ -799,7 +822,7 @@ for RunList in args.RunLists:
         submitfile.write("when_to_transfer_output = ON_EXIT\n")
         submitfile.write("queue\n")
       os.chdir(WP+"/"+shortcard+"/"+this_check+"/"+AsimovName)
-      if args.MDfit and ("EMuFull" in WP or "3ch" in shortcard):
+      if args.MDfit and ("EMuFull" in WP or "3ch" in shortcard or "3ch" in WP):
         if "Weinberg" not in shortcard: # HNL
           os.system(f'condor_submit -a "priority = -15" submit_{this_check}_{AsimovName}.sh -batch-name {shortcard}_{WP}_{this_check}_grid_2D_Asimov_r{fmt_w_label(args.r)}f{fmt_w_label(args.f)}')
         else: # Weinberg

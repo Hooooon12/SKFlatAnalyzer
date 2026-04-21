@@ -312,7 +312,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP
   //TString WP_nom = "ANv7_FullJESNS_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_FullJESNS_Decorr"; // set the nominal WP
   //TString WP_nom = "ANv7_EMuCF_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_EMuCF"; // set the nominal WP
-  TString WP_nom = "ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
+  //TString WP_nom = "ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
+  TString WP_nom = "ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
 
   PlotConfig plot_cfg = BuildPlotConfig(WP_nom, DrawExt, SepLimit, CompareLimits);
 
@@ -366,16 +367,29 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     // );
 
 		// *** full limit comparison using central jet veto in VBF jets
+		//plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "Full_Central_Veto";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval",
+    //                  "_HNL_syst",
+    //                  "Use jet_{VBF, central veto}",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom)
+    //);
+
+		// *** full limit comparison using central jet veto in VBF jets
 		plot_cfg.nominal.tag_nom = "_HNL_syst";
-    plot_cfg.study.subdir = "Full_Central_Veto";
+    plot_cfg.study.subdir = "FixHessian_AddGluGluTaus";
     plot_cfg.study.entries.push_back(
-      ComparisonEntry("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval",
+      ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
                       "_HNL_syst",
-                      "Use jet_{VBF, central veto}",
+                      "Fix PDF error, add gg#rightarrow#taus",
                       kRed,
                       0.01,
                       plot_cfg.nominal.method_nom)
     );
+
   }
 
   const vector<TString>& WP_noms = plot_cfg.nominal.wp_noms;

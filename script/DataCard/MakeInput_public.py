@@ -100,6 +100,76 @@ FakeSkim = "_SkimTree_HNMultiLepBDT_"
 CFSkim = "_SkimTree_DileptonBDT_" #FIXME Data CF
 SignalSkim = "_SkimTree_HNMultiLepBDT_"
 
+def should_skip_limit_point_before_build(mass, region):
+  """
+  Keep this synchronized with the original era-by-era MakeInput skip rules.
+
+  Original rule:
+    - M <= 100: do not make r1/r2
+    - M > 3000: do not make r1
+  """
+
+  if mass == "Weinberg":
+    return False
+
+  mass_int = int(mass.replace("M",""))
+
+  if ("r1" in region or "r2" in region) and (mass_int <= 100):
+    return True
+
+  if ("r1" in region) and (mass_int > 3000):
+    return True
+
+  return False
+
+
+def should_skip_limit_channel_before_build(mass, channel):
+  """
+  Keep this synchronized with the original channel skip rule.
+
+  Original rule:
+    - M > 30000: only EMu is made
+  """
+
+  if mass == "Weinberg":
+    return False
+
+  mass_int = int(mass.replace("M",""))
+
+  if "EMu" not in channel and (mass_int > 30000):
+    return True
+
+  return False
+
+
+def should_skip_known_missing_fake_phase_space(mass, region):
+  """
+  Phase-space where the source era card inputs are intentionally absent
+  because fake is not produced / not available.
+  """
+
+  if mass == "Weinberg" and region == "sr1":
+    return True
+
+  return False
+
+RUN2_SOURCE_ERAS = ["2016preVFP", "2016postVFP", "2017", "2018"]
+
+def expand_run2_eras(eras):
+  expanded = []
+  for era in eras:
+    if era == "Run2":
+      expanded += RUN2_SOURCE_ERAS
+    else:
+      expanded.append(era)
+
+  # preserve order and remove duplicates
+  out = []
+  for era in expanded:
+    if era not in out:
+      out.append(era)
+  return out
+
 # This will do necessary hadd for you.
 targets = ['Data','Fake','CF','Conv','Prompt','MC','Signal']
 any_target_selected = any(getattr(args, t) for t in targets)
@@ -122,6 +192,14 @@ MergeConv   = Merge['Conv']
 MergePrompt = Merge['Prompt']
 MergeMC     = Merge['MC']
 MergeSignal = Merge['Signal']
+
+if args.Merge and "Run2" in args.eras:
+  parser.error(
+    "Do not use -e Run2 with --Merge. "
+    "Run2 limit-input mode should keep era-split processes. "
+    "First run --Merge for 2016preVFP/2016postVFP/2017/2018, "
+    "then run -e Run2 without --Merge to synthesize Run2 card inputs."
+  )
 
 if args.CR:
   Blinded = False # Blinded --> the total background will be used as data_obs
@@ -536,7 +614,7 @@ if args.CheckFiles:
   SRPath = "/data9/Users/HNL_public/SUS-24-014/SKFlatOutput/Systematic_Run/HNL_SignalRegion_Plotter_"+inputTag
   CRPath = "/data9/Users/HNL_public/SUS-24-014/SKFlatOutput/Systematic_Run/HNL_ControlRegion_Plotter_"+inputTag
 
-  for era in args.eras: # TODO include signals
+  for era in expand_run2_eras(args.eras): # TODO include signals
     if not args.CR:
       # SR
       #for this_proc in DataList[era]:
@@ -894,6 +972,244 @@ def CheckHist(f_root,h_path,hist_name):
     print("[CheckHist] Good!")
     return this_hist
 
+RUN2_PROCESS_BASES = [
+  # nominal backgrounds
+  "fake",
+  "cf",
+  "zg",
+  "conv_inc",
+  "conv_others",
+  "wz",
+  "wz_ewk",
+  "zz",
+  "ww",
+  "prompt_inc",
+  "prompt_others",
+  "mc_inc",
+  "mc_others",
+
+  # signals
+  "signalDYVBF",
+  "signalDY",
+  "signalVBF",
+  "signalSSWW",
+  "signalWeinberg",
+]
+
+def split_process_and_syst_from_hist_name(hist_name):
+  """
+  Input examples:
+    fake
+    fake_CMS_SUS24014_fake_stat_2016preVFP_sr1Up
+    wz_ewk_CMS_scale_j_2018Up
+    signalDY_pdf_DYUp
+
+  Returns:
+    ("fake", "")
+    ("fake", "CMS_SUS24014_fake_stat_2016preVFP_sr1Up")
+    ("wz_ewk", "CMS_scale_j_2018Up")
+    ("signalDY", "pdf_DYUp")
+  """
+
+  for proc in sorted(RUN2_PROCESS_BASES, key=len, reverse=True):
+    if hist_name == proc:
+      return proc, ""
+    if hist_name.startswith(proc + "_"):
+      return proc, hist_name[len(proc) + 1:]
+
+  return None, None
+
+
+def run2_renamed_hist_name(hist_name, source_era):
+  """
+  Convert an era-card histogram name into a Run2-card histogram name.
+
+  Examples:
+    fake
+      -> fake_2016preVFP
+
+    fake_CMS_SUS24014_fake_stat_2016preVFP_sr1Up
+      -> fake_2016preVFP_CMS_SUS24014_fake_stat_2016preVFP_sr1Up
+
+    signalDY_pdf_DYUp
+      -> signalDY_2016preVFP_pdf_DYUp
+  """
+
+  if hist_name == "data_obs":
+    return None
+
+  proc, syst_part = split_process_and_syst_from_hist_name(hist_name)
+  if proc is None:
+    raise RuntimeError(
+      "[Run2Builder] Cannot identify the process part of histogram name: "
+      + hist_name
+      + ". Add this process to RUN2_PROCESS_BASES if it is a real Combine process."
+    )
+
+  proc_run2 = proc + "_" + source_era
+  if syst_part == "":
+    return proc_run2
+  return proc_run2 + "_" + syst_part
+
+
+def assert_same_binning(h_ref, h_new, context):
+  if h_ref.GetNbinsX() != h_new.GetNbinsX():
+    raise RuntimeError(
+      "[Run2Builder] Incompatible nbins for "
+      + context
+      + ": "
+      + str(h_ref.GetNbinsX())
+      + " vs "
+      + str(h_new.GetNbinsX())
+    )
+
+  ax_ref = h_ref.GetXaxis()
+  ax_new = h_new.GetXaxis()
+
+  # check lower edges including the upper edge at nbins+1
+  for ibin in range(1, h_ref.GetNbinsX() + 2):
+    if abs(ax_ref.GetBinLowEdge(ibin) - ax_new.GetBinLowEdge(ibin)) > 1e-9:
+      raise RuntimeError(
+        "[Run2Builder] Incompatible bin edge for "
+        + context
+        + " at edge "
+        + str(ibin)
+        + ": "
+        + str(ax_ref.GetBinLowEdge(ibin))
+        + " vs "
+        + str(ax_new.GetBinLowEdge(ibin))
+      )
+
+
+def build_run2_card_input(OutputPath, region, mass, channel, ExtTag):
+  """
+  Build:
+    LimitInputs/<OutputName>/Run2/<region>/<mass>_<channel>_card_input.root
+
+  from existing:
+    LimitInputs/<OutputName>/<era>/<region>/<mass>_<channel>_card_input.root
+
+  Rule:
+    data_obs: summed over eras
+    all other histograms: copied with process-era names
+  """
+
+  run2_dir = os.path.join(OutputPath, "Run2", region)
+  os.makedirs(run2_dir, exist_ok=True)
+
+  out_name = os.path.join(run2_dir, mass + "_" + channel + ExtTag + "_card_input.root")
+
+  source_inputs = []
+  missing_inputs = []
+
+  for source_era in RUN2_SOURCE_ERAS:
+    in_name = os.path.join(
+      OutputPath,
+      source_era,
+      region,
+      mass + "_" + channel + ExtTag + "_card_input.root"
+    )
+
+    if os.path.exists(in_name):
+      source_inputs.append((source_era, in_name))
+    else:
+      missing_inputs.append((source_era, in_name))
+
+  # Case 1:
+  # All four era inputs are absent.
+  # This usually means this mass/channel/region was intentionally skipped
+  # by the era-by-era producer, e.g. no fake hist.
+  if len(source_inputs) == 0:
+    print(
+      "[Run2Builder] SKIP:",
+      region,
+      mass,
+      channel,
+      "has no source-era card inputs."
+    )
+    print(
+      "[Run2Builder]       Treating this as an intentionally skipped phase-space."
+    )
+    return None
+
+  # Case 2:
+  # Some eras exist but some are missing.
+  # This is dangerous: Run2 would silently drop an era.
+  # Keep this fatal.
+  if len(missing_inputs) > 0:
+    msg = (
+      "[Run2Builder] Partially missing source era card inputs for "
+      + region + " " + mass + " " + channel + ".\n"
+      + "This is not treated as an intentional skip, because at least one era exists.\n"
+      + "Missing inputs:\n"
+    )
+
+    for source_era, missing_name in missing_inputs:
+      msg += "  - " + source_era + ": " + missing_name + "\n"
+
+    msg += "Existing inputs:\n"
+    for source_era, existing_name in source_inputs:
+      msg += "  - " + source_era + ": " + existing_name + "\n"
+
+    raise RuntimeError(msg)
+
+  h_data_sum = None
+  hists_to_write = []
+
+  for source_era, in_name in source_inputs:
+    print("[Run2Builder] Reading", in_name)
+    f_in = TFile.Open(in_name, "READ")
+
+    if (not f_in) or f_in.IsZombie():
+      raise RuntimeError("[Run2Builder] Cannot open " + in_name)
+
+    for key in f_in.GetListOfKeys():
+      old_name = key.GetName()
+      obj = key.ReadObj()
+
+      if (not obj) or (not obj.InheritsFrom("TH1")):
+        continue
+
+      if old_name == "data_obs":
+        if h_data_sum is None:
+          h_data_sum = obj.Clone("data_obs")
+          h_data_sum.Reset("ICES")
+          h_data_sum.SetDirectory(0)
+        else:
+          assert_same_binning(h_data_sum, obj, "data_obs " + source_era)
+
+        h_data_sum.Add(obj)
+        continue
+
+      new_name = run2_renamed_hist_name(old_name, source_era)
+
+      h_new = obj.Clone(new_name)
+      h_new.SetName(new_name)
+      h_new.SetTitle(new_name)
+      h_new.SetDirectory(0)
+      hists_to_write.append(h_new)
+
+    f_in.Close()
+
+  if h_data_sum is None:
+    raise RuntimeError(
+      "[Run2Builder] No data_obs was found while building "
+      + out_name
+    )
+
+  print("[Run2Builder] Writing", out_name)
+  f_out = TFile.Open(out_name, "RECREATE")
+  f_out.cd()
+
+  h_data_sum.Write()
+  for hist in hists_to_write:
+    hist.Write()
+
+  f_out.Close()
+
+  print("[Run2Builder]", out_name, "has been created.")
+  return out_name
+
 def get_pdf_delta(bin_values, nom, pdf_mode=""):
     vals = np.asarray(bin_values, dtype=float)
 
@@ -1057,6 +1373,66 @@ for tag in args.histTag:
       OutputPath = os.getcwd()+'/LimitInputs/'+OutputName+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
   
+      if era == "Run2":
+        if args.Scan:
+          print("[Run2Builder] --Scan is ignored in Run2 mode. Please inspect source-era scans.")
+
+        n_run2_built = 0
+        n_run2_skipped = 0
+
+        for mass in args.masses:
+          is_Weinberg = (mass == "Weinberg")
+
+          # Keep the original Ext behavior, but only for HNL mass points.
+          if (not is_Weinberg) and args.Ext and mass != "M500":
+            print(mass, "is not allowed to run with Ext option.")
+            print("Exiting ...")
+            sys.exit(1)
+
+          # Match the original mass/region skip rules.
+          # This covers:
+          #   - M <= 100 in r1/r2
+          #   - M > 3000 in r1
+          if should_skip_limit_point_before_build(mass, region):
+            print("[Run2Builder] SKIP by mass-region rule:", region, mass)
+            n_run2_skipped += len(args.channels)
+            continue
+
+          # Known intentionally absent phase-space due to missing fake.
+          # Currently: Weinberg in SR1.
+          if should_skip_known_missing_fake_phase_space(mass, region):
+            print("[Run2Builder] SKIP by known missing-fake rule:", region, mass)
+            n_run2_skipped += len(args.channels)
+            continue
+
+          for channel in args.channels:
+
+            # Match the original channel skip rule.
+            # This covers:
+            #   - M > 30000 only in EMu
+            if should_skip_limit_channel_before_build(mass, channel):
+              print("[Run2Builder] SKIP by mass-channel rule:", region, mass, channel)
+              n_run2_skipped += 1
+              continue
+
+            out_name = build_run2_card_input(OutputPath, region, mass, channel, ExtTag)
+
+            if out_name:
+              n_run2_built += 1
+            else:
+              n_run2_skipped += 1
+
+        print(
+          "[Run2Builder] Region summary:",
+          region,
+          "built =",
+          n_run2_built,
+          "skipped =",
+          n_run2_skipped
+        )
+
+        continue # This code help you to avoid opening MergedFiles/.../Run2/... . Instead, reuse existing era-dependent cards
+
       f_path_data          = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+PostFlag + "/DATA/"+Analyzer+DataSkim+"DATA.root"
       f_path_fake          = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunFake__"+PostFlag+"/DATA/"+Analyzer+FakeSkim+"Fake.root"
       f_path_cf            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunCF__"+PostFlag+"/DATA/"+Analyzer+CFSkim+"CF.root"
@@ -1743,7 +2119,10 @@ for tag in args.histTag:
             print(outName+"_card_scan.pdf has been created.")
 
   # Finally, save the exception rules
-  exceptionTag = args.exceptionTag if args.exceptionTag else OutputName
+  if args.eras == ["Run2"]:
+    print("[Run2Builder] Skipping exception-rule writing in pure Run2 synthesis mode.")
+  else:
+    exceptionTag = args.exceptionTag if args.exceptionTag else OutputName
 
   code = generate_exception_code(Except_list)
   #save_path = "/data6/Users/jihkim/LatestCombine/CMSSW_14_1_0_pre4/src/DilepHN/exceptions_auto.py"
