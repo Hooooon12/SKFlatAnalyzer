@@ -200,7 +200,7 @@ latex.SetTextFont(42)
 latex.SetTextSize(0.035)
 latex.SetTextAlign(31) # Right-bottom alignment
 # x-pos = 1.0 - right_margin (Right edge of the frame)
-latex.DrawLatex(1.0 - right_margin, 1.0 - top_margin + 0.01, "138 fb^{-1} (13 TeV)")
+latex.DrawLatex(1.0 - right_margin, 1.0 - top_margin + 0.01, "137.6 fb^{-1} (13 TeV)")
 
 c1.Update()
 c1.SaveAs("HNL_Signal_Injection.png")

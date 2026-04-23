@@ -19,14 +19,21 @@ ROOT.gStyle.SetPadTickY(1)         # Ticks on Right
 # ------------------------------------------------------------------------------
 # [User Configuration] File Names and Settings
 # ------------------------------------------------------------------------------
+
+## Old naming convention
 #INPUT_FILE = "higgsCombine_Run2_3ch_M100_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_3ch_M1000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
-INPUT_FILE = "higgsCombine_Run2_3ch_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_Run2_3ch_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_EMu_M1000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_EMu_M100_syst_grid_2D_Asimov_r0.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_EMu_M100_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine_Run2_EMu_M10000_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 #INPUT_FILE = "higgsCombine.Test.MultiDimFit.mH120.root" 
+
+## New naming convention
+#INPUT_FILE = "higgsCombine_Run2_3ch_M100_HNL_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+#INPUT_FILE = "higgsCombine_Run2_3ch_M1000_HNL_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
+INPUT_FILE = "higgsCombine_Run2_3ch_M10000_HNL_syst_grid_2D_Asimov_r0f0.5.MultiDimFit.mH120.root" 
 
 X_TITLE = "Flavor fraction f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})"
 Y_TITLE = "Mixing strength r = |V_{e}|^{2} + |V_{#mu}|^{2}"
@@ -200,16 +207,23 @@ for gr in final_contours:
 #g_naive_ssww.Draw("L SAME")
 
 # Legend
-leg = ROOT.TLegend(0.45, 0.75, 0.82, 0.88)
+#leg = ROOT.TLegend(0.45, 0.75, 0.82, 0.88)
+leg = ROOT.TLegend(0.4, 0.75, 0.82, 0.88)
 leg.SetBorderSize(0)
 leg.SetFillStyle(0)
-leg.SetTextSize(0.025)
+#leg.SetTextSize(0.025)
+leg.SetTextSize(0.035)
 
 dummy_real = ROOT.TLine(); dummy_real.SetLineColor(ROOT.kBlack); dummy_real.SetLineWidth(3)
 dummy_dy   = ROOT.TLine(); dummy_dy.SetLineColor(ROOT.kRed);     dummy_dy.SetLineWidth(3); dummy_dy.SetLineStyle(7)
 dummy_ssww = ROOT.TLine(); dummy_ssww.SetLineColor(ROOT.kBlue);  dummy_ssww.SetLineWidth(3); dummy_ssww.SetLineStyle(7)
 
-leg.AddEntry(dummy_real, "2D Limit (95% CL)", "l")
+leg.AddEntry(dummy_real, "r vs f_{e} Limit (95% CL)", "l")
+#leg.AddEntry(0, "m_{N} = 100 GeV", "")
+#leg.AddEntry(0, "scale: x1000", "")
+#leg.AddEntry(0, "m_{N} = 1000 GeV", "")
+#leg.AddEntry(0, "scale: x10", "")
+leg.AddEntry(0, "m_{N} = 10000 GeV", "")
 #leg.AddEntry(dummy_dy,   f"Naive DY+W#gamma (Ref f_{{e}}={REF_F_VAL})", "l")
 #leg.AddEntry(dummy_ssww, f"Naive SSWW (Ref f_{{e}}={REF_F_VAL})", "l")
 leg.Draw()
@@ -233,7 +247,7 @@ latex.SetTextFont(42)
 latex.SetTextSize(0.035)
 latex.SetTextAlign(31) # Right-bottom alignment
 # x-pos = 1.0 - right_margin (Right edge of the frame)
-latex.DrawLatex(1.0 - right_margin, 1.0 - top_margin + 0.01, "138 fb^{-1} (13 TeV)")
+latex.DrawLatex(1.0 - right_margin, 1.0 - top_margin + 0.01, "137.6 fb^{-1} (13 TeV)")
 
 # Redraw axes to avoid color overlaid on the axes
 border = ROOT.TBox(X_MIN, Y_MIN, X_MAX, Y_MAX)
