@@ -11,7 +11,8 @@ import math
 eras = ["2016preVFP", "2016postVFP", "2017", "2018"]
 #flavs = ["MuMu", "EE"]
 #flavs = ["EE"]
-flavs = ["MuMu"]
+#flavs = ["MuMu"]
+flavs = ["EMu"]
  
 base_dir_1 = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"
 base_dir_2 = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr"

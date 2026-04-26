@@ -89,11 +89,11 @@ class HNDilepModel_EMu_Full(PhysicsModel):
         self.modelBuilder.factory_(f"expr::scale_signalSSWW('(@0*@0*@1*(1-@1))/{denomSSWW}', r, f)")
 
     def getYieldScale(self, bin, process):
-        if process == "signalDY":
+        if "signalDY" in process:
             return "scale_signalDY"
-        if process == "signalVBF":
+        if "signalVBF" in process:
             return "scale_signalVBF"
-        if process == "signalSSWW":
+        if "signalSSWW" in process:
             return "scale_signalSSWW"
         return 1
 
@@ -237,13 +237,13 @@ class HNDilepModel_3Ch(PhysicsModel):
         # HNL mode
         # ---------------------------
         if self.mode == "hnl":
-            if process in ["signalDY", "signalVBF", "signalDYVBF"]:
+            if "signalDY" in process or "signalVBF" in process:
                 return f"scale_lin_{ch}"
 
-            if process in ["signalSSWW"]:
+            if "signalSSWW" in process:
                 return f"scale_quad_{ch}"
 
-            if process in ["signalWeinberg"]:
+            if "signalWeinberg" in process:
                 return 0
 
             return 1
@@ -252,10 +252,10 @@ class HNDilepModel_3Ch(PhysicsModel):
         # Weinberg mode
         # ---------------------------
         if self.mode == "weinberg":
-            if process in ["signalWeinberg"]:
+            if "signalWeinberg" in process:
                 return f"scale_w_{ch}"
 
-            if process in ["signalDY", "signalVBF", "signalDYVBF", "signalSSWW"]:
+            if "signalDY" in process or "signalVBF" in process or "signalSSWW" in process:
                 return 0
 
             return 1

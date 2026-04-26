@@ -1857,7 +1857,7 @@ for tag in args.histTag:
                   # process split
                   if input_list[i][2]=="signalDY" or input_list[i][2]=="signalSSWW" or input_list[i][2]=="signalWeinberg" or input_list[i][2]=="wz": # 325300/325500
                     pdf_mode = "symmhessian"
-                  elif input_list[i][2]=="signalVBF" or input_list[i][2]=="signalDYVBF": # 325100 ... Well, signalDYVBF is wrong ...
+                  elif input_list[i][2]=="signalVBF" or input_list[i][2]=="signalDYVBF": # 325100 ... Well, signalDYVBF is wrong, but just for comparison purposes
                     pdf_mode = "replica"
                   else:
                     raise ValueError("Unknown pdf:",pdf_mode)

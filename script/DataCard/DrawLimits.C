@@ -21,18 +21,24 @@ struct ComparisonEntry {
   double scale;
   TString method;
 
+  // Empty means: use the nominal year label.
+  // Examples: "Run2", "Run2Sum", "2018"
+  TString year_label;
+
   ComparisonEntry(TString wp_in="",
                   TString tag_in="_HNL_syst",
                   TString descrp_in="",
                   int color_in=kRed,
                   double scale_in=0.01,
-                  TString method_in="Asym")
+                  TString method_in="Asym",
+                  TString year_label_in="")
       : wp(wp_in),
         tag(tag_in),
         descrp(descrp_in),
         color(color_in),
         scale(scale_in),
-        method(method_in) {}
+        method(method_in),
+        year_label(year_label_in) {}
 };
 
 struct NominalConfig {
@@ -41,12 +47,18 @@ struct NominalConfig {
   TString wp_name;
   TString tag_nom;
   TString method_nom;
+
+  // Nominal limit file prefix.
+  // Examples: "Run2", "Run2Sum", "2018"
+  TString year_label;
+
   size_t n_nominal_limits;
   int ext_nominal_index;
 
-  NominalConfig()
+  NominalConfig() // set nominal config
       : wp_nom_base(""), wp_noms(), wp_name(""), tag_nom("_HNL_syst"),
-        method_nom("Asym"), n_nominal_limits(0), ext_nominal_index(-1) {}
+        method_nom("Asym"), year_label(""),
+        n_nominal_limits(0), ext_nominal_index(-1) {}
 };
 
 struct StudyConfig {
@@ -69,10 +81,11 @@ struct PlotConfig {
   PanelConfig panel;
 };
 
-NominalConfig BuildNominalConfig(TString WP_nom, bool DrawExt)
+NominalConfig BuildNominalConfig(TString WP_nom, bool DrawExt, TString year_label)
 {
   NominalConfig cfg;
   cfg.wp_nom_base = WP_nom;
+  cfg.year_label = year_label;
 
   if (DrawExt) {
     cfg.wp_noms = {WP_nom + "_BDT", WP_nom + "_Ext"};
@@ -96,10 +109,10 @@ StudyConfig BuildStudyConfig(TString WP_nom, int SepLimit, TString method)
   if(SepLimit==1){
     cfg.subdir = "SignalSplit";
     cfg.entries = {
-      ComparisonEntry(WP_nom, "_HNL_DY_syst", "", kRed+2, 0.01, method),
-      ComparisonEntry(WP_nom, "_HNL_VBF_syst", "", kOrange-2, 0.01, method),
-      ComparisonEntry(WP_nom, "_HNL_DYVBF_syst", "", kRed, 0.01, method),
-      ComparisonEntry(WP_nom, "_HNL_SSWW_syst", "", kBlue, 0.01, method)
+      ComparisonEntry(WP_nom, "_DY_syst", "", kRed+2, 0.01, method),
+      ComparisonEntry(WP_nom, "_VBF_syst", "", kOrange-2, 0.01, method),
+      ComparisonEntry(WP_nom, "_DYVBF_syst", "", kRed, 0.01, method),
+      ComparisonEntry(WP_nom, "_SSWW_syst", "", kBlue, 0.01, method)
     };
   }
   else if(SepLimit==2){
@@ -119,10 +132,14 @@ PanelConfig BuildPanelConfig(bool CompareLimits)
   return PanelConfig(CompareLimits);
 }
 
-PlotConfig BuildPlotConfig(TString WP_nom, bool DrawExt, int SepLimit, bool CompareLimits)
+PlotConfig BuildPlotConfig(TString WP_nom,
+                           TString nominal_year_label,
+                           bool DrawExt,
+                           int SepLimit,
+                           bool CompareLimits)
 {
   PlotConfig cfg;
-  cfg.nominal = BuildNominalConfig(WP_nom, DrawExt);
+  cfg.nominal = BuildNominalConfig(WP_nom, DrawExt, nominal_year_label);
   cfg.study = DrawExt ? StudyConfig() : BuildStudyConfig(WP_nom, SepLimit, cfg.nominal.method_nom);
   cfg.panel = BuildPanelConfig(CompareLimits);
   return cfg;
@@ -175,6 +192,32 @@ TString BuildComparisonDescription(const ComparisonEntry& entry)
   return BuildDefaultWPDescription(entry.wp);
 }
 
+TString ResolveComparisonYearLabel(const ComparisonEntry& entry, TString nominal_year_label)
+{
+  if (entry.year_label != "") return entry.year_label;
+  return nominal_year_label;
+}
+
+TString GetLumiText(TString year_label, TString tag_nom)
+{
+  // Tag-based special cases first.
+  // Keep Run23 before Run2 because "Run23" contains "Run2".
+  if (tag_nom.Contains("Run23")) return "440";
+  if (tag_nom.Contains("Run2"))  return "137.6";
+
+  if (year_label == "2016")        return "36.5";
+  if (year_label == "2016preVFP")  return "19.5";
+  if (year_label == "2016postVFP") return "16.8";
+  if (year_label == "2017")        return "41.5";
+  if (year_label == "2018")        return "59.8";
+
+  // Run2Sum is a different statistical model, but same Run2 luminosity.
+  if (year_label == "Run2")        return "137.6";
+  if (year_label == "Run2Sum")     return "137.6";
+
+  return "";
+}
+
 TString MakeSafeDirName(TString name)
 {
   TString out = name;
@@ -207,6 +250,57 @@ TString BuildComparisonSubdirName(TString requested_name, const vector<Compariso
   if (entries.size() > n_entries_for_name) auto_name += Form("_plus%d", int(entries.size() - n_entries_for_name));
 
   return MakeSafeDirName(auto_name);
+}
+
+vector<TString> GetRun2SumVsRun2LoopTags()
+{
+  return {
+    "_DY_syst",
+    "_VBF_syst",
+    "_SSWW_syst",
+    "_HNL_sr1_syst_Combined",
+    "_HNL_sr2_syst_Combined",
+    "_HNL_sr3_syst_Combined"
+  };
+}
+
+TString StripLeadingUnderscore(TString tag)
+{
+  TString out = tag;
+  if (out.BeginsWith("_")) out.Remove(0, 1);
+  return out;
+}
+
+TString MakeRun2SumVsRun2SingleTagPreset(TString tag)
+{
+  return "Run2Sum_vs_Run2__" + StripLeadingUnderscore(tag);
+}
+
+bool ApplyComparisonPreset(TString preset_name, PlotConfig& plot_cfg)
+{
+  const TString preset_prefix = "Run2Sum_vs_Run2__";
+  if (!preset_name.BeginsWith(preset_prefix)) return false;
+
+  TString tag = preset_name;
+  tag.Remove(0, preset_prefix.Length());
+  if (!tag.BeginsWith("_")) tag = "_" + tag;
+
+  plot_cfg.nominal.tag_nom = tag;
+  plot_cfg.study.subdir = "Run2Sum_vs_Run2"+tag;
+
+  plot_cfg.study.entries.push_back(
+    ComparisonEntry(
+      "ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Run2Sum_Preapproval",
+      tag,
+      "Run2 merged",
+      kRed,
+      0.01,
+      plot_cfg.nominal.method_nom,
+      "Run2Sum"
+    )
+  );
+
+  return true;
 }
 
 void print_ratio_table(const vector<vector<double>>& mass_vs_nominal,
@@ -259,7 +353,7 @@ void print_ratio_table(const vector<vector<double>>& mass_vs_nominal,
 }
 
 
-void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool AddPub=true, int SepLimit=0, bool CompareLimits=false, bool AppendLimitTable=false, bool IsXsecLimit=false, bool Logy=true){
+void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool AddPub=true, int SepLimit=0, bool CompareLimits=false, bool AppendLimitTable=false, bool IsXsecLimit=false, bool Logy=true, TString preset_name=""){
 
   // SepLimit = 0: No separated limit
   // SepLimit = 1: Signal separated limit
@@ -278,6 +372,27 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   if(AddPub && SepLimit){
     cout << "[INFO] Avoid drawing published analyses and separated limits, too messy!" << endl;
     cout << "[INFO] Exiting..." << endl;
+    return;
+  }
+
+  if (preset_name == "Run2Sum_vs_Run2") {
+    const vector<TString> tags = GetRun2SumVsRun2LoopTags();
+
+    for (const auto& tag : tags) {
+      TString child_preset = MakeRun2SumVsRun2SingleTagPreset(tag);
+      cout << "[INFO] Dispatching preset: " << child_preset << endl;
+
+      DrawLimits(year,
+                 channel,
+                 DrawExt,
+                 AddPub,
+                 SepLimit,
+                 CompareLimits,
+                 AppendLimitTable,
+                 IsXsecLimit,
+                 Logy,
+                 child_preset);
+    }
     return;
   }
 
@@ -313,14 +428,20 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv7_FullJESNS_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_FullJESNS_Decorr"; // set the nominal WP
   //TString WP_nom = "ANv7_EMuCF_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_EMuCF"; // set the nominal WP
   //TString WP_nom = "ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
-  TString WP_nom = "ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
+  //TString WP_nom = "ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
+  TString WP_nom = "ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
 
-  PlotConfig plot_cfg = BuildPlotConfig(WP_nom, DrawExt, SepLimit, CompareLimits);
+	PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
+
+  const bool preset_applied = ApplyComparisonPreset(preset_name, plot_cfg);
+	if (preset_name != "" && preset_name != "Run2Sum_vs_Run2" && !preset_applied) {
+    cout << "[WARNING] Unknown preset_name = " << preset_name << endl;
+  }
 
   // Generic/manual comparison studies can be configured here.
   // They are drawn on the upper panel whenever study entries exist,
   // while CompareLimits only controls whether the lower ratio panel is shown.
-  if(!DrawExt && SepLimit==0){
+  if(!preset_applied && !DrawExt && SepLimit==0){
 		// *** signal in CR ***			
     // plot_cfg.study.subdir = "SigInCR";
     // plot_cfg.study.entries.push_back(
@@ -366,7 +487,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                   plot_cfg.nominal.method_nom)
     // );
 
-		// *** full limit comparison using central jet veto in VBF jets
+		// *** full SR limit comparison using central jet veto in VBF jets
 		//plot_cfg.nominal.tag_nom = "_HNL_syst";
     //plot_cfg.study.subdir = "Full_Central_Veto";
     //plot_cfg.study.entries.push_back(
@@ -378,17 +499,30 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                  plot_cfg.nominal.method_nom)
     //);
 
-		// *** full limit comparison using central jet veto in VBF jets
-		plot_cfg.nominal.tag_nom = "_HNL_syst";
-    plot_cfg.study.subdir = "FixHessian_AddGluGluTaus";
-    plot_cfg.study.entries.push_back(
-      ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
-                      "_HNL_syst",
-                      "Fix PDF error, add gg#rightarrow#taus",
-                      kRed,
-                      0.01,
-                      plot_cfg.nominal.method_nom)
-    );
+		// *** L2review + fix symmhessian PDF uncertainty + Add gg to taus vs L2review
+		//plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "FixHessian_AddGluGluTaus";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
+    //                  "_HNL_syst",
+    //                  "Fix PDF error, add gg#rightarrow#taus",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom)
+    //);
+
+		// *** Run2Sum limits vs Run2 limits in L2review + fix PDF + gg to taus
+		//plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "Run2Sum_vs_Run2";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Run2Sum_Preapproval",
+    //                  "_HNL_syst",
+    //                  "Run2 merged",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+		//									"Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
 
   }
 
@@ -398,9 +532,15 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   const TString WP_name = plot_cfg.nominal.wp_name;
   const TString tag_nom = plot_cfg.nominal.tag_nom;
   const TString method_nom = plot_cfg.nominal.method_nom;
+  const TString year_nom = plot_cfg.nominal.year_label;
   const TString compare_subdir = plot_cfg.study.subdir;
   const vector<ComparisonEntry>& compare_entries = plot_cfg.study.entries;
   const bool draw_ratio_panel = plot_cfg.panel.draw_ratio_panel;
+
+  if (year_nom == "") {
+    cout << "[ERROR] Please provide the nominal year label, e.g. Run2 or Run2Sum." << endl;
+    return;
+  }
 
   TString Name_IsXsecLimit = "_mixing";
   if(IsXsecLimit) Name_IsXsecLimit = "_xsec";
@@ -428,15 +568,42 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
 
   vector<TString> files; // Multiple limits of this analysis to compare each other
   vector<double> scales;
+  
   for(int i=0; i<WP_noms.size(); i++){
-    files.push_back(filepath+WP_noms[i]+"/"+year+"_"+channel+tag_nom+"_"+method_nom+"_limit.txt"); // add files systematically; Allow multiple noms.
-    scales.push_back(0.01); // scales for WP_noms
+    files.push_back(
+      filepath
+      + WP_noms[i]
+      + "/"
+      + year_nom
+      + "_"
+      + channel
+      + tag_nom
+      + "_"
+      + method_nom
+      + "_limit.txt"
+    );
+    scales.push_back(0.01); // scales for nominal
+  }
+  
+  for(const auto &entry : compare_entries){
+    TString year_comp = ResolveComparisonYearLabel(entry, year_nom);
+  
+    files.push_back(
+      filepath
+      + entry.wp
+      + "/"
+      + year_comp
+      + "_"
+      + channel
+      + entry.tag
+      + "_"
+      + entry.method
+      + "_limit.txt"
+    );
+  
+    scales.push_back(entry.scale); // scales for comparisons
   }
 
-  for(const auto &entry : compare_entries){
-    files.push_back(filepath+entry.wp+"/"+year+"_"+channel+entry.tag+"_"+entry.method+"_limit.txt");
-    scales.push_back(entry.scale);
-  }
   //if(channel=="EE"||channel=="MuMu") files.push_back(filepath+"240503_exo17028/"+channel+"_HNTightV2_Run2_Asym_limit.txt"); // add additional files
   //scales.push_back(1.); // already scaled when extracting limits...
 
@@ -1513,7 +1680,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //======================
 
   //=== Legend
-  cout << "Drawing Dilepton "+year+" limit ..." << endl;
+  cout << "Drawing Dilepton "+year_nom+" limit ..." << endl;
   TLegend *lg = 0;
   if(IsXsecLimit){
     if(draw_ratio_panel) lg = new TLegend(0.5, 0.45, 0.94, 0.8);
@@ -1775,15 +1942,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
 
   latex_Lumi.SetTextSize(0.035);
   latex_Lumi.SetTextFont(42);
-  TString lumi;
-  if(year=="2016") lumi = "36.5";
-  else if(year=="2016preVFP") lumi = "19.5";
-  else if(year=="2016postVFP") lumi = "16.8";
-  else if(year=="2017") lumi = "41.5";
-  else if(year=="2018") lumi = "59.8";
-  else if(year=="Run2") lumi = "137.6";
-  if(tag_nom.Contains("Run2")) lumi = "137.6";
-  if(tag_nom.Contains("Run23")) lumi = "440";
+
+	TString lumi = GetLumiText(year_nom, tag_nom);
 
   latex_title.SetTextSize(0.04);
   latex_title.SetLineWidth(2);
@@ -1795,8 +1955,12 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   }
   else{
     latex_CMSPreliminary.DrawLatex(0.16, 0.96, "#scale[0.8]{CMS #bf{#it{Preliminary}}}");
-    if(year.Contains("Run2")||tag_nom.Contains("Run2")) latex_Lumi.DrawLatex(0.69, 0.96, lumi+" fb^{-1} (13 TeV)"); // Run2
-    else latex_Lumi.DrawLatex(0.736, 0.96, lumi+" fb^{-1} (13 TeV)");
+    if(year_nom.Contains("Run2") || tag_nom.Contains("Run2")) {
+      latex_Lumi.DrawLatex(0.69, 0.96, lumi+" fb^{-1} (13 TeV)");
+    }
+    else {
+      latex_Lumi.DrawLatex(0.736, 0.96, lumi+" fb^{-1} (13 TeV)");
+    }
     latex_title.DrawLatex(0.21, 0.88, "#font[62]{CMS}");
     latex_title.DrawLatex(0.21, 0.84, "#font[41]{95% CL upper limit}");
     if(IsXsecLimit){
@@ -2019,23 +2183,23 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       if(AddPub&&!IsXsecLimit) gr_ratio_202316->Draw("lpsame"); // EXOT-2023-16
     }
 
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp_Logy.pdf");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp.pdf");
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp.png");
-    print_ratio_table(mass_vs_nominal,ratio_vs_nominal,mass_nominal,ratio_descrps,this_plotpath+"/"+year+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+"_comp.txt",channel,AppendLimitTable);
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp.pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp.png");
+    print_ratio_table(mass_vs_nominal,ratio_vs_nominal,mass_nominal,ratio_descrps,this_plotpath+"/"+year_nom+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+"_comp.txt",channel,AppendLimitTable);
   }
   else if(DrawExt){
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.pdf");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".pdf");
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".png");
   }
   else{
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.pdf");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".pdf");
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".png");
   }
 
   return;

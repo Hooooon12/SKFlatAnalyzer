@@ -5,6 +5,12 @@
 # python MakeDataCard_ANv7.py --Combine Era --Syst [--Decorr]
 # python MakeDataCard_ANv7.py --Syst [--Decorr]; python MakeDataCard_ANv7.py --Combine SR --Syst [--Decorr] <-- without rateParam ("sronly" setting)
 
+# Run2Sum one-category Run2 workflow:
+# python MakeDataCard_ANv7.py ... --CR --Syst --Decorr --JetDecorr --Run2Sum
+# python MakeDataCard_ANv7.py ... --Combine CR --Syst --Decorr --JetDecorr --Run2Sum
+# # Skip --Combine Era for Run2Sum
+# python MakeDataCard_ANv7.py ... --Combine Channel --CR --Syst --Decorr --JetDecorr --Run2Sum
+
 import os, sys, argparse, re
 import subprocess as cmd
 from collections import OrderedDict
@@ -33,7 +39,7 @@ parser.add_argument('--CR', action='store_true', help='Make datacards named sr w
 #parser.add_argument('--CR', nargs='*', help='Make datacards with manual CR inputs. (Default : SR only)') # Modify L108 with this line
 parser.add_argument('--Syst', action='store_true', help='Add systematics into the datacards')
 parser.add_argument('--Combine', choices=['CR','SR','Era','Channel'], help='CR --> Merge CR and SR datacards in one era,\nEra --> Merge pre-processed (CR+SR) over the Run2,\nChannel --> Merge all lepton channels using Run2 combined datacards,\nSR --> Merge SR only datacards over the Run2')
-parser.add_argument('--Type', choices=['CR', 'SR'], help="(Optional) If --Combine Era is used, specify whether to merge only CR or SR.")
+parser.add_argument('--Run2Sum', action='store_true', help='Make/use one-category Run2 datacards from LimitInputs/<WP>/Run2. Existing card_Run2_* simultaneous-fit cards are untouched.')
 args = parser.parse_args()
 
 pwd = os.getcwd()
@@ -45,8 +51,36 @@ if failure:
   print("Exiting ...")
   sys.exit(1)
 
-eras = args.eras
+RUN2_SOURCE_ERAS = ["2016preVFP", "2016postVFP", "2017", "2018"]
+
+# This is the folder name used in LimitInputs.
+# Do not change this, because MakeInput_public.py writes Run2 ROOT files here.
+RUN2_INPUT_ERA = "Run2"
+
+# This is the datacard label.
+# Keep it underscore-free because combine_3ch() parses card names with split("_").
+RUN2_CARD_ERA = "Run2Sum"
+
+RUN2_COL_WIDTH = 32
+
+if args.Run2Sum:
+  if args.Combine == "Era":
+    parser.error(
+      "--Run2Sum already uses one Run2 dataset/category. "
+      "Skip --Combine Era. Run --Combine CR, then --Combine Channel."
+    )
+  eras = [RUN2_CARD_ERA]
+else:
+  eras = args.eras
+
+# Existing mode:
+#   final era label = Run2
+# New one-category Run2 mode:
+#   final era label = Run2Sum
+FinalEraTag = RUN2_CARD_ERA if args.Run2Sum else "Run2"
+
 channels = args.channels
+
 if not args.masses: # When you don't want to type all those masses!!
   args.masses = ["M85","M90","M95","M100","M125","M150","M200","M250","M300","M350","M400","M450","M500","M600","M700","M800","M900","M1000","M1100","M1200","M1300","M1500","M1700","M2000","M2500","M3000","M5000","M7500","M10000","M15000","M20000","M25000","M30000","M40000","M50000","M60000","Weinberg"]
 else:
@@ -87,7 +121,7 @@ OutputTag = "" if args.outputTag == '' else "_"+args.outputTag
 
 #####################################################
 #
-# args.CR --> sr, sr_inv connected via rateParam
+# args.CR --> SR cards are combined with CR cards through rateParam constraints
 # else --> sr only, bkg norm uncert. treated by lnN
 # args.syst --> postpone
 #
@@ -265,17 +299,70 @@ def MakeRateString(region, era, channel, mass, signal, WP):
   return this_string
 
 def is_syst_line(line):
-  return (line.startswith("lumi") or line.startswith("mc_") or line.startswith("CMS_") or line.startswith("QCDscale_") or line.startswith("RenScale_") or line.startswith("FacScale_") or line.startswith("pdf_"))
+  tokens = line.split()
+  if len(tokens) == 0:
+    return False
+
+  name = tokens[0]
+
+  return (
+    name.startswith("lumi")
+    or name.startswith("mc_")
+    or name.startswith("CMS_")
+    or name.startswith("QCDscale_")
+    or name.startswith("RenScale_")
+    or name.startswith("FacScale_")
+    or name.startswith("pdf_")
+  )
 
 def is_rateParam_line(line):
-  return "rateParam" in line
+  tokens = line.split()
+  return len(tokens) >= 2 and tokens[1] == "rateParam"
+
+def _find_shape_line(lines):
+  for i, line in enumerate(lines):
+    tokens = line.split()
+    if len(tokens) > 0 and tokens[0] == "shapes":
+      return i
+
+  raise RuntimeError("[CardSetting] Cannot find the shapes line in the skeleton.")
+
+
+def _find_rate_line(lines):
+  """
+  Find the nominal process rate line.
+
+  This intentionally matches only a line whose first token is exactly 'rate',
+  so it will not confuse 'rateParam' lines with the process rate line.
+  """
+
+  for i, line in enumerate(lines):
+    tokens = line.split()
+    if len(tokens) > 0 and tokens[0] == "rate":
+      return i
+
+  raise RuntimeError("[CardSetting] Cannot find the rate line in the skeleton.")
+
+
+def _tail_start_index(lines):
+  """
+  In the current skeleton, the nuisance/rateParam block starts right after
+  the nominal rate line. This helper removes the hardcoded 18 dependence.
+  """
+
+  return _find_rate_line(lines) + 1
 
 def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
+
+  if era == RUN2_CARD_ERA:
+    return CardSetting_Run2Sum(isCR, WP, skeleton, channel, mass, signal) # The actual function definition is located below.
 
   with open(skeleton,'r') as f: # open skeleton
     lines = f.readlines()
 
-  new_lines_common = []
+  shape_idx = _find_shape_line(lines)
+  rate_idx = _find_rate_line(lines)
+  tail_start = _tail_start_index(lines)
 
   lines_cr = {}
   lines_sr = {}
@@ -286,11 +373,27 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
     new_lines = []
 
     # preprocess lines
-    this_lines[4] = "shapes * *  "+CRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+ExtTag+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n" if region in regions_cr else "shapes * *  "+SRpath+WP+"/"+era+"/"+region+"/"+mass+"_"+channel+ExtTag+"_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
-    this_lines[17] = MakeRateString(region, era, channel, mass, signal, WP)
+    if region in regions_cr:
+      this_lines[shape_idx] = (
+        "shapes * *  "
+        + CRpath + WP + "/" + era + "/" + region + "/"
+        + mass + "_" + channel + ExtTag
+        + "_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
+      )
+    else:
+      this_lines[shape_idx] = (
+        "shapes * *  "
+        + SRpath + WP + "/" + era + "/" + region + "/"
+        + mass + "_" + channel + ExtTag
+        + "_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
+      )
+
+    this_lines[rate_idx] = MakeRateString(region, era, channel, mass, signal, WP)
+
     for i in range(len(this_lines)):
       this_lines[i] = this_lines[i].replace('bin1',region)
-    for i in range(18):
+
+    for i in range(tail_start):
       new_lines.append(this_lines[i])
 
     ### handle each syst
@@ -315,8 +418,13 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
                                     "SinglePionECAL", 
                                     "SinglePionHCAL", 
                                    ]
-    for line in this_lines[18:]:
-      if line.startswith("#"): continue # skip the commented lines
+
+    for line in this_lines[tail_start:]:
+      if not line.strip():
+        continue
+
+      if line.lstrip().startswith("#"):
+        continue # skip the commented lines
 
       if args.Syst:
         # full JES treatment
@@ -405,17 +513,422 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
       lines_cr[region] = new_lines[:]
     elif region in regions_sr:
       lines_sr[region] = new_lines[:]
-      # no rateParam setting
-      for i in range(18,len(new_lines)):
-        if is_rateParam_line(new_lines[i]):
-          new_lines[i] = ""
-      lines_sronly[region] = new_lines
+
+      # SR-only cards should not contain rateParam lines.
+      # Do not rely on a fixed header length.
+      new_lines_sronly = []
+      for line in new_lines:
+        if is_rateParam_line(line):
+          new_lines_sronly.append("")
+        else:
+          new_lines_sronly.append(line)
+
+      lines_sronly[region] = new_lines_sronly
 
   if isCR:
     return (lines_sr, lines_cr)
   else:
     return lines_sronly
  
+## Run2Sum helpers ##
+def _is_int_token(tok):
+  try:
+    int(tok)
+    return True
+  except ValueError:
+    return False
+
+def _format_run2sum_row(label, values):
+  return label.ljust(30) + " ".join(str(v).ljust(RUN2_COL_WIDTH) for v in values) + "\n"
+
+def _format_run2sum_syst_row(name, syst_type, values):
+  return name.ljust(50) + syst_type.ljust(12) + " ".join(str(v).ljust(RUN2_COL_WIDTH) for v in values) + "\n"
+
+def _find_process_name_and_id_lines(lines):
+  proc_name_idx = None
+  proc_id_idx = None
+
+  for i, line in enumerate(lines):
+    tokens = line.split()
+    if len(tokens) <= 1:
+      continue
+
+    if tokens[0] != "process":
+      continue
+
+    if all(_is_int_token(tok) for tok in tokens[1:]):
+      proc_id_idx = i    # line index (in list type) for process number tag --> 16 with the current skeleton
+    else:
+      proc_name_idx = i  # line index (in list type) for process name --> 15 with the current skeleton
+
+  if proc_name_idx is None:
+    raise RuntimeError("[Run2SumCard] Cannot find process-name line in the datacard header.")
+  if proc_id_idx is None:
+    raise RuntimeError("[Run2SumCard] Cannot find process-id line in the datacard header.")
+
+  return proc_name_idx, proc_id_idx
+
+def _is_automcstats_line(line):
+  tokens = line.split()
+  return len(tokens) >= 2 and tokens[1] == "autoMCStats"
+
+def _run2sum_shape_line(WP, region, channel, mass):
+  base_path = CRpath if region in regions_cr else SRpath
+
+  return (
+    "shapes * *  "
+    + base_path
+    + WP
+    + "/"
+    + RUN2_INPUT_ERA
+    + "/"
+    + region
+    + "/"
+    + mass
+    + "_"
+    + channel
+    + ExtTag
+    + "_card_input.root $PROCESS $PROCESS_$SYSTEMATIC\n"
+  )
+
+def _extract_region_lines(card_setting_output, isCR, region): # extract datacard lines for the specified region
+  if isCR:
+    lines_sr, lines_cr = card_setting_output
+
+    if region in regions_sr:
+      return lines_sr[region]
+    elif region in regions_cr:
+      return lines_cr[region]
+    else:
+      raise RuntimeError("[Run2SumCard] Unknown region: " + region)
+
+  return card_setting_output[region]
+
+def _run2sum_rateparam_name(rateparam_name, source_era):
+  """
+  Convert source-era rateParam names into one Run2Sum-level parameter name.
+
+  Examples:
+    WZNorm_2016preVFP_sr1 -> WZNorm_Run2Sum_sr1
+    ZZNorm_2017           -> ZZNorm_Run2Sum
+    ZGNorm_2018           -> ZGNorm_Run2Sum
+
+  The fallback also handles the original skeleton form:
+    WZNorm_sr1 -> WZNorm_Run2Sum_sr1
+    ZZNorm     -> ZZNorm_Run2Sum
+  """
+
+  # Normal source-era card output from CardSetting().
+  if "Norm_" + source_era in rateparam_name:
+    return rateparam_name.replace("Norm_" + source_era, "Norm_" + RUN2_CARD_ERA, 1)
+
+  # Safety fallback in case source_era does not match for some reason.
+  for era in RUN2_SOURCE_ERAS:
+    if "Norm_" + era in rateparam_name:
+      return rateparam_name.replace("Norm_" + era, "Norm_" + RUN2_CARD_ERA, 1)
+
+  # Skeleton-level fallback.
+  return rateparam_name.replace("Norm", "Norm_" + RUN2_CARD_ERA, 1)
+
+
+def _run2sum_rateparam_process_pattern(proc_pattern):
+  """
+  Convert source-era process target into a Run2Sum process wildcard.
+
+  Examples:
+    wz* -> wz*
+    zz  -> zz*
+    zg  -> zg*
+    ww  -> ww*
+    *   -> *
+  """
+
+  if proc_pattern == "*":
+    return proc_pattern
+
+  if proc_pattern.endswith("*"):
+    return proc_pattern
+
+  return proc_pattern + "*"
+
+
+def _run2sum_rateparam_tokens(line, source_era):
+  """
+  Convert a source-era rateParam line into a Run2Sum-level rateParam line.
+
+  Example:
+    WZNorm_2017_sr1 rateParam sr1 wz* 1.0
+
+  becomes:
+    WZNorm_Run2Sum_sr1 rateParam sr1 wz* 1.0
+
+  Example:
+    ZZNorm_2018 rateParam zz_cr zz 1.0
+
+  becomes:
+    ZZNorm_Run2Sum rateParam zz_cr zz* 1.0
+  """
+
+  tokens = line.split()
+
+  if len(tokens) < 5 or tokens[1] != "rateParam":
+    raise RuntimeError("[Run2SumCard] Invalid rateParam line: " + line)
+
+  tokens[0] = _run2sum_rateparam_name(tokens[0], source_era)
+  tokens[3] = _run2sum_rateparam_process_pattern(tokens[3])
+
+  return tokens
+
+def _merge_run2sum_tail_lines(era_region_lines, n_base_procs):
+  """
+  Merge syst/rateParam lines from four source-era cards into one Run2Sum card.
+
+  Rule:
+    - Same nuisance name across eras becomes one line with four era-blocks filled.
+    - Era-specific nuisance names remain separate lines.
+    - autoMCStats is kept once.
+    - rateParam lines are collapsed to one Run2Sum-level parameter.
+      They target all era-suffixed processes through process wildcards.
+  """
+
+  n_run2_cols = n_base_procs * len(RUN2_SOURCE_ERAS)
+
+  merged_systs = OrderedDict()
+  auto_mc_stats_line = None
+
+  # Run2Sum should have one normalization parameter per logical CR/SR constraint,
+  # not one independent parameter per source era.
+  run2sum_rateparams = OrderedDict()
+
+  other_lines = []
+  other_seen = set()
+
+  for era_index, source_era in enumerate(RUN2_SOURCE_ERAS):
+    tail_start = _tail_start_index(era_region_lines[source_era])
+    tail_lines = era_region_lines[source_era][tail_start:]
+
+    for line in tail_lines:
+      if not line.strip():
+        continue
+
+      if line.startswith("#"):
+        continue
+
+      if _is_automcstats_line(line):
+        if auto_mc_stats_line is None:
+          auto_mc_stats_line = line
+        continue
+
+      if is_rateParam_line(line):
+        rp_tokens = _run2sum_rateparam_tokens(line, source_era)
+
+        # Same parameter, same bin, same target process wildcard should appear
+        # only once after collapsing four source eras into Run2Sum.
+        #
+        # Example:
+        #   WZNorm_Run2Sum_sr1 rateParam sr1 wz* 1.0
+        rp_key = tuple(rp_tokens[:4])
+        rp_tail = tuple(rp_tokens[4:])
+
+        if rp_key not in run2sum_rateparams:
+          run2sum_rateparams[rp_key] = rp_tokens
+        else:
+          old_tail = tuple(run2sum_rateparams[rp_key][4:])
+          if old_tail != rp_tail:
+            raise RuntimeError(
+              "[Run2SumCard] Inconsistent duplicated rateParam settings for "
+              + " ".join(rp_tokens[:4])
+              + ": old tail = "
+              + " ".join(old_tail)
+              + ", new tail = "
+              + " ".join(rp_tail)
+            )
+
+        continue
+
+      tokens = line.split()
+
+      # Most syst lines are:
+      #   syst_name  type  value value value ...
+      # If the line is not column-based, keep it once.
+      if len(tokens) < 2 + n_base_procs:
+        if line not in other_seen:
+          other_lines.append(line)
+          other_seen.add(line)
+        continue
+
+      syst_name = tokens[0]
+      syst_type = tokens[1]
+      values = tokens[2:2 + n_base_procs]
+
+      key = (syst_name, syst_type)
+
+      if key not in merged_systs:
+        merged_systs[key] = ["-"] * n_run2_cols
+
+      start = era_index * n_base_procs
+
+      for j, value in enumerate(values):
+        merged_systs[key][start + j] = value
+
+  out_lines = []
+
+  for (syst_name, syst_type), values in merged_systs.items():
+    out_lines.append(_format_run2sum_syst_row(syst_name, syst_type, values))
+
+  if auto_mc_stats_line is not None:
+    out_lines.append(auto_mc_stats_line)
+
+  for rp_tokens in run2sum_rateparams.values():
+    out_lines.append(" ".join(rp_tokens) + "\n")
+
+  out_lines.extend(other_lines)
+
+  return out_lines
+
+def _build_run2sum_region_lines(WP, region, channel, mass, era_region_lines):
+  """
+  Build one Run2Sum region card from four already-processed era cards.
+
+  The four era cards are used only as templates for:
+    - era-specific rate entries
+    - era-specific nuisance naming/filtering
+    - existing exception handling
+
+  The final card points to:
+    LimitInputs/<WP>/Run2/<region>/<mass>_<channel>_card_input.root
+  """
+
+  ref_lines = era_region_lines[RUN2_SOURCE_ERAS[0]] # 2016preVFP lines for this specific region
+
+  proc_name_idx, proc_id_idx = _find_process_name_and_id_lines(ref_lines)
+  rate_idx = _find_rate_line(ref_lines)
+
+  base_procs = ref_lines[proc_name_idx].split()[1:] # fake, cf, ...
+  base_ids = ref_lines[proc_id_idx].split()[1:] # 1, 2, ...
+
+  n_base_procs = len(base_procs) # N of processes
+
+  if len(base_ids) != n_base_procs:
+    raise RuntimeError("[Run2SumCard] Number of process names and process IDs differ.")
+
+  run2_procs = []
+  run2_ids = []
+  run2_rates = []
+
+  for source_era in RUN2_SOURCE_ERAS:
+    run2_procs.extend([proc + "_" + source_era for proc in base_procs]) # fake_2016preVFP, cf_2016preVFP, ...
+    run2_ids.extend(base_ids) # 1, 2, ...
+
+    rate_values = era_region_lines[source_era][rate_idx].split()[1:] # -1, -1, ...
+
+    if len(rate_values) != n_base_procs:
+      raise RuntimeError(
+        "[Run2SumCard] Number of rate entries differs from number of processes in "
+        + source_era
+        + " "
+        + region
+        + " "
+        + channel
+        + " "
+        + mass
+      )
+
+    run2_rates.extend(rate_values)
+
+  new_lines = []
+
+  header_end = _tail_start_index(ref_lines)
+
+  for i, line in enumerate(ref_lines[:header_end]):
+    tokens = line.split()
+
+    if len(tokens) > 0 and tokens[0] == "shapes":
+      new_lines.append(_run2sum_shape_line(WP, region, channel, mass)) 
+
+    elif len(tokens) > 0 and tokens[0] == "jmax":
+      new_lines.append("jmax *\n")
+
+    elif len(tokens) > 0 and tokens[0] == "kmax":
+      new_lines.append("kmax *\n")
+
+    elif i == proc_name_idx:
+      new_lines.append(_format_run2sum_row("process", run2_procs))
+
+    elif i == proc_id_idx:
+      new_lines.append(_format_run2sum_row("process", run2_ids))
+
+    elif i == rate_idx:
+      new_lines.append(_format_run2sum_row("rate", run2_rates))
+
+    elif len(tokens) > 0 and tokens[0] == "bin" and len(tokens) == n_base_procs + 1:
+      new_lines.append(_format_run2sum_row("bin", [region] * len(run2_procs)))
+
+    else:
+      new_lines.append(line)
+
+  new_lines.extend(_merge_run2sum_tail_lines(era_region_lines, n_base_procs))
+
+  return new_lines
+
+def CardSetting_Run2Sum(isCR, WP, skeleton, channel, mass, signal):
+  """
+  Run2Sum card mode.
+
+  Input ROOT:
+    LimitInputs/<WP>/Run2/<region>/<mass>_<channel>_card_input.root
+
+  Datacard process names:
+    fake_2016preVFP, fake_2016postVFP, fake_2017, fake_2018, ...
+    signalDY_2016preVFP, signalDY_2016postVFP, ...
+
+  data_obs:
+    One Run2-summed data_obs from the Run2 input ROOT.
+  """
+
+  per_era_cards = {}
+
+  for source_era in RUN2_SOURCE_ERAS:
+    per_era_cards[source_era] = CardSetting(isCR, WP, skeleton, source_era, channel, mass, signal)
+
+  lines_cr = {}
+  lines_sr = {}
+  lines_sronly = {}
+
+  regions_to_build = regions_tot if isCR else regions_sr
+
+  for region in regions_to_build:
+    era_region_lines = {}
+
+    for source_era in RUN2_SOURCE_ERAS:
+      era_region_lines[source_era] = _extract_region_lines(
+        per_era_cards[source_era],
+        isCR,
+        region
+      )
+
+    new_lines = _build_run2sum_region_lines(
+      WP,
+      region,
+      channel,
+      mass,
+      era_region_lines
+    )
+
+    if isCR:
+      if region in regions_sr:
+        lines_sr[region] = new_lines
+      elif region in regions_cr:
+        lines_cr[region] = new_lines
+    else:
+      lines_sronly[region] = new_lines
+
+  if isCR:
+    return (lines_sr, lines_cr)
+
+  return lines_sronly
+##
+
 def ValidMassSignal(channel: str, mass: str, signal: str) -> bool:
   # Check M500 limit extension
   if args.Ext:
@@ -694,23 +1207,23 @@ for InputWP in InputWPs:
           #  continue
 
           if args.CR: # with CR
-            per_channel_full = [f"card_Run2_{channel}{ExtTag}_{mass_signal}{systTag}.txt" for channel in channels]
-            comb3ch_full = f"card_Run2_3ch{ExtTag}_{mass_signal}{systTag}.txt"
+            per_channel_full = [f"card_{FinalEraTag}_{channel}{ExtTag}_{mass_signal}{systTag}.txt" for channel in channels]
+            comb3ch_full = f"card_{FinalEraTag}_3ch{ExtTag}_{mass_signal}{systTag}.txt"
             combine_3ch(comb3ch_full, per_channel_full)
-
+            
             for sr in sr_filtered:
-              per_channel_each = [f"card_Run2_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt" for channel in channels]
-              comb3ch_each = f"card_Run2_3ch{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
+              per_channel_each = [f"card_{FinalEraTag}_{channel}{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt" for channel in channels]
+              comb3ch_each = f"card_{FinalEraTag}_3ch{ExtTag}_{mass_signal}_{sr}{systTag}_Combined.txt"
               combine_3ch(comb3ch_each, per_channel_each)
 
           else:
-            per_channel_full = [f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt" for channel in channels]
-            comb3ch_full = f"card_Run2_3ch{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
+            per_channel_full = [f"card_{FinalEraTag}_{channel}{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt" for channel in channels]
+            comb3ch_full = f"card_{FinalEraTag}_3ch{ExtTag}_{mass_signal}_sronly_sr123{systTag}.txt"
             combine_3ch(comb3ch_full, per_channel_full)
-
+            
             for sr in sr_filtered:
-              per_channel_each = [f"card_Run2_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt" for channel in channels]
-              comb3ch_each = f"card_Run2_3ch{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt"
+              per_channel_each = [f"card_{FinalEraTag}_{channel}{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt" for channel in channels]
+              comb3ch_each = f"card_{FinalEraTag}_3ch{ExtTag}_{mass_signal}_sronly_{sr}{systTag}.txt"
               combine_3ch(comb3ch_each, per_channel_each)
 
       os.system('echo \'Done.\'')

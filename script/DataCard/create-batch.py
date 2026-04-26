@@ -363,7 +363,16 @@ def make_weinberg_w_points(step=0.25):
 for RunList in args.RunLists:
   cards = open(RunList).readlines() if args.Input is None else [args.Input]
   NCARD = len(cards)
-  WP = RunList.split('.')[-2].replace('RunList_','').replace('Run2_','') if args.Input is None else args.Input.split('/')[-2] # Currently, RunList is splitted into Run2 and normal setting (code structure issue -- it doesn't change WP)
+
+  if args.Input is None:
+    WP = RunList.split('.')[-2].replace('RunList_','')
+  
+    for runlist_prefix in ["Run2Sum_", "Run2_"]:
+      if WP.startswith(runlist_prefix):
+        WP = WP[len(runlist_prefix):] # Remove only Run2* at the head
+        break
+  else:
+    WP = args.Input.split('/')[-2]
 
   if args.pdf:
     os.system('mkdir -p '+this_check+'/'+WP+'/'+AsimovName)

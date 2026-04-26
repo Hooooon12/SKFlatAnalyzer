@@ -15,28 +15,19 @@ os.makedirs(OUTDIR, exist_ok=True)
 
 FILES = {
     "CCDY": {
-        #500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M500_private.root",
-        #1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M1000_private.root",
-        #3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M3000_private.root",
-        500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M500_private.root",
-        1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M1000_private.root",
-        3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M3000_private.root",
+        500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M500_private.root",
+        1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M1000_private.root",
+        3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_DYTypeI_DF_M3000_private.root",
     },
     "WG": {
-        #500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M500_private.root",
-        #1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M1000_private.root",
-        #3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M3000_private.root",
-        500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M500_private.root",
-        1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M1000_private.root",
-        3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M3000_private.root",
+        500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M500_private.root",
+        1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M1000_private.root",
+        3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_VBFTypeI_DF_M3000_private.root",
     },
     "SSWW": {
-        #500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M500_private.root",
-        #1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M1000_private.root",
-        #3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M3000_private.root",
-        500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M500_private.root",
-        1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M1000_private.root",
-        3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M3000_private.root",
+        500:  "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M500_private.root",
+        1000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M1000_private.root",
+        3000: "/data6/Users/jihkim/SKFlatOutput/Run2UltraLegacy_v3/HNL_SignalRegion_Plotter_PR183_PDFUncertStudy/2018/HNL_SignalRegion_Plotter_SSWWTypeI_SF_M3000_private.root",
     },
 }
 
