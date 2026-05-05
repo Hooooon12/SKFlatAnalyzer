@@ -252,7 +252,7 @@ TString BuildComparisonSubdirName(TString requested_name, const vector<Compariso
   return MakeSafeDirName(auto_name);
 }
 
-vector<TString> GetRun2SumVsRun2LoopTags()
+vector<TString> GetSignalSRLoopTags()
 {
   return {
     "_DY_syst",
@@ -264,6 +264,24 @@ vector<TString> GetRun2SumVsRun2LoopTags()
   };
 }
 
+vector<TString> GetSignalLoopTags()
+{
+  return {
+    "_DY_syst",
+    "_VBF_syst",
+    "_SSWW_syst",
+  };
+}
+
+vector<TString> GetSRLoopTags()
+{
+  return {
+    "_HNL_sr1_syst_Combined",
+    "_HNL_sr2_syst_Combined",
+    "_HNL_sr3_syst_Combined",
+  };
+}
+
 TString StripLeadingUnderscore(TString tag)
 {
   TString out = tag;
@@ -271,36 +289,107 @@ TString StripLeadingUnderscore(TString tag)
   return out;
 }
 
-TString MakeRun2SumVsRun2SingleTagPreset(TString tag)
+TString MakeSingleTagPresetName(TString preset_base, TString tag)
 {
-  return "Run2Sum_vs_Run2__" + StripLeadingUnderscore(tag);
+  return preset_base + "__" + StripLeadingUnderscore(tag);
+}
+
+vector<TString> GetPresetLoopTags(TString preset_base)
+{
+  if (preset_base == "Run2Sum_vs_Run2") {
+    return GetSignalSRLoopTags();
+  }
+
+  if (preset_base == "Signal_only") {
+    return GetSignalSRLoopTags();
+  }
+
+  if (preset_base == "SR_only") {
+    return GetSRLoopTags();
+  }
+
+  // if (preset_base == "MyNewPreset") {
+  //   return {"_HNL_syst", "_HNL_sr1_syst_Combined"};
+  // }
+
+  return {};
+}
+
+bool ParseSingleTagPresetName(TString preset_name, TString& preset_base, TString& tag)
+{
+  Ssiz_t split_pos = preset_name.Index("__");
+  if (split_pos == kNPOS) return false;
+
+  preset_base = preset_name;
+  preset_base.Remove(split_pos);
+
+  tag = preset_name;
+  tag.Remove(0, split_pos + 2);
+
+  if (!tag.BeginsWith("_")) tag = "_" + tag;
+  return true;
 }
 
 bool ApplyComparisonPreset(TString preset_name, PlotConfig& plot_cfg)
 {
-  const TString preset_prefix = "Run2Sum_vs_Run2__";
-  if (!preset_name.BeginsWith(preset_prefix)) return false;
+  TString preset_base, tag;
+  if (!ParseSingleTagPresetName(preset_name, preset_base, tag)) return false;
 
-  TString tag = preset_name;
-  tag.Remove(0, preset_prefix.Length());
-  if (!tag.BeginsWith("_")) tag = "_" + tag;
+  if (preset_base == "Run2Sum_vs_Run2") {
+    plot_cfg.nominal.tag_nom = tag;
+    plot_cfg.study.subdir = "Run2Sum_vs_Run2" + tag;
 
-  plot_cfg.nominal.tag_nom = tag;
-  plot_cfg.study.subdir = "Run2Sum_vs_Run2"+tag;
+    plot_cfg.study.entries.push_back(
+      ComparisonEntry(
+        "ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Run2Sum_Preapproval",
+        tag,
+        "Run2 merged",
+        kRed,
+        0.01,
+        plot_cfg.nominal.method_nom,
+        "Run2Sum"
+      )
+    );
 
-  plot_cfg.study.entries.push_back(
-    ComparisonEntry(
-      "ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Run2Sum_Preapproval",
-      tag,
-      "Run2 merged",
-      kRed,
-      0.01,
-      plot_cfg.nominal.method_nom,
-      "Run2Sum"
-    )
-  );
+    return true;
+  }
 
-  return true;
+  if (preset_base == "Signal_only" or preset_base == "SR_only") {
+    plot_cfg.nominal.tag_nom = tag;
+    //plot_cfg.study.subdir = StripLeadingUnderscore(tag);
+    //plot_cfg.study.subdir = "StatLoose_vs_StatTight_"+StripLeadingUnderscore(tag);
+    //plot_cfg.study.subdir = "Before_After_SR3Update_"+StripLeadingUnderscore(tag);
+    //plot_cfg.study.subdir = "Compare_to_StatReqEra"+StripLeadingUnderscore(tag);
+    plot_cfg.study.subdir = "Prev_vs_NewBinning"+StripLeadingUnderscore(tag);
+
+    plot_cfg.study.entries.push_back(
+      ComparisonEntry(
+        //"ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
+        //"ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188",
+        //"ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188",
+        //"ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188",
+        "ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
+        tag,
+        //"Before Run2 binning",
+        //"Require only Nbkg > 1",
+        //"Before SR3 update",
+        //"StatReqEra",
+        "Before Run2 binning",
+        kRed,
+        0.01,
+        plot_cfg.nominal.method_nom,
+        //"Run2"
+        //"Run2Sum"
+        //"Run2Sum"
+        //"Run2Sum"
+        "Run2"
+      )
+    );
+
+    return true;
+  }
+
+  return false;
 }
 
 void print_ratio_table(const vector<vector<double>>& mass_vs_nominal,
@@ -375,13 +464,12 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     return;
   }
 
-  if (preset_name == "Run2Sum_vs_Run2") {
-    const vector<TString> tags = GetRun2SumVsRun2LoopTags();
-
-    for (const auto& tag : tags) {
-      TString child_preset = MakeRun2SumVsRun2SingleTagPreset(tag);
+  const vector<TString> preset_tags = GetPresetLoopTags(preset_name);
+  if (!preset_tags.empty()) {
+    for (const auto& tag : preset_tags) {
+      TString child_preset = MakeSingleTagPresetName(preset_name, tag);
       cout << "[INFO] Dispatching preset: " << child_preset << endl;
-
+  
       DrawLimits(year,
                  channel,
                  DrawExt,
@@ -429,12 +517,19 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv7_EMuCF_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_EMuCF"; // set the nominal WP
   //TString WP_nom = "ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
   //TString WP_nom = "ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
-  TString WP_nom = "ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
+  //TString WP_nom = "ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"; // set the nominal WP
+  //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
+  //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR2_PerFlavour_SR1_GlobalMass_Decorr_JetDecorr_PR188"; // set the nominal WP
+  //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR1_Global_Decorr_JetDecorr_PR188"; // set the nominal WP
+  //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR1_MassGroups_Decorr_JetDecorr_PR188"; // set the nominal WP
+  //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188"; // set the nominal WP
+  //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR3Update_Decorr_JetDecorr_PR188"; // set the nominal WP
+  TString WP_nom = "ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
 
-	PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
+  PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
 
   const bool preset_applied = ApplyComparisonPreset(preset_name, plot_cfg);
-	if (preset_name != "" && preset_name != "Run2Sum_vs_Run2" && !preset_applied) {
+  if (preset_name != "" && preset_tags.empty() && !preset_applied) {
     cout << "[WARNING] Unknown preset_name = " << preset_name << endl;
   }
 
@@ -442,7 +537,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   // They are drawn on the upper panel whenever study entries exist,
   // while CompareLimits only controls whether the lower ratio panel is shown.
   if(!preset_applied && !DrawExt && SepLimit==0){
-		// *** signal in CR ***			
+    // *** signal in CR ***      
     // plot_cfg.study.subdir = "SigInCR";
     // plot_cfg.study.entries.push_back(
     //   ComparisonEntry("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_SigInCR_Preapproval", # WP
@@ -453,7 +548,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                   plot_cfg.nominal.method_nom) # method ("Asym" by default)
     // );
 
-		// *** Tight Bjet in CR (L2review WP) ***
+    // *** Tight Bjet in CR (L2review WP) ***
     // plot_cfg.study.entries.push_back(
     //   ComparisonEntry("ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
     //                   "_HNL_syst",
@@ -462,9 +557,9 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                   0.01,
     //                   plot_cfg.nominal.method_nom)
     // );
-		
-		// *** SR1 limit comparison using W constrained mass
-		// plot_cfg.nominal.tag_nom = "_HNL_sr1_syst_Combined";
+    
+    // *** SR1 limit comparison using W constrained mass
+    // plot_cfg.nominal.tag_nom = "_HNL_sr1_syst_Combined";
     // plot_cfg.study.subdir = "SR1_W_Constrained";
     // plot_cfg.study.entries.push_back(
     //   ComparisonEntry("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval",
@@ -475,8 +570,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                   plot_cfg.nominal.method_nom)
     // );
 
-		// *** SR2 limit comparison using central jet veto in VBF jets
-		// plot_cfg.nominal.tag_nom = "_HNL_sr2_syst_Combined";
+    // *** SR2 limit comparison using central jet veto in VBF jets
+    // plot_cfg.nominal.tag_nom = "_HNL_sr2_syst_Combined";
     // plot_cfg.study.subdir = "SR2_Central_Veto";
     // plot_cfg.study.entries.push_back(
     //   ComparisonEntry("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval",
@@ -487,8 +582,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                   plot_cfg.nominal.method_nom)
     // );
 
-		// *** full SR limit comparison using central jet veto in VBF jets
-		//plot_cfg.nominal.tag_nom = "_HNL_syst";
+    // *** full SR limit comparison using central jet veto in VBF jets
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
     //plot_cfg.study.subdir = "Full_Central_Veto";
     //plot_cfg.study.entries.push_back(
     //  ComparisonEntry("ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_UseWMassConstraint_RemoveCentralVBFJets_Decorr_JetDecorr_Preapproval",
@@ -499,8 +594,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                  plot_cfg.nominal.method_nom)
     //);
 
-		// *** L2review + fix symmhessian PDF uncertainty + Add gg to taus vs L2review
-		//plot_cfg.nominal.tag_nom = "_HNL_syst";
+    // *** L2review + fix symmhessian PDF uncertainty + Add gg to taus vs L2review
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
     //plot_cfg.study.subdir = "FixHessian_AddGluGluTaus";
     //plot_cfg.study.entries.push_back(
     //  ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
@@ -511,8 +606,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                  plot_cfg.nominal.method_nom)
     //);
 
-		// *** Run2Sum limits vs Run2 limits in L2review + fix PDF + gg to taus
-		//plot_cfg.nominal.tag_nom = "_HNL_syst";
+    // *** Run2Sum limits vs Run2 limits in L2review + fix PDF + gg to taus
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
     //plot_cfg.study.subdir = "Run2Sum_vs_Run2";
     //plot_cfg.study.entries.push_back(
     //  ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Run2Sum_Preapproval",
@@ -521,7 +616,68 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                  kRed,
     //                  0.01,
     //                  plot_cfg.nominal.method_nom,
-		//									"Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+
+    // *** Run2 previous and Run2 Newbinning vs Run2Sum Newbinning (PR188)
+    plot_cfg.nominal.tag_nom = "_HNL_syst";
+    plot_cfg.study.subdir = "Prev_vs_NewBinning";
+    plot_cfg.study.entries.push_back(
+      ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
+                      "_HNL_syst",
+                      "Before Run2 binning",
+                      kRed,
+                      0.01,
+                      plot_cfg.nominal.method_nom,
+                      "Run2") // if this is not specified, the comparison will follow the nominal year
+    );
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188",
+    //                  "_HNL_syst",
+    //                  "Run2 binning, Era-dep. datacard",
+    //                  kBlue,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2") // if this is not specified, the comparison will follow the nominal year
+    //);
+
+    // *** Run2 previous and Run2 Newbinning vs Run2Sum Newbinning (PR188)
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "StatLoose_vs_StatTight";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188",
+    //                  "_HNL_syst",
+    //                  "Require only Nbkg > 1",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+
+    // *** Run2 previous and Run2 Newbinning vs Run2Sum Newbinning (PR188)
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "Before_After_SR3Update";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188",
+    //                  "_HNL_syst",
+    //                  "Before SR3 update",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+
+    // *** Run2 previous and Run2 Newbinning vs Run2Sum Newbinning (PR188)
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "Compare_to_StatReqEra";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188",
+    //                  "_HNL_syst",
+    //                  "StatReqEra",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
     //);
 
   }
@@ -608,13 +764,17 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //scales.push_back(1.); // already scaled when extracting limits...
 
   // Set the lower bound of HNL mass to show
+  //double forced_min_mass = -1.0;
+  //if (std::any_of(compare_entries.begin(), compare_entries.end(),
+  //                [](const ComparisonEntry& entry){
+  //                  return entry.wp.Contains("UseWMassConstraint_RemoveCentralVBFJets");
+  //                })) {
+  //  forced_min_mass = 1000.;
+  //}
+
   double forced_min_mass = -1.0;
-  if (std::any_of(compare_entries.begin(), compare_entries.end(),
-                  [](const ComparisonEntry& entry){
-                    return entry.wp.Contains("UseWMassConstraint_RemoveCentralVBFJets");
-                  })) {
-    forced_min_mass = 1000.;
-  }
+  //if (plot_cfg.study.subdir == "Prev_vs_NewBinning") forced_min_mass = 600.; // BDT binning wasn't done yet so don't show
+
 
   // Set the upper bound of HNL mass to show
   double forced_max_mass = 999999.;
@@ -1943,7 +2103,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   latex_Lumi.SetTextSize(0.035);
   latex_Lumi.SetTextFont(42);
 
-	TString lumi = GetLumiText(year_nom, tag_nom);
+  TString lumi = GetLumiText(year_nom, tag_nom);
 
   latex_title.SetTextSize(0.04);
   latex_title.SetLineWidth(2);

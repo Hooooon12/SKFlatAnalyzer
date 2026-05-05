@@ -99,7 +99,7 @@ CRpath = SRpath
 #InputWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # pt-dependent Muon RECO SF @260110
 InputWPs = args.InputWPs
 
-RegionDecorr_list = ["CMS_SUS24014_fake_stat","CMS_SUS24014_fake_highpt","CMS_SUS24014_fake_syst","CMS_SUS24014_cf_stat","CMS_SUS24014_cf_syst"]
+RegionDecorr_list = ["CMS_SUS24014_fake_stat","CMS_SUS24014_fake_highpt","CMS_SUS24014_fake_syst","CMS_SUS24014_fake_m_stat","CMS_SUS24014_fake_m_highpt","CMS_SUS24014_fake_m_syst","CMS_SUS24014_fake_e_stat","CMS_SUS24014_fake_e_highpt","CMS_SUS24014_fake_e_syst","CMS_SUS24014_cf_stat","CMS_SUS24014_cf_syst"]
 
 ExtTag = '_Ext' if args.Ext else ''
 if args.CnC:
@@ -433,13 +433,6 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
         else:
           if "CMS_scale_j_" in line: continue
 
-        # channel-dependent fake syst ### NOTE deprecated after the L2review. Now fake syst is treated as a shape uncertainty.
-        if "CMS_SUS24014_fake_syst" in line:
-          if channel=="EMu":
-            line = line.replace('1.2','1.25')
-          elif channel=="EE":
-            line = line.replace('1.2','1.3')
-
         if is_syst_line(line):
           syst_name = line.split()[0]
 
@@ -461,9 +454,9 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
 
           # channel treatment
           if channel=="MuMu":
-            if ("eff_e_" in syst_name) or ("scale_e" in syst_name) or ("res_e" in syst_name) or ("fake_highpt" in syst_name): continue
+            if ("eff_e_" in syst_name) or ("scale_e" in syst_name) or ("res_e" in syst_name) or ("fake_e" in syst_name): continue
           elif channel=="EE":
-            if ("eff_m_" in syst_name) or (syst_name == "CMS_scale_m") or ("res_m" in syst_name): continue
+            if ("eff_m_" in syst_name) or (syst_name == "CMS_scale_m") or ("res_m" in syst_name) or ("fake_m" in syst_name): continue
 
           # sr treatment
           if "sr1" not in region and "cr1" not in region:

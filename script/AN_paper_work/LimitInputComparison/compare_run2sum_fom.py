@@ -589,6 +589,11 @@ def main() -> int:
                     era_sig_sum = sum_era_hists(era_sig_packs, f"era_sum_sig_{region}_{channel}_{mass}_{signal_mode}")
 
                     if run2_sig_pack.hist is None or era_sig_sum is None or era_sig_sum.Integral() <= args.epsilon:
+                        print("====WARNING====")
+                        print("In",region,channel,mass,signal_mode,":")
+                        if run2_sig_pack.hist is None: print("Run2 signal is None.")
+                        if era_sig_sum is None: print("Era-merged signal is None.")
+                        elif era_sig_sum.Integral() <= args.epsilon: print("Era-merged signal is too small:",era_sig_sum.Integral())
                         continue
 
                     for bkg_mode in args.bkg_modes:
@@ -602,6 +607,10 @@ def main() -> int:
                         era_bkg_sum = sum_era_hists(era_bkg_packs, f"era_sum_bkg_{region}_{channel}_{mass}_{bkg_mode}")
 
                         if run2_bkg_pack.hist is None or era_bkg_sum is None:
+                            print("====WARNING====")
+                            print("In",region,channel,mass,signal_mode,":")
+                            if run2_bkg_pack.hist is None: print("Run2 bkg is None.")
+                            if era_bkg_sum is None: print("Era-merged bkg is None.")
                             continue
 
                         # Era-quadrature FOM.

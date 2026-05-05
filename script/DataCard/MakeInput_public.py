@@ -342,9 +342,15 @@ SystList = [
             "PrefireUp","PrefireDown",
             "PUUp","PUDown",
             "CFRateUp","CFRateDown",
-            "FRUp","FRDown", # fake rate stat
-            "FRRateUp","FRRateDown", # fake rate syst
-            "FRHighPtUp","FRHighPtDown",
+            #"FRUp","FRDown", # fake rate stat
+            #"FRRateUp","FRRateDown", # fake rate syst
+            #"FRHighPtUp","FRHighPtDown",
+            "FRMuonUp","FRMuonDown", # fake rate stat
+            "FRMuonRateUp","FRMuonRateDown", # fake rate syst
+            "FRMuonHighPtUp","FRMuonHighPtDown",
+            "FRElectronUp","FRElectronDown", # fake rate stat
+            "FRElectronRateUp","FRElectronRateDown", # fake rate syst
+            "FRElectronHighPtUp","FRElectronHighPtDown",
             "PDFUp","PDFDown",
             "ScaleUp","ScaleDown",
             "RenScaleUp","RenScaleDown",
@@ -413,9 +419,15 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["PrefireUp"]           = "CMS_l1_prefiring_"+era+"Up"
   SystNameMap[era]["PUUp"]                = "CMS_pileup_13TeV"+"Up" # full correlation
   SystNameMap[era]["CFRateUp"]            = "CMS_SUS24014_cf_stat_"+era+"Up"
-  SystNameMap[era]["FRUp"]                = "CMS_SUS24014_fake_stat_"+era+"Up"
-  SystNameMap[era]["FRRateUp"]            = "CMS_SUS24014_fake_syst_"+era+"Up"
-  SystNameMap[era]["FRHighPtUp"]          = "CMS_SUS24014_fake_highpt_"+era+"Up"
+  #SystNameMap[era]["FRUp"]                = "CMS_SUS24014_fake_stat_"+era+"Up"
+  #SystNameMap[era]["FRRateUp"]            = "CMS_SUS24014_fake_syst_"+era+"Up"
+  #SystNameMap[era]["FRHighPtUp"]          = "CMS_SUS24014_fake_highpt_"+era+"Up"
+  SystNameMap[era]["FRMuonUp"]            = "CMS_SUS24014_fake_m_stat_"+era+"Up"
+  SystNameMap[era]["FRMuonRateUp"]        = "CMS_SUS24014_fake_m_syst_"+era+"Up"
+  SystNameMap[era]["FRMuonHighPtUp"]      = "CMS_SUS24014_fake_m_highpt_"+era+"Up"
+  SystNameMap[era]["FRElectronUp"]        = "CMS_SUS24014_fake_e_stat_"+era+"Up"
+  SystNameMap[era]["FRElectronRateUp"]    = "CMS_SUS24014_fake_e_syst_"+era+"Up"
+  SystNameMap[era]["FRElectronHighPtUp"]  = "CMS_SUS24014_fake_e_highpt_"+era+"Up"
   SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation
   SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation
   SystNameMap[era]["RenScaleUp"]          = "RenScale"+"Up" # full correlation
@@ -479,9 +491,15 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["PrefireDown"]           = "CMS_l1_prefiring_"+era+"Down"
   SystNameMap[era]["PUDown"]                = "CMS_pileup_13TeV"+"Down" # full correlation
   SystNameMap[era]["CFRateDown"]            = "CMS_SUS24014_cf_stat_"+era+"Down"
-  SystNameMap[era]["FRDown"]                = "CMS_SUS24014_fake_stat_"+era+"Down"
-  SystNameMap[era]["FRRateDown"]            = "CMS_SUS24014_fake_syst_"+era+"Down"
-  SystNameMap[era]["FRHighPtDown"]          = "CMS_SUS24014_fake_highpt_"+era+"Down"
+  #SystNameMap[era]["FRDown"]                = "CMS_SUS24014_fake_stat_"+era+"Down"
+  #SystNameMap[era]["FRRateDown"]            = "CMS_SUS24014_fake_syst_"+era+"Down"
+  #SystNameMap[era]["FRHighPtDown"]          = "CMS_SUS24014_fake_highpt_"+era+"Down"
+  SystNameMap[era]["FRMuonDown"]            = "CMS_SUS24014_fake_m_stat_"+era+"Down"
+  SystNameMap[era]["FRMuonRateDown"]        = "CMS_SUS24014_fake_m_syst_"+era+"Down"
+  SystNameMap[era]["FRMuonHighPtDown"]      = "CMS_SUS24014_fake_m_highpt_"+era+"Down"
+  SystNameMap[era]["FRElectronDown"]        = "CMS_SUS24014_fake_e_stat_"+era+"Down"
+  SystNameMap[era]["FRElectronRateDown"]    = "CMS_SUS24014_fake_e_syst_"+era+"Down"
+  SystNameMap[era]["FRElectronHighPtDown"]  = "CMS_SUS24014_fake_e_highpt_"+era+"Down"
   SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation
   SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation
   SystNameMap[era]["RenScaleDown"]          = "RenScale"+"Down" # full correlation
@@ -490,9 +508,15 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
 
   # SR-decorrelated sources -- Don't remove this, it is used below
   SystNameMap[era]["CFRate"]            = "CMS_SUS24014_cf_stat_"+era
-  SystNameMap[era]["FR"]                = "CMS_SUS24014_fake_stat_"+era
-  SystNameMap[era]["FRRate"]            = "CMS_SUS24014_fake_syst_"+era
-  SystNameMap[era]["FRHighPt"]          = "CMS_SUS24014_fake_highpt_"+era
+  #SystNameMap[era]["FR"]                = "CMS_SUS24014_fake_stat_"+era
+  #SystNameMap[era]["FRRate"]            = "CMS_SUS24014_fake_syst_"+era
+  #SystNameMap[era]["FRHighPt"]          = "CMS_SUS24014_fake_highpt_"+era
+  SystNameMap[era]["FRMuon"]            = "CMS_SUS24014_fake_m_stat_"+era
+  SystNameMap[era]["FRMuonRate"]        = "CMS_SUS24014_fake_m_syst_"+era
+  SystNameMap[era]["FRMuonHighPt"]      = "CMS_SUS24014_fake_m_highpt_"+era
+  SystNameMap[era]["FRElectron"]        = "CMS_SUS24014_fake_e_stat_"+era
+  SystNameMap[era]["FRElectronRate"]    = "CMS_SUS24014_fake_e_syst_"+era
+  SystNameMap[era]["FRElectronHighPt"]  = "CMS_SUS24014_fake_e_highpt_"+era
   SystNameMap[era]["JetRes"]            = "CMS_res_j_"+era
   SystNameMap[era]["JetEn"]             = "CMS_scale_j_"+era
 
@@ -587,6 +611,11 @@ for DefFlag in DefFlags:
     PromptSkim[DefFlag][this_prompt] = "_SkimTree_HNMultiLepBDT_" if args.CR else "_SkimTree_SSDileptonBDT_"
 MCSkim = {DefFlag: {**ConvSkim[DefFlag], **PromptSkim[DefFlag]} for DefFlag in DefFlags}
 
+# Siganl skims
+SignalSkim = {}
+for DefFlag in DefFlags:
+  SignalSkim[DefFlag] = "_SkimTree_HNMultiLepBDT_"
+
 
 if args.CheckFiles:
   ##### Input file check #####
@@ -609,12 +638,18 @@ if args.CheckFiles:
       DataList['2018'].append(stream+"_"+period)
   ConvList = MergeList['RunConv']['Conv_inc'][:]
   PromptList = MergeList['RunPrompt']['Prompt_inc'][:]
+  SignalList = [f"DYTypeI_DF_M{mass}_private" for mass in [85, 90, 95, 100, 125, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000, 2500, 3000]] +\
+               [f"VBFTypeI_DF_M{mass}_private" for mass in [300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000, 2500, 3000]] +\
+               [f"SSWWTypeI_SF_M{mass}_private" for mass in [500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000, 2500, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000]] +\
+               [f"SSWWTypeI_DF_M{mass}_private" for mass in [500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000, 2500, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000]] +\
+               [f"SSWWjj_DIM5_WeinbergOpt_{channel}_private" for channel in ["MuMu", "EE", "EMu"]]
+
   DefFlags = ["","MultiLepton__"]
   DefFlags_CR = ["MultiLepton__"]
   SRPath = "/data9/Users/HNL_public/SUS-24-014/SKFlatOutput/Systematic_Run/HNL_SignalRegion_Plotter_"+inputTag
   CRPath = "/data9/Users/HNL_public/SUS-24-014/SKFlatOutput/Systematic_Run/HNL_ControlRegion_Plotter_"+inputTag
 
-  for era in expand_run2_eras(args.eras): # TODO include signals
+  for era in expand_run2_eras(args.eras):
     if not args.CR:
       # SR
       #for this_proc in DataList[era]:
@@ -638,6 +673,10 @@ if args.CheckFiles:
       #for this_proc in PromptList+["WZTo3LNu_mllmin4p0_powheg"]: # FIXME to test WZ_powheg and WZ_amcatnlo
       for this_proc in PromptList:
         this_path=SRPath + "/" + era + "/" + PreFlag+"RunPrompt__"+PostFlag+"/HNL_SignalRegion_Plotter"+PromptSkim[""][this_proc]+this_proc+".root"
+        if not os.path.exists(this_path):
+          print(this_path,"-->",os.path.exists(this_path))
+      for this_proc in SignalList:
+        this_path=SRPath + "/" + era + "/" + PreFlag+"RunSignal__"+PostFlag+"/HNL_SignalRegion_Plotter"+SignalSkim[""]+this_proc+".root"
         if not os.path.exists(this_path):
           print(this_path,"-->",os.path.exists(this_path))
     else:
@@ -667,6 +706,11 @@ if args.CheckFiles:
       for this_proc in PromptList:
         for DefFlag in DefFlags_CR:
           this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+"RunPrompt__"+PostFlag+"/HNL_ControlRegion_Plotter"+PromptSkim[DefFlag][this_proc]+this_proc+".root"
+          if not os.path.exists(this_path):
+            print(this_path,"-->",os.path.exists(this_path))
+      for this_proc in SignalList:
+        for DefFlag in DefFlags_CR:
+          this_path=CRPath + "/" + era + "/" + PreFlag+DefFlag+"RunSignal__"+PostFlag+"/HNL_ControlRegion_Plotter"+SignalSkim[DefFlag]+this_proc+".root"
           if not os.path.exists(this_path):
             print(this_path,"-->",os.path.exists(this_path))
 
@@ -1234,6 +1278,44 @@ def get_pdf_delta(bin_values, nom, pdf_mode=""):
     else:
         raise ValueError(f"Unknown pdf_mode: {pdf_mode}")
 
+def hist_integral_and_error(h, include_overflow=False):
+  """
+  Return sum of bin contents and quadrature-summed bin errors.
+
+  Default follows TH1::Integral() convention for normal bins only:
+    bins 1 ... nbins
+  """
+  if h is None:
+    raise RuntimeError("[hist_integral_and_error] input histogram is None")
+
+  first_bin = 0 if include_overflow else 1
+  last_bin = h.GetNbinsX() + 1 if include_overflow else h.GetNbinsX()
+
+  total = 0.
+  err2 = 0.
+
+  for ibin in range(first_bin, last_bin + 1):
+    total += h.GetBinContent(ibin)
+    err = h.GetBinError(ibin)
+    err2 += err * err
+
+  return total, np.sqrt(err2)
+
+
+def make_cnc_hist(h_in, out_name):
+  """
+  Make a 1-bin cut-and-count histogram without modifying h_in.
+  """
+  total, err = hist_integral_and_error(h_in)
+
+  h_out = TH1D(out_name, out_name, 1, 0., 1.)
+  h_out.Sumw2()
+  h_out.SetDirectory(0)
+  h_out.SetBinContent(1, total)
+  h_out.SetBinError(1, err)
+
+  return h_out
+
 ########### Exception rules snippets ###############
 from collections import defaultdict
 
@@ -1535,12 +1617,31 @@ for tag in args.histTag:
               if region=='sr1' and 'AltBin' in outputTag: LimitDir = "LimitExtractionAlt" # SR1 alternative optimization : bin optimized with sqrt-removed-FOM.
               else: LimitDir = "LimitExtraction"
 
-              if (region=="sr1") and (mass_int <= 3000):
-                if mass_int <= 400: InputHistMass = "M400/"
-                elif mass_int >= 900: InputHistMass = "M900/"
-                else: InputHistMass = mass+"/"
+              if inputTag=="ANv7_NewBinning":
+                if (region=="sr1") and (mass_int <= 3000):
+                  if mass_int <= 400: InputHistMass = "M400/"
+                  elif 1000 <= mass_int and mass_int < 1500: InputHistMass = "M1000/"
+                  elif 1500 <= mass_int and mass_int < 2000: InputHistMass = "M1500/"
+                  elif 2000 <= mass_int and mass_int <= 3000: InputHistMass = "M2000/"
+                  else: InputHistMass = mass+"/"
+                else:
+                  InputHistMass = ""
+              elif inputTag=="ANv7_NewBinning_PR191":
+                if (region=="sr1") and (mass_int <= 3000):
+                  if mass_int <= 400: InputHistMass = "M400/"
+                  elif 1200 <= mass_int and mass_int < 1500: InputHistMass = "M1200/"
+                  elif 1500 <= mass_int and mass_int < 2000: InputHistMass = "M1500/"
+                  elif 2000 <= mass_int and mass_int <= 3000: InputHistMass = "M2000/"
+                  else: InputHistMass = mass+"/"
+                else:
+                  InputHistMass = ""
               else:
-                InputHistMass = ""
+                if (region=="sr1") and (mass_int <= 3000): ##### deprecated. It was used before Run2 NewBinning.
+                  if mass_int <= 400: InputHistMass = "M400/"
+                  elif mass_int >= 900: InputHistMass = "M900/"
+                  else: InputHistMass = mass+"/"
+                else:
+                  InputHistMass = ""
 
               RegionToHistSuffixMap[region][channel] = RegionToHistSuffixMap[region][channel].replace('BDT','')
               if BDTver:
@@ -1885,17 +1986,69 @@ for tag in args.histTag:
 
                     pdf_hists.append(h_pdf)
 
-                  for it_bin in range(1, this_nbins + 1):
-                    bin_values = [h.GetBinContent(it_bin) for h in pdf_hists]
-                    nom = input_list[i][1].GetBinContent(it_bin)
+                  if args.CnC:
+                    # For cut-and-count, compute the PDF uncertainty
+                    # from the total yield of each PDF member.
+                    # This is NOT equal to summing bin-by-bin PDF deltas.
+                    nom_total, _ = hist_integral_and_error(input_list[i][1])
 
-                    if nom < 0.:
-                      print("[ERROR] signal", input_list[i][2], "has negative events!!! Check bin", it_bin, ":", nom)
+                    if nom_total <= 0.:
+                      raise RuntimeError(
+                        f"[PDF/CnC] Non-positive nominal yield for "
+                        f"{input_list[i][2]} {tag} {era} {region} {mass} {channel}"
+                      )
 
-                    delta = get_pdf_delta(bin_values, nom, pdf_mode)
+                    pdf_totals = [hist_integral_and_error(h)[0] for h in pdf_hists]
+                    delta = get_pdf_delta(pdf_totals, nom_total, pdf_mode)
 
-                    hist_pdfUp.SetBinContent(it_bin, nom + delta)
-                    hist_pdfDown.SetBinContent(it_bin, max(nom - delta, 0.))
+                    up_total = nom_total + delta
+                    down_total = nom_total - delta
+
+                    # Avoid an exactly zero template, which would later be replaced
+                    # by the generic zero-norm makeup logic.
+                    if down_total <= 0.:
+                      print(
+                        "[PDF/CnC][WARNING]",
+                        input_list[i][2],
+                        "PDF down total is non-positive:",
+                        down_total,
+                        "setting it to a tiny positive value."
+                      )
+                      down_total = 1e-12 * nom_total
+
+                    # Keep the original binning here and only rescale the nominal shape.
+                    # The shape is irrelevant for --CnC because it is collapsed to 1 bin
+                    # at write time, but keeping the binning avoids confusing the later
+                    # bin-by-bin negative-content checks.
+                    hist_pdfUp = input_list[i][1].Clone("pdfUp_tmp")
+                    hist_pdfUp.SetDirectory(0)
+                    hist_pdfUp.Scale(up_total / nom_total)
+
+                    hist_pdfDown = input_list[i][1].Clone("pdfDown_tmp")
+                    hist_pdfDown.SetDirectory(0)
+                    hist_pdfDown.Scale(down_total / nom_total)
+
+                    print(
+                      "[PDF/CnC]",
+                      input_list[i][2],
+                      "nom =", nom_total,
+                      "delta =", delta,
+                      "up =", hist_integral_and_error(hist_pdfUp)[0],
+                      "down =", hist_integral_and_error(hist_pdfDown)[0]
+                    )
+
+                  else:
+                    for it_bin in range(1, this_nbins + 1):
+                      bin_values = [h.GetBinContent(it_bin) for h in pdf_hists]
+                      nom = input_list[i][1].GetBinContent(it_bin)
+
+                      if nom < 0.:
+                        print("[ERROR] signal", input_list[i][2], "has negative events!!! Check bin", it_bin, ":", nom)
+
+                      delta = get_pdf_delta(bin_values, nom, pdf_mode)
+
+                      hist_pdfUp.SetBinContent(it_bin, nom + delta)
+                      hist_pdfDown.SetBinContent(it_bin, max(nom - delta, 0.))
 
               for this_syst in SystList: # Define new input_hist with each syst name
 
@@ -1933,7 +2086,7 @@ for tag in args.histTag:
                     #print("[!!ERROR!!] Exiting ...")
                     #sys.exit() # Some CRs (zg, zz) are now correlated to all SRs altogether
 
-                  DecorrList = ["CFRate","FR","FRRate","FRHighPt"] if not args.JetDecorr else ["CFRate","FR","FRRate","FRHighPt","JetRes","JetEn"]
+                  DecorrList = ["CFRate","FRMuon","FRMuonRate","FRMuonHighPt","FRElectron","FRElectronRate","FRElectronHighPt"] if not args.JetDecorr else ["CFRate","FRMuon","FRMuonRate","FRMuonHighPt","FRElectron","FRElectronRate","FRElectronHighPt","JetRes","JetEn"]
                   this_syst_source = this_syst.replace('Up','').replace('Down','')
                   if this_syst_source in DecorrList: # if this is Fake of CF syst source
                     this_syst_nameSep = SystNameMap[era][this_syst_source]+regionName_Decorr+this_syst.replace(this_syst_source,'') # JetRes_sr1Up
@@ -2079,15 +2232,14 @@ for tag in args.histTag:
               if args.CnC:
                 print("!!Cut and count option activated!!")
                 print("!!Merging all into 1 bin...!!")
-                
-                item[1].Rebin(item[1].GetNbinsX())
-                CnChist = TH1D(item[2],item[2],1,0,1)
-                CnChist.SetBinContent(1,item[1].GetBinContent(1))
-                CnChist.SetBinError(1,item[1].GetBinError(1))
 
-              print("Writing "+item[2]+"...")
-              if args.CnC: CnChist.Write()
-              else: item[1].Write() # Write each histogram while iterating
+                CnChist = make_cnc_hist(item[1], item[2])
+
+                print("Writing "+item[2]+"...")
+                CnChist.Write()
+              else:
+                print("Writing "+item[2]+"...")
+                item[1].Write() # Write each histogram while iterating
 
             except AttributeError:
               print("[!!WARNING!!] Final check: There is no hist",item[2],"in",region,mass,channel,item[0],".") # Final check

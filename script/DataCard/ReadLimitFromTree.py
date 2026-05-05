@@ -19,8 +19,9 @@ workdir = "/data9/Users/HNL_public/SUS-24-014/Combine/CMSSW_14_1_0_pre4/src/Dile
 
 #years = ["2016","2017","2018"]
 #years = ["2016preVFP","2016postVFP","2017","2018","Run2"]
-years = ["Run2"]
-#years = ["Run2Sum"]
+#years = ["Run2"]
+years = ["Run2Sum"]
+#years = ["Run2","Run2Sum"]
 #years = ["2016preVFP","2016postVFP"]
 #years = ["2017"]
 #years = ["2018"]
@@ -114,10 +115,16 @@ IDs = [""] #["_ID"]
 #myWPs = ["ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval","ANv7_Preapproval_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR2_BinRefinement_Decorr_JetDecorr_Preapproval"]
 #myWPs = ["ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"]
 #myWPs = ["ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval"]
-myWPs = ["ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"]
+#myWPs = ["ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval"]
 #myWPs = ["ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_New3ch_Preapproval"]
 #myWPs = ["ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval_StudyEnvelope"]
 #myWPs = ["ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Run2Sum_Preapproval"]
+#myWPs = ["ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"]
+#myWPs = ["ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188","ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR2_PerFlavour_SR1_GlobalMass_Decorr_JetDecorr_PR188"]
+#myWPs = ["ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR1_Global_Decorr_JetDecorr_PR188","ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR1_MassGroups_Decorr_JetDecorr_PR188"]
+#myWPs = ["ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188"]
+#myWPs = ["ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR3Update_Decorr_JetDecorr_PR188"]
+myWPs = ["ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
@@ -131,7 +138,9 @@ myWPs = ["ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_Run
 #tags = ["_sronly_sr123"]
 #tags = ["_DYVBF_sronly_sr123_syst"]
 #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
-tags = ["_DY_syst","_VBF_syst","_SSWW_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined","_Weinberg_sr2_syst_Combined","_Weinberg_sr3_syst_Combined"]
+#tags = ["_DY_syst","_VBF_syst","_SSWW_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined","_Weinberg_sr2_syst_Combined","_Weinberg_sr3_syst_Combined"]
+#tags = ["_HNL_syst","_Weinberg_syst"]
+tags = ["_HNL_syst","_Weinberg_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined","_Weinberg_sr2_syst_Combined","_Weinberg_sr3_syst_Combined"]
 
 BDTTag = '_BDT' if args.BDT else ''
 ExtTag = '_Ext' if args.Ext else ''
@@ -492,7 +501,7 @@ for WP in myWPs:
           f_r.close()
 
           # Save effective Majorana mass limit for the corresponding flavor.
-          f_mass = open("limits/"+WP+"/"+this_name+"_Asym_mass_"+flavor_name+"_limit.txt", "w")
+          f_mass = open("limits/"+WP+"/"+this_name+"_Asym_mass_limit.txt", "w")
           f_mass.write("Channel\tObs\tExp_m2s\tExp_m1s\tExp\tExp_p1s\tExp_p2s\n")
           f_mass.write(channel+"\t")
           f_mass.write("\t".join([fmt_limit_value(x, 6) for x in mass_vals]))
