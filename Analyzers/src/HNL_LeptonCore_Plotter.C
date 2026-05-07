@@ -14,13 +14,19 @@ bool HNL_LeptonCore::DrawSyst(AnalyzerParameter& param_sys){
   
   vector<AnalyzerParameter::Syst> SystToPlot;
   if(IsData){
-    if(RunFake) SystToPlot= {AnalyzerParameter::Syst::FRUp,AnalyzerParameter::Syst::FRDown};
+    if(RunFake) {
+      SystToPlot= {
+	AnalyzerParameter::Syst::FRMuonRateUp,AnalyzerParameter::Syst::FRMuonRateDown,
+	AnalyzerParameter::Syst::FRMuonHighPtUp,AnalyzerParameter::Syst::FRMuonHighPtDown,
+	AnalyzerParameter::Syst::FRElectronRateUp,AnalyzerParameter::Syst::FRElectronRateDown,
+	AnalyzerParameter::Syst::FRElectronHighPtUp,AnalyzerParameter::Syst::FRElectronHighPtDown};
+    }
     
     if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown};
     
   }
   else {
-    SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown,AnalyzerParameter::ScaleUp,AnalyzerParameter::ScaleDown, AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,AnalyzerParameter::MuonResUp,AnalyzerParameter::MuonResDown,AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,AnalyzerParameter::ElectronResUp,AnalyzerParameter::ElectronResDown,AnalyzerParameter::RenScaleUp,AnalyzerParameter::RenScaleDown,AnalyzerParameter::FacScaleUp,AnalyzerParameter::FacScaleDown};
+    SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown, AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,AnalyzerParameter::MuonResUp,AnalyzerParameter::MuonResDown,AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,AnalyzerParameter::ElectronResUp,AnalyzerParameter::ElectronResDown,AnalyzerParameter::RenScaleUp,AnalyzerParameter::RenScaleDown,AnalyzerParameter::FacScaleUp,AnalyzerParameter::FacScaleDown};
   }
   
   SystToPlot.push_back(AnalyzerParameter::Syst::Central);
@@ -86,7 +92,6 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter& param, TString  region, TS
   FillHist(plot_dir + region + "/AK8JW_Mass/l1J_SD_corr", N1Cand.M()-fatjets[0].SDMass()+80., w, 1000,0.0,5000.0, "Reco M_{l1J,SDcorr}");
   FillHist(plot_dir + region + "/AK8JW_Mass/l1J_corr", N1Cand.M()-fatjets[0].M()+80., w, 1000,0.0,5000.0, "Reco M_{l1J,corr}"); //JH
 
-  
   // Loop over FatJets and perform necessary calculations
   for (auto& fatjet : fatjets) {
 
@@ -325,7 +330,10 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter& param, TString  region, 
   double met2_st = pow(met.Pt(),2.)/ ST;
 
   FillHist( plot_dir+ region+ "/MainPlots/Ev_MET2_ST", met2_st  , w, 1000, 0.0, 100.0,"MET2/ST GeV");
-  
+
+  double PTLep1  = leps[0]->Pt();
+  double PTLep2  = leps[1]->Pt();
+  double LT = PTLep1 + PTLep2;
   if(fatjets.size() > 0){
     Particle N1Cand  = fatjets[0] + *leps[0] ;
     FillHist( plot_dir+ region+ "/MainPlots/M_l1J",          N1Cand.M(),       w, 9999, 0, 9999, "M_{Jl_{1}} GeV" );
@@ -335,23 +343,99 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter& param, TString  region, 
 	
   }
   else{
-
+    double dynamic_Var = LT; 
+    if(jets.size() > 1){
+      //// Check for Jet pair from N->Wl->jjl                                                                                                                                                                        
+      double dijetmass_tmp=999.;
+      double dijetmass=9990000.;
+      int m=-999;
+      int n=-999;
+      
+      for(UInt_t emme=0; emme<jets.size(); emme++){
+	for(UInt_t enne=1; enne<jets.size(); enne++) {
+	  if(emme == enne) continue;
+	  dijetmass_tmp = (jets[emme]+jets[enne]).M();
+	  
+	  if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
+	    dijetmass = dijetmass_tmp;
+	    m = emme;
+	    n = enne;
+	  }
+	}
+      }
+      Particle WCand   = jets[m]+jets[n];
+      Particle N1Cand  = jets[m]+jets[n]+ *leps[0] ;
+      double MN1 =  N1Cand.M() - WCand.M() + M_W;
+      dynamic_Var = MN1;
+    }
+    
     FillHist( plot_dir+ region+ "/MainPlots/HT_PT1",     leps[0]->HTOverPt(),     w, 100, 0, 10, "H_{T}/p_{T}");
     double ll_dphi = fabs(TVector2::Phi_mpi_pi( ( (*leps[0]).Phi() - (*leps[1]).Phi() )) );
 
-    //    if(User("jalmond"))  {
-    //   FillHist( plot_dir+ region+ "/MainPlots/SR2_Scan",  min(9.0,leps[0]->HTOverPt()), ll_dphi, min(199.0,(*leps[1]).Pt()), w, 100, 0, 10,50, 0, 5.0, 20, 0, 200);
-    // }
-    
-    
-    if(ll_dphi > 2.)     FillHist( plot_dir+ region+ "/MainPlots/HT_PT1_HighDphi",     leps[0]->HTOverPt(),     w, 100, 0, 10, "H_{T}/p_{T}");
-    else     FillHist( plot_dir+ region+ "/MainPlots/HT_PT1_LowDPhi",     leps[0]->HTOverPt(),     w, 100, 0, 10, "H_{T}/p_{T}");
+    if(!HasFlag("RunSyst")){
+      if(ll_dphi > 2.)     FillHist( plot_dir+ region+ "/MainPlots/HT_PT1_HighDphi",     leps[0]->HTOverPt(),     w, 100, 0, 10, "H_{T}/p_{T}");
+      else     FillHist( plot_dir+ region+ "/MainPlots/HT_PT1_LowDPhi",     leps[0]->HTOverPt(),     w, 100, 0, 10, "H_{T}/p_{T}");
+      
+      const TString jetTag = (jets.size() < 2) ? "LowJet" : "HighJet";
 
+      double signal_weight = 1.0;
+      if (IsSignal()) {
+	if (MCSample.Contains("SSWWType")) {
+	  signal_weight = 0.01;
+	}
+	else {
+	  // flavour factor
+	  if (leps[0]->LeptonFlavour() != leps[1]->LeptonFlavour()) {
+	    signal_weight *= 0.5;
+	  }
+	  // sample scaling
+	  if (MCSample.Contains("DYType") || MCSample.Contains("VBFType")) {
+	    signal_weight *= 0.1;
+	  }
+	}
+      }
+      
+      for(double thr = 2.0; thr <= 5.0; thr += 1.0){
+
+	TString thrStr = TString::Format("%.0f", thr);
+	
+	TString hist_LT = plot_dir + region + "/MainPlots/" + jetTag + "_LT_MET" + thrStr + "_LTcut";
+	TString hist_GT = plot_dir + region + "/MainPlots/" + jetTag + "_LT_MET" + thrStr + "_GTcut";
+	TString hist_dv_LT = plot_dir + region + "/MainPlots/" + jetTag + "_DV_MET" + thrStr + "_LTcut";
+        TString hist_dv_GT = plot_dir + region + "/MainPlots/" + jetTag + "_DV_MET" + thrStr + "_GTcut";
+
+	bool pass_low_jet_ht =  (jets.size() < 2 && leps[0]->HTOverPt() < 1.);
+	bool pass_high_jet_ht =  (jets.size() >= 2 && leps[0]->HTOverPt() < 1.5) ;
+	
+	TString hist_ht_LT = plot_dir + region + "/MainPlots/" + jetTag + "_HT_LT_MET" + thrStr + "_LTcut";
+	TString hist_ht_GT = plot_dir + region + "/MainPlots/" + jetTag + "_HT_LT_MET" + thrStr + "_GTcut";
+
+	TString hist_ht_bin1 = plot_dir + region + "/MainPlots/" + jetTag + "_HT_LT_MET" + thrStr + "_bin1";
+	TString hist_ht_bin2 = plot_dir + region + "/MainPlots/" + jetTag + "_HT_LT_MET" + thrStr + "_bin2";
+	TString hist_ht_bin3 = plot_dir + region + "/MainPlots/" + jetTag + "_HT_LT_MET" + thrStr + "_bin3";
+
+	// Clamp LT into [0, 1199]
+	double LT_clamped = std::max(0.0, std::min(1199.0, LT));
+	double DV_clamped = std::max(0.0, std::min(1199.0, dynamic_Var));
+	   
+	if(met2_st < thr) FillHist(hist_LT, LT_clamped, w*signal_weight, 240, 0, 1200, "l_{T} p_{T} GeV");
+	else              FillHist(hist_GT, LT_clamped, w*signal_weight, 240, 0, 1200, "l_{T} p_{T} GeV");
+
+	if(met2_st < thr &&  (pass_low_jet_ht || pass_high_jet_ht )) FillHist(hist_ht_LT, LT_clamped, w*signal_weight, 240, 0, 1200, "l_{T} p_{T} GeV");
+        else              FillHist(hist_ht_GT, LT_clamped, w*signal_weight, 240, 0, 1200, "l_{T} p_{T} GeV");
+
+	if(met2_st < thr &&  (pass_low_jet_ht || pass_high_jet_ht )) FillHist(hist_ht_bin1, LT_clamped, w*signal_weight, 240, 0, 1200, "l_{T} p_{T} GeV");
+	else 	if(pass_low_jet_ht || pass_high_jet_ht) FillHist(hist_ht_bin2, LT_clamped, w*signal_weight, 240, 0, 1200, "l_{T} p_{T} GeV");
+	else  FillHist(hist_ht_bin3, LT_clamped, w*signal_weight, 240, 0, 1200, "l_{T} p_{T} GeV");
+
+
+	if(met2_st < thr) FillHist(hist_dv_LT, DV_clamped, w*signal_weight, 240, 0, 1200, "X GeV");
+        else              FillHist(hist_dv_GT, DV_clamped, w*signal_weight, 240, 0, 1200, "X GeV");
+      }
+      
+    }
   }
 
-  double PTLep1  = leps[0]->Pt();
-  double PTLep2  = leps[1]->Pt();
-  double LT = PTLep1 + PTLep2;
   
   FillHist( plot_dir + region + "/MainPlots/Lepton_1_pt", PTLep1, w, 9999, 0, 9999, "l_{1} p_{T} GeV");
   FillHist( plot_dir + region + "/MainPlots/Lepton_2_pt", PTLep2, w, 9999, 0, 9999, "l_{2} p_{T} GeV");

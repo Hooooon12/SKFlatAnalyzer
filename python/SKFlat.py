@@ -599,13 +599,20 @@ cd /cvmfs/cms.cern.ch/$SCRAM_ARCH/cms/$cmsswrel/src
 echo "@@@@ SCRAM_ARCH = "$SCRAM_ARCH
 echo "@@@@ cmsswrel = "$cmsswrel
 echo "@@@@ scram..."
+unset LD_LIBRARY_PATH
+export CUDA_VISIBLE_DEVICES=""
+
 eval `scramv1 runtime -sh`
 cd -
 #source /cvmfs/cms.cern.ch/$SCRAM_ARCH/cms/$cmsswrel/external/$SCRAM_ARCH/bin/thisroot.sh
 
+echo "LD_LIBRARY_PATH AFTER SCRAM:"
+echo $LD_LIBRARY_PATH
+
 ### modifying LD_LIBRARY_PATH to use libraries in base_rundir
 
-export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH|sed 's@'$SKFlat_WD'/lib@{0}/lib@')
+export LD_LIBRARY_PATH={0}/lib:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH|sed 's@'$SKFlat_WD'/lib@{0}/lib@')
 export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$SKFlat_WD/DataFormats/include:$SKFlat_WD/AnalyzerTools/include:$SKFlat_WD/Analyzers/include:$SKFlat_WD/Analyzers/HNLRegions/include/:$SKFlat_WD/Analyzers/Utils/include/
 
 

@@ -1,0 +1,16 @@
+universe        = vanilla
+executable      = run_from_scan_greedy.sh
+transfer_input_files = scan_run2_greedy.py, run_from_scan_greedy.sh
+transfer_output_files = results_greedy
+arguments       = $(MASS) $(FLAV) $(n_trials) $(job_id) 
+log             = logs_greedy/scan_mass$(MASS)_$(FLAV)_job$(job_id).log
+output          = logs_greedy/scan_mass$(MASS)_$(FLAV)_job$(job_id).out
+error           = logs_greedy/scan_mass$(MASS)_$(FLAV)_job$(job_id).err
+request_cpus    = 1
+request_memory  = 4 GB
+getenv          = True
++JobFlavour     = "longlunch"
+concurrency_limits = n600.jalmond
+
+
+queue MASS, FLAV, n_trials, job_id from fom_scan_list.txt

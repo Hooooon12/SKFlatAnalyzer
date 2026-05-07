@@ -1626,7 +1626,7 @@ for tag in args.histTag:
                   else: InputHistMass = mass+"/"
                 else:
                   InputHistMass = ""
-              elif inputTag=="ANv7_NewBinning_PR191":
+              elif "ANv7_NewBinning" in inputTag:
                 if (region=="sr1") and (mass_int <= 3000):
                   if mass_int <= 400: InputHistMass = "M400/"
                   elif 1200 <= mass_int and mass_int < 1500: InputHistMass = "M1200/"

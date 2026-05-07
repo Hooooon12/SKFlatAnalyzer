@@ -359,8 +359,8 @@ bool ApplyComparisonPreset(TString preset_name, PlotConfig& plot_cfg)
     //plot_cfg.study.subdir = StripLeadingUnderscore(tag);
     //plot_cfg.study.subdir = "StatLoose_vs_StatTight_"+StripLeadingUnderscore(tag);
     //plot_cfg.study.subdir = "Before_After_SR3Update_"+StripLeadingUnderscore(tag);
-    //plot_cfg.study.subdir = "Compare_to_StatReqEra"+StripLeadingUnderscore(tag);
-    plot_cfg.study.subdir = "Prev_vs_NewBinning"+StripLeadingUnderscore(tag);
+    //plot_cfg.study.subdir = "Compare_to_StatReqEra_"+StripLeadingUnderscore(tag);
+    plot_cfg.study.subdir = "Prev_vs_NewBinning_"+StripLeadingUnderscore(tag);
 
     plot_cfg.study.entries.push_back(
       ComparisonEntry(
@@ -524,7 +524,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR1_MassGroups_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR3Update_Decorr_JetDecorr_PR188"; // set the nominal WP
-  TString WP_nom = "ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
+  //TString WP_nom = "ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
+  TString WP_nom = "ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
 
   PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
 
@@ -774,6 +775,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
 
   double forced_min_mass = -1.0;
   //if (plot_cfg.study.subdir == "Prev_vs_NewBinning") forced_min_mass = 600.; // BDT binning wasn't done yet so don't show
+	if((plot_cfg.nominal.tag_nom == "_HNL_sr2_syst_Combined")&&(WP_nom == "ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188")) forced_min_mass = 600.; // Make SR2-only limits start from 600 GeV
 
 
   // Set the upper bound of HNL mass to show

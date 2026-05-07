@@ -61,6 +61,8 @@ data_validation/**/plots*
 # Old / temp analysis dirs
 data_validation/**/old_codes/
 data_validation/**/LooseScan/
+data_validation/analysis_validation/limit_binning_optimisation/**/initial
+data_validation/analysis_validation/limit_binning_optimisation/BDTScan/Preapproval
 
 # Results
 data_validation/**/results*

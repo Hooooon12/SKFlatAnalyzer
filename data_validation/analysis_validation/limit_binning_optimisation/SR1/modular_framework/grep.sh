@@ -1,0 +1,16 @@
+grep -A 7 "Mass=400  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=450  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=500  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=600  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=700  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=800  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=900  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=1000  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=1100  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=1200  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=1300  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=1500  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=1700  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=2000  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=2500  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt
+grep -A 7 "Mass=3000  Nbins=5"     logs/PerMass_Scan/runZnoUnc_FakeFix_NBin1to7_StatNBkg1.0_Tight1.0_RelErr0.5_PerMass/build_data_20260429_213916.txt

@@ -549,7 +549,7 @@ import argparse
 
 
 # Define the path containing the directories
-directory_path = '/data6/Users/jalmond/2020/HL_SKFlatAnalyzer_UL_LONG/SKFlatAnalyzer/data_validation/analysis_validation/merged_samples/'
+directory_path = '/data6/Users/jalmond/HNL/SKFlatAnalyzer/data_validation/analysis_validation/merged_samples/'
 
 # Get a list of directories in the specified path
 directories = [d for d in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, d))]
@@ -611,7 +611,7 @@ for region  in regions:
     hist_bases.append([region, "HNL_ULIDv2_presel_cleaned_bjet", "LL", ["MuMu", "EE", "EMu", "LL"]])
 
 
-input_dir ="/data6/Users/jalmond/2020/HL_SKFlatAnalyzer_UL_LONG/SKFlatAnalyzer/data_validation/analysis_validation/merged_samples/"+Plot_Version+"/"
+input_dir ="/data6/Users/jalmond/HNL/SKFlatAnalyzer/data_validation/analysis_validation/merged_samples/"+Plot_Version+"/"
 
 
 # --- Path and File Output ---

@@ -63,9 +63,10 @@ run_cmd() {
 run_mc() {
   for era in "${era_list[@]}"; do
     echo "[Info] Submitting MC jobs for era: $era"
-    run_cmd "SKFlat.py -a $analyzer -i ZGToLLG -n $njobs --nmax $nmax -e $era --skim $skim $userflags"
-    run_cmd "SKFlat.py -a $analyzer -i WGToLNuG -n $njobs --nmax $nmax -e $era --skim $skim $userflags"
-    run_cmd "SKFlat.py -a $analyzer -l runJobs/SampleLists/Bkg/Conv/ConvExt.txt -n $njobs --nmax $nmax -e $era --skim $skim $userflags"
+    #run_cmd "SKFlat.py -a $analyzer -i ZGToLLG -n $njobs --nmax $nmax -e $era --skim $skim $userflags"
+    run_cmd "SKFlat.py -a $analyzer -i WZTo3LNu_amcatnlo -n $njobs --nmax $nmax -e $era --skim SkimTree_HNMultiLepBDT $userflags"
+    #run_cmd "SKFlat.py -a $analyzer -i WGToLNuG -n $njobs --nmax $nmax -e $era --skim $skim $userflags"
+    #run_cmd "SKFlat.py -a $analyzer -l runJobs/SampleLists/Bkg/Conv/ConvExt.txt -n $njobs --nmax $nmax -e $era --skim $skim $userflags"
   done
 }
 

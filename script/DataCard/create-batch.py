@@ -383,7 +383,7 @@ for RunList in args.RunLists:
       skel.write("should_transfer_files = YES\n")
       skel.write("when_to_transfer_output = ON_EXIT\n")
       skel.write("request_memory = 8000\n")
-      skel.write("request_cpus = 1\n")
+      skel.write("request_cpus = 2\n") if args.Impact else skel.write("request_cpus = 1\n")
   else: # Extract limits
     os.system('mkdir -p Batch/'+WP)
     with open('Batch/submit_skeleton.sh','w') as skel:

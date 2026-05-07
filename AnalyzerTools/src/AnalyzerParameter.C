@@ -590,8 +590,10 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::FRLooseIDDJDown)   return "LIDDown";
   else if(syst_==Syst::FRPartonSFUp)   return "PSFUp"; 
   else if(syst_==Syst::FRPartonSFDown) return "PSFDown";
-  else if(syst_==Syst::FRHighPtUp) return "FRHighPtUp";
-  else if(syst_==Syst::FRHighPtDown) return "FRHighPtDown";
+  else if(syst_==Syst::FRMuonHighPtUp) return "FRMuonHighPtUp";
+  else if(syst_==Syst::FRMuonHighPtDown) return "FRMuonHighPtDown";
+  else if(syst_==Syst::FRElectronHighPtUp) return "FRElectronHighPtUp";
+  else if(syst_==Syst::FRElectronHighPtDown) return "FRElectronHighPtDown";
   else if(syst_==Syst::FRAltBinning) return "AltBinning";
   else if(syst_==Syst::PRApplied) return "PRApplied";
   else if(syst_==Syst::JetResUp) return "JetResUp";
@@ -714,10 +716,15 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::CFRateDown)   return "CFRateDown";
   else if(syst_==Syst::CFSFUp)    return "CFSFUp";
   else if(syst_==Syst::CFSFDown)   return "CFSFDown";
-  else if(syst_==Syst::FRUp)   return "FRUp";
-  else if(syst_==Syst::FRDown)   return "FRDown";
-  else if(syst_==Syst::FRRateUp)   return "FRRateUp";
-  else if(syst_==Syst::FRRateDown)   return "FRRateDown";
+  else if(syst_==Syst::FRMuonUp)   return "FRMuonUp";
+  else if(syst_==Syst::FRMuonDown)   return "FRMuonDown";
+  else if(syst_==Syst::FRMuonRateUp)   return "FRMuonRateUp";
+  else if(syst_==Syst::FRMuonRateDown)   return "FRMuonRateDown";
+  else if(syst_==Syst::FRElectronUp)   return "FRElectronUp";
+  else if(syst_==Syst::FRElectronDown)   return "FRElectronDown";
+  else if(syst_==Syst::FRElectronRateUp)   return "FRElectronRateUp";
+  else if(syst_==Syst::FRElectronRateDown)   return "FRElectronRateDown";
+
 
   else if(syst_==Syst::PDF)   return "PDF";
   else if(syst_==Syst::PDFUp)   return "PDFUp";
