@@ -286,33 +286,33 @@ else:
 
 
 SystList = [
-            ## Separate JES
-            "JetAbsoluteMPFBiasUp","JetAbsoluteMPFBiasDown",
-            "JetAbsoluteScaleUp",  "JetAbsoluteScaleDown",  
-            "JetAbsoluteStatUp",   "JetAbsoluteStatDown",   
-            "JetFlavorQCDUp",      "JetFlavorQCDDown",      
-            "JetFragmentationUp",  "JetFragmentationDown",  
-            "JetPileUpDataMCUp",   "JetPileUpDataMCDown",   
-            "JetPileUpPtBBUp",     "JetPileUpPtBBDown",     
-            "JetPileUpPtEC1Up",    "JetPileUpPtEC1Down",    
-            "JetPileUpPtEC2Up",    "JetPileUpPtEC2Down",    
-            "JetPileUpPtHFUp",     "JetPileUpPtHFDown",     
-            "JetPileUpPtRefUp",    "JetPileUpPtRefDown",    
-            "JetRelativeBalUp",    "JetRelativeBalDown",    
-            "JetRelativeFSRUp",    "JetRelativeFSRDown",    
-            "JetRelativeJEREC1Up", "JetRelativeJEREC1Down", 
-            "JetRelativeJEREC2Up", "JetRelativeJEREC2Down", 
-            "JetRelativePtBBUp",   "JetRelativePtBBDown",   
-            "JetRelativePtEC1Up",  "JetRelativePtEC1Down",  
-            "JetRelativePtEC2Up",  "JetRelativePtEC2Down",  
-            "JetRelativePtHFUp",   "JetRelativePtHFDown",   
-            "JetRelativeSampleUp", "JetRelativeSampleDown", 
-            "JetRelativeStatECUp", "JetRelativeStatECDown", 
-            "JetRelativeStatFSRUp","JetRelativeStatFSRDown",
-            "JetRelativeStatHFUp", "JetRelativeStatHFDown", 
-            "JetSinglePionECALUp", "JetSinglePionECALDown",    
-            "JetSinglePionHCALUp", "JetSinglePionHCALDown",    
-            "JetTimePtEtaUp",      "JetTimePtEtaDown",         
+            ## Separate JES <-- deprecated.
+            #"JetAbsoluteMPFBiasUp","JetAbsoluteMPFBiasDown",
+            #"JetAbsoluteScaleUp",  "JetAbsoluteScaleDown",  
+            #"JetAbsoluteStatUp",   "JetAbsoluteStatDown",   
+            #"JetFlavorQCDUp",      "JetFlavorQCDDown",      
+            #"JetFragmentationUp",  "JetFragmentationDown",  
+            #"JetPileUpDataMCUp",   "JetPileUpDataMCDown",   
+            #"JetPileUpPtBBUp",     "JetPileUpPtBBDown",     
+            #"JetPileUpPtEC1Up",    "JetPileUpPtEC1Down",    
+            #"JetPileUpPtEC2Up",    "JetPileUpPtEC2Down",    
+            #"JetPileUpPtHFUp",     "JetPileUpPtHFDown",     
+            #"JetPileUpPtRefUp",    "JetPileUpPtRefDown",    
+            #"JetRelativeBalUp",    "JetRelativeBalDown",    
+            #"JetRelativeFSRUp",    "JetRelativeFSRDown",    
+            #"JetRelativeJEREC1Up", "JetRelativeJEREC1Down", 
+            #"JetRelativeJEREC2Up", "JetRelativeJEREC2Down", 
+            #"JetRelativePtBBUp",   "JetRelativePtBBDown",   
+            #"JetRelativePtEC1Up",  "JetRelativePtEC1Down",  
+            #"JetRelativePtEC2Up",  "JetRelativePtEC2Down",  
+            #"JetRelativePtHFUp",   "JetRelativePtHFDown",   
+            #"JetRelativeSampleUp", "JetRelativeSampleDown", 
+            #"JetRelativeStatECUp", "JetRelativeStatECDown", 
+            #"JetRelativeStatFSRUp","JetRelativeStatFSRDown",
+            #"JetRelativeStatHFUp", "JetRelativeStatHFDown", 
+            #"JetSinglePionECALUp", "JetSinglePionECALDown",    
+            #"JetSinglePionHCALUp", "JetSinglePionHCALDown",    
+            #"JetTimePtEtaUp",      "JetTimePtEtaDown",         
             ##
             "JetResUp","JetResDown",
             "JetEnUp","JetEnDown",
@@ -352,7 +352,7 @@ SystList = [
             "FRElectronRateUp","FRElectronRateDown", # fake rate syst
             "FRElectronHighPtUp","FRElectronHighPtDown",
             "PDFUp","PDFDown",
-            "ScaleUp","ScaleDown",
+            #"ScaleUp","ScaleDown", <-- deprecated.
             "RenScaleUp","RenScaleDown",
             "FacScaleUp","FacScaleDown",
             "HEMJetUp","HEMJetDown",
@@ -363,33 +363,33 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era] = {}
 
   ### Up variations
-  ## Separate JES
-  SystNameMap[era]["JetAbsoluteMPFBiasUp"] = "CMS_scale_j_AbsoluteMPFBiasUp"
-  SystNameMap[era]["JetAbsoluteScaleUp"]   = "CMS_scale_j_AbsoluteScaleUp"
-  SystNameMap[era]["JetAbsoluteStatUp"]    = "CMS_scale_j_AbsoluteStat_"+era+"Up"
-  SystNameMap[era]["JetFlavorQCDUp"]       = "CMS_scale_j_FlavorQCDUp"
-  SystNameMap[era]["JetFragmentationUp"]   = "CMS_scale_j_FragmentationUp"
-  SystNameMap[era]["JetPileUpDataMCUp"]    = "CMS_scale_j_PileUpDataMCUp"
-  SystNameMap[era]["JetPileUpPtBBUp"]      = "CMS_scale_j_PileUpPtBBUp"
-  SystNameMap[era]["JetPileUpPtEC1Up"]     = "CMS_scale_j_PileUpPtEC1Up"
-  SystNameMap[era]["JetPileUpPtEC2Up"]     = "CMS_scale_j_PileUpPtEC2Up"
-  SystNameMap[era]["JetPileUpPtHFUp"]      = "CMS_scale_j_PileUpPtHFUp"
-  SystNameMap[era]["JetPileUpPtRefUp"]     = "CMS_scale_j_PileUpPtRefUp"
-  SystNameMap[era]["JetRelativeBalUp"]     = "CMS_scale_j_RelativeBalUp"
-  SystNameMap[era]["JetRelativeFSRUp"]     = "CMS_scale_j_RelativeFSRUp"
-  SystNameMap[era]["JetRelativeJEREC1Up"]  = "CMS_scale_j_RelativeJEREC1_"+era+"Up"
-  SystNameMap[era]["JetRelativeJEREC2Up"]  = "CMS_scale_j_RelativeJEREC2_"+era+"Up"
-  SystNameMap[era]["JetRelativePtBBUp"]    = "CMS_scale_j_RelativePtBBUp"
-  SystNameMap[era]["JetRelativePtEC1Up"]   = "CMS_scale_j_RelativePtEC1_"+era+"Up"
-  SystNameMap[era]["JetRelativePtEC2Up"]   = "CMS_scale_j_RelativePtEC2_"+era+"Up"
-  SystNameMap[era]["JetRelativePtHFUp"]    = "CMS_scale_j_RelativePtHFUp"
-  SystNameMap[era]["JetRelativeSampleUp"]  = "CMS_scale_j_RelativeSample_"+era+"Up"
-  SystNameMap[era]["JetRelativeStatECUp"]  = "CMS_scale_j_RelativeStatEC_"+era+"Up"
-  SystNameMap[era]["JetRelativeStatFSRUp"] = "CMS_scale_j_RelativeStatFSR_"+era+"Up"
-  SystNameMap[era]["JetRelativeStatHFUp"]  = "CMS_scale_j_RelativeStatHF_"+era+"Up"
-  SystNameMap[era]["JetSinglePionECALUp"]  = "CMS_scale_j_SinglePionECALUp"
-  SystNameMap[era]["JetSinglePionHCALUp"]  = "CMS_scale_j_SinglePionHCALUp"
-  SystNameMap[era]["JetTimePtEtaUp"]       = "CMS_scale_j_TimePtEta_"+era+"Up"
+  ## Separate JES <-- deprecated.
+  #SystNameMap[era]["JetAbsoluteMPFBiasUp"] = "CMS_scale_j_AbsoluteMPFBiasUp"
+  #SystNameMap[era]["JetAbsoluteScaleUp"]   = "CMS_scale_j_AbsoluteScaleUp"
+  #SystNameMap[era]["JetAbsoluteStatUp"]    = "CMS_scale_j_AbsoluteStat_"+era+"Up"
+  #SystNameMap[era]["JetFlavorQCDUp"]       = "CMS_scale_j_FlavorQCDUp"
+  #SystNameMap[era]["JetFragmentationUp"]   = "CMS_scale_j_FragmentationUp"
+  #SystNameMap[era]["JetPileUpDataMCUp"]    = "CMS_scale_j_PileUpDataMCUp"
+  #SystNameMap[era]["JetPileUpPtBBUp"]      = "CMS_scale_j_PileUpPtBBUp"
+  #SystNameMap[era]["JetPileUpPtEC1Up"]     = "CMS_scale_j_PileUpPtEC1Up"
+  #SystNameMap[era]["JetPileUpPtEC2Up"]     = "CMS_scale_j_PileUpPtEC2Up"
+  #SystNameMap[era]["JetPileUpPtHFUp"]      = "CMS_scale_j_PileUpPtHFUp"
+  #SystNameMap[era]["JetPileUpPtRefUp"]     = "CMS_scale_j_PileUpPtRefUp"
+  #SystNameMap[era]["JetRelativeBalUp"]     = "CMS_scale_j_RelativeBalUp"
+  #SystNameMap[era]["JetRelativeFSRUp"]     = "CMS_scale_j_RelativeFSRUp"
+  #SystNameMap[era]["JetRelativeJEREC1Up"]  = "CMS_scale_j_RelativeJEREC1_"+era+"Up"
+  #SystNameMap[era]["JetRelativeJEREC2Up"]  = "CMS_scale_j_RelativeJEREC2_"+era+"Up"
+  #SystNameMap[era]["JetRelativePtBBUp"]    = "CMS_scale_j_RelativePtBBUp"
+  #SystNameMap[era]["JetRelativePtEC1Up"]   = "CMS_scale_j_RelativePtEC1_"+era+"Up"
+  #SystNameMap[era]["JetRelativePtEC2Up"]   = "CMS_scale_j_RelativePtEC2_"+era+"Up"
+  #SystNameMap[era]["JetRelativePtHFUp"]    = "CMS_scale_j_RelativePtHFUp"
+  #SystNameMap[era]["JetRelativeSampleUp"]  = "CMS_scale_j_RelativeSample_"+era+"Up"
+  #SystNameMap[era]["JetRelativeStatECUp"]  = "CMS_scale_j_RelativeStatEC_"+era+"Up"
+  #SystNameMap[era]["JetRelativeStatFSRUp"] = "CMS_scale_j_RelativeStatFSR_"+era+"Up"
+  #SystNameMap[era]["JetRelativeStatHFUp"]  = "CMS_scale_j_RelativeStatHF_"+era+"Up"
+  #SystNameMap[era]["JetSinglePionECALUp"]  = "CMS_scale_j_SinglePionECALUp"
+  #SystNameMap[era]["JetSinglePionHCALUp"]  = "CMS_scale_j_SinglePionHCALUp"
+  #SystNameMap[era]["JetTimePtEtaUp"]       = "CMS_scale_j_TimePtEta_"+era+"Up"
   ##
   SystNameMap[era]["JetResUp"]            = "CMS_res_j_"+era+"Up"
   SystNameMap[era]["JetEnUp"]             = "CMS_scale_j_"+era+"Up"
@@ -429,39 +429,39 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["FRElectronRateUp"]    = "CMS_SUS24014_fake_e_syst_"+era+"Up"
   SystNameMap[era]["FRElectronHighPtUp"]  = "CMS_SUS24014_fake_e_highpt_"+era+"Up"
   SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation
-  SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation
+  #SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation <-- deprecated.
   SystNameMap[era]["RenScaleUp"]          = "RenScale"+"Up" # full correlation
   SystNameMap[era]["FacScaleUp"]          = "FacScale"+"Up" # full correlation
   SystNameMap[era]["HEMJetUp"]            = "CMS_HEM_"+era+"Up"
 
   ### Down variations
-  ## Separate JES
-  SystNameMap[era]["JetAbsoluteMPFBiasDown"] = "CMS_scale_j_AbsoluteMPFBiasDown"
-  SystNameMap[era]["JetAbsoluteScaleDown"]   = "CMS_scale_j_AbsoluteScaleDown"
-  SystNameMap[era]["JetAbsoluteStatDown"]    = "CMS_scale_j_AbsoluteStat_"+era+"Down"
-  SystNameMap[era]["JetFlavorQCDDown"]       = "CMS_scale_j_FlavorQCDDown"
-  SystNameMap[era]["JetFragmentationDown"]   = "CMS_scale_j_FragmentationDown"
-  SystNameMap[era]["JetPileUpDataMCDown"]    = "CMS_scale_j_PileUpDataMCDown"
-  SystNameMap[era]["JetPileUpPtBBDown"]      = "CMS_scale_j_PileUpPtBBDown"
-  SystNameMap[era]["JetPileUpPtEC1Down"]     = "CMS_scale_j_PileUpPtEC1Down"
-  SystNameMap[era]["JetPileUpPtEC2Down"]     = "CMS_scale_j_PileUpPtEC2Down"
-  SystNameMap[era]["JetPileUpPtHFDown"]      = "CMS_scale_j_PileUpPtHFDown"
-  SystNameMap[era]["JetPileUpPtRefDown"]     = "CMS_scale_j_PileUpPtRefDown"
-  SystNameMap[era]["JetRelativeBalDown"]     = "CMS_scale_j_RelativeBalDown"
-  SystNameMap[era]["JetRelativeFSRDown"]     = "CMS_scale_j_RelativeFSRDown"
-  SystNameMap[era]["JetRelativeJEREC1Down"]  = "CMS_scale_j_RelativeJEREC1_"+era+"Down"
-  SystNameMap[era]["JetRelativeJEREC2Down"]  = "CMS_scale_j_RelativeJEREC2_"+era+"Down"
-  SystNameMap[era]["JetRelativePtBBDown"]    = "CMS_scale_j_RelativePtBBDown"
-  SystNameMap[era]["JetRelativePtEC1Down"]   = "CMS_scale_j_RelativePtEC1_"+era+"Down"
-  SystNameMap[era]["JetRelativePtEC2Down"]   = "CMS_scale_j_RelativePtEC2_"+era+"Down"
-  SystNameMap[era]["JetRelativePtHFDown"]    = "CMS_scale_j_RelativePtHFDown"
-  SystNameMap[era]["JetRelativeSampleDown"]  = "CMS_scale_j_RelativeSample_"+era+"Down"
-  SystNameMap[era]["JetRelativeStatECDown"]  = "CMS_scale_j_RelativeStatEC_"+era+"Down"
-  SystNameMap[era]["JetRelativeStatFSRDown"] = "CMS_scale_j_RelativeStatFSR_"+era+"Down"
-  SystNameMap[era]["JetRelativeStatHFDown"]  = "CMS_scale_j_RelativeStatHF_"+era+"Down"
-  SystNameMap[era]["JetSinglePionECALDown"]  = "CMS_scale_j_SinglePionECALDown"
-  SystNameMap[era]["JetSinglePionHCALDown"]  = "CMS_scale_j_SinglePionHCALDown"
-  SystNameMap[era]["JetTimePtEtaDown"]       = "CMS_scale_j_TimePtEta_"+era+"Down"
+  ## Separate JES <-- deprecated.
+  #SystNameMap[era]["JetAbsoluteMPFBiasDown"] = "CMS_scale_j_AbsoluteMPFBiasDown"
+  #SystNameMap[era]["JetAbsoluteScaleDown"]   = "CMS_scale_j_AbsoluteScaleDown"
+  #SystNameMap[era]["JetAbsoluteStatDown"]    = "CMS_scale_j_AbsoluteStat_"+era+"Down"
+  #SystNameMap[era]["JetFlavorQCDDown"]       = "CMS_scale_j_FlavorQCDDown"
+  #SystNameMap[era]["JetFragmentationDown"]   = "CMS_scale_j_FragmentationDown"
+  #SystNameMap[era]["JetPileUpDataMCDown"]    = "CMS_scale_j_PileUpDataMCDown"
+  #SystNameMap[era]["JetPileUpPtBBDown"]      = "CMS_scale_j_PileUpPtBBDown"
+  #SystNameMap[era]["JetPileUpPtEC1Down"]     = "CMS_scale_j_PileUpPtEC1Down"
+  #SystNameMap[era]["JetPileUpPtEC2Down"]     = "CMS_scale_j_PileUpPtEC2Down"
+  #SystNameMap[era]["JetPileUpPtHFDown"]      = "CMS_scale_j_PileUpPtHFDown"
+  #SystNameMap[era]["JetPileUpPtRefDown"]     = "CMS_scale_j_PileUpPtRefDown"
+  #SystNameMap[era]["JetRelativeBalDown"]     = "CMS_scale_j_RelativeBalDown"
+  #SystNameMap[era]["JetRelativeFSRDown"]     = "CMS_scale_j_RelativeFSRDown"
+  #SystNameMap[era]["JetRelativeJEREC1Down"]  = "CMS_scale_j_RelativeJEREC1_"+era+"Down"
+  #SystNameMap[era]["JetRelativeJEREC2Down"]  = "CMS_scale_j_RelativeJEREC2_"+era+"Down"
+  #SystNameMap[era]["JetRelativePtBBDown"]    = "CMS_scale_j_RelativePtBBDown"
+  #SystNameMap[era]["JetRelativePtEC1Down"]   = "CMS_scale_j_RelativePtEC1_"+era+"Down"
+  #SystNameMap[era]["JetRelativePtEC2Down"]   = "CMS_scale_j_RelativePtEC2_"+era+"Down"
+  #SystNameMap[era]["JetRelativePtHFDown"]    = "CMS_scale_j_RelativePtHFDown"
+  #SystNameMap[era]["JetRelativeSampleDown"]  = "CMS_scale_j_RelativeSample_"+era+"Down"
+  #SystNameMap[era]["JetRelativeStatECDown"]  = "CMS_scale_j_RelativeStatEC_"+era+"Down"
+  #SystNameMap[era]["JetRelativeStatFSRDown"] = "CMS_scale_j_RelativeStatFSR_"+era+"Down"
+  #SystNameMap[era]["JetRelativeStatHFDown"]  = "CMS_scale_j_RelativeStatHF_"+era+"Down"
+  #SystNameMap[era]["JetSinglePionECALDown"]  = "CMS_scale_j_SinglePionECALDown"
+  #SystNameMap[era]["JetSinglePionHCALDown"]  = "CMS_scale_j_SinglePionHCALDown"
+  #SystNameMap[era]["JetTimePtEtaDown"]       = "CMS_scale_j_TimePtEta_"+era+"Down"
   ##
   SystNameMap[era]["JetResDown"]            = "CMS_res_j_"+era+"Down"
   SystNameMap[era]["JetEnDown"]             = "CMS_scale_j_"+era+"Down"
@@ -501,7 +501,7 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["FRElectronRateDown"]    = "CMS_SUS24014_fake_e_syst_"+era+"Down"
   SystNameMap[era]["FRElectronHighPtDown"]  = "CMS_SUS24014_fake_e_highpt_"+era+"Down"
   SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation
-  SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation
+  #SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation <-- deprecated.
   SystNameMap[era]["RenScaleDown"]          = "RenScale"+"Down" # full correlation
   SystNameMap[era]["FacScaleDown"]          = "FacScale"+"Down" # full correlation
   SystNameMap[era]["HEMJetDown"]            = "CMS_HEM_"+era+"Down"

@@ -23,8 +23,9 @@ import argparse
 import math
 import re
 import json
+import fnmatch
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Set
 
 import ROOT
 
@@ -38,11 +39,12 @@ ROOT.gROOT.SetBatch(True)
 ERAS = ["2016preVFP", "2016postVFP", "2017", "2018"]
 FLAVOURS = ["EE", "MuMu", "EMu"]
 
-DEFAULT_FAKE = {
-    "EE": 0.25,
-    "MuMu": 0.20,
-    "EMu": 0.30
-}
+#DEFAULT_FAKE = {
+#    "EE": 0.25,
+#    "MuMu": 0.20,
+#    "EMu": 0.30
+#}
+DEFAULT_FAKE = None # Use shape uncertainty now
 
 ERA_TOKENS = ["2016preVFP", "2016postVFP", "2017", "2018"]
 
@@ -473,12 +475,15 @@ def list_syst_keys_from_file(tf: ROOT.TFile, comp_prefix: str = "wz") -> List[st
         if not (name.startswith(f"{comp_prefix}_CMS_")
                 or name.startswith(f"{comp_prefix}_CMS_SUS24014_")
                 or name.startswith(f"{comp_prefix}_pdf")
-                or name.startswith(f"{comp_prefix}_QCD")):
+                #or name.startswith(f"{comp_prefix}_QCD")):
+                or name.startswith(f"{comp_prefix}_Ren")
+                or name.startswith(f"{comp_prefix}_Fac")):
             continue
         if name.endswith("Up") or name.endswith("Down"):
             core = re.sub(r"(Up|Down)$", "", name)
             # remove leading comp_ and CMS tags, but keep pdf/QCD raw suffixes consistent
-            if ("pdf" not in core) and ("QCDscale" not in core):
+            #if ("pdf" not in core) and ("QCDscale" not in core):
+            if ("pdf" not in core) and ("RenScale" not in core) and ("FacScale" not in core):
                 core = core.replace(f"{comp_prefix}_CMS_SUS24014_", "").replace(f"{comp_prefix}_CMS_", "")
             else:
                 core = core.replace(f"{comp_prefix}_", "")
@@ -492,28 +497,268 @@ def _strip_era_suffix(core: str) -> str:
             return core[: -len(suf)]
     return core
 
+def _split_pattern_args(items: Optional[List[str]]) -> List[str]:
+    """Parse option values that may be passed as separate args or comma-separated strings."""
+    out: List[str] = []
+    for item in items or []:
+        if item is None:
+            continue
+        for part in str(item).split(","):
+            part = part.strip()
+            if part:
+                out.append(part)
+    return out
+
+def syst_key_is_excluded(key: str, patterns: Optional[List[str]]) -> bool:
+    """Return True if `key` matches any exclude pattern.
+
+    Pattern rules:
+      - exact string:   fake_m_stat_2018_sr3
+      - shell wildcard: scale_j_* or *Absolute*
+      - regex:          re:^scale_j_.*_(2017|2018)($|_)
+    """
+    for patt in _split_pattern_args(patterns):
+        if patt.startswith("re:"):
+            try:
+                if re.search(patt[3:], key):
+                    return True
+            except re.error as e:
+                print(f"[WARN] Ignoring bad regex in --exclude-syst-keys: {patt} ({e})")
+            continue
+
+        if any(ch in patt for ch in "*?[]"):
+            if fnmatch.fnmatchcase(key, patt):
+                return True
+        elif key == patt:
+            return True
+
+    return False
+
+def discover_syst_keys_from_inputs(
+    base: str,
+    mass: str,
+    scan_subdirs: List[str],
+    file_pattern: str,
+    scan_components: List[str],
+    eras: List[str],
+    flavours: List[str],
+    verbose: bool = True,
+) -> List[str]:
+    """Discover syst keys from all requested era/flavour/region inputs.
+
+    Important: this intentionally keeps the exact nuisance key after removing only
+    the component/CMS prefix and the Up/Down suffix. In particular, keys such as
+    `res_j_2018_sr3`, `fake_m_stat_2018_sr3`, or `scale_j_AbsoluteStat_2018`
+    are NOT collapsed. That preserves era- and region-decorrelated nuisances.
+    """
+    scan_subdirs = list(dict.fromkeys([x for x in scan_subdirs if x]))
+    scan_components = list(dict.fromkeys([x for x in scan_components if x]))
+
+    syst_key_set: Set[str] = set()
+    opened_files = 0
+    missing_files = 0
+
+    for subdir in scan_subdirs:
+        for era in eras:
+            for flav in flavours:
+                path = build_path(base, era, subdir, file_pattern, mass, flav)
+                try:
+                    f_scan = open_root(path)
+                except Exception:
+                    missing_files += 1
+                    continue
+
+                opened_files += 1
+                try:
+                    for comp in scan_components:
+                        for key in list_syst_keys_from_file(f_scan, comp_prefix=comp):
+                            # Do NOT call _strip_era_suffix here: preserving exact keys is
+                            # what keeps era/region-decorrelated nuisances separate.
+                            syst_key_set.add(key)
+                finally:
+                    f_scan.Close()
+
+    syst_keys = sorted(syst_key_set)
+    if verbose:
+        print(f"[INFO] Syst discovery scanned {opened_files} files ({missing_files} missing) "
+              f"across {len(scan_subdirs)} region dirs and {len(scan_components)} components.")
+        print(f"[INFO] Discovered {len(syst_keys)} raw shape syst sources before manual exclusions.")
+
+    return syst_keys
+
+def _syst_key_eras(syst_key: str) -> List[str]:
+    """Return era tokens explicitly embedded in a syst key."""
+    out = []
+    for era in ERA_TOKENS:
+        if re.search(rf"(^|_){re.escape(era)}($|_)", syst_key):
+            out.append(era)
+    return out
+
+def hist_same_as_nominal(h: ROOT.TH1, h_nom: ROOT.TH1,
+                         rel_tol: float = 1e-12,
+                         abs_tol: float = 1e-12) -> bool:
+    """Return True if variation bin contents are effectively identical to nominal.
+
+    This is intended to catch placeholder syst histograms:
+      - the variation histogram exists,
+      - it is not sentinel by integral,
+      - but it is exactly / numerically identical to nominal.
+
+    We compare bin contents including underflow/overflow.
+    Bin errors are intentionally ignored because the syst effect is encoded in contents.
+    """
+    if not h or not h_nom:
+        return False
+    if h.GetNbinsX() != h_nom.GetNbinsX():
+        return False
+
+    for i in range(0, h.GetNbinsX() + 2):
+        a = float(h.GetBinContent(i))
+        b = float(h_nom.GetBinContent(i))
+        if abs(a - b) > max(abs_tol, rel_tol * max(abs(a), abs(b), 1.0)):
+            return False
+
+    return True
+
+def _record_nominal_fallback(
+    fallback_tracker,
+    syst_key: str,
+    up_or_down: str,
+    comp: str,
+    region_label: str,
+    era: str,
+    flav: str,
+    file_path: str,
+    fallback_kind: str,
+    hist_name: str = "",
+):
+    """Record fallback / no-effect variation in a compact summary.
+
+    fallback_kind:
+      - missing: requested variation histogram does not exist, so nominal was used
+      - sentinel: requested variation histogram exists but is sentinel-like, so nominal was used
+      - same: requested variation histogram exists but is identical to nominal
+      - zero: nominal component itself is missing, so a zero histogram was used
+    """
+    if fallback_tracker is None:
+        return
+
+    # For explicitly era-decorrelated keys, falling back in other eras is expected.
+    # Example: fake_m_stat_2018_sr3 should not spam fallback rows for 2016/2017.
+    eras_in_key = _syst_key_eras(syst_key)
+    if eras_in_key and era not in eras_in_key:
+        return
+
+    key = (syst_key, comp, region_label, era)
+    info = fallback_tracker.setdefault(key, {
+        "missing": 0,
+        "sentinel": 0,
+        "same": 0,
+        "zero": 0,
+        "dirs": set(),
+        "flavs": set(),
+        "examples": [],
+    })
+
+    if fallback_kind not in ("missing", "sentinel", "same", "zero"):
+        fallback_kind = "missing"
+
+    info[fallback_kind] += 1
+    info["dirs"].add(up_or_down)
+    info["flavs"].add(flav)
+
+    if len(info["examples"]) < 3:
+        ex = os.path.basename(file_path)
+        if hist_name:
+            ex += ":" + hist_name
+        info["examples"].append(ex)
+
+def print_nominal_fallback_report(fallback_tracker, max_rows: int = 80, outpath: str = ""):
+    """Print/write a compact report of variation histograms that fell back to nominal/zero.
+
+    Rows include:
+      missing_fb   = variation histogram was missing
+      sentinel_fb  = variation histogram existed but had sentinel integral
+      same_fb      = variation histogram existed but was identical to nominal
+      zero_fb      = nominal component was missing, so zero was used
+    """
+    if not fallback_tracker:
+        lines = ["[INFO] No nominal/zero/same-as-nominal fallbacks recorded for requested shape variations."]
+    else:
+        rows = []
+        for (syst_key, comp, region_label, era), info in sorted(fallback_tracker.items()):
+            rows.append([
+                syst_key,
+                comp,
+                region_label,
+                era,
+                ",".join(sorted(info["dirs"])),
+                ",".join(sorted(info["flavs"])),
+                str(info.get("missing", 0)),
+                str(info.get("sentinel", 0)),
+                str(info.get("same", 0)),
+                str(info.get("zero", 0)),
+                ",".join(info["examples"]),
+            ])
+
+        headers = [
+            "syst_key", "component", "region", "era", "dirs", "flavours",
+            "missing_fb", "sentinel_fb", "same_fb", "zero_fb", "example_file:hist"
+        ]
+
+        shown = rows[:max_rows if max_rows and max_rows > 0 else len(rows)]
+        widths = [len(h) for h in headers]
+        for row in shown:
+            for i, val in enumerate(row):
+                widths[i] = max(widths[i], len(str(val)))
+
+        def fmt(vals):
+            return "  ".join(str(v).ljust(widths[i]) for i, v in enumerate(vals))
+
+        lines = [
+            "",
+            "=== Nominal/zero/same-as-nominal fallback summary for shape systs ===",
+            fmt(headers),
+            fmt(["-" * w for w in widths]),
+        ]
+        lines.extend(fmt(row) for row in shown)
+        if len(rows) > len(shown):
+            lines.append(f"[INFO] ... truncated {len(rows) - len(shown)} more fallback rows. "
+                         f"Increase --fallback-report-limit to show more.")
+
+    text = "\n".join(lines)
+    print(text)
+
+    if outpath:
+        os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
+        with open(outpath, "w") as f:
+            f.write(text + "\n")
+        print("[INFO] Wrote fallback report:", outpath)
+
 def _syst_region_tokens_for(sr_key: str, sr_subdir: str) -> List[str]:
     """
     Build a list of region tokens to try inside systematic histogram names.
     This is intentionally permissive because naming conventions differ.
     """
     tokens = []
-    # canonical
+
+    # Canonical region key, e.g. sr1/sr2/sr3
     if sr_key:
         tokens.append(sr_key)
-    # common analysis tokens
-    # e.g. "sr1", "sr2", "sr3", "sr3bdt"
-    # from subdir too (might be "sr3_bdt", "sr3BDT", etc)
+
+    # Also try tokens inferred from subdir.
+    # Example: sr3, sr3_bdt, sr3BDT, etc.
     if sr_subdir:
         norm = _norm_region_key(sr_subdir)
         if norm and norm not in tokens:
             tokens.append(norm)
-        # also add raw subdir if it already looks like "srX..."
+
         raw = sr_subdir.strip()
         if raw and raw not in tokens:
             tokens.append(raw)
 
-    # Also try standard sr1/sr2/sr3 always, since many files embed them independent of chosen region
+    # Also try standard sr1/sr2/sr3 always, since many files embed them
+    # independent of the selected region key/subdir spelling.
     for t in ("sr1", "sr2", "sr3"):
         if t not in tokens:
             tokens.append(t)
@@ -538,17 +783,41 @@ def build_grand_bkg_for_syst(
     syst_key: str,
     up_or_down: str,
     sr_key_for_syst: str = "",
+    fallback_tracker = None,
 ) -> Optional[ROOT.TH1]:
     """
     Build concatenated background-only grand histogram for a single syst family and direction.
-    Tries multiple naming patterns (including SR token variants) and falls back to nominal.
+
+    The syst_key is treated as the exact key discovered from the input file after removing
+    only component/CMS prefixes and Up/Down. This preserves era/region decorrelation, e.g.
+    `res_j_2018_sr3` and `res_j_2017_sr3` remain separate sources.
+
+    If a variation histogram is missing or sentinel-like, the nominal component is used.
+    When fallback_tracker is provided, those fallbacks are recorded for a summary report.
     """
     grand_var = None
     region_tokens = _syst_region_tokens_for(sr_key_for_syst, sr_subdir)
 
-    def choose_var_or_nom(f: ROOT.TFile, comp: str, tmpl: ROOT.TH1, syst_base: str, era: str, which_dir: str) -> ROOT.TH1:
-        # Try era+region-specific patterns, then era-only, then base-only
-        candidates = []
+    def choose_var_or_nom(
+        f: ROOT.TFile,
+        comp: str,
+        tmpl: ROOT.TH1,
+        syst_base: str,
+        era: str,
+        flav: str,
+        which_dir: str,
+        region_label: str,
+        file_path: str,
+    ) -> ROOT.TH1:
+        # Nominal is needed both for fallback and for placeholder detection.
+        h_nom = get_hist_maybe(f, comp)
+
+        # Try exact key first, then backward-compatible era/region-expanded patterns.
+        candidates = [
+            f"{comp}_CMS_SUS24014_{syst_base}{which_dir}",
+            f"{comp}_CMS_{syst_base}{which_dir}",
+            f"{comp}_{syst_base}{which_dir}",
+        ]
         for regtok in region_tokens:
             candidates.extend([
                 f"{comp}_CMS_SUS24014_{syst_base}_{era}_{regtok}{which_dir}",
@@ -559,20 +828,53 @@ def build_grand_bkg_for_syst(
             f"{comp}_CMS_SUS24014_{syst_base}_{era}{which_dir}",
             f"{comp}_CMS_{syst_base}_{era}{which_dir}",
             f"{comp}_{syst_base}_{era}{which_dir}",
-            f"{comp}_CMS_SUS24014_{syst_base}{which_dir}",
-            f"{comp}_CMS_{syst_base}{which_dir}",
-            f"{comp}_{syst_base}{which_dir}",
         ])
+
         for patt in candidates:
             h = get_hist_maybe(f, patt)
-            if h and not is_sentinel_value(float(h.Integral())):
-                return h
+            if not h:
+                continue
 
-        # fallback to nominal component
-        h_nom = get_hist_maybe(f, comp)
+            # Existing but sentinel-like means "no effect"; treat as nominal fallback.
+            if is_sentinel_value(float(h.Integral())):
+                if h_nom:
+                    _record_nominal_fallback(
+                        fallback_tracker, syst_base, which_dir, comp, region_label,
+                        era, flav, file_path, "sentinel", hist_name=patt
+                    )
+                    return h_nom
+
+                _record_nominal_fallback(
+                    fallback_tracker, syst_base, which_dir, comp, region_label,
+                    era, flav, file_path, "zero", hist_name=patt
+                )
+                return make_zero_like(tmpl, f"{comp}_zero_fallback")
+
+            # Existing but identical to nominal means placeholder / no-op.
+            # This is the case you were asking about for e.g. mc_others + fake uncertainty.
+            if h_nom and hist_same_as_nominal(h, h_nom):
+                _record_nominal_fallback(
+                    fallback_tracker, syst_base, which_dir, comp, region_label,
+                    era, flav, file_path, "same", hist_name=patt
+                )
+                return h_nom
+
+            # Real variation.
+            return h
+
+        # No variation candidate found: fallback to nominal component.
         if h_nom:
+            _record_nominal_fallback(
+                fallback_tracker, syst_base, which_dir, comp, region_label,
+                era, flav, file_path, "missing"
+            )
             return h_nom
 
+        # Even nominal component is missing.
+        _record_nominal_fallback(
+            fallback_tracker, syst_base, which_dir, comp, region_label,
+            era, flav, file_path, "zero"
+        )
         return make_zero_like(tmpl, f"{comp}_zero_fallback")
 
     for era in eras:
@@ -599,10 +901,10 @@ def build_grand_bkg_for_syst(
 
             sum_sr = sum_cr1 = sum_cr2 = sum_cr3 = None
             for comp in components_bkg:
-                hs  = choose_var_or_nom(f_sr,  comp, tmpl_sr,  syst_key, era, up_or_down)
-                hc1 = choose_var_or_nom(f_cr1, comp, tmpl_cr1, syst_key, era, up_or_down)
-                hc2 = choose_var_or_nom(f_cr2, comp, tmpl_cr2, syst_key, era, up_or_down)
-                hc3 = choose_var_or_nom(f_cr3, comp, tmpl_cr3, syst_key, era, up_or_down)
+                hs  = choose_var_or_nom(f_sr,  comp, tmpl_sr,  syst_key, era, flav, up_or_down, "SR", sr_path)
+                hc1 = choose_var_or_nom(f_cr1, comp, tmpl_cr1, syst_key, era, flav, up_or_down, "IB", cr1_path)
+                hc2 = choose_var_or_nom(f_cr2, comp, tmpl_cr2, syst_key, era, flav, up_or_down, "IM", cr2_path)
+                hc3 = choose_var_or_nom(f_cr3, comp, tmpl_cr3, syst_key, era, flav, up_or_down, "WZ", cr3_path)
 
                 if hs.GetNbinsX()  != max_sr:  hs  = pad_histogram(hs,  max_sr)
                 if hc1.GetNbinsX() != max_cr1: hc1 = pad_histogram(hc1, max_cr1)
@@ -1707,15 +2009,46 @@ def main():
     # Systematics band options
     ap.add_argument("--syst-scan-comp", default="wz",
                     help="Component prefix to scan for available systematic shapes (default: wz).")
-    ap.add_argument("--lumi-norm-syst", type=float, default=0.02, help="Relative lumi norm syst (0 disables).")
+    ap.add_argument("--lumi-norm-syst", type=float, default=0.02,
+                    help="Relative lumi norm syst (0 disables).")
     ap.add_argument("--fake-norm-syst", type=json.loads, default=DEFAULT_FAKE,
                     help="Relative fake norm syst by flavour JSON (null disables).")
-    ap.add_argument("--cf-norm-syst", type=float, default=0.17, help="Relative cf norm syst (0 disables).")
+    ap.add_argument("--cf-norm-syst", type=float, default=0.17,
+                    help="Relative cf norm syst (0 disables).")
 
-    ap.add_argument("--dump-unc", action="store_true", help="Dump per-bin uncertainty breakdown (optional).")
-    ap.add_argument("--dump-range", default="", help="Optional bin range like '1:40'.")
-    ap.add_argument("--dump-tsv", default="", help="Optional TSV output path.")
-    ap.add_argument("--dump-max-sources", type=int, default=0, help="Limit syst columns in dump (0=all).")
+    # Default ON: write fixed-width uncertainty dump to the region output directory.
+    ap.add_argument("--dump-unc", dest="dump_unc", action="store_true", default=True,
+                    help="Dump per-bin uncertainty breakdown (default: on).")
+    ap.add_argument("--no-dump-unc", dest="dump_unc", action="store_false",
+                    help="Disable per-bin uncertainty dump.")
+    ap.add_argument("--dump-range", default="",
+                    help="Optional bin range like '1:40'. Empty means all bins.")
+    ap.add_argument("--unc-dump-file", default="",
+                    help="Optional fixed-width uncertainty dump text path. "
+                         "If empty, writes unc_dump.txt in the output directory.")
+    ap.add_argument("--dump-tsv", default="",
+                    help="Optional TSV output path. This is separate from unc_dump.txt.")
+    ap.add_argument("--dump-max-sources", type=int, default=0,
+                    help="Limit syst columns in dump (0=all).")
+
+    # Manual syst key filtering
+    ap.add_argument("--exclude-syst-keys", nargs="*", default=[],
+                    help="Drop syst keys by exact name, wildcard, comma list, or regex with re: prefix. "
+                         "Examples: --exclude-syst-keys 'scale_j_*' 'res_j_*' or re:^scale_j_")
+
+    # Default ON: write nominal/zero/same-as-nominal fallback report to the region output directory.
+    ap.add_argument("--report-nominal-fallbacks", dest="report_nominal_fallbacks",
+                    action="store_true", default=True,
+                    help="Print/write a summary of variation histograms that fell back to nominal/zero "
+                         "or were identical to nominal (default: on).")
+    ap.add_argument("--no-report-nominal-fallbacks", dest="report_nominal_fallbacks",
+                    action="store_false",
+                    help="Disable nominal/zero/same-as-nominal fallback report.")
+    ap.add_argument("--fallback-report-limit", type=int, default=0,
+                    help="Max rows printed in nominal fallback report (0 = all).")
+    ap.add_argument("--fallback-report-file", default="",
+                    help="Optional fallback report text path. If empty, writes fallback_report.txt "
+                         "in the output directory.")
 
     args = ap.parse_args()
 
@@ -1981,6 +2314,18 @@ def main():
         else:
             outplot = os.path.join(out_dir, f"combined_{job_sr_name_tag}_{mass_tag}_{base_tag}_all_eras_flavs.png")
 
+        # Default diagnostic text outputs live next to the region plot/root outputs.
+        # If one command creates multiple plot jobs, use mass-tagged names to avoid overwriting.
+        if need_suffix:
+            default_unc_dump_name = f"unc_dump_{mass_tag}.txt"
+            default_fallback_report_name = f"fallback_report_{mass_tag}.txt"
+        else:
+            default_unc_dump_name = "unc_dump.txt"
+            default_fallback_report_name = "fallback_report.txt"
+
+        unc_dump_path = args.unc_dump_file or os.path.join(out_dir, default_unc_dump_name)
+        fallback_report_path = args.fallback_report_file or os.path.join(out_dir, default_fallback_report_name)
+
         # PASS 2: build grand backgrounds + data
         outf = ROOT.TFile.Open(outfile, "RECREATE")
         if not outf or outf.IsZombie():
@@ -2053,36 +2398,26 @@ def main():
             h_bkg_total_plot = add_hists(h_bkg_total_plot, hb)
 
         # -------------------------
-        # Systematics keys discovery (scan one representative file)
+        # Systematics keys discovery
         # -------------------------
-        syst_keys: List[str] = []
-        for era in ERAS:
-            for flav in FLAVOURS:
-                try:
-                    f_scan = open_root(build_path(args.base, era, sr_subdir, args.file_pattern, job_bkg_mass, flav))
-                    # Scan syst keys from the requested component prefix, and (if applicable)
-                    # also from wz_ewk so that merging WZ pieces doesn't accidentally drop
-                    # any shape sources that exist only for one of them.
-                    prefixes = [args.syst_scan_comp]
-                    if args.syst_scan_comp == "wz" and ("wz_ewk" in args.bkg_components):
-                        prefixes.append("wz_ewk")
-                    if args.syst_scan_comp == "wz_ewk" and ("wz" in args.bkg_components):
-                        prefixes.append("wz")
+        # Scan all SR/CR directories and all requested background components.
+        # Do not collapse era/region-decorrelated names: exact keys such as
+        # `res_j_2018_sr3`, `fake_m_stat_2018_sr3`, and `scale_j_AbsoluteStat_2018`
+        # must remain separate nuisance sources.
+        scan_components_for_syst = list(args.bkg_components)
+        if args.syst_scan_comp and args.syst_scan_comp not in scan_components_for_syst:
+            scan_components_for_syst.append(args.syst_scan_comp)
 
-                    _keys = []
-                    for pfx in prefixes:
-                        _keys.extend(list_syst_keys_from_file(f_scan, comp_prefix=pfx))
-                    syst_keys = sorted(set(_keys))
-                    f_scan.Close()
-                    if syst_keys:
-                        break
-                except Exception:
-                    continue
-            if syst_keys:
-                break
-
-        # Collapse to base keys (strip era suffix) and de-duplicate
-        syst_keys = sorted({_strip_era_suffix(k) for k in syst_keys})
+        syst_keys = discover_syst_keys_from_inputs(
+            base=args.base,
+            mass=job_bkg_mass,
+            scan_subdirs=[sr_subdir, cr1_subdir, cr2_subdir, cr3_subdir],
+            file_pattern=args.file_pattern,
+            scan_components=scan_components_for_syst,
+            eras=ERAS,
+            flavours=FLAVOURS,
+            verbose=True,
+        )
 
         # Add virtual norm systs
         if args.fake_norm_syst:
@@ -2092,6 +2427,17 @@ def main():
         if args.lumi_norm_syst and args.lumi_norm_syst > 0.0:
             syst_keys.append("LUMI_NORM")
 
+        # De-duplicate, then apply user-requested exclusions
+        syst_keys = sorted(set(syst_keys))
+        exclude_patterns = _split_pattern_args(args.exclude_syst_keys)
+        if exclude_patterns:
+            before = list(syst_keys)
+            syst_keys = [k for k in syst_keys if not syst_key_is_excluded(k, exclude_patterns)]
+            dropped = [k for k in before if syst_key_is_excluded(k, exclude_patterns)]
+            print("[INFO] Excluded {} syst sources by --exclude-syst-keys: {}".format(
+                len(dropped), ", ".join(dropped) if dropped else "none"
+            ))
+
         print("[INFO] Using {} syst sources: {}".format(len(syst_keys), ", ".join(syst_keys)))
 
         # Closure to build grand background for a given systematic
@@ -2099,6 +2445,9 @@ def main():
 
         # Cache variations to avoid rebuilding multiple times
         var_cache: Dict[Tuple[str, str], Optional[ROOT.TH1]] = {}
+
+        # Optional diagnostics: records when a requested variation fell back to nominal/zero.
+        fallback_tracker = {} if args.report_nominal_fallbacks else None
 
         def build_var_hist_fn(skey: str, up_or_down: str) -> Optional[ROOT.TH1]:
             cache_key = (skey, up_or_down)
@@ -2156,6 +2505,7 @@ def main():
                 max_sr=max_sr, max_cr1=max_cr1, max_cr2=max_cr2, max_cr3=max_cr3,
                 syst_key=skey, up_or_down=up_or_down,
                 sr_key_for_syst=(preset.key if preset else _norm_region_key(sr_subdir)),
+                fallback_tracker=fallback_tracker,
             )
             var_cache[cache_key] = out
             return out
@@ -2173,23 +2523,47 @@ def main():
             g_bkg_band_ratio.SetLineColor(ROOT.kBlack)
             g_bkg_band_ratio.SetLineWidth(1)
 
-        # Optional uncertainty dump (kept as-is conceptually)
-        if args.dump_unc and h_bkg_total_plot and syst_keys:
-            start_bin = 1
-            end_bin = h_bkg_total_plot.GetNbinsX()
-            if args.dump_range:
-                try:
-                    a, b = args.dump_range.split(":")
-                    start_bin = int(a); end_bin = int(b)
-                except Exception:
-                    pass
-            tsv = args.dump_tsv if args.dump_tsv else None
-            max_sources = args.dump_max_sources if args.dump_max_sources and args.dump_max_sources > 0 else None
-            dump_uncertainties_table(
-                h_bkg_total_plot, syst_keys, build_var_hist_fn,
-                start_bin=start_bin, end_bin=end_bin,
-                tsv_path=tsv, max_sources=max_sources,
+        if args.report_nominal_fallbacks:
+            print_nominal_fallback_report(
+                fallback_tracker,
+                max_rows=args.fallback_report_limit,
+                outpath=fallback_report_path,
             )
+
+        # Uncertainty dump: default ON, saved as fixed-width text in the output directory.
+        if args.dump_unc:
+            if h_bkg_total_plot and syst_keys:
+                start_bin = 1
+                end_bin = h_bkg_total_plot.GetNbinsX()
+                if args.dump_range:
+                    try:
+                        a, b = args.dump_range.split(":")
+                        start_bin = int(a)
+                        end_bin = int(b)
+                    except Exception:
+                        pass
+
+                tsv = args.dump_tsv if args.dump_tsv else None
+                max_sources = args.dump_max_sources if args.dump_max_sources and args.dump_max_sources > 0 else None
+
+                dump_uncertainties_table(
+                    h_bkg_total_plot,
+                    syst_keys,
+                    build_var_hist_fn,
+                    start_bin=start_bin,
+                    end_bin=end_bin,
+                    text_path=unc_dump_path,
+                    tsv_path=tsv,
+                    max_sources=max_sources,
+                    print_to_stdout=False,
+                )
+            else:
+                msg = "[WARN] No total background or syst keys; cannot make uncertainty dump."
+                print(msg)
+                os.makedirs(os.path.dirname(unc_dump_path) or ".", exist_ok=True)
+                with open(unc_dump_path, "w") as f:
+                    f.write(msg + "\n")
+                print("[INFO] Wrote uncertainty dump:", unc_dump_path)
 
         # -------------------------
         # Build signals to draw (grand sums)
@@ -2344,6 +2718,10 @@ def main():
         outf.Close()
         print("Wrote:", outfile)
         print("Plot: ", outplot, "(+ PDF)")
+        if args.report_nominal_fallbacks:
+            print("Fallback report:", fallback_report_path)
+        if args.dump_unc:
+            print("Uncertainty dump:", unc_dump_path)
         print("SR/CR split lines drawn after bin:", region_edges)
 
 # -------------------------------------------------------------------------
@@ -2351,9 +2729,16 @@ def main():
 # -------------------------------------------------------------------------
 
 def dump_uncertainties_table(h_bkg_total, syst_keys, build_var_hist_fn,
-                             start_bin=1, end_bin=None, tsv_path=None, max_sources=None):
+                             start_bin=1, end_bin=None,
+                             text_path=None, tsv_path=None,
+                             max_sources=None, print_to_stdout=False):
     if h_bkg_total is None:
-        print("[WARN] No total background histogram; cannot dump.")
+        msg = "[WARN] No total background histogram; cannot dump."
+        print(msg)
+        if text_path:
+            os.makedirs(os.path.dirname(text_path) or ".", exist_ok=True)
+            with open(text_path, "w") as f:
+                f.write(msg + "\n")
         return
 
     n = h_bkg_total.GetNbinsX()
@@ -2369,26 +2754,28 @@ def dump_uncertainties_table(h_bkg_total, syst_keys, build_var_hist_fn,
     if max_sources is not None:
         show_systs = show_systs[:max_sources]
 
+    def _fmt(x: float) -> str:
+        return f"{x:.6g}"
+
+    def _fmt_delta(delta: float, nominal: float) -> str:
+        # Print absolute delta plus percent relative to nominal prediction in that bin.
+        # Example: 3.2 (12.5%)
+        if nominal > 0.0:
+            pct = 100.0 * delta / nominal
+            return f"{delta:.6g} ({pct:.3g}%)"
+        return f"{delta:.6g} (n/a)"
+
     cols = ["bin", "N", "stat"]
     for k in show_systs:
-        cols.append(f"{k}_Nom")
-        cols.append(f"{k}_Up")
-        cols.append(f"{k}_Down")
-        cols.append(f"{k}_Delta")
+        cols.extend([f"{k}_Nom", f"{k}_Up", f"{k}_Down", f"{k}_Delta"])
     cols.append("total")
-    col_line = "\t".join(cols)
-    print("\n=== Uncertainty dump (bins {}..{}) ===".format(start_bin, end_bin))
-    print(col_line)
 
-    ftsv = open(tsv_path, "w") if tsv_path else None
-    if ftsv:
-        ftsv.write(col_line + "\n")
-
+    rows = []
     for i in range(start_bin, end_bin + 1):
         N = h_bkg_total.GetBinContent(i)
         stat = h_bkg_total.GetBinError(i)
         syst2_sum = 0.0
-        values = [str(i), f"{N:.6g}", f"{stat:.6g}"]
+        row = [str(i), _fmt(N), _fmt(stat)]
 
         for k in syst_keys:
             h_up   = var_up[k]
@@ -2405,23 +2792,52 @@ def dump_uncertainties_table(h_bkg_total, syst_keys, build_var_hist_fn,
             syst2_sum += delta * delta
 
             if k in show_systs:
-                values.extend([
-                    f"{N:.6g}",
-                    f"{up_val:.6g}",
-                    f"{dn_val:.6g}",
-                    f"{delta:.6g}"
+                row.extend([
+                    _fmt(N),
+                    _fmt(up_val),
+                    _fmt(dn_val),
+                    _fmt_delta(delta, N),
                 ])
 
         total = math.sqrt(stat * stat + syst2_sum)
-        values.append(f"{total:.6g}")
+        row.append(_fmt_delta(total, N))
+        rows.append(row)
 
-        line = "\t".join(values)
-        print(line)
-        if ftsv:
-            ftsv.write(line + "\n")
+    # Fixed-width output for human-readable text-file reading.
+    widths = [len(c) for c in cols]
+    for row in rows:
+        for j, val in enumerate(row):
+            widths[j] = max(widths[j], len(str(val)))
 
-    if ftsv:
-        ftsv.close()
+    def _line(vals):
+        return "  ".join(str(v).rjust(widths[j]) for j, v in enumerate(vals))
+
+    lines = []
+    lines.append("")
+    lines.append("=== Uncertainty dump (bins {}..{}) ===".format(start_bin, end_bin))
+    lines.append(_line(cols))
+    lines.append(_line(["-" * w for w in widths]))
+    for row in rows:
+        lines.append(_line(row))
+
+    text = "\n".join(lines)
+
+    if print_to_stdout:
+        print(text)
+
+    if text_path:
+        os.makedirs(os.path.dirname(text_path) or ".", exist_ok=True)
+        with open(text_path, "w") as f:
+            f.write(text + "\n")
+        print("[INFO] Wrote uncertainty dump:", text_path)
+
+    # Optional TSV: keep it machine-readable. Delta columns include the same "abs (pct%)" string.
+    if tsv_path:
+        os.makedirs(os.path.dirname(tsv_path) or ".", exist_ok=True)
+        with open(tsv_path, "w") as ftsv:
+            ftsv.write("\t".join(cols) + "\n")
+            for row in rows:
+                ftsv.write("\t".join(row) + "\n")
         print("[INFO] Wrote TSV:", tsv_path)
 
 if __name__ == "__main__":
