@@ -1,6 +1,7 @@
 #!/bin/bash
 
-BASE_DIR="/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv5_BDTV3_AltSR1_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"
+#BASE_DIR="/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv5_BDTV3_AltSR1_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"
+BASE_DIR="/data9/Users/HNL_public/SUS-24-014/LimitInputs/ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"
 
 SCRIPT="plot_qcdscale_bands_root.py"
 

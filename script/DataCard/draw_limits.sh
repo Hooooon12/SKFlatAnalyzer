@@ -6,7 +6,7 @@ for ch in MuMu EE EMu;
   do
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",true,true,0,false,false,false,true)"; # Ext, AddPub, mixing limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",true,true,0,false,false,true ,true)"; # Ext, AddPub, xsec limit, logy
-#root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,true,0,true,false,false,true)"; # AddPub, compare, mixing limit, logy
+root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,true,0,true,false,false,true)"; # AddPub, compare, mixing limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,true,0,true,false,false,false)"; # AddPub, compare, mixing limit, linear
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,true,0,true,false,true,true)"; # AddPub, compare, xsec limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,1,true,false,false,true)"; # Sig sep limits, compare, mixing limit, logy
@@ -24,8 +24,8 @@ for ch in MuMu EE EMu;
 # Era-dependent binning, Run2 vs. Era-dependent datacard
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,0,true,true,false,false,\"Run2Sum_vs_Run2\")"; # compare, append table, mixing limit, linear #internal limit comparison setting
 # New nomial: Run2 binning. Compare Era-dependent vs. Run2 datacard
-root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false)"; # compare, append table, mixing limit, linear #internal limit comparison setting
-root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false,\"SR_only\")"; # compare, append table, mixing limit, linear #internal limit comparison setting
+#root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false)"; # compare, append table, mixing limit, linear #internal limit comparison setting
+#root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false,\"SR_only\")"; # compare, append table, mixing limit, linear #internal limit comparison setting
 
 
   done;

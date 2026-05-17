@@ -8,7 +8,7 @@ import argparse
 # ------------------------------------------------------------------------------
 parser = argparse.ArgumentParser(description='Script for generating LaTeX uncertainty table.', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-wp', dest='InputWP', required=True, help='LimitInput working point string')
-parser.add_argument('-e', dest='era', default="Run2", help='Era (e.g., Run2)')
+parser.add_argument('-e', dest='era', default="Run2Sum", help='Era (e.g., Run2)')
 parser.add_argument('--InjectSignal', default='0', help='inject signals to asimov (default: 0 -> b-only)')
 args = parser.parse_args()
 

@@ -769,10 +769,14 @@ for RunList in args.RunLists:
               rRange['rMin'] = -0.5
               rRange['rMax'] = 0.5
               rRange['points'] = 21
-            else:
+            elif (float(this_mass) <= 3000.):
               rRange['rMin'] = -5
               rRange['rMax'] = 5
               rRange['points'] = 21
+            else:
+              rRange['rMin'] = -10
+              rRange['rMax'] = 10
+              rRange['points'] = 41
             runfile.write(f"combine -M MultiDimFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --points={rRange['points']} --rMin {rRange['rMin']} --rMax {rRange['rMax']} --alignEdges 1 {AsimovSetting} --saveWorkspace --saveFitResult -n .{this_shortcard}_{AsimovName}_saveWorkspace\n")
             runfile.write(f"combine -M MultiDimFit higgsCombine.{this_shortcard}_{AsimovName}_saveWorkspace.MultiDimFit.mH120.root --algo grid --snapshotName MultiDimFit --setParameterRanges r={rRange['rMin']},{rRange['rMax']} {AsimovSetting} --saveFitResult -n .{this_shortcard}_{AsimovName}_total\n")
             # ChatGPT split 'theory' into 'pdf' and 'scale'.

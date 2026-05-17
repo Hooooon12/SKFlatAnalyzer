@@ -5,7 +5,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='script for printing uncertainty breakdown.',formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-wp', dest='InputWPs', nargs='+', help='List of LimitInput working points')
-parser.add_argument('-e', dest='eras', default=["Run2"], choices=["2016preVFP","2016postVFP","2017","2018","Run2"], nargs='+')
+parser.add_argument('-e', dest='eras', default=["Run2Sum"], choices=["2016preVFP","2016postVFP","2017","2018","Run2","Run2Sum"], nargs='+')
 parser.add_argument('-c', dest='channels', default=["MuMu","EE","EMu"], choices=["MuMu","EE","EMu"], nargs='+') # store [] if nothing is fed
 parser.add_argument('-m', dest='masses', default=["100","1000","10000","Weinberg"], nargs='+')
 parser.add_argument('-s', dest='signals', default=["HNL"], choices=["","HNL","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+') # "" : to handle old file name convention
