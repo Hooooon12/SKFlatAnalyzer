@@ -43,6 +43,7 @@ parser.add_argument('--wEMu',  default='0', help='(3ch, for Weinberg only) injec
 parser.add_argument('--Breakdown', action='store_true', help='uncertainty breakdown')
 parser.add_argument('--GOF', action='store_true', help='goodness of fit test')
 parser.add_argument('--InjectSignal', default='0', help='inject signals to asimov')
+parser.add_argument('--Unblind', action='store_true', help='unblind the data')
 args = parser.parse_args()
 
 IsNuis = False # Limit extraction setting
@@ -59,6 +60,11 @@ if Ncheck > 1:
 
 AsimovSetting = "-t -1 --expectSignal="+args.InjectSignal
 AsimovName = "s"+args.InjectSignal
+RunBlind = "--run blind"
+if args.Unblind:
+  AsimovSetting = ""
+  AsimovName = "Unblind"
+  RunBlind = ""
 
 pwd = os.getcwd()
 CMSSW_BASE = os.environ['CMSSW_BASE']
@@ -401,11 +407,16 @@ for RunList in args.RunLists:
     this_mass = "0" if "Weinberg" in shortcard else shortcard.split('_M')[-1].split('_')[0]
 
     if "EMuFull" in WP or "3ch" in shortcard or "3ch" in WP:
-      if "Weinberg" not in shortcard: AsimovName = fmt_w_label(f"r{args.r}f{args.f}") # HNL
-      else: AsimovName = fmt_w_label(f"r{args.r}wMuMu{args.wMuMu}wEE{args.wEE}wEMu{args.wEMu}") # Weinberg
+      if not args.Unblind:
+        if "Weinberg" not in shortcard: AsimovName = fmt_w_label(f"r{args.r}f{args.f}") # HNL
+        else: AsimovName = fmt_w_label(f"r{args.r}wMuMu{args.wMuMu}wEE{args.wEE}wEMu{args.wEMu}") # Weinberg
  
     if args.pdf:
-      this_shortcard = shortcard+"_DefMod" if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else shortcard
+      if args.FitDiag or args.GOF:
+        this_shortcard = shortcard
+      else:
+        this_shortcard = shortcard+"_DefMod" if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else shortcard
+
       if args.Impact:
         os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
         os.system("pdfseparate Impact_"+this_shortcard+"_"+AsimovName+".pdf -f 1 -l 1 Impact_"+this_shortcard+"_"+AsimovName+"_1.pdf")
@@ -420,6 +431,10 @@ for RunList in args.RunLists:
       if args.FitDiag:
         os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
         os.system("cp pulls_"+this_shortcard+"_"+AsimovName+".txt "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
+        os.chdir(pwd)
+      if args.GOF:
+        os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
+        os.system("cp gof_"+this_shortcard+"_plot.p* "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
         os.chdir(pwd)
       if args.Breakdown:
         os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
@@ -533,7 +548,7 @@ for RunList in args.RunLists:
             runfile.write("ulimit -s unlimited\n")
             
             # Add --setParameters, --freezeParameters, and -n (name suffix)
-            runfile.write("combine -M AsymptoticLimits "+card+" --run blind --setParameters r=0,f=${F_VAL} --freezeParameters f -n _f${F_VAL}\n")
+            runfile.write("combine -M AsymptoticLimits "+card+f" {RunBlind} --setParameters r=0,f=${F_VAL} --freezeParameters f -n _f${F_VAL}\n") # r=0 is just a starting point.
 
           # 2. HTCondor Submit Script: Loop over f values
           with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
@@ -598,7 +613,7 @@ for RunList in args.RunLists:
 
             runfile.write(
                 "combine -M AsymptoticLimits " + card +
-                " --run blind"
+                f" {RunBlind}"
                 " --setParameters r=0,wMuMu=${W_MuMu},wEMu=${W_EMU},wEE=${W_EE}"
                 " --freezeParameters wMuMu,wEMu,wEE"
                 " --setParameterRanges r=0,10000"
@@ -637,7 +652,7 @@ for RunList in args.RunLists:
       else:
         with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
           runfile.write("#!/bin/bash\n")
-          runfile.write("combine -M AsymptoticLimits "+card+" --run blind\n")
+          runfile.write("combine -M AsymptoticLimits "+card+f" {RunBlind}\n")
 
         with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
           submitfile.write("executable = run_Asymptotic.sh\n")
@@ -730,11 +745,17 @@ for RunList in args.RunLists:
           elif args.GOF:
             if "DefMod" in this_shortcard: continue # Must use the actual physics model
             runfile.write("echo Running the goodness of fit test...\n")
-            runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --algo saturated -n gof_Asimov_{this_shortcard}\n")
-            runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t {args.Ntoy} --algo saturated -n gof_Ntoy{args.Ntoy}_{this_shortcard}\n")
-            runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r -n gof_CRonly_obs_{this_shortcard}\n")
-            runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t {args.Ntoy} --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r -n gof_CRonly_toys_Ntoy{args.Ntoy}_{this_shortcard}\n")
-            runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t {args.Ntoy} --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r --toysFrequentist -n gof_CRonly_toysFreq_Ntoy{args.Ntoy}_{this_shortcard}\n")
+            if args.Unblind:
+              runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --setParameters r=0 --freezeParameters r --algo saturated -n _gof_bonly_obs_{this_shortcard}\n") # Data unblind
+              runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t {args.Ntoy} --toysFrequentist --setParameters r=0 --freezeParameters r --algo saturated -n _gof_bonly_toys_Ntoy{args.Ntoy}_{this_shortcard}\n") # Data unblind
+              runfile.write(f"combineTool.py -M CollectGoodnessOfFit --input higgsCombine_gof_bonly_obs_{this_shortcard}.GoodnessOfFit.mH120.root higgsCombine_gof_bonly_toys_Ntoy{args.Ntoy}_{this_shortcard}.GoodnessOfFit.mH120.123456.root -o gof_{this_shortcard}.json\n") # Data unblind
+              runfile.write(f"plotGof.py gof_{this_shortcard}.json --statistic saturated --mass 120.0 -o gof_{this_shortcard}_plot --title-right=\"{this_shortcard}\"\n") # Data unblind
+            else:
+              runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t -1 --setParameters r=0 --freezeParameters r --algo saturated -n _gof_Asimov_{this_shortcard}\n") # b-only Asimov GOF
+              #runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t {args.Ntoy} --setParameters r=0 --freezeParameters r --algo saturated -n _gof_Ntoy{args.Ntoy}_{this_shortcard}\n") # saturated algorithm is recommended to use with toysFrequentist (but you can still test, ofc)
+              runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r -n _gof_CRonly_obs_{this_shortcard}\n")
+              #runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t {args.Ntoy} --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r -n _gof_CRonly_toys_Ntoy{args.Ntoy}_{this_shortcard}\n") # saturated algorithm is recommended to use with toysFrequentist (but you can still test, ofc)
+              runfile.write(f"combine -M GoodnessOfFit {pwd}/{WP}/{shortcard}/{this_shortcard}.root -t {args.Ntoy} --algo saturated --setParameters mask_year16a_sr1=1,mask_year16a_sr2=1,mask_year16a_sr3=1,mask_year16b_sr1=1,mask_year16b_sr2=1,mask_year16b_sr3=1,mask_year17_sr1=1,mask_year17_sr2=1,mask_year17_sr3=1,mask_year18_sr1=1,mask_year18_sr2=1,mask_year18_sr3=1,r=0 --freezeParameters mask_year16a_sr1,mask_year16a_sr2,mask_year16a_sr3,mask_year16b_sr1,mask_year16b_sr2,mask_year16b_sr3,mask_year17_sr1,mask_year17_sr2,mask_year17_sr3,mask_year18_sr1,mask_year18_sr2,mask_year18_sr3,r --toysFrequentist -n _gof_CRonly_toysFreq_Ntoy{args.Ntoy}_{this_shortcard}\n")
           elif args.Impact:
             if (float(this_mass) > 3000.):
               runfile.write(f"combineTool.py -M Impacts -d {pwd}/{WP}/{shortcard}/{this_shortcard}.root -m {this_mass} --rMin -100 --rMax 100 --robustFit 1 --doInitialFit --name Impact_{this_shortcard}_{AsimovName} {AsimovSetting}\n")

@@ -263,7 +263,8 @@ if args.CR:
   RegionToHistSuffixMap['zz_cr']   = {'MuMu':'LimitShape_ZZ/Binned', 'EE':'LimitShape_ZZ/Binned', 'EMu':'LimitShape_ZZ/Binned'}
 
 else:
-  Blinded = True # Blinded --> the total background will be used as data_obs
+  Blinded = False # if Blinded --> the total background will be used as data_obs
+  if "Unblind" in outputTag: Blinded = False
   DefFlags = [""]
   Analyzer = "HNL_SignalRegion_Plotter"
 
@@ -651,11 +652,12 @@ if args.CheckFiles:
 
   for era in expand_run2_eras(args.eras):
     if not args.CR:
-      # SR
-      #for this_proc in DataList[era]:
-      #  this_path=SRPath + "/" + era + "/" + PreFlag+PostFlag+"/DATA/HNL_SignalRegion_Plotter_HNMultiLepBDT_"+this_proc+".root"
-      #  if not os.path.exists(this_path):
-      #    print this_path,"-->",os.path.exists(this_path) # these are data
+      if Blinded: pass
+      else:
+        for this_proc in DataList[era]:
+          this_path=SRPath + "/" + era + "/" + PreFlag+PostFlag+"/DATA/HNL_SignalRegion_Plotter_HNMultiLepBDT_"+this_proc+".root"
+          if not os.path.exists(this_path):
+            print(this_path,"-->",os.path.exists(this_path)) # these are data
       for this_proc in DataList[era]:
         this_path=SRPath + "/" + era + "/" + PreFlag+"RunFake__"+PostFlag+"/DATA/HNL_SignalRegion_Plotter_SkimTree_HNMultiLepBDT_"+this_proc+".root"
         if not os.path.exists(this_path):
@@ -723,7 +725,7 @@ if args.Merge:
     if Blinded:
       print("[MergeData] Data blinded. skipping...")
     else:
-      print("[MergeData] Data unblinded. merging...")
+      print("[MergeData] Data unblinded. merging...", flush=True)
       for era in args.eras:
         if era=="Run2": # Deprecated
           for DefFlag in DefFlags:
@@ -1776,6 +1778,7 @@ for tag in args.histTag:
               sys.exit()
           
             input_list.append(["fake_data_path", h_data, "data_obs"]) # fake data = total bkg. There is no hist path of it.
+
           elif (not CheckHist(f_data,input_hist,"data_obs")): # NOTE 2016postVFP EE CR2 IB in ANv7_L2review doesn't have data due to Tight Bjet selection
             print("##### Data unblinded, but there is no data histogram!!!!!!!!!!!!!")
             print("##### Check -->",f_path_data,input_hist)

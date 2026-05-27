@@ -1,4 +1,7 @@
-//Place it in /data6/Users/jihkim/HNDiLeptonWorskspace/src/LimitPlotter
+// How to use presets (iterate multiple tags)
+// Register new tag in (1) GetPresetLoopTags() and (2) ApplyPreset()
+// root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,false,0,true,true,false,false,\"MyNewPreset\")" <-- will use preset tags of "MyNewPreset" using GetPresetLoopTags
+// root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false,\"MyNewPreset__HNL_syst\")" <-- will use single "_HNL_syst" tag with the same setting of "MyNewPreset"
 
 #include "Macros.h"
 #include "canvas_margin.h"
@@ -176,8 +179,8 @@ TString BuildDefaultTagDescription(TString tag)
   tmp.ReplaceAll("sr", "SR");
 
   tmp.ReplaceAll("_syst", " ");
-  tmp.ReplaceAll("DYVBF", "DY+W#gamma");
-  tmp.ReplaceAll("DY ", "DY");
+  tmp.ReplaceAll("DYVBF", "CCDY+W#gamma");
+  tmp.ReplaceAll("DY ", "CCDY");
   tmp.ReplaceAll("VBF", "W#gamma");
   tmp.ReplaceAll("SSWW", "SSWW");
   tmp = tmp.Strip(TString::kBoth);
@@ -308,6 +311,10 @@ vector<TString> GetPresetLoopTags(TString preset_base)
     return GetSRLoopTags();
   }
 
+  if (preset_base == "DYVBF_only") {
+    return {"_DYVBF_syst"};
+  }
+
   // if (preset_base == "MyNewPreset") {
   //   return {"_HNL_syst", "_HNL_sr1_syst_Combined"};
   // }
@@ -317,7 +324,7 @@ vector<TString> GetPresetLoopTags(TString preset_base)
 
 bool ParseSingleTagPresetName(TString preset_name, TString& preset_base, TString& tag)
 {
-  Ssiz_t split_pos = preset_name.Index("__");
+  Ssiz_t split_pos = preset_name.Index("__"); // Take the first __
   if (split_pos == kNPOS) return false;
 
   preset_base = preset_name;
@@ -330,10 +337,28 @@ bool ParseSingleTagPresetName(TString preset_name, TString& preset_base, TString
   return true;
 }
 
-bool ApplyComparisonPreset(TString preset_name, PlotConfig& plot_cfg)
+bool ApplyPreset(TString preset_name, PlotConfig& plot_cfg)
 {
   TString preset_base, tag;
   if (!ParseSingleTagPresetName(preset_name, preset_base, tag)) return false;
+
+  if (preset_base == "DYVBF_only") {
+    plot_cfg.nominal.tag_nom = tag;
+    plot_cfg.study.subdir = "DYVBF_only";
+
+    plot_cfg.study.entries.push_back( // will not compare anything -- this is only for showing DYVBF limits. Fill whatever you like
+      ComparisonEntry(
+        "ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Run2Sum_Preapproval",
+        tag,
+        "Run2 merged",
+        kRed,
+        0.01,
+        plot_cfg.nominal.method_nom,
+        "Run2Sum"
+      )
+    );
+    return true;
+  }
 
   if (preset_base == "Run2Sum_vs_Run2") {
     plot_cfg.nominal.tag_nom = tag;
@@ -350,7 +375,6 @@ bool ApplyComparisonPreset(TString preset_name, PlotConfig& plot_cfg)
         "Run2Sum"
       )
     );
-
     return true;
   }
 
@@ -385,7 +409,6 @@ bool ApplyComparisonPreset(TString preset_name, PlotConfig& plot_cfg)
         "Run2"
       )
     );
-
     return true;
   }
 
@@ -529,7 +552,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
 
   PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
 
-  const bool preset_applied = ApplyComparisonPreset(preset_name, plot_cfg);
+  const bool preset_applied = ApplyPreset(preset_name, plot_cfg);
   if (preset_name != "" && preset_tags.empty() && !preset_applied) {
     cout << "[WARNING] Unknown preset_name = " << preset_name << endl;
   }
@@ -621,17 +644,17 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //);
 
     // *** Run2 previous and Run2 Newbinning vs Run2Sum Newbinning (PR188)
-    plot_cfg.nominal.tag_nom = "_HNL_syst";
-    plot_cfg.study.subdir = "Prev_vs_NewBinning";
-    plot_cfg.study.entries.push_back(
-      ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
-                      "_HNL_syst",
-                      "Before Run2 binning",
-                      kRed,
-                      0.01,
-                      plot_cfg.nominal.method_nom,
-                      "Run2") // if this is not specified, the comparison will follow the nominal year
-    );
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "Prev_vs_NewBinning";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_L2review_HNL_ULIDv2_FixHessian_AddGluGluTaus_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_Preapproval",
+    //                  "_HNL_syst",
+    //                  "Before Run2 binning",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2") // if this is not specified, the comparison will follow the nominal year
+    //);
     //plot_cfg.study.entries.push_back(
     //  ComparisonEntry("ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188",
     //                  "_HNL_syst",
@@ -777,7 +800,6 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //if (plot_cfg.study.subdir == "Prev_vs_NewBinning") forced_min_mass = 600.; // BDT binning wasn't done yet so don't show
 	if((plot_cfg.nominal.tag_nom == "_HNL_sr2_syst_Combined")&&(WP_nom == "ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188")) forced_min_mass = 600.; // Make SR2-only limits start from 600 GeV
 
-
   // Set the upper bound of HNL mass to show
   double forced_max_mass = 999999.;
   if (std::any_of(compare_entries.begin(), compare_entries.end(),
@@ -791,6 +813,9 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   vector<int> n_centrals;
 
   for(int i=0; i<files.size(); i++){
+
+    double hotfix_forced_min_mass = forced_min_mass;
+    if((plot_cfg.study.subdir=="SRSplit")&&(files.at(i).Contains("HNL_sr2_syst_Combined"))) hotfix_forced_min_mass = 600.; // SR2 starts from M600 in SR separated limits
 
     //=== 13 TeV full Run2 (this analysis)
     string elline;
@@ -812,7 +837,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
               >> this_limit >> this_onesig_right >> this_twosig_right)) {
         continue;
       }
-      if (this_mass < forced_min_mass) continue;
+      if (this_mass < hotfix_forced_min_mass) continue;
       if (forced_max_mass < this_mass) continue;
       mass.push_back(this_mass);
       obs.push_back(this_obs);
@@ -1866,7 +1891,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   if(!SepLimit) lg->AddEntry(gr_band_2sigma_0,"95% expected", "f");
   //lg->AddEntry(hist_emptylegend,"","l");
   if(AddPub){
-    TLegendEntry* e1 = lg->AddEntry(gr_17028_exp, "#splitline{CMS 2016 DY+W#gamma SS2l}{#it{JHEP} 01 (2019) 122 (exp)}", "l"); // EXO-17-028
+    TLegendEntry* e1 = lg->AddEntry(gr_17028_exp, "#splitline{CMS 2016 CCDY+W#gamma SS2l}{#it{JHEP} 01 (2019) 122 (exp)}", "l"); // EXO-17-028
     if(draw_ratio_panel) e1->SetTextSize(0.028);
     else e1->SetTextSize(0.025);
   }
