@@ -40,6 +40,7 @@ parser.add_argument('--Signal', action='store_true', help='merge Signal')
 ##
 parser.add_argument('--CheckFiles', action='store_true', help='check all inputs before merge')
 parser.add_argument('--BDTver', default=None, help='BDT version comparison')
+parser.add_argument('--regions', nargs='+', default=None, help='regions to run, e.g. sr2 or zg_cr')
 args = parser.parse_args()
 
 PreFlag = ""
@@ -285,6 +286,22 @@ else:
   RegionToHistSuffixMap['sr2'] = {'MuMu':'LimitBins/MuonSR2', 'EE':'LimitBins/ElectronSR2', 'EMu':'LimitBins/ElectronMuonSR2'}
   RegionToHistSuffixMap['sr3'] = {'MuMu':'LimitBins/MuonSR3', 'EE':'LimitBins/ElectronSR3', 'EMu':'LimitBins/ElectronMuonSR3'}
 
+# Optional region filter for card-input production.
+# Example: --regions sr2
+if args.regions:
+  if args.Merge:
+    parser.error("--regions is intended for card-input production, not --Merge.")
+
+  bad_regions = [r for r in args.regions if r not in regions]
+  if bad_regions:
+    parser.error(
+      "Unknown region(s): "
+      + ",".join(bad_regions)
+      + ". Allowed regions in this mode are: "
+      + ",".join(regions)
+    )
+
+  regions = args.regions
 
 SystList = [
             ## Separate JES <-- deprecated.
@@ -1318,6 +1335,63 @@ def make_cnc_hist(h_in, out_name):
 
   return h_out
 
+def get_hist_from_input_list(input_list, hist_name):
+  for item in reversed(input_list):
+    if item[2] == hist_name:
+      return item[1]
+  return None
+
+
+def should_symmetrize_zg_scale_j_2018_sr2_down(era, region, process, this_syst, name_syst):
+  return (
+    "PruneZG" in args.outputTag
+    and not args.CR
+    and args.Decorr
+    and args.JetDecorr
+    and era == "2018"
+    and region == "sr2"
+    and process == "zg"
+    and this_syst == "JetEnDown"
+    and name_syst == "zg_CMS_scale_j_2018_sr2Down"
+  )
+
+
+def symmetrize_down_from_up(h_down, h_nom, h_up, bins_to_fix, label):
+  if h_down.GetNbinsX() != h_nom.GetNbinsX() or h_down.GetNbinsX() != h_up.GetNbinsX():
+    raise RuntimeError("[PruneZG] Inconsistent binning for " + label)
+
+  for ibin in bins_to_fix:
+    if ibin < 1 or ibin > h_down.GetNbinsX():
+      raise RuntimeError(
+        "[PruneZG] Requested bin "
+        + str(ibin)
+        + " is outside histogram range for "
+        + label
+      )
+
+    nom = max(0., h_nom.GetBinContent(ibin))
+    up = max(0., h_up.GetBinContent(ibin))
+    old_down = h_down.GetBinContent(ibin)
+    new_down = max(0., 2. * nom - up)
+
+    h_down.SetBinContent(ibin, new_down)
+    h_down.SetBinError(ibin, h_up.GetBinError(ibin))
+
+    print(
+      "[PruneZG]",
+      label,
+      "bin",
+      ibin,
+      "nom =",
+      nom,
+      "up =",
+      up,
+      "old_down =",
+      old_down,
+      "new_down =",
+      new_down
+    )
+
 ########### Exception rules snippets ###############
 from collections import defaultdict
 
@@ -2145,6 +2219,31 @@ for tag in args.histTag:
                   except ReferenceError:
                     print("Failed. There is no NOMINAL. Please check ...")
                 # Now h_systs are fully made-up.
+
+                if should_symmetrize_zg_scale_j_2018_sr2_down(
+                  era,
+                  region,
+                  input_list[i][2],
+                  this_syst,
+                  name_syst
+                ):
+                  up_name_syst = name_syst[:-4] + "Up"
+                  h_up_for_symm = get_hist_from_input_list(input_list, up_name_syst)
+
+                  if h_up_for_symm is None:
+                    raise RuntimeError(
+                      "[PruneZG] Cannot find corresponding Up histogram: "
+                      + up_name_syst
+                      + ". Check SystList ordering."
+                    )
+
+                  symmetrize_down_from_up(
+                    h_syst,
+                    input_list[i][1],
+                    h_up_for_symm,
+                    [7, 8],
+                    tag + " " + era + " " + region + " " + mass + " " + channel + " " + name_syst
+                  )
 
                 # scale signal systs except the pdf variations (which are already done)
                 if 'PDFUp' in this_syst or 'PDFDown' in this_syst: pass
