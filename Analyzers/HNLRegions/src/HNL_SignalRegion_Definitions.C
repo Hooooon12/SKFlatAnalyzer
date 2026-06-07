@@ -963,7 +963,8 @@ TString HNL_RegionDefinitions::RunSignalRegionAK8String(bool ApplyForSR,
   
   //// Apply CR Binning
   if(!ApplyForSR){
-    //    if(HasFlag("ApplyWMassCut") && (Wcand.M() < 300)) return "false";
+    if(B_JetColl_CR.size() == 1)   runCutCounts[event].Cut((TString("SR1_IB_") + GetChannelString(channel)).Data());      
+    
     if(fill_plots){
       FillHist(  "LimitExtraction/"+ param.Name+"/"+RegionTag+"/Inv_SR1",0,  w, 1,0,1 ,"CR Binned");
       if(B_JetColl_CR.size() == 1)      FillHist(  "LimitExtraction/"+ param.Name+"/"+RegionTag+"/InvBJet_SR1",0,  w*param.w.btagSF_tight/param.w.btagSF, 1,0,1 ,"CR Binned");
@@ -1350,7 +1351,7 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4String(bool ApplyForSR,HNL_Lept
   double met_cut     = 15. ;
   double met2_st     = ev.MET2ST();
   bool PassHMMet     = ApplyForSR ? (met2_st < met_cut) :  (met2_st > met_cut);
-  bool PassBJetMVeto = ApplyForSR ? (B_JetColl.size()==0) : (B_JetColl.size() == 1);
+  bool PassBJetMVeto = ApplyForSR ? (B_JetColl.size()==0) : (B_JetColl_CR.size() == 1);
 
   bool PassRegionReq = ApplyForSR ? (PassHMMet && PassBJetMVeto) :  ((PassHMMet &&B_JetColl.size()==0)|| (PassBJetMVeto)) ;
 
