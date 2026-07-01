@@ -465,7 +465,7 @@ void print_ratio_table(const vector<vector<double>>& mass_vs_nominal,
 }
 
 
-void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool AddPub=true, int SepLimit=0, bool CompareLimits=false, bool AppendLimitTable=false, bool IsXsecLimit=false, bool Logy=true, TString preset_name=""){
+void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool AddPub=true, int SepLimit=0, bool CompareLimits=false, bool AppendLimitTable=false, bool IsXsecLimit=false, bool Logy=true, TString preset_name="", bool DrawObserved=false){
 
   // SepLimit = 0: No separated limit
   // SepLimit = 1: Signal separated limit
@@ -502,7 +502,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
                  AppendLimitTable,
                  IsXsecLimit,
                  Logy,
-                 child_preset);
+                 child_preset,
+                 DrawObserved);
     }
     return;
   }
@@ -513,7 +514,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   if(SepLimit==1) SepLimitTxt = "_SigSep";
   else if(SepLimit==2) SepLimitTxt = "_SRSep";
 
-  bool DrawObserved = false;
+  TString ObservedTxt = DrawObserved ? "_Observed" : "";
 
   setTDRStyle();
 
@@ -548,7 +549,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR3Update_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
-  TString WP_nom = "ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
+  //TString WP_nom = "ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
+  TString WP_nom = "ANv7_ConvUpdate_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"; // set the nominal WP
 
   PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
 
@@ -2370,23 +2372,17 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       if(AddPub&&!IsXsecLimit) gr_ratio_202316->Draw("lpsame"); // EXOT-2023-16
     }
 
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp_Logy.pdf");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp.pdf");
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_comp.png");
-    print_ratio_table(mass_vs_nominal,ratio_vs_nominal,mass_nominal,ratio_descrps,this_plotpath+"/"+year_nom+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+"_comp.txt",channel,AppendLimitTable);
-  }
-  else if(DrawExt){
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.pdf");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".pdf");
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+ObservedTxt+"_comp_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+ObservedTxt+"_comp.pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+ObservedTxt+"_comp_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+ObservedTxt+"_comp.png");
+    print_ratio_table(mass_vs_nominal,ratio_vs_nominal,mass_nominal,ratio_descrps,this_plotpath+"/"+year_nom+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+ObservedTxt+"_comp.txt",channel,AppendLimitTable);
   }
   else{
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.pdf");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".pdf");
-    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+"_Logy.png");
-    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+".png");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+ObservedTxt+"_Logy.pdf");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+ObservedTxt+".pdf");
+    if(Logy) c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+ObservedTxt+"_Logy.png");
+    else c_Dilep->SaveAs(this_plotpath+"/"+year_nom+"_"+channel+"_13TeV_"+WP_name+tag_nom+Name_IsXsecLimit+AddPubTxt+SepLimitTxt+ObservedTxt+".png");
   }
 
   return;

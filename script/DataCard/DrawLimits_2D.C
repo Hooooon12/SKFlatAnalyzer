@@ -345,8 +345,8 @@ void DrawCombinedTernary(TString ternary_file,
     lat.SetTextSize(0.035);
     lat.DrawLatex(0.15, 0.92, Form("Combined ternary, m_{N}=%.0f GeV, U^{2}=%.3g", targetMass, targetU2));
 
-    c->SaveAs(Form("CombinedTernary_m%.0f_U2%.3g.pdf", targetMass, targetU2));
-    c->SaveAs(Form("CombinedTernary_m%.0f_U2%.3g.png", targetMass, targetU2));
+    c->SaveAs(Form("CombinedTernary_m%.0f_U2%.3g_%s.pdf", targetMass, targetU2, useObs ? "obs" : "exp"));
+    c->SaveAs(Form("CombinedTernary_m%.0f_U2%.3g_%s.png", targetMass, targetU2, useObs ? "obs" : "exp"));
 }
 
 double GetRFLimitNearestMass(const std::vector<RFRow> &rows,
@@ -479,8 +479,8 @@ void DrawEnvelopeTernary(const std::vector<RFRow> &rows,
     lat.SetTextSize(0.035);
     lat.DrawLatex(0.15, 0.92, Form("Envelope ternary, m_{N}=%.0f GeV, U^{2}=%.3g", targetMass, targetU2));
 
-    c->SaveAs(Form("EnvelopeTernary_m%.0f_U2%.3g.pdf", targetMass, targetU2));
-    c->SaveAs(Form("EnvelopeTernary_m%.0f_U2%.3g.png", targetMass, targetU2));
+    c->SaveAs(Form("EnvelopeTernary_m%.0f_U2%.3g_%s.pdf", targetMass, targetU2, useObs ? "obs" : "exp"));
+    c->SaveAs(Form("EnvelopeTernary_m%.0f_U2%.3g_%s.png", targetMass, targetU2, useObs ? "obs" : "exp"));
 }
 
 void Draw3chVsEnvelope(const std::vector<RFRow> &combRows,
@@ -675,7 +675,9 @@ void DrawLimits_2D(
     double targetMass = 300.,
     double targetU2 = 0.1,
     bool useObs = false,
-    TString ternary_file = ""
+    TString ternary_file = "",
+    TString input_file = "",
+    TString envelope_dir = ""
 ) {
     // =========================================================================
     // 1. Style Configuration (CMS Publication Style)
@@ -704,7 +706,13 @@ void DrawLimits_2D(
 
     // Open the text file (Format: Mass  f  Obs  Exp ...)
     // Make sure 'limit_results.txt' exists in the same directory
-		TString input_file = "/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval/Run2_3ch_HNL_syst_Asym_limit.txt";
+		//TString input_file = "/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval/Run2_3ch_HNL_syst_Asym_limit.txt";
+    if (input_file == "") {
+        std::cout << "[Error] Please provide input_file, e.g. "
+                  << "\"/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/<YOUR_3CH_WP>/Run2Sum_3ch_HNL_syst_Asym_limit.txt\""
+                  << std::endl;
+        return;
+    }
     std::ifstream infile(input_file);
     if (!infile.is_open()) {
         std::cout << "[Error] " << input_file << " not found!" << std::endl;
@@ -738,12 +746,21 @@ void DrawLimits_2D(
 
     if (mode == "3ch_vs_envelope") {
     
-        TString envelope_dir =
-            "/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval_StudyEnvelope";
+        //TString envelope_dir =
+        //    "/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval_StudyEnvelope";
     
-        TString mumu_file = envelope_dir + "/Run2_MuMu_HNL_syst_Asym_limit.txt";
-        TString ee_file   = envelope_dir + "/Run2_EE_HNL_syst_Asym_limit.txt";
-        TString emu_file  = envelope_dir + "/Run2_EMu_HNL_syst_Asym_limit.txt";
+        //TString mumu_file = envelope_dir + "/Run2_MuMu_HNL_syst_Asym_limit.txt";
+        //TString ee_file   = envelope_dir + "/Run2_EE_HNL_syst_Asym_limit.txt";
+        //TString emu_file  = envelope_dir + "/Run2_EMu_HNL_syst_Asym_limit.txt";
+
+        if (envelope_dir == "") {
+            std::cout << "[Error] mode=3ch_vs_envelope requires envelope_dir." << std::endl;
+            return;
+        }
+
+        TString mumu_file = envelope_dir + "/Run2Sum_MuMu_HNL_syst_Asym_limit.txt";
+        TString ee_file   = envelope_dir + "/Run2Sum_EE_HNL_syst_Asym_limit.txt";
+        TString emu_file  = envelope_dir + "/Run2Sum_EMu_HNL_syst_Asym_limit.txt";
     
         Draw3chVsEnvelope(rfRows, mumu_file, ee_file, emu_file, useObs);
         return;
@@ -879,6 +896,6 @@ void DrawLimits_2D(
     leg->Draw();
 
     // Save
-    c1->SaveAs("Limit_3ch_Mass_vs_f.pdf");
-    c1->SaveAs("Limit_3ch_Mass_vs_f.png");
+    c1->SaveAs(Form("Limit_3ch_Mass_vs_f_%s.pdf", useObs ? "obs" : "exp"));
+    c1->SaveAs(Form("Limit_3ch_Mass_vs_f_%s.png", useObs ? "obs" : "exp"));
 }

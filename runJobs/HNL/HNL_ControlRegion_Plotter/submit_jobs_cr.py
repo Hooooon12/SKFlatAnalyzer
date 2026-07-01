@@ -210,7 +210,7 @@ flags_alt.insert(0,"Alt")
 
 # Run command for individual sample if provided
 if IndividualSample:
-    if not args.RunPrompt and not args.RunCF and not args.RunConv and not args.RunFake:
+    if not args.RunPrompt and not args.RunCF and not args.RunConv and not args.RunFake and not args.RunSignal:
         print(f"Need to set RunType, i.e, RunPrompt,...")
         exit()
 

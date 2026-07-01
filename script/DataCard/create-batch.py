@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
 
-# Place it at CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter
-# python create-batch.py -l [RunList*.txt] --Asymptotic[--Full][--Q*][--Work][--Nuis][--pdf]
-# python create-batch.py -l [RunList*.txt] --Full -t 500 -n 10 --rRange 0.1:5.0:0.5
-# RunList.txt contains paths of results from text2workspace.py e.g. /data6/Users/jihkim/CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter/Workspace/card_2017_MuMu_M500_HNL_UL.root
+# Asymptotic expected:
+# python create-batch.py -l [RunList*.txt] --Asymptotic
+#
+# Asymptotic observed:
+# python create-batch.py -l [RunList*.txt] --Asymptotic --Unblind
+#
+# CLs expected:
+# python create-batch.py -l [RunList*.txt] --Q3 -t 1000 -n 100 --rRange 0.1:5.0:0.5
+#
+# CLs observed:
+# python create-batch.py -l [RunList*.txt] --Unblind -t 1000 -n 100 --rRange 0.1:5.0:0.5
+
+# RunList*.txt is created by MakeRunList.py .
 
 import os, sys
 import subprocess as cmd
@@ -11,12 +20,13 @@ import argparse
 import math
 import numpy as np
 import random
+import re
 
 parser = argparse.ArgumentParser(description='option')
 parser.add_argument('--pdf', action='store_true', help='do pdfseparate; run this after getting all impacts')
 parser.add_argument('-i', dest='Input', help='take a single argument. [NOTE] feed realpath of a card (or workspace) !!')
 parser.add_argument('-l', dest='RunLists', nargs='+', help='take args as a list, return error when there is no arg')
-parser.add_argument('--Full', action='store_true')
+parser.add_argument('--Full', action='store_true') # NOTE combine -M HybridNew --LHCmode LHC-limits --expectedFromGrid only isn't full blinded. This is justified only when the data_obs itself is the Asimov set (which was indeed the case before we unblid the data. After unblinding, the script has been updated to generate prefit toys.)
 parser.add_argument('--Q1', action='store_true')
 parser.add_argument('--Q2', action='store_true')
 parser.add_argument('--Q3', action='store_true')
@@ -61,10 +71,18 @@ if Ncheck > 1:
 AsimovSetting = "-t -1 --expectSignal="+args.InjectSignal
 AsimovName = "s"+args.InjectSignal
 RunBlind = "--run blind"
+LimitModeLabel = "Expected"
+
 if args.Unblind:
   AsimovSetting = ""
   AsimovName = "Unblind"
   RunBlind = ""
+  LimitModeLabel = "Observed"
+
+CLsFlagRequested = args.Full or args.Q1 or args.Q2 or args.Q3 or args.Q4 or args.Q5
+
+if args.Asymptotic and CLsFlagRequested:
+  print("[INFO] --Asymptotic requested together with --Full/--Q*: CLs flags will be ignored; only Asymptotic jobs will be created.")
 
 pwd = os.getcwd()
 CMSSW_BASE = os.environ['CMSSW_BASE']
@@ -112,7 +130,30 @@ def parse_r_range(r_str):
         print(f"[ERROR] rRange format '{r_str}' is invalid. Use min:max or min:max:step")
         sys.exit(1)
 
-def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys, n_split, r_points, pwd, is_diagnostic, user_tag):
+def expected_from_grid_flag(quant_val):
+    """
+    Expected HybridNew limit uses --expectedFromGrid.
+    Observed HybridNew limit must not use this option.
+    """
+    return "" if quant_val is None else f"--expectedFromGrid {quant_val} "
+
+def hybrid_quant_suffix(quant_val):
+    """
+    Combine output filename contains .quantX only for expectedFromGrid outputs.
+    Observed HybridNew output has no .quantX suffix.
+    """
+    return "" if quant_val is None else f".quant{quant_val}"
+
+def write_prefit_asimov_and_get_data_opt(runfile, card, tag):
+    """
+    Make a pre-fit b-only Asimov toy, then return the -D option that tells
+    Combine to use that toy instead of data_obs.
+    tag should normally start with '_' so the file is higgsCombine_<tag>...
+    """
+    runfile.write(f"combine -M GenerateOnly {card} -t -1 --expectSignal 0 --saveToys -n {tag}\n")
+    return f"-D higgsCombine{tag}.GenerateOnly.mH120.123456.root:toys/toy_asimov "
+
+def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys, n_split, r_points, pwd, is_diagnostic, user_tag, is_unblind):
     """
     Creates a DAG that:
     1. Runs N jobs in parallel. Each job iterates over the full r_grid but runs (Total/N) toys.
@@ -129,6 +170,8 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
     
     # Diagnostic flags: Save everything if requested
     extra_flags = "--saveToys --saveHybridResult -v 1" if is_diagnostic else ""
+    expected_flag = expected_from_grid_flag(quant_val)
+    quant_suffix = hybrid_quant_suffix(quant_val)
 
     dag_content = ""
     grid_output_files = []
@@ -150,6 +193,10 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
             runfile.write("popd\n") # Return to working directory
 
             runfile.write("ulimit -s unlimited\n")
+            data_opt = ""
+            if not is_unblind:
+                asimov_tag = f"_{part_suffix}_prefitAsimov"
+                data_opt = write_prefit_asimov_and_get_data_opt(runfile, card, asimov_tag) # Use Asimov dataset
             
             # Loop over r values
             for r in r_points:
@@ -162,8 +209,9 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
                 # --clsAcc 0: Calculate CLs exactly (no approximations).
                 # -s {this_seed}: We enforce the seed.
                 cmd = (f"combine -M HybridNew --LHCmode LHC-limits {card} "
+                       f"{data_opt}"
                        f"-n {part_suffix}_r{r} "
-                       f"--expectedFromGrid {quant_val} "
+                       f"{expected_flag}"
                        f"-T {toys_per_job} --singlePoint {r} --clsAcc 0 -s {this_seed} {extra_flags}")
                 
                 runfile.write(f"echo 'Running Point r={r} with seed {this_seed}'\n")
@@ -171,7 +219,7 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
                 
                 # Construct the exact filename that combine will produce with this seed
                 # Format: higgsCombine{Name}.HybridNew.mH120.{Seed}.quant{Quant}.root
-                expected_file = f"higgsCombine{part_suffix}_r{r}.HybridNew.mH120.{this_seed}.quant{quant_val}.root"
+                expected_file = f"higgsCombine{part_suffix}_r{r}.HybridNew.mH120.{this_seed}{quant_suffix}.root"
                 grid_output_files.append(f"{pwd}/{base_dir}/{expected_file}") # Add to global merge list
             
             runfile.write("echo 'All points done for this chunk.'\n")
@@ -193,7 +241,7 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
         
     # 2. Merge Job (Hadd)
     # We produce ONE big merged file containing all toys for all r points
-    merged_filename = f"higgsCombine{shortcard}_{quantile}_merged_{full_tag}.HybridNew.mH120.quant{quant_val}.root"
+    merged_filename = f"higgsCombine{shortcard}_{quantile}_merged_{full_tag}.HybridNew.mH120{quant_suffix}.root"
     merge_job_name = f"{quantile}_merge_{full_tag}"
     
     with open(f"{base_dir}/run_{merge_job_name}.sh", 'w') as runfile:
@@ -225,7 +273,7 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
 
     # scripts to merge multiple runs' outputs
 
-    final_merged_filename = f"higgsCombine{shortcard}_{quantile}_merged_final.HybridNew.mH120.quant{quant_val}.root"
+    final_merged_filename = f"higgsCombine{shortcard}_{quantile}_merged_final.HybridNew.mH120{quant_suffix}.root"
     final_merge_job_name = f"{quantile}_merge_final"
     
     with open(f"{base_dir}/run_{final_merge_job_name}.sh", 'w') as runfile:
@@ -262,7 +310,12 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
         # --readHybridResults: reads the merged grid
         # --grid: input file
         # It will interpolate between the r points we scanned.
-        runfile.write(f"combine -M HybridNew --LHCmode LHC-limits {card} -n {shortcard}_{full_tag} --readHybridResults --grid={pwd}/{base_dir}/{merged_filename} --expectedFromGrid {quant_val} --plot={plot_output_name}.png\n")
+        data_opt = ""
+        if not is_unblind:
+            asimov_tag = f"_{shortcard}_{quantile}_{full_tag}_prefitAsimov_read"
+            data_opt = write_prefit_asimov_and_get_data_opt(runfile, card, asimov_tag)
+
+        runfile.write(f"combine -M HybridNew --LHCmode LHC-limits {card} {data_opt}-n {shortcard}_{full_tag} --readHybridResults --grid={pwd}/{base_dir}/{merged_filename} {expected_flag}--plot={plot_output_name}.png\n")
         # Optional: Plotting command hint (can't run easily without X11, but script is ready)
         # runfile.write(f"plotLimitGrid.py {this_output} ... \n")
         runfile.write("echo 'Limit calculation and plotting done.'\n")
@@ -277,7 +330,7 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
         subfile.write("should_transfer_files = YES\n")
         subfile.write("when_to_transfer_output = ON_EXIT\n")
 
-        expected_this = f"higgsCombine{shortcard}_{full_tag}.HybridNew.mH120.quant{quant_val}.root"
+        expected_this = f"higgsCombine{shortcard}_{full_tag}.HybridNew.mH120{quant_suffix}.root"
         expected_plot = f"{plot_output_name}.png"
 
         # Transfer both ROOT file and PNG
@@ -300,7 +353,12 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
         runfile.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
         runfile.write("eval `scramv1 runtime -sh`\n")
         runfile.write("popd\n")
-        runfile.write(f"combine -M HybridNew --LHCmode LHC-limits {card} -n {shortcard}_final --readHybridResults --grid={pwd}/{base_dir}/{merged_filename} --expectedFromGrid {quant_val} --plot={final_plot_output_name}.png\n")
+        data_opt = ""
+        if not is_unblind:
+            asimov_tag = f"_{shortcard}_{quantile}_final_prefitAsimov_read"
+            data_opt = write_prefit_asimov_and_get_data_opt(runfile, card, asimov_tag)
+
+        runfile.write(f"combine -M HybridNew --LHCmode LHC-limits {card} {data_opt}-n {shortcard}_final --readHybridResults --grid={pwd}/{base_dir}/{merged_filename} {expected_flag}--plot={final_plot_output_name}.png\n")
         runfile.write("echo 'Limit calculation and plotting done.'\n")
 
     with open(f"{base_dir}/submit_{final_read_job_name}.sub", 'w') as subfile:
@@ -314,7 +372,7 @@ def create_hybrid_grid_dag(WP, shortcard, card, quantile, quant_val, total_toys,
         subfile.write("when_to_transfer_output = ON_EXIT\n")
         subfile.write(f"batch_name = {shortcard}_{WP}_{quantile}_read_final\n")
 
-        expected_this = f"higgsCombine{shortcard}_final.HybridNew.mH120.quant{quant_val}.root"
+        expected_this = f"higgsCombine{shortcard}_final.HybridNew.mH120{quant_suffix}.root"
         expected_plot = f"{final_plot_output_name}.png"
 
         # Transfer both ROOT file and PNG
@@ -363,6 +421,169 @@ def make_weinberg_w_points(step=0.25):
             points.append((wMuMu, wEMu, wEE, label))
 
     return points
+
+def make_hnl_f_points(shortcard):
+    """
+    f scan points for 3ch HNL Asymptotic limits.
+    This keeps the MuMu/EE/EMu/envelope choices in one place.
+    """
+    all_points = [round(0.05 * i, 2) for i in range(21)]  # 0.0, 0.05, ..., 1.0
+
+    if "MuMu" in shortcard:
+        return all_points[:-1]   # 0.0 to 0.95
+    if "EE" in shortcard:
+        return all_points[1:]    # 0.05 to 1.0
+    if "EMu" in shortcard:
+        return all_points[1:-1]  # 0.05 to 0.95
+
+    return all_points            # actual 3ch combined limit: 0.0 to 1.0
+
+
+def write_condor_queue_values(submitfile, var_name, values):
+    """
+    Write a compact HTCondor queue line from a Python list.
+    """
+    submitfile.write(f"queue {var_name} in (" + " ".join(str(v) for v in values) + ")\n")
+
+def create_asymptotic_batch(WP, shortcard, card, run_blind, limit_mode_label, pwd):
+    """
+    Create and submit AsymptoticLimits jobs.
+
+    Directory is shared between Expected and Observed:
+      Batch/<WP>/Asymptotic/<shortcard>/
+
+    Expected/Observed are separated by:
+      - run script name
+      - submit script name
+      - condor batch name
+      - log/output filenames
+      - combine -n suffix
+      - transferred output ROOT filename
+    """
+    base_dir = f"Batch/{WP}/Asymptotic/{shortcard}"
+    output_dir = f"{base_dir}/output"
+    logs_dir = f"{base_dir}/logs"
+
+    os.makedirs(base_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(logs_dir, exist_ok=True)
+
+    run_name = f"run_Asymptotic_{limit_mode_label}.sh"
+    submit_name = f"submit_Asymptotic_{limit_mode_label}.sh"
+    run_path = f"{base_dir}/{run_name}"
+    submit_path = f"{base_dir}/{submit_name}"
+
+    os.system(f"cp Batch/submit_skeleton.sh {submit_path}")
+
+    blind_opt = f" {run_blind}" if run_blind else ""
+
+    # Case 1: 3ch / EMuFull physics models
+    if "EMuFull" in WP or "3ch" in shortcard or "3ch" in WP:
+
+        # Case 1a: HNL 3ch f scan
+        if "Weinberg" not in shortcard:
+            with open(run_path, "w") as runfile:
+                runfile.write("#!/bin/bash\n")
+                runfile.write("set -e\n")
+                runfile.write("F_VAL=$1\n")
+                runfile.write("ulimit -s unlimited\n")
+                runfile.write(
+                    f"combine -M AsymptoticLimits {card}{blind_opt} "
+                    f"--setParameters r=0,f=${{F_VAL}} "
+                    f"--freezeParameters f "
+                    f"-n _{limit_mode_label}_f${{F_VAL}}\n"
+                )
+
+            os.system(f"chmod +x {run_path}")
+
+            combine_output = f"higgsCombine_{limit_mode_label}_f$(f_val).AsymptoticLimits.mH120.root"
+            remapped_output = f"output/{shortcard}_Asymptotic_{limit_mode_label}_f$(f_val).root"
+
+            with open(submit_path, "a") as submitfile:
+                submitfile.write(f"executable = {run_name}\n")
+                submitfile.write("arguments = $(f_val)\n")
+                submitfile.write(f"log = logs/{shortcard}_Asymptotic_{limit_mode_label}_f$(f_val).log\n")
+                submitfile.write(f"output = logs/{shortcard}_Asymptotic_{limit_mode_label}_f$(f_val).out\n")
+                submitfile.write(f"error = logs/{shortcard}_Asymptotic_{limit_mode_label}_f$(f_val).out\n")
+                submitfile.write(f"transfer_output_files = {combine_output}\n")
+                submitfile.write(f"transfer_output_remaps = \"{combine_output} = {remapped_output}\"\n")
+                write_condor_queue_values(submitfile, "f_val", make_hnl_f_points(shortcard))
+
+        # Case 1b: Weinberg 3ch w scan
+        else:
+            w_points = make_weinberg_w_points(step=0.5)
+
+            with open(run_path, "w") as runfile:
+                runfile.write("#!/bin/bash\n")
+                runfile.write("set -e\n")
+                runfile.write("W_MuMu=$1\n")
+                runfile.write("W_EMU=$2\n")
+                runfile.write("W_EE=$3\n")
+                runfile.write("W_LABEL=$4\n")
+                runfile.write("ulimit -s unlimited\n")
+                runfile.write("\n")
+                runfile.write("echo \"Running Weinberg point: ${W_LABEL}\"\n")
+                runfile.write("echo \"  wMuMu = ${W_MuMu}\"\n")
+                runfile.write("echo \"  wEMu  = ${W_EMU}\"\n")
+                runfile.write("echo \"  wEE   = ${W_EE}\"\n")
+                runfile.write("\n")
+                runfile.write(
+                    f"combine -M AsymptoticLimits {card}{blind_opt} "
+                    " --setParameters r=0,wMuMu=${W_MuMu},wEMu=${W_EMU},wEE=${W_EE}"
+                    " --freezeParameters wMuMu,wEMu,wEE"
+                    " --setParameterRanges r=0,10000"
+                    f" -n _{limit_mode_label}_${{W_LABEL}}\n"
+                )
+
+            os.system(f"chmod +x {run_path}")
+
+            combine_output = f"higgsCombine_{limit_mode_label}_$(w_label).AsymptoticLimits.mH120.root"
+            remapped_output = f"output/{shortcard}_Asymptotic_{limit_mode_label}_$(w_label).root"
+
+            with open(submit_path, "a") as submitfile:
+                submitfile.write(f"executable = {run_name}\n")
+                submitfile.write("arguments = $(w_mumu) $(w_emu) $(w_ee) $(w_label)\n")
+                submitfile.write(f"log = logs/{shortcard}_Asymptotic_{limit_mode_label}_$(w_label).log\n")
+                submitfile.write(f"output = logs/{shortcard}_Asymptotic_{limit_mode_label}_$(w_label).out\n")
+                submitfile.write(f"error = logs/{shortcard}_Asymptotic_{limit_mode_label}_$(w_label).out\n")
+                submitfile.write(f"transfer_output_files = {combine_output}\n")
+                submitfile.write(f"transfer_output_remaps = \"{combine_output} = {remapped_output}\"\n")
+                submitfile.write("queue w_mumu,w_emu,w_ee,w_label from (\n")
+                for wMuMu, wEMu, wEE, label in w_points:
+                    submitfile.write(f"{wMuMu} {wEMu} {wEE} {label}\n")
+                submitfile.write(")\n")
+
+    # Case 2: ordinary per-channel HNL / non-3ch cards
+    else:
+        with open(run_path, "w") as runfile:
+            runfile.write("#!/bin/bash\n")
+            runfile.write("set -e\n")
+            runfile.write("ulimit -s unlimited\n")
+            runfile.write(
+                f"combine -M AsymptoticLimits {card}{blind_opt} "
+                f"-n _{limit_mode_label}\n"
+            )
+
+        os.system(f"chmod +x {run_path}")
+
+        combine_output = f"higgsCombine_{limit_mode_label}.AsymptoticLimits.mH120.root"
+        remapped_output = f"output/{shortcard}_Asymptotic_{limit_mode_label}.root"
+
+        with open(submit_path, "a") as submitfile:
+            submitfile.write(f"executable = {run_name}\n")
+            submitfile.write(f"log = logs/{shortcard}_Asymptotic_{limit_mode_label}.log\n")
+            submitfile.write(f"output = logs/{shortcard}_Asymptotic_{limit_mode_label}.out\n")
+            submitfile.write(f"error = logs/{shortcard}_Asymptotic_{limit_mode_label}.out\n")
+            submitfile.write(f"transfer_output_files = {combine_output}\n")
+            submitfile.write(f"transfer_output_remaps = \"{combine_output} = {remapped_output}\"\n")
+            submitfile.write("queue\n")
+
+    os.chdir(base_dir)
+    os.system(
+        f'condor_submit -a "priority = -15" {submit_name} '
+        f'-batch-name {shortcard}_{WP}_Asymptotic_{limit_mode_label}'
+    )
+    os.chdir(pwd)
 
 # --- Main Logic ---
 
@@ -418,10 +639,12 @@ for RunList in args.RunLists:
         this_shortcard = shortcard+"_DefMod" if ((float(this_mass) > 3000.) or "SSWW" in shortcard) else shortcard
 
       if args.Impact:
+        SRname = match.group() if (match := re.search(r'sr\d+', shortcard)) else ""
+        os.system('mkdir -p '+this_check+'/'+WP+'/'+AsimovName+'/'+SRname)
         os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
         os.system("pdfseparate Impact_"+this_shortcard+"_"+AsimovName+".pdf -f 1 -l 1 Impact_"+this_shortcard+"_"+AsimovName+"_1.pdf")
-        os.system("cp Impact_"+this_shortcard+"_"+AsimovName+"_1.pdf "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName+"/Impact_"+this_shortcard+"_"+AsimovName+".pdf")
-        os.chdir(pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
+        os.system("cp Impact_"+this_shortcard+"_"+AsimovName+"_1.pdf "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName+"/"+SRname+"/Impact_"+this_shortcard+"_"+AsimovName+".pdf")
+        os.chdir(pwd+"/"+this_check+"/"+WP+"/"+AsimovName+"/"+SRname)
         os.system("pdftoppm -png -singlefile Impact_"+this_shortcard+"_"+AsimovName+".pdf Impact_"+this_shortcard+"_"+AsimovName)
         os.chdir(pwd)
       if args.MDfit:
@@ -434,7 +657,7 @@ for RunList in args.RunLists:
         os.chdir(pwd)
       if args.GOF:
         os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
-        os.system("cp gof_"+this_shortcard+"_plot.p* "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
+        os.system("cp gof_"+this_shortcard+"* "+pwd+"/"+this_check+"/"+WP+"/"+AsimovName)
         os.chdir(pwd)
       if args.Breakdown:
         os.chdir(pwd+"/"+WP+"/"+shortcard+'/'+this_check+'/'+AsimovName)
@@ -451,17 +674,21 @@ for RunList in args.RunLists:
       os.system(f'cp {WP}/submit_skeleton.sh {WP}/{shortcard}/{this_check}/{AsimovName}/submit_{this_check}_{AsimovName}.sh')
       os.system(f'cp {WP}/{shortcard}/{shortcard}.root {WP}/{shortcard}/{this_check}/{AsimovName}')
       if ((float(this_mass) > 3000.) or "SSWW" in shortcard): os.system(f'cp {WP}/{shortcard}/{shortcard}_DefMod.root {WP}/{shortcard}/{this_check}/{AsimovName}')
-    else:
+    elif not args.Asymptotic:
       # CLs extraction
       os.system('mkdir -p Batch/'+WP+'/full_CLs/'+shortcard+'/output/')
       os.system('mkdir -p Batch/'+WP+'/full_CLs/'+shortcard+'/logs/')
       
       quantiles_to_run = []
-      if args.Full or args.Q1: quantiles_to_run.append(('Q1', '0.025'))
-      if args.Full or args.Q2: quantiles_to_run.append(('Q2', '0.160'))
-      if args.Full or args.Q3: quantiles_to_run.append(('Q3', '0.500'))
-      if args.Full or args.Q4: quantiles_to_run.append(('Q4', '0.840'))
-      if args.Full or args.Q5: quantiles_to_run.append(('Q5', '0.975'))
+      if args.Unblind:
+        print("[INFO] --Unblind requested: CLs will run observed limit only; Q1-Q5/Full are ignored.")
+        quantiles_to_run.append(('Obs', None))
+      else:
+        if args.Full or args.Q1: quantiles_to_run.append(('Q1', '0.025'))
+        if args.Full or args.Q2: quantiles_to_run.append(('Q2', '0.160'))
+        if args.Full or args.Q3: quantiles_to_run.append(('Q3', '0.500'))
+        if args.Full or args.Q4: quantiles_to_run.append(('Q4', '0.840'))
+        if args.Full or args.Q5: quantiles_to_run.append(('Q5', '0.975'))
 
       for q_name, q_val in quantiles_to_run:
           
@@ -476,7 +703,7 @@ for RunList in args.RunLists:
               r_points = parse_r_range(args.rRange)
               print(f"[{shortcard}] Grid Scan Mode: {len(r_points)} points from {r_points[0]} to {r_points[-1]}")
               
-              dag_file = create_hybrid_grid_dag(WP, shortcard, card, q_name, q_val, args.Ntoy, args.Split, r_points, pwd, args.Diagnostic, args.UserTag)
+              dag_file = create_hybrid_grid_dag(WP, shortcard, card, q_name, q_val, args.Ntoy, args.Split, r_points, pwd, args.Diagnostic, args.UserTag, args.Unblind)
               
               os.chdir('Batch/'+WP+'/full_CLs/'+shortcard)
 
@@ -490,7 +717,6 @@ for RunList in args.RunLists:
               if status == 0:
                   print(f"\n[Submission Success] Job submitted: {batch_name}")
                   print(output)
-                  import re
                   match = re.search(r'cluster (\d+)', output)
                   if match:
                       print(f"To remove this job: condor_rm {match.group(1)}  OR  condor_rm -constraint 'JobBatchName == \"{batch_name}\"'")
@@ -505,16 +731,18 @@ for RunList in args.RunLists:
               # [Fallback] Single Job (Existing Logic with Diagnostic capability)
               os.system(f'cp Batch/submit_skeleton.sh Batch/{WP}/full_CLs/{shortcard}/submit_{q_name}.sh')
               extra_flags = f"--saveToys --saveHybridResult -v 1 --plot=limit_scan_{shortcard}_{q_name}.png" if args.Diagnostic else ""
+              expected_flag = expected_from_grid_flag(q_val)
+              quant_suffix = hybrid_quant_suffix(q_val)
+              name_suffix = shortcard if q_val is not None else f"{shortcard}_Obs"
               
               with open(f"Batch/{WP}/full_CLs/{shortcard}/run_{q_name}.sh",'w') as runfile:
                 runfile.write("#!/bin/bash\n")
-                # Even in single job, if user gives rRange, we use it for better stability
-                if args.rRange:
-                    # Not fully implemented for single job here to keep it simple, 
-                    # but typically single job uses auto-search.
-                    runfile.write(f"combine -M HybridNew --LHCmode LHC-limits {card} -n {shortcard} --expectedFromGrid {q_val} -T {args.Ntoy} {extra_flags}\n")
-                else:
-                    runfile.write(f"combine -M HybridNew --LHCmode LHC-limits {card} -n {shortcard} --expectedFromGrid {q_val} -T {args.Ntoy} {extra_flags}\n")
+                data_opt = ""
+                if not args.Unblind:
+                  asimov_tag = f"_{shortcard}_{q_name}_prefitAsimov"
+                  data_opt = write_prefit_asimov_and_get_data_opt(runfile, card, asimov_tag)
+
+                runfile.write(f"combine -M HybridNew --LHCmode LHC-limits {card} {data_opt}-n {name_suffix} {expected_flag}-T {args.Ntoy} {extra_flags}\n")
               
               with open(f"Batch/{WP}/full_CLs/{shortcard}/submit_{q_name}.sh",'a') as submitfile:
                 submitfile.write(f"executable = run_{q_name}.sh\n")
@@ -522,11 +750,13 @@ for RunList in args.RunLists:
                 submitfile.write(f"output = {shortcard}_{q_name}.out\n")
                 submitfile.write(f"error = {shortcard}_{q_name}.out\n")
                 if args.Diagnostic:
-                  submitfile.write(f"transfer_output_files = higgsCombine{shortcard}.HybridNew.mH120.123456.quant{q_val}.root,limit_scan_{shortcard}_{q_name}.png\n") # NOTE that --saveToys change the output file name to include the seed.
-                  submitfile.write(f"transfer_output_remaps = \"higgsCombine{shortcard}.HybridNew.mH120.123456.quant{q_val}.root = output/{shortcard}_{q_name}.root\"\n")
+                  this_hybrid_output = f"higgsCombine{name_suffix}.HybridNew.mH120.123456{quant_suffix}.root"
+                  submitfile.write(f"transfer_output_files = {this_hybrid_output},limit_scan_{shortcard}_{q_name}.png\n")
+                  submitfile.write(f"transfer_output_remaps = \"{this_hybrid_output} = output/{shortcard}_{q_name}.root\"\n")
                 else:
-                  submitfile.write(f"transfer_output_files = higgsCombine{shortcard}.HybridNew.mH120.quant{q_val}.root,limit_scan_{shortcard}_{q_name}.png\n") # NOTE that --saveToys change the output file name to include the seed.
-                  submitfile.write(f"transfer_output_remaps = \"higgsCombine{shortcard}.HybridNew.mH120.quant{q_val}.root = output/{shortcard}_{q_name}.root\"\n")
+                  this_hybrid_output = f"higgsCombine{name_suffix}.HybridNew.mH120{quant_suffix}.root"
+                  submitfile.write(f"transfer_output_files = {this_hybrid_output}\n")
+                  submitfile.write(f"transfer_output_remaps = \"{this_hybrid_output} = output/{shortcard}_{q_name}.root\"\n")
                 submitfile.write("queue\n")
               
               os.chdir('Batch/'+WP+'/full_CLs/'+shortcard)
@@ -534,138 +764,7 @@ for RunList in args.RunLists:
               os.chdir(pwd)
 
     if args.Asymptotic:
-      os.system('mkdir -p Batch/'+WP+'/Asymptotic/'+shortcard+'/output/')
-      os.system('cp Batch/submit_skeleton.sh Batch/'+WP+'/Asymptotic/'+shortcard+'/submit_Asymptotic.sh')
-
-      if "EMuFull" in WP or "3ch" in shortcard or "3ch" in WP:
-        if "Weinberg" not in shortcard:
-          # 1. Shell Script: Accept f value as an argument
-          with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
-            runfile.write("#!/bin/bash\n")
-            runfile.write("F_VAL=$1\n") # Get f value from Condor arguments
-
-            # Increase stack size to prevent RooFit/Combine segmentation faults
-            runfile.write("ulimit -s unlimited\n")
-            
-            # Add --setParameters, --freezeParameters, and -n (name suffix)
-            runfile.write("combine -M AsymptoticLimits "+card+f" {RunBlind} --setParameters r=0,f=${F_VAL} --freezeParameters f -n _f${F_VAL}\n") # r=0 is just a starting point.
-
-          # 2. HTCondor Submit Script: Loop over f values
-          with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
-            submitfile.write("executable = run_Asymptotic.sh\n")
-            submitfile.write("arguments = $(f_val)\n") # Pass f_val to the shell script
-            
-            # Separate log files for each f value
-            submitfile.write("log = "+shortcard+"_Asymptotic_f$(f_val).log\n")
-            submitfile.write("output = "+shortcard+"_Asymptotic_f$(f_val).out\n")
-            submitfile.write("error = "+shortcard+"_Asymptotic_f$(f_val).out\n")
-            
-            # Transfer the correct root file based on -n suffix
-            submitfile.write("transfer_output_files = higgsCombine_f$(f_val).AsymptoticLimits.mH120.root\n")
-            submitfile.write("transfer_output_remaps = \"higgsCombine_f$(f_val).AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic_f$(f_val).root\"\n")
-            
-            # Queue multiple jobs by iterating over f_val
-            if "MuMu" in shortcard: # MuMu 3ch envelope study
-              submitfile.write("queue f_val in (0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95)\n")
-            elif "EE" in shortcard: # EE 3ch envelope study
-              submitfile.write("queue f_val in (0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0)\n")
-            elif "EMu" in shortcard: # EMu 3ch envelope study
-              submitfile.write("queue f_val in (0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95)\n")
-            else: # Actual 3ch combined limit
-              submitfile.write("queue f_val in (0.0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1.0)\n")
-
-        else:
-          batch_dir = "Batch/" + WP + "/Asymptotic/" + shortcard
-          output_dir = batch_dir + "/output"
-
-          os.makedirs(batch_dir, exist_ok=True)
-          os.makedirs(output_dir, exist_ok=True)
-
-          # Proof-of-concept scan.
-          # step=0.25/0.5 is modest.
-          w_points = make_weinberg_w_points(step=0.5)
-
-          # set the points manually
-          # w_points = [
-          #     (1.0, 0.0, 0.0, "MuMuonly"),
-          #     (0.0, 1.0, 0.0, "EMuonly"),
-          #     (0.0, 0.0, 1.0, "EEonly"),
-          #     (1.0/3.0, 1.0/3.0, 1.0/3.0, "flat"),
-          #     (0.2, 0.3, 0.5, "w0p2_0p3_0p5"),
-          # ]
-
-          # 1. Shell script: accept wMuMu, wEMu, wEE, label
-          with open(batch_dir + "/run_Asymptotic.sh", "w") as runfile:
-            runfile.write("#!/bin/bash\n")
-            runfile.write("W_MuMu=$1\n")
-            runfile.write("W_EMU=$2\n")
-            runfile.write("W_EE=$3\n")
-            runfile.write("W_LABEL=$4\n")
-            runfile.write("\n")
-            runfile.write("ulimit -s unlimited\n")
-            runfile.write("\n")
-
-            runfile.write("echo \"Running Weinberg point: ${W_LABEL}\"\n")
-            runfile.write("echo \"  wMuMu = ${W_MuMu}\"\n")
-            runfile.write("echo \"  wEMu  = ${W_EMU}\"\n")
-            runfile.write("echo \"  wEE   = ${W_EE}\"\n")
-            runfile.write("\n")
-
-            runfile.write(
-                "combine -M AsymptoticLimits " + card +
-                f" {RunBlind}"
-                " --setParameters r=0,wMuMu=${W_MuMu},wEMu=${W_EMU},wEE=${W_EE}"
-                " --freezeParameters wMuMu,wEMu,wEE"
-                " --setParameterRanges r=0,10000"
-                " -n _${W_LABEL}\n"
-            )
-
-          os.system("chmod +x " + batch_dir + "/run_Asymptotic.sh")
-
-          # 2. HTCondor submit script
-          with open(batch_dir + "/submit_Asymptotic.sh", "a") as submitfile:
-            submitfile.write("executable = run_Asymptotic.sh\n")
-            submitfile.write("arguments = $(w_mumu) $(w_emu) $(w_ee) $(w_label)\n")
-            submitfile.write("\n")
-
-            submitfile.write("log = " + shortcard + "_Asymptotic_$(w_label).log\n")
-            submitfile.write("output = " + shortcard + "_Asymptotic_$(w_label).out\n")
-            submitfile.write("error = " + shortcard + "_Asymptotic_$(w_label).out\n")
-            submitfile.write("\n")
-
-            submitfile.write(
-                "transfer_output_files = "
-                "higgsCombine_$(w_label).AsymptoticLimits.mH120.root\n"
-            )
-            submitfile.write(
-                "transfer_output_remaps = "
-                "\"higgsCombine_$(w_label).AsymptoticLimits.mH120.root"
-                " = output/" + shortcard + "_Asymptotic_$(w_label).root\"\n"
-            )
-            submitfile.write("\n")
-
-            submitfile.write("queue w_mumu,w_emu,w_ee,w_label from (\n")
-            for wMuMu, wEMu, wEE, label in w_points:
-                submitfile.write(f"{wMuMu} {wEMu} {wEE} {label}\n")
-            submitfile.write(")\n")
-
-      else:
-        with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/run_Asymptotic.sh",'w') as runfile:
-          runfile.write("#!/bin/bash\n")
-          runfile.write("combine -M AsymptoticLimits "+card+f" {RunBlind}\n")
-
-        with open("Batch/"+WP+"/Asymptotic/"+shortcard+"/submit_Asymptotic.sh",'a') as submitfile:
-          submitfile.write("executable = run_Asymptotic.sh\n")
-          submitfile.write("log = "+shortcard+"_Asymptotic.log\n")
-          submitfile.write("output = "+shortcard+"_Asymptotic.out\n")
-          submitfile.write("error = "+shortcard+"_Asymptotic.out\n")
-          submitfile.write("transfer_output_files = higgsCombineTest.AsymptoticLimits.mH120.root\n")
-          submitfile.write("transfer_output_remaps = \"higgsCombineTest.AsymptoticLimits.mH120.root = output/"+shortcard+"_Asymptotic.root\"\n")
-          submitfile.write("queue\n")
-
-      os.chdir('Batch/'+WP+'/Asymptotic/'+shortcard)
-      os.system('condor_submit -a "priority = -15" submit_Asymptotic.sh -batch-name '+shortcard+'_'+WP+'_Asymptotic')
-      os.chdir(pwd)
+      create_asymptotic_batch(WP, shortcard, card, RunBlind, LimitModeLabel, pwd)
 
     if args.Work:
       with open(WP+"/"+shortcard+"/MakeWorkspace.sh",'w') as runfile:

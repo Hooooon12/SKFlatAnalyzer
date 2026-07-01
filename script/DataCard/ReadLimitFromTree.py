@@ -10,6 +10,8 @@ parser.add_argument('--BDT', action='store_true')
 parser.add_argument('--Ext', action='store_true')
 parser.add_argument('--Asymptotic', action='store_true')
 parser.add_argument('--Full', action='store_true')
+parser.add_argument('--Unblind', action='store_true',
+                    help='For Asymptotic: read Expected ROOT for bands and Observed ROOT for observed limit')
 args = parser.parse_args()
 
 #workdir = "/data6/Users/jihkim/CombineTool/CMSSW_10_2_13/src/DataCardsShape/HNL_SignalRegion_Plotter/Batch/"
@@ -125,7 +127,7 @@ IDs = [""] #["_ID"]
 #myWPs = ["ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_StatReqEra_Decorr_JetDecorr_PR188"]
 #myWPs = ["ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR3Update_Decorr_JetDecorr_PR188"]
 #myWPs = ["ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"]
-myWPs = ["ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"]
+myWPs = ["ANv7_ConvUpdate_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
@@ -135,13 +137,13 @@ myWPs = ["ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDe
 #tags = ["_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined"]
 #tags = ["_DYVBF_syst","_DY_syst","_VBF_syst","_SSWW_syst"]
-tags = ["_DYVBF_syst"]
+#tags = ["_DYVBF_syst"]
 #tags = ["_sronly_sr123_syst"]
 #tags = ["_sronly_sr123"]
 #tags = ["_DYVBF_sronly_sr123_syst"]
 #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_DY_syst","_VBF_syst","_SSWW_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined","_Weinberg_sr2_syst_Combined","_Weinberg_sr3_syst_Combined"]
-#tags = ["_HNL_syst","_Weinberg_syst"]
+tags = ["_HNL_syst","_Weinberg_syst"]
 #tags = ["_HNL_syst","_Weinberg_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined","_Weinberg_sr2_syst_Combined","_Weinberg_sr3_syst_Combined"]
 
 BDTTag = '_BDT' if args.BDT else ''
@@ -187,18 +189,82 @@ def fmt_limit_value(x, ndigit=6):
   """
   return str(round(float(x), ndigit))
 
+EXPECTED_QUANTILES = [0.025, 0.160, 0.500, 0.840, 0.975]
 
-def read_asymptotic_r_values(root_path, out_path=None):
+
+def first_existing_path(paths):
   """
+  Return the first existing path. If none exists, return the first candidate.
+  This is only used for optional .out fallback parsing.
+  """
+  for p in paths:
+    if p and os.path.exists(p):
+      return p
+  return paths[0] if paths else None
+
+
+def parse_asymptotic_out(out_path):
+  """
+  Parse Combine text output if ROOT reading fails.
+
   Return:
-    [Exp_m2s, Exp_m1s, Exp, Exp_p1s, Exp_p2s]
-
-  Prefer ROOT output. If ROOT file is missing or broken, optionally fall back
-  to parsing the .out file.
+    obs_val: float or None
+    exp_vals: [Exp_m2s, Exp_m1s, Exp, Exp_p1s, Exp_p2s] or None
   """
+  obs_val = None
+  exp_vals = None
 
-  # 1. Preferred: read ROOT tree
-  if os.path.exists(root_path):
+  if not out_path or not os.path.exists(out_path):
+    return obs_val, exp_vals
+
+  try:
+    txt = open(out_path).read()
+
+    m_obs = re.search(r"Observed\s+Limit:\s+r\s+<\s+([0-9eE+\-.]+)", txt)
+    if m_obs:
+      obs_val = float(m_obs.group(1))
+
+    patterns = [
+      r"Expected\s+2\.5%:\s+r\s+<\s+([0-9eE+\-.]+)",
+      r"Expected\s+16\.0%:\s+r\s+<\s+([0-9eE+\-.]+)",
+      r"Expected\s+50\.0%:\s+r\s+<\s+([0-9eE+\-.]+)",
+      r"Expected\s+84\.0%:\s+r\s+<\s+([0-9eE+\-.]+)",
+      r"Expected\s+97\.5%:\s+r\s+<\s+([0-9eE+\-.]+)",
+    ]
+
+    vals = []
+    for p in patterns:
+      m = re.search(p, txt)
+      if not m:
+        vals = None
+        break
+      vals.append(float(m.group(1)))
+
+    exp_vals = vals
+
+  except Exception:
+    return None, None
+
+  return obs_val, exp_vals
+
+
+def read_asymptotic_values(root_path, out_path=None):
+  """
+  Read one AsymptoticLimits ROOT file.
+
+  Return:
+    obs_val: observed limit if present, otherwise None
+    exp_vals: [Exp_m2s, Exp_m1s, Exp, Exp_p1s, Exp_p2s] if present, otherwise None
+
+  This uses quantileExpected when available:
+    quantileExpected < 0  : observed
+    0.025, 0.160, ...     : expected quantiles
+  """
+  obs_val = None
+  exp_by_quantile = [None, None, None, None, None]
+  exp_in_order = []
+
+  if root_path and os.path.exists(root_path):
     try:
       f_Asym = TFile.Open(root_path)
 
@@ -206,14 +272,28 @@ def read_asymptotic_r_values(root_path, out_path=None):
         tree_Asym = f_Asym.Get("limit")
 
         if tree_Asym:
-          if int(tree_Asym.GetEntries()) >= 5:
-            vals = []
-            for i in range(5):
-              tree_Asym.GetEntry(i)
-              vals.append(float(tree_Asym.limit))
+          n_entries = int(tree_Asym.GetEntries())
 
-            f_Asym.Close()
-            return vals
+          for i in range(n_entries):
+            tree_Asym.GetEntry(i)
+            val = float(tree_Asym.limit)
+
+            try:
+              q = float(tree_Asym.quantileExpected)
+            except Exception:
+              q = None
+
+            if q is not None and q < -0.5:
+              obs_val = val
+            elif q is not None:
+              iq = min(range(len(EXPECTED_QUANTILES)),
+                       key=lambda k: abs(q - EXPECTED_QUANTILES[k]))
+              if abs(q - EXPECTED_QUANTILES[iq]) < 0.03:
+                exp_by_quantile[iq] = val
+              else:
+                exp_in_order.append(val)
+            else:
+              exp_in_order.append(val)
 
       if f_Asym:
         f_Asym.Close()
@@ -221,32 +301,90 @@ def read_asymptotic_r_values(root_path, out_path=None):
     except Exception:
       pass
 
-  # 2. Fallback: parse .out file
-  if out_path and os.path.exists(out_path):
-    try:
-      txt = open(out_path).read()
+  exp_vals = exp_by_quantile if all(v is not None for v in exp_by_quantile) else None
 
-      patterns = [
-        r"Expected\s+2\.5%:\s+r\s+<\s+([0-9eE+\-.]+)",
-        r"Expected\s+16\.0%:\s+r\s+<\s+([0-9eE+\-.]+)",
-        r"Expected\s+50\.0%:\s+r\s+<\s+([0-9eE+\-.]+)",
-        r"Expected\s+84\.0%:\s+r\s+<\s+([0-9eE+\-.]+)",
-        r"Expected\s+97\.5%:\s+r\s+<\s+([0-9eE+\-.]+)",
-      ]
+  # Fallback for very old ROOT outputs without quantileExpected.
+  if exp_vals is None and len(exp_in_order) >= 5:
+    if obs_val is None and "Observed" in os.path.basename(root_path) and len(exp_in_order) >= 6:
+      obs_val = exp_in_order[0]
+      exp_vals = exp_in_order[1:6]
+    else:
+      exp_vals = exp_in_order[:5]
 
-      vals = []
-      for p in patterns:
-        m = re.search(p, txt)
-        if not m:
-          return None
-        vals.append(float(m.group(1)))
+  # Text-output fallback.
+  out_obs, out_exp = parse_asymptotic_out(out_path)
+  if obs_val is None:
+    obs_val = out_obs
+  if exp_vals is None:
+    exp_vals = out_exp
 
-      return vals
+  return obs_val, exp_vals
 
-    except Exception:
+
+def build_asymptotic_paths(this_workdir, this_name, mode_label, scan_suffix=""):
+  """
+  New create-batch.py output naming convention:
+
+    output/<this_name>_Asymptotic_Expected.root
+    output/<this_name>_Asymptotic_Observed.root
+
+  For scans:
+
+    output/<this_name>_Asymptotic_Expected_f0.5.root
+    output/<this_name>_Asymptotic_Observed_f0.5.root
+
+    output/<this_name>_Asymptotic_Expected_wMuMu...root
+    output/<this_name>_Asymptotic_Observed_wMuMu...root
+  """
+  batch_dir = this_workdir + "/Asymptotic/" + this_name
+  output_dir = batch_dir + "/output"
+
+  mode_piece = "_" + mode_label if mode_label != "" else ""
+
+  root_name = this_name + "_Asymptotic" + mode_piece + scan_suffix + ".root"
+  out_name  = this_name + "_Asymptotic" + mode_piece + scan_suffix + ".out"
+
+  root_path = output_dir + "/" + root_name
+  out_path = first_existing_path([
+    batch_dir + "/logs/" + out_name,
+    batch_dir + "/" + out_name
+  ])
+
+  return root_path, out_path
+
+
+def read_asymptotic_line_values(this_workdir, this_name, scan_suffix="", read_observed=False):
+  """
+  Return one output line payload:
+
+    [Obs, Exp_m2s, Exp_m1s, Exp, Exp_p1s, Exp_p2s]
+
+  Expected bands always come from the blind Expected ROOT.
+  Observed value comes from Observed ROOT only when read_observed=True.
+  Otherwise Obs is filled with expected median, preserving the old blind convention.
+  """
+  expected_root, expected_out = build_asymptotic_paths(this_workdir, this_name, "Expected", scan_suffix)
+  _, exp_vals = read_asymptotic_values(expected_root, expected_out)
+
+  if exp_vals is None:
+    print("[WARN] Missing or invalid Expected Asymptotic limit:")
+    print("       " + expected_root)
+    return None
+
+  obs_val = exp_vals[2]
+
+  if read_observed:
+    observed_root, observed_out = build_asymptotic_paths(this_workdir, this_name, "Observed", scan_suffix)
+    obs_from_file, _ = read_asymptotic_values(observed_root, observed_out)
+
+    if obs_from_file is None:
+      print("[WARN] Missing or invalid Observed Asymptotic limit:")
+      print("       " + observed_root)
       return None
 
-  return None
+    obs_val = obs_from_file
+
+  return [obs_val] + exp_vals
 
 
 ###########################
@@ -279,17 +417,17 @@ for WP in myWPs:
           #   Run2_3ch_Weinberg_syst_Asymptotic_wMuMu0p5_wEMu0p5_wEE0p0.out
           labels = set()
 
-          root_pattern = output_dir+"/"+this_name+"_Asymptotic_wMuMu*_wEMu*_wEE*.root"
-          out_pattern  = batch_dir+"/"+this_name+"_Asymptotic_wMuMu*_wEMu*_wEE*.out"
+          root_pattern = output_dir+"/"+this_name+"_Asymptotic_Expected_wMuMu*_wEMu*_wEE*.root"
+          out_pattern  = batch_dir+"/logs/"+this_name+"_Asymptotic_Expected_wMuMu*_wEMu*_wEE*.out"
 
           for path in glob.glob(root_pattern):
             base = os.path.basename(path)
-            label = base.replace(this_name+"_Asymptotic_", "").replace(".root", "")
+            label = base.replace(this_name+"_Asymptotic_Expected_", "").replace(".root", "")
             labels.add(label)
 
           for path in glob.glob(out_pattern):
             base = os.path.basename(path)
-            label = base.replace(this_name+"_Asymptotic_", "").replace(".out", "")
+            label = base.replace(this_name+"_Asymptotic_Expected_", "").replace(".out", "")
             labels.add(label)
 
           w_points = []
@@ -325,19 +463,16 @@ for WP in myWPs:
 
           for wMuMu, wEMu, wEE, label in w_points:
 
-            root_path = output_dir+"/"+this_name+"_Asymptotic_"+label+".root"
-            out_path  = batch_dir+"/"+this_name+"_Asymptotic_"+label+".out"
+            r_line_vals = read_asymptotic_line_values(
+              this_workdir,
+              this_name,
+              "_" + label,
+              args.Unblind
+            )
 
-            r_vals = read_asymptotic_r_values(root_path, out_path)
-
-            if r_vals is None:
+            if r_line_vals is None:
               print("[WARN] Missing or invalid Weinberg limit for "+label)
               continue
-
-            # r_vals = [Exp_m2s, Exp_m1s, Exp, Exp_p1s, Exp_p2s]
-            # For consistency with existing code, use Exp median as Obs placeholder.
-            r_obs = r_vals[2]
-            r_line_vals = [r_obs] + r_vals
 
             prefix = label+"\t"+str(wMuMu)+"\t"+str(wEMu)+"\t"+str(wEE)+"\t"
 
@@ -417,38 +552,22 @@ for WP in myWPs:
             print("Parsing 2D limit for "+this_name+" ...")
             
             for f_val in f_values:
-              # Construct path mapping to create-batch.py output format
-              path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic_f"+f_val+".root"
-              
-              try: 
-                f_Asym = TFile.Open(path)
-                if not f_Asym or f_Asym.IsZombie():
-                  continue
-              except Exception:
+              line_vals = read_asymptotic_line_values(
+                this_workdir,
+                this_name,
+                "_f" + f_val,
+                args.Unblind
+              )
+
+              if line_vals is None:
                 continue
-                
-              tree_Asym = f_Asym.Get("limit")
-              if not tree_Asym:
-                f_Asym.Close()
-                continue
-                
-              try: 
-                tree_Asym.GetEntry(2) # Fallback to entry 2 for 'obs' placeholder as in 1D code
-                obs_val = tree_Asym.limit
-              except AttributeError:
-                f_Asym.Close()
-                continue
-                
-              # Write Mass and f value first
-              f.write(mass+"\t"+f_val+"\t"+str(round(obs_val*scaler_3ch, 5))+"\t")
-              
-              # Write 5 expected limit values
-              for i in range(5): 
-                tree_Asym.GetEntry(i)
-                f.write(str(round(tree_Asym.limit*scaler_3ch, 5))+"\t")
-                
+
+              scaled_vals = [round(x * scaler_3ch, 5) for x in line_vals]
+
+              f.write(mass+"\t"+f_val+"\t")
+              f.write("\t".join([str(x) for x in scaled_vals]))
               f.write("\n")
-              f_Asym.Close()
+
               print("done.")
 
       #### Flavor-dependent limits ####
@@ -460,22 +579,17 @@ for WP in myWPs:
 
           print("Parsing single-channel Weinberg limit for "+this_name+" ...")
 
-          # Example:
-          #   Batch/<WP>/Asymptotic/Run2_MuMu_Weinberg_syst/output/Run2_MuMu_Weinberg_syst_Asymptotic.root
-          path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic.root"
+          r_line_vals = read_asymptotic_line_values(
+            this_workdir,
+            this_name,
+            "",
+            args.Unblind
+          )
 
-          r_vals = read_asymptotic_r_values(path)
-
-          if r_vals is None:
+          if r_line_vals is None:
             print("[WARN] Missing or invalid Weinberg limit ROOT file:")
-            print("       "+path)
+            print("       "+this_name)
             continue
-
-          # r_vals = [Exp_m2s, Exp_m1s, Exp, Exp_p1s, Exp_p2s]
-          # Same convention as the existing HNL code:
-          # use median expected as Obs placeholder because --run blind has no real observed limit.
-          r_obs = r_vals[2]
-          r_line_vals = [r_obs] + r_vals
 
           # For single lepton channel cards, the relevant Weinberg flavor is effectively w_c = 1.
           # So:
@@ -532,32 +646,22 @@ for WP in myWPs:
               elif float(mass)==500: 
                 this_name = year+"_"+channel+ExtTag+"_M"+mass+ID+tag
             print(this_name)
-            path = this_workdir+"/Asymptotic/"+this_name+"/output/"+this_name+"_Asymptotic.root"
-  
-            try: f_Asym = TFile.Open(path)
-            except OSError:
+
+            line_vals = read_asymptotic_line_values(
+              this_workdir,
+              this_name,
+              "",
+              args.Unblind
+            )
+
+            if line_vals is None:
               f.write("\n")
               continue
-            tree_Asym = f_Asym.Get("limit")
-  
-            try: tree_Asym.GetEntry(2) # substitute for obs. limit for now
-            except AttributeError:
-              f.write("\n")
-              continue
-            f.write(mass+"\t"+str(round(tree_Asym.limit,3))+"\t")
-            #f.write(mass+"\t"+str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
-            #f.write(mass+"\t"+str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
-            #f.write(mass+"\t"+str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
-            #f.write(mass+"\t"+str(round(tree_Asym.limit/1.77,3))+"\t") # FIXME estimating full Run2+3 from Run2
-  
-            for i in range(5): # expected limits
-              tree_Asym.GetEntry(i)
-              f.write(str(round(tree_Asym.limit,3))+"\t")
-              #f.write(str(round(tree_Asym.limit/1.82,3))+"\t") # FIXME estimating full Run2 from 2017
-              #f.write(str(round(tree_Asym.limit/1.52,3))+"\t") # FIXME estimating full Run2 from 2018
-              #f.write(str(round(tree_Asym.limit/3.16,3))+"\t") # FIXME estimating full Run2+3 from 2017
-              #f.write(str(round(tree_Asym.limit/1.77,3))+"\t") # FIXME estimating full Run2+3 from Run2
+
+            f.write(mass+"\t")
+            f.write("\t".join([str(round(x, 3)) for x in line_vals]))
             f.write("\n")
+
             print("done.")
   
     if args.Full:
