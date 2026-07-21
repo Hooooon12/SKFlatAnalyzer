@@ -64,7 +64,11 @@ for ch in MuMu EE EMu;
 #root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,2,true,false,false,true,\"\",false)"; # SR sep limits, compare, mixing limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,false,false,false,true,\"\",false)"; # mixing limit, logy
 
+# exp, internal comparison #
+root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,true,\"\",false)"; # compare, mixing limit, logy
+root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false,\"\",false)"; # compare, mixing limit, linear
+
 # obs #
-root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,false,false,false,true,\"\",true)"; # mixing limit, logy
+#root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,false,false,false,true,\"\",true)"; # mixing limit, logy
 
   done;

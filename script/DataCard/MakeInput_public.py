@@ -1808,6 +1808,10 @@ def symmetrize_down_from_up(h_down, h_nom, h_up, bins_to_fix, label):
 #   SmoothEE            : apply conservative 1-2-1 smoothing to EE only:
 #                         SR3 M125-M500 and SR2 all masses.
 #                         SmoothEE2 means two smoothing iterations.
+#   FillHoles           : after all requested bin treatments, fill zero/negative
+#                         bins only for card-level MC backgrounds
+#                         zg/zz/wz/wz_ewk/ww/mc_others.  Content and error are
+#                         set to the same process-specific tiny value, so Neff=1.
 #
 # Optional extra tags:
 #   LowStatSignal       : also apply LowStatNeff to signal templates.
@@ -1846,10 +1850,60 @@ FITTEST_LOWSTAT_ACTIVE = test_tag_has("LowStatNeff")
 FITTEST_LOWSTAT_NEFF_MIN = test_tag_float("LowStatNeff", 5.0)
 
 FITTEST_MERGE_SR2_BIN78 = test_tag_has("MergeSR2Bin78")
+FITTEST_MERGE_SR2_BIN3478 = test_tag_has("MergeSR2Bin3478")
 FITTEST_MERGE_SR3_EE_BIN1314 = test_tag_has("MergeSR3EEBin1314")
 
 FITTEST_SMOOTH_EE = test_tag_has("SmoothEE")
 FITTEST_SMOOTH_NITER = max(1, test_tag_int("SmoothEE", 1))
+
+FITTEST_FILLHOLES_ACTIVE = test_tag_has("FillHoles")
+FITTEST_FILLHOLES_PROCS = ["zg", "zz", "wz", "wz_ewk", "ww", "mc_others"]
+
+# Fill these by hand before running with -T FillHoles.
+# Keep them positive.  The same number is used for bin content and bin error,
+# therefore Neff = content^2/error^2 = 1 in every filled bin.
+#
+# Example:
+#   "zg": 1e-9,
+#   "zz": 1e-9,
+#   ...
+FITTEST_FILLHOLES_VALUES = {
+  "zg":        0.001,
+  "zz":        0.001,
+  "wz":        0.001,
+  "wz_ewk":    0.001,
+  "ww":        0.001,
+  "mc_others": 0.001,
+}
+
+if FITTEST_FILLHOLES_ACTIVE:
+  _missing_fillhole_values = [
+    proc for proc in FITTEST_FILLHOLES_PROCS
+    if FITTEST_FILLHOLES_VALUES.get(proc, None) is None
+  ]
+  if _missing_fillhole_values:
+    raise RuntimeError(
+      "[FitTest][FillHoles] FillHoles is active, but no tiny fill value is set for: "
+      + ", ".join(_missing_fillhole_values)
+      + ". Edit FITTEST_FILLHOLES_VALUES in MakeInput_public.py before running."
+    )
+
+  for _proc in FITTEST_FILLHOLES_PROCS:
+    FITTEST_FILLHOLES_VALUES[_proc] = float(FITTEST_FILLHOLES_VALUES[_proc])
+    if FITTEST_FILLHOLES_VALUES[_proc] <= 0.:
+      raise RuntimeError(
+        "[FitTest][FillHoles] Fill value for "
+        + _proc
+        + " must be positive, got "
+        + str(FITTEST_FILLHOLES_VALUES[_proc])
+      )
+
+  print(
+    "[FitTest][FillHoles] Active. Target processes =",
+    FITTEST_FILLHOLES_PROCS,
+    "values =",
+    FITTEST_FILLHOLES_VALUES
+  )
 
 # LowStatNeff is applied to MC-driven templates only by default.
 # fake/cf/data are excluded. Signals are excluded unless LowStatSignal is used.
@@ -1874,7 +1928,7 @@ if test_tag_has("SmoothFakeCF"):
 if test_tag_has("SmoothIndividualMC"):
   FITTEST_SMOOTH_PROCS |= set(MC_INDIVIDUAL_PROCS)
 
-if args.CnC and (FITTEST_MERGE_SR2_BIN78 or FITTEST_MERGE_SR3_EE_BIN1314 or FITTEST_SMOOTH_EE):
+if args.CnC and (FITTEST_MERGE_SR2_BIN78 or FITTEST_MERGE_SR2_BIN3478 or FITTEST_MERGE_SR3_EE_BIN1314 or FITTEST_SMOOTH_EE):
   print(
     "[FitTest][WARNING] Merge/smoothing tags are active, but --CnC writes "
     "one-bin histograms. Merge/smoothing will be skipped. "
@@ -2073,6 +2127,88 @@ def process_base_from_hist_name(hist_name):
   return proc
 
 
+def should_fillholes_rescue_nominal_proc(proc):
+  return FITTEST_FILLHOLES_ACTIVE and proc in FITTEST_FILLHOLES_PROCS
+
+
+def should_fillholes_hist_name(hist_name):
+  if not FITTEST_FILLHOLES_ACTIVE:
+    return False
+
+  proc = process_base_from_hist_name(hist_name)
+  if proc is None:
+    return False
+
+  return proc in FITTEST_FILLHOLES_PROCS
+
+
+def fillholes_value_for_hist_name(hist_name):
+  proc = process_base_from_hist_name(hist_name)
+  if proc not in FITTEST_FILLHOLES_PROCS:
+    return None
+  return FITTEST_FILLHOLES_VALUES[proc]
+
+
+def fill_holes_in_hist(h, hist_name, label):
+  """
+  Fill zero/negative normal bins for the selected card-level MC templates.
+
+  This is meant to be the last bin-level fit-test treatment.  The same tiny
+  positive value is written as both content and error, making Neff = 1.
+  """
+  if not should_fillholes_hist_name(hist_name):
+    return False
+
+  if not is_valid_th1(h):
+    return False
+
+  fill_value = fillholes_value_for_hist_name(hist_name)
+  changed = []
+
+  for ibin in range(1, h.GetNbinsX() + 1):
+    old_val = h.GetBinContent(ibin)
+    if old_val <= 0.:
+      old_err = h.GetBinError(ibin)
+      h.SetBinContent(ibin, fill_value)
+      h.SetBinError(ibin, fill_value)
+      changed.append((ibin, old_val, old_err))
+
+  if changed:
+    preview = ", ".join([
+      str(ibin) + ":" + format(old_val, ".3g") + "+/-" + format(old_err, ".3g")
+      for ibin, old_val, old_err in changed[:12]
+    ])
+    if len(changed) > 12:
+      preview += ", ..."
+
+    print(
+      "[FitTest][FillHoles]",
+      label,
+      "hist =",
+      hist_name,
+      "fill =",
+      fill_value,
+      "changed bins old_content+/-old_error =",
+      preview
+    )
+
+  return len(changed) > 0
+
+
+def fill_holes_in_input_list(input_list, label):
+  if not FITTEST_FILLHOLES_ACTIVE:
+    return
+
+  for item in input_list:
+    h = item[1]
+    name = item[2]
+
+    if name == "data_obs":
+      continue
+
+    fill_holes_in_hist(h, name, label)
+
+
 def should_smooth_hist_name(hist_name):
   proc = process_base_from_hist_name(hist_name)
 
@@ -2201,6 +2337,16 @@ def should_apply_sr2_bin78_merge(region):
     and (not args.CR)
     and region == "sr2"
   )
+
+
+def should_apply_sr2_bin3478_merge(region):
+  return (
+    FITTEST_MERGE_SR2_BIN3478
+    and (not args.CnC)
+    and (not args.CR)
+    and region == "sr2"
+  )
+
 
 
 def should_apply_sr3_ee_bin1314_merge(region, channel, is_Weinberg, mass_int):
@@ -3160,6 +3306,18 @@ for tag in args.histTag:
               fit_test_label + " MergeSR2Bin78"
             )
 
+          if should_apply_sr2_bin3478_merge(region):
+            merge_bins_in_input_list(
+              input_list,
+              7,
+              fit_test_label + " MergeSR2Bin3478"
+            )
+            merge_bins_in_input_list(
+              input_list,
+              3,
+              fit_test_label + " MergeSR2Bin3478"
+            )
+
           if should_apply_sr3_ee_bin1314_merge(region, channel, is_Weinberg, fit_test_mass_int):
             merge_bins_in_input_list(
               input_list,
@@ -3171,6 +3329,12 @@ for tag in args.histTag:
             smooth_selected_hists_in_input_list(
               input_list,
               fit_test_label + " SmoothEE"
+            )
+
+          if FITTEST_FILLHOLES_ACTIVE:
+            fill_holes_in_input_list(
+              input_list,
+              fit_test_label + " FillHoles"
             )
 
           #print("[DEBUG]", region, mass, channel, input_hist)

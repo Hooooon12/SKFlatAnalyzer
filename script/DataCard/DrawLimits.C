@@ -706,6 +706,38 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
     //);
 
+    // *** Compare before vs after the "new" nominal (low stat MC treatment) and also MergeSR2Bin78
+    plot_cfg.nominal.tag_nom = "_HNL_syst";
+    plot_cfg.study.subdir = "Before_vs_After_LowStatTreat";
+    plot_cfg.study.entries.push_back(
+      ComparisonEntry("ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194",
+                      "_HNL_syst",
+                      "Low stat MC treatment",
+                      kRed,
+                      0.01,
+                      plot_cfg.nominal.method_nom,
+                      "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    );
+    plot_cfg.study.entries.push_back(
+      ComparisonEntry("ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_MergeSR2Bin78_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194",
+                      "_HNL_syst",
+                      "Merge SR2 bin 7+8",
+                      kOrange,
+                      0.01,
+                      plot_cfg.nominal.method_nom,
+                      "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    );
+    plot_cfg.study.entries.push_back(
+      ComparisonEntry("ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194",
+                      "_HNL_syst",
+                      "Low stat MC treatment + Merge SR2 bin 7+8",
+                      kBlue,
+                      0.01,
+                      plot_cfg.nominal.method_nom,
+                      "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    );
+
+
   }
 
   const vector<TString>& WP_noms = plot_cfg.nominal.wp_noms;
