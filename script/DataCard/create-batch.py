@@ -2119,6 +2119,7 @@ for RunList in args.RunLists:
               f"--rMin -10 --rMax 10 "
               f"--saveShapes "
               f"--saveWithUncertainties "
+              f"--numToysForShapes 1000 "
               f"--saveNormalizations "
               f"--saveWorkspace "
               f"--verbose 3 "
@@ -2127,7 +2128,7 @@ for RunList in args.RunLists:
               f"--plots "
               f"{AsimovSetting}\n"
             )
-            runfile.write(f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -a fitDiagnostics_{this_shortcard}.root > pulls_{this_shortcard}.txt\n")
+            runfile.write(f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -a -A fitDiagnostics_{this_shortcard}.root > pulls_{this_shortcard}.txt\n")
           elif args.GOF:
             if "DefMod" in this_shortcard: continue # Must use the actual physics model
 

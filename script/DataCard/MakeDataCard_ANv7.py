@@ -99,7 +99,7 @@ CRpath = SRpath
 #InputWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # pt-dependent Muon RECO SF @260110
 InputWPs = args.InputWPs
 
-RegionDecorr_list = ["CMS_SUS24014_fake_stat","CMS_SUS24014_fake_highpt","CMS_SUS24014_fake_syst","CMS_SUS24014_fake_m_stat","CMS_SUS24014_fake_m_highpt","CMS_SUS24014_fake_m_syst","CMS_SUS24014_fake_e_stat","CMS_SUS24014_fake_e_highpt","CMS_SUS24014_fake_e_syst","CMS_SUS24014_cf_stat","CMS_SUS24014_cf_syst"]
+RegionDecorr_list = ["CMS_SUS24014_fake_stat","CMS_SUS24014_fake_highpt","CMS_SUS24014_fake_syst","CMS_SUS24014_fake_m_stat","CMS_SUS24014_fake_m_highpt","CMS_SUS24014_fake_m_loose_id","CMS_SUS24014_fake_m_syst","CMS_SUS24014_fake_e_stat","CMS_SUS24014_fake_e_highpt","CMS_SUS24014_fake_e_loose_id","CMS_SUS24014_fake_e_syst","CMS_SUS24014_cf_stat","CMS_SUS24014_cf_syst"]
 
 ExtTag = '_Ext' if args.Ext else ''
 if args.CnC:
@@ -354,6 +354,8 @@ def _tail_start_index(lines):
 
 def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
 
+  PRver = int(PRverMatch.group(1)) if (PRverMatch := re.search(r'PR(\d+)', WP)) else -1
+
   if era == RUN2_CARD_ERA:
     return CardSetting_Run2Sum(isCR, WP, skeleton, channel, mass, signal) # The actual function definition is located below.
 
@@ -390,6 +392,28 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
 
     this_lines[rate_idx] = MakeRateString(region, era, channel, mass, signal, WP)
 
+    # Recover the final per-process rate settings after all automatic
+    # exceptions and signal/region selections have been applied.
+    process_names = list(Initialize_Process(WP).keys())
+    rate_values = this_lines[rate_idx].split()[1:]
+    
+    if len(rate_values) != len(process_names):
+      raise RuntimeError(
+        "[CardSetting] Number of rate values does not match "
+        "the number of processes for "
+        + era + " "
+        + region + " "
+        + channel + " "
+        + mass
+        + ": "
+        + str(len(rate_values))
+        + " rates for "
+        + str(len(process_names))
+        + " processes."
+      )
+    
+    process_rate_map = OrderedDict(zip(process_names, rate_values))
+
     for i in range(len(this_lines)):
       this_lines[i] = this_lines[i].replace('bin1',region)
 
@@ -398,7 +422,7 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
 
     ### handle each syst
     # Define era-correlated syst keys
-    corr_keys = ["xsec", "pileup", "QCDscale", "RenScale", "FacScale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet"]
+    corr_keys = ["xsec", "pileup", "QCDscale", "RenScale", "FacScale", "pdf", "_corr", "scale_m", "res_m", "eff_m_reco_syst", "eff_m_id_syst", "eff_m_trigger_syst", "scale_e", "res_e", "eff_e_reco_syst", "eff_e_id_syst", "eff_e_trigger_syst", "ParticleNet", "altwz"]
     if "PNETdecorr" in args.outputTag: corr_keys = [k for k in corr_keys if "ParticleNet" not in k]
     if "FullJES" in WP: corr_keys+=[
                                     "AbsoluteMPFBias",
@@ -432,6 +456,27 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
           if line.split()[0].endswith("CMS_scale_j"): continue
         else:
           if "CMS_scale_j_" in line: continue
+
+        # Fake Loose ID syst
+        if PRver < 195 and line.split()[0].endswith("loose_id"): continue
+
+        # AltWZ generator systematic.
+        #
+        # If the nominal wz process is absent and has been disabled through
+        # the automatically generated exception rule, do not keep an AltWZ
+        # shape line. Otherwise text2workspace would request variation
+        # histograms for a process that does not exist in this card.
+        if line.split()[0].endswith("altwz"):
+          if "AltWZ" not in WP:
+            continue
+        
+          if process_rate_map["wz"] == "0":
+            print(
+              "[CardSetting][AltWZ] "
+              "Nominal wz is disabled; dropping AltWZ for",
+              era, region, channel, mass
+            )
+            continue
 
         if is_syst_line(line):
           syst_name = line.split()[0]

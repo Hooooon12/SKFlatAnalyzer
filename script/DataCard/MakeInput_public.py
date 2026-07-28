@@ -15,7 +15,7 @@ parser.add_argument('-e', dest='eras', choices=['2016preVFP','2016postVFP','2017
 parser.add_argument('-m', dest='masses', nargs='+', help='signal masses to run')
 parser.add_argument('-c', dest='channels', nargs='+', default=["MuMu","EE","EMu"], help='lepton channels to run')
 parser.add_argument('-i', dest='inputTag', default='', help='tag attached to the input SKFlatOutput files')
-parser.add_argument('-o', dest='outputTag', default='', help='tag attached to the output files (this is a part of the MergedFiles path)')
+parser.add_argument('-o', dest='outputTag', default='', help='tag attached to the output files (tag for the MergedFiles path)')
 parser.add_argument('-T', dest='TestTag', default='', help='tag attached to each Tests e.g. fit tests, syst decorrelation tests, etc.')
 parser.add_argument('-x', dest='exceptionTag', default='', help='tag attached to the exception rules')
 parser.add_argument('-s', dest='saveException', choices=['Print','Write','Add'], default='Print', help='how to save the exception rule')
@@ -31,7 +31,7 @@ parser.add_argument('--Unblind', action='store_true', help='Unblind data in SR')
 parser.add_argument('--PreFlag', nargs='+', help='Your private flag names')
 parser.add_argument('--PostFlag', nargs='+', help='Your private flag names')
 ## Merge setting
-parser.add_argument('--Merge', action='store_true', help='hadd the needed histograms') # NOTE Run2 Merging deprecated.
+parser.add_argument('--Merge',  action='store_true', help='hadd the needed histograms') # NOTE Run2 Merging deprecated.
 parser.add_argument('--Data',   action='store_true', help='merge Data')
 parser.add_argument('--Fake',   action='store_true', help='merge Fake')
 parser.add_argument('--CF',     action='store_true', help='merge CF')
@@ -39,11 +39,90 @@ parser.add_argument('--Conv',   action='store_true', help='merge Conv')
 parser.add_argument('--Prompt', action='store_true', help='merge Prompt')
 parser.add_argument('--MC',     action='store_true', help='merge MC (Conv+Prompt)')
 parser.add_argument('--Signal', action='store_true', help='merge Signal')
+parser.add_argument('--AltWZ',  action='store_true', help='copy the alternative powheg WZ sample only')
 ##
 parser.add_argument('--CheckFiles', action='store_true', help='check all inputs before merge')
 parser.add_argument('--BDTver', default=None, help='BDT version comparison')
 parser.add_argument('--regions', nargs='+', default=None, help='regions to run, e.g. sr2 or zg_cr')
+parser.add_argument(
+  '-v',
+  '--verbose',
+  type=int,
+  choices=[1, 2, 3],
+  default=1,
+  help=(
+    'verbosity level:\n'
+    '  1 = major progress and important warnings\n'
+    '  2 = diagnostics and fallback details\n'
+    '  3 = full ROOT/histogram-level output'
+  )
+)
 args = parser.parse_args()
+
+def vprint(level, *message, **kwargs):
+  if args.verbose >= level:
+    print(*message, **kwargs)
+
+LOG_BANNER = "!" * 100
+
+
+def log_region_start(era, region):
+  vprint(1, "")
+  vprint(1, LOG_BANNER)
+  vprint(
+    1,
+    "!!!!!! REGION START | era =",
+    era,
+    "| region =",
+    region,
+    "!!!!!!"
+  )
+  vprint(1, LOG_BANNER)
+
+
+def log_card_start(era, region, mass, channel, input_hist):
+  vprint(1, "")
+  vprint(1, LOG_BANNER)
+  vprint(
+    1,
+    "!!!!!! CARD START | era =",
+    era,
+    "| region =",
+    region,
+    "| mass =",
+    mass,
+    "| channel =",
+    channel,
+    "!!!!!!"
+  )
+  vprint(1, "!!!!!! input_hist :", input_hist)
+  vprint(
+    1,
+    "##### Initiating",
+    region,
+    mass,
+    channel,
+    "..."
+  )
+  vprint(1, LOG_BANNER)
+
+
+def log_card_done(era, region, mass, channel, output_file):
+  vprint(1, LOG_BANNER)
+  vprint(
+    1,
+    "!!!!!! CARD DONE | era =",
+    era,
+    "| region =",
+    region,
+    "| mass =",
+    mass,
+    "| channel =",
+    channel,
+    "!!!!!!"
+  )
+  vprint(1, "!!!!!! output_file :", output_file)
+  vprint(1, LOG_BANNER)
 
 PreFlag = ""
 if args.PreFlag is None: pass
@@ -78,6 +157,9 @@ inputTag = args.inputTag
 outputTag = args.outputTag if args.outputTag == '' else "_"+args.outputTag
 TestTag = args.TestTag if args.TestTag == '' else "_"+args.TestTag
 ExtTag = '_Ext' if args.Ext else ''
+
+ALT_WZ_SAMPLE = "WZTo3LNu_mllmin4p0_powheg"
+ALT_WZ_ENABLED = "AltWZ" in args.TestTag
 
 BDTver = args.BDTver
 ANver = int(re.search(r'\bANv(\d+)(?=_|$)', inputTag).group(1)) # ANv + some number + _ or end of the string
@@ -177,7 +259,7 @@ def expand_run2_eras(eras):
 
 # This will do necessary hadd for you.
 targets = ['Data','Fake','CF','Conv','Prompt','MC','Signal']
-any_target_selected = any(getattr(args, t) for t in targets)
+any_target_selected = any(getattr(args, t) for t in targets) or args.AltWZ
 
 if not args.Merge and any_target_selected:
   parser.error("You used --Data/--Fake/... without --Merge. Add --Merge.")
@@ -220,6 +302,10 @@ MergeConv   = Merge['Conv']
 MergePrompt = Merge['Prompt']
 MergeMC     = Merge['MC']
 MergeSignal = Merge['Signal']
+MergeAltWZ = args.Merge and args.AltWZ
+
+if MergeAltWZ and not ALT_WZ_ENABLED:
+  parser.error("--AltWZ requires -T/--TestTag containing 'AltWZ'.")
 
 if args.Merge and "Run2" in args.eras:
   parser.error(
@@ -392,9 +478,11 @@ SystList = [
             "FRMuonUp","FRMuonDown", # fake rate stat
             "FRMuonRateUp","FRMuonRateDown", # fake rate syst
             "FRMuonHighPtUp","FRMuonHighPtDown",
+            "FRMuonIDUp","FRMuonIDDown", # Loose ID variation (DeepJet score)
             "FRElectronUp","FRElectronDown", # fake rate stat
             "FRElectronRateUp","FRElectronRateDown", # fake rate syst
             "FRElectronHighPtUp","FRElectronHighPtDown",
+            "FRElectronIDUp","FRElectronIDDown", # Loose ID variation (DeepJet score)
             "PDFUp","PDFDown",
             #"ScaleUp","ScaleDown", <-- deprecated.
             "RenScaleUp","RenScaleDown",
@@ -469,14 +557,17 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["FRMuonUp"]            = "CMS_SUS24014_fake_m_stat_"+era+"Up"
   SystNameMap[era]["FRMuonRateUp"]        = "CMS_SUS24014_fake_m_syst_"+era+"Up"
   SystNameMap[era]["FRMuonHighPtUp"]      = "CMS_SUS24014_fake_m_highpt_"+era+"Up"
+  SystNameMap[era]["FRMuonIDUp"]          = "CMS_SUS24014_fake_m_loose_id_"+era+"Up"
   SystNameMap[era]["FRElectronUp"]        = "CMS_SUS24014_fake_e_stat_"+era+"Up"
   SystNameMap[era]["FRElectronRateUp"]    = "CMS_SUS24014_fake_e_syst_"+era+"Up"
   SystNameMap[era]["FRElectronHighPtUp"]  = "CMS_SUS24014_fake_e_highpt_"+era+"Up"
+  SystNameMap[era]["FRElectronIDUp"]      = "CMS_SUS24014_fake_e_loose_id_"+era+"Up"
   SystNameMap[era]["PDFUp"]               = "pdf"+"Up" # full correlation
   #SystNameMap[era]["ScaleUp"]             = "QCDscale"+"Up" # full correlation <-- deprecated.
   SystNameMap[era]["RenScaleUp"]          = "RenScale"+"Up" # full correlation
   SystNameMap[era]["FacScaleUp"]          = "FacScale"+"Up" # full correlation
   SystNameMap[era]["HEMJetUp"]            = "CMS_HEM_"+era+"Up"
+  SystNameMap[era]["AltWZUp"]             = "CMS_SUS24014_altwz"+"Up"
 
   ### Down variations
   ## Separate JES <-- deprecated.
@@ -541,14 +632,17 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["FRMuonDown"]            = "CMS_SUS24014_fake_m_stat_"+era+"Down"
   SystNameMap[era]["FRMuonRateDown"]        = "CMS_SUS24014_fake_m_syst_"+era+"Down"
   SystNameMap[era]["FRMuonHighPtDown"]      = "CMS_SUS24014_fake_m_highpt_"+era+"Down"
+  SystNameMap[era]["FRMuonIDDown"]          = "CMS_SUS24014_fake_m_loose_id_"+era+"Down"
   SystNameMap[era]["FRElectronDown"]        = "CMS_SUS24014_fake_e_stat_"+era+"Down"
   SystNameMap[era]["FRElectronRateDown"]    = "CMS_SUS24014_fake_e_syst_"+era+"Down"
   SystNameMap[era]["FRElectronHighPtDown"]  = "CMS_SUS24014_fake_e_highpt_"+era+"Down"
+  SystNameMap[era]["FRElectronIDDown"]      = "CMS_SUS24014_fake_e_loose_id_"+era+"Down"
   SystNameMap[era]["PDFDown"]               = "pdf"+"Down" # full correlation
   #SystNameMap[era]["ScaleDown"]             = "QCDscale"+"Down" # full correlation <-- deprecated.
   SystNameMap[era]["RenScaleDown"]          = "RenScale"+"Down" # full correlation
   SystNameMap[era]["FacScaleDown"]          = "FacScale"+"Down" # full correlation
   SystNameMap[era]["HEMJetDown"]            = "CMS_HEM_"+era+"Down"
+  SystNameMap[era]["AltWZDown"]             = "CMS_SUS24014_altwz"+"Down"
 
   # SR-decorrelated sources -- Don't remove this, it is used below
   SystNameMap[era]["CFRate"]            = "CMS_SUS24014_cf_stat_"+era
@@ -558,9 +652,11 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["FRMuon"]            = "CMS_SUS24014_fake_m_stat_"+era
   SystNameMap[era]["FRMuonRate"]        = "CMS_SUS24014_fake_m_syst_"+era
   SystNameMap[era]["FRMuonHighPt"]      = "CMS_SUS24014_fake_m_highpt_"+era
+  SystNameMap[era]["FRMuonID"]          = "CMS_SUS24014_fake_m_loose_id_"+era
   SystNameMap[era]["FRElectron"]        = "CMS_SUS24014_fake_e_stat_"+era
   SystNameMap[era]["FRElectronRate"]    = "CMS_SUS24014_fake_e_syst_"+era
   SystNameMap[era]["FRElectronHighPt"]  = "CMS_SUS24014_fake_e_highpt_"+era
+  SystNameMap[era]["FRElectronID"]      = "CMS_SUS24014_fake_e_loose_id_"+era
   SystNameMap[era]["JetRes"]            = "CMS_res_j_"+era
   SystNameMap[era]["JetEn"]             = "CMS_scale_j_"+era
 
@@ -716,6 +812,59 @@ SUMMARY_MC_PROCS = [
 DIAGNOSTIC_ONLY_PROCS = set(MC_INDIVIDUAL_PROCS + [
   "conv_inc", "conv_others", "prompt_inc", "prompt_others", "mc_inc",
 ])
+
+LOW_PRIORITY_LOG_PROCS = set(MC_INDIVIDUAL_PROCS)
+
+
+def process_detail_level(proc):
+  """
+  Warning/fallback level for a process.
+
+  level 1:
+    datacard backgrounds, summary backgrounds, data, signals
+
+  level 2:
+    individual MC samples
+
+  Successful access --> level 3
+  """
+  if proc in LOW_PRIORITY_LOG_PROCS:
+    return 2
+
+  return 1
+
+
+def hist_detail_level(hist_name):
+  """
+  Warning level inferred from a final histogram name.
+
+  Examples:
+    wz_CMS_scale_j_2018Up       -> 1
+    mc_inc_CMS_scale_j_2018Up   -> 1
+    TTG_CMS_scale_j_2018Up      -> 2
+  """
+  for proc in sorted(LOW_PRIORITY_LOG_PROCS, key=len, reverse=True):
+    if hist_name == proc or hist_name.startswith(proc + "_"):
+      return 2
+
+  return 1
+
+
+def hist_write_level(hist_name):
+  """
+  Successful final-write message level.
+
+  Aggregate/summary/signal/data histograms:
+    visible by default
+
+  Individual MC histograms:
+    visible only in the complete level-3 log
+  """
+  for proc in sorted(LOW_PRIORITY_LOG_PROCS, key=len, reverse=True):
+    if hist_name == proc or hist_name.startswith(proc + "_"):
+      return 3
+
+  return 1
 
 # signalDYVBF is kept for comparison/diagnostics, but the datacard is expected
 # to use the split DY and VBF signals.
@@ -1000,6 +1149,44 @@ if args.Merge:
             ]
             merge_or_copy_root(OutFile, in_files)
   
+  if MergeAltWZ:
+
+    print("[MergeAltWZ] Copying", ALT_WZ_SAMPLE, "only...")
+
+    for era in args.eras:
+      for DefFlag in DefFlags:
+
+        out_dir = (
+          MainPath
+          + "/MergedFiles/"
+          + Analyzer + "_" + inputTag + outputTag
+          + "/" + era
+          + "/" + PreFlag + DefFlag + "RunPrompt__" + PostFlag
+        )
+
+        in_file = (
+          SKFlatOutputPath
+          + "/" + Analyzer + "_" + inputTag
+          + "/" + era
+          + "/" + PreFlag + DefFlag + "RunPrompt__" + PostFlag
+          + "/"
+          + Analyzer
+          + PromptSkim[DefFlag][ALT_WZ_SAMPLE]
+          + ALT_WZ_SAMPLE
+          + ".root"
+        )
+
+        out_file = (
+          out_dir
+          + "/"
+          + Analyzer
+          + "_"
+          + ALT_WZ_SAMPLE
+          + ".root"
+        )
+
+        merge_or_copy_root(out_file, [in_file])
+
   if MergeSignal:
   
     #if args.CR:
@@ -1117,36 +1304,78 @@ def FillScan(outScan, inScan, procName):
 
   return
 
-def CheckFile(f_path):
+def CheckFile(f_path, missing_level=2):
 
-  f_root = None
+  vprint(3, "[CheckFile] opening", f_path, "...")
 
-  try:
-    print("[CheckFile] opening",f_path,"...")
-    f_root = TFile.Open(f_path)
-  except OSError:
-    print("[CheckFile] [!!WARNING!!] There is no file "+f_path+" .")
-    print("[CheckFile] return None ...")
+  if (not f_path) or (not os.path.exists(f_path)):
+    vprint(
+      missing_level,
+      "[CheckFile] Missing file:",
+      f_path
+    )
     return None
-  else:
-    print("[CheckFile] Good!")
-    return f_root
 
-def CheckHist(f_root,h_path,hist_name):
+  f_root = TFile.Open(f_path)
 
-  this_hist = None
-
-  try:
-    print("[CheckHist] getting",h_path,"from",f_root,"...")
-    this_hist = f_root.Get(h_path)
-    this_hist.GetEntries()
-  except AttributeError:
-    print("[CheckHist] [!!WARNING!!] There is no hist named",h_path,"in",f_root,".")
-    print("[CheckHist] return None for "+hist_name+"...")
+  if (not f_root) or f_root.IsZombie():
+    # Existing but unreadable/corrupted is more serious than simply absent.
+    print(
+      "[CheckFile][WARNING] Cannot open ROOT file:",
+      f_path
+    )
     return None
-  else:
-    print("[CheckHist] Good!")
-    return this_hist
+
+  vprint(3, "[CheckFile] Good:", f_path)
+  return f_root
+
+def CheckHist(f_root, h_path, hist_name):
+
+  level = hist_detail_level(hist_name)
+
+  vprint(
+    3,
+    "[CheckHist] getting",
+    h_path,
+    "for",
+    hist_name,
+    "..."
+  )
+
+  if not f_root:
+    vprint(
+      level,
+      "[CheckHist][WARNING] No input ROOT file for",
+      hist_name,
+      "; requested histogram =",
+      h_path
+    )
+    return None
+
+  root_file_name = f_root.GetName()
+  this_hist = f_root.Get(h_path)
+
+  if not is_valid_th1(this_hist):
+    vprint(
+      level,
+      "[CheckHist][WARNING] Missing histogram",
+      h_path,
+      "for",
+      hist_name,
+      "in",
+      root_file_name
+    )
+    return None
+
+  vprint(
+    3,
+    "[CheckHist] Good:",
+    hist_name,
+    "from",
+    root_file_name
+  )
+
+  return this_hist
 
 RUN2_PROCESS_BASES = [
   # utility / validation histograms
@@ -1498,7 +1727,7 @@ def get_hist_cached(cache, cache_key, f_root, h_path, hist_name):
   return None
 
 
-def truncate_nonpositive_bins(h, label, zero_too=True, set_error_zero=True):
+def truncate_nonpositive_bins(h, label, zero_too=True, set_error_zero=True, log_level=1):
   """
   Generic bin-by-bin protection for templates that will be written to Combine.
 
@@ -1514,9 +1743,10 @@ def truncate_nonpositive_bins(h, label, zero_too=True, set_error_zero=True):
     val = h.GetBinContent(ibin)
     should_zero = (val < 0.) or (zero_too and val == 0.)
     if should_zero:
-      print("!!!!!! Non-positive bin detected in", label, "!!!!!!")
-      print("!!!!!! bin", ibin, ":", val, "!!!!!!")
-      print("!!!!!! Setting this bin content/error to 0 ...")
+      vprint(log_level, "!!!!!! Non-positive bin detected in", label, "!!!!!!")
+      vprint(log_level, "!!!!!! bin", ibin, ":", val, "!!!!!!")
+      vprint(log_level, "!!!!!! Setting this bin content/error to 0 ...")
+
       h.SetBinContent(ibin, 0.)
       if set_error_zero:
         h.SetBinError(ibin, 0.)
@@ -1558,7 +1788,7 @@ def append_or_replace_hist(input_list, f_path, h, name):
   input_list.append([f_path, h, name])
 
 
-def make_sum_hist(name_to_hist, component_names, out_name, label, missing_ok=True):
+def make_sum_hist(name_to_hist, component_names, out_name, label, missing_ok=True, missing_level=2):
   tmpl = None
   for comp in component_names:
     h = name_to_hist.get(comp, None)
@@ -1568,7 +1798,7 @@ def make_sum_hist(name_to_hist, component_names, out_name, label, missing_ok=Tru
 
   if tmpl is None:
     if missing_ok:
-      print("[make_sum_hist][WARNING] No valid template for", label, "components =", component_names)
+      vprint(missing_level, "[make_sum_hist][WARNING] No valid template for", label, "components =", component_names)
       return None
     raise RuntimeError("[make_sum_hist] No valid template for " + label)
 
@@ -1590,7 +1820,7 @@ def make_sum_hist(name_to_hist, component_names, out_name, label, missing_ok=Tru
   for comp in component_names:
     h = name_to_hist.get(comp, None)
     if not is_valid_th1(h):
-      print("[make_sum_hist][WARNING]", label, "is missing component", comp, "; skipping it.")
+      vprint(missing_level, "[make_sum_hist][WARNING]", label, "is missing", comp, "; skipping it.")
       continue
     assert_same_binning(h_sum, h, label + " " + comp)
     h_sum.Add(h)
@@ -1604,15 +1834,19 @@ def build_mc_summary_hists(input_list, summary_proc_names=SUMMARY_MC_PROCS):
   for proc in summary_proc_names:
     if proc not in MC_COMPONENTS:
       continue
+
+    missing_level = 2 if proc in CARD_BKG_PROCS else 3
+
     h = make_sum_hist(
       name_to_hist,
       MC_COMPONENTS[proc],
       proc,
       "MC summary " + proc,
       missing_ok=True,
+      missing_level=missing_level,
     )
     if is_valid_th1(h):
-      truncate_nonpositive_bins(h, "MC summary " + proc, zero_too=True)
+      truncate_nonpositive_bins(h, "MC summary " + proc, zero_too=True, log_level=2)
       out.append(["__aggregate__", h, proc])
   return out
 
@@ -1630,7 +1864,7 @@ def build_total_background(input_list, channel, out_name="tot_bkg"):
     "total background " + out_name,
     missing_ok=False,
   )
-  truncate_nonpositive_bins(h_tot, out_name, zero_too=True) # This is NOT the main truncation. Each process should have been truncated already. This is just a final fallback.
+  truncate_nonpositive_bins(h_tot, out_name, zero_too=True, log_level=2) # This is NOT the main truncation. Each process should have been truncated already. This is just a final fallback.
   return h_tot
 
 
@@ -1669,10 +1903,30 @@ def pdf_scale_label_for_process(proc):
   return None
 
 
-def should_make_syst_for_process(proc, this_syst):
-  if not is_pdf_or_qcd_scale_syst(this_syst):
-    return True
-  return pdf_scale_label_for_process(proc) is not None
+def should_make_syst_for_process(proc, this_syst, era):
+
+  # The HEM issue affects 2018 data-taking only.
+  if this_syst.startswith("HEMJet") and era != "2018":
+    return False
+
+  # Fake-rate systematics
+  if this_syst.startswith("FR"):
+    return proc == "fake"
+
+  # Charge-flip systematics
+  if this_syst.startswith("CFRate"):
+    return proc == "cf"
+
+  # Other systematics don't apply to fake and cf
+  if proc in ["fake", "cf"]:
+    return False
+
+  # Handle theory systematics (PDF, RenScale, FacScale)
+  if is_pdf_or_qcd_scale_syst(this_syst):
+    return pdf_scale_label_for_process(proc) is not None
+
+  # Other cases are all allowed
+  return True
 
 
 def output_syst_suffix(era, region, this_syst, proc):
@@ -1699,11 +1953,11 @@ def output_syst_suffix(era, region, this_syst, proc):
       regionName_Decorr = '_sr3' # correlate zg_cr, zz_cr to SR3
 
     DecorrList = [
-      "CFRate", "FRMuon", "FRMuonRate", "FRMuonHighPt",
-      "FRElectron", "FRElectronRate", "FRElectronHighPt",
+      "CFRate", "FRMuon", "FRMuonRate", "FRMuonHighPt", "FRMuonID",
+      "FRElectron", "FRElectronRate", "FRElectronHighPt", "FRElectronID",
     ] if not args.JetDecorr else [
-      "CFRate", "FRMuon", "FRMuonRate", "FRMuonHighPt",
-      "FRElectron", "FRElectronRate", "FRElectronHighPt",
+      "CFRate", "FRMuon", "FRMuonRate", "FRMuonHighPt", "FRMuonID",
+      "FRElectron", "FRElectronRate", "FRElectronHighPt", "FRElectronID",
       "JetRes", "JetEn",
     ]
 
@@ -1778,7 +2032,7 @@ def symmetrize_down_from_up(h_down, h_nom, h_up, bins_to_fix, label):
     h_down.SetBinContent(ibin, new_down)
     h_down.SetBinError(ibin, h_up.GetBinError(ibin))
 
-    print(
+    vprint(2,
       "[PruneZG]",
       label,
       "bin",
@@ -1859,6 +2113,37 @@ FITTEST_SMOOTH_NITER = max(1, test_tag_int("SmoothEE", 1))
 FITTEST_FILLHOLES_ACTIVE = test_tag_has("FillHoles")
 FITTEST_FILLHOLES_PROCS = ["zg", "zz", "wz", "wz_ewk", "ww", "mc_others"]
 
+active_fit_tests = []
+
+if FITTEST_LOWSTAT_ACTIVE:
+  active_fit_tests.append(
+    "LowStatNeff=" + str(FITTEST_LOWSTAT_NEFF_MIN)
+  )
+
+if FITTEST_MERGE_SR2_BIN78:
+  active_fit_tests.append("MergeSR2Bin78")
+
+if FITTEST_MERGE_SR2_BIN3478:
+  active_fit_tests.append("MergeSR2Bin3478")
+
+if FITTEST_MERGE_SR3_EE_BIN1314:
+  active_fit_tests.append("MergeSR3EEBin1314")
+
+if FITTEST_SMOOTH_EE:
+  active_fit_tests.append(
+    "SmoothEE=" + str(FITTEST_SMOOTH_NITER)
+  )
+
+if FITTEST_FILLHOLES_ACTIVE:
+  active_fit_tests.append("FillHoles")
+
+if active_fit_tests:
+  vprint(
+    1,
+    "[FitTest] Active:",
+    ", ".join(active_fit_tests)
+  )
+
 # Fill these by hand before running with -T FillHoles.
 # Keep them positive.  The same number is used for bin content and bin error,
 # therefore Neff = content^2/error^2 = 1 in every filled bin.
@@ -1898,7 +2183,7 @@ if FITTEST_FILLHOLES_ACTIVE:
         + str(FITTEST_FILLHOLES_VALUES[_proc])
       )
 
-  print(
+  vprint(3,
     "[FitTest][FillHoles] Active. Target processes =",
     FITTEST_FILLHOLES_PROCS,
     "values =",
@@ -1991,7 +2276,7 @@ def force_lowstat_syst_bins_to_nominal(h_syst, h_nom, proc, hist_name, label):
     if len(changed) > 12:
       preview += ", ..."
 
-    print(
+    vprint(3,
       "[FitTest][LowStatNeff]",
       label,
       "proc =",
@@ -2083,7 +2368,7 @@ def clone_with_merged_adjacent_bins(h_in, out_name, first_bin_to_merge, label):
   h_out.SetBinContent(nbins_new + 1, h_in.GetBinContent(nbins_old + 1))
   h_out.SetBinError(nbins_new + 1, h_in.GetBinError(nbins_old + 1))
 
-  print(
+  vprint(3,
     "[FitTest][MergeBins]",
     label,
     "merged bins",
@@ -2181,7 +2466,7 @@ def fill_holes_in_hist(h, hist_name, label):
     if len(changed) > 12:
       preview += ", ..."
 
-    print(
+    vprint(3,
       "[FitTest][FillHoles]",
       label,
       "hist =",
@@ -2285,7 +2570,7 @@ def clone_smoothed_121(h_in, out_name, n_iter, label):
         h_out.SetBinContent(ibin, h_out.GetBinContent(ibin) * scale)
         h_out.SetBinError(ibin, h_out.GetBinError(ibin) * abs(scale))
 
-    print(
+    vprint(3,
       "[FitTest][SmoothEE]",
       label,
       "iteration",
@@ -2322,11 +2607,7 @@ def smooth_selected_hists_in_input_list(input_list, label):
     )
 
     if is_valid_th1(h_smoothed):
-      truncate_nonpositive_bins(
-        h_smoothed,
-        "after smoothing " + label + " " + name,
-        zero_too=True
-      )
+      truncate_nonpositive_bins(h_smoothed, "after smoothing " + label + " " + name, zero_too=True, log_level=2)
       item[1] = h_smoothed
 
 
@@ -2517,7 +2798,7 @@ Except_list = []
 for tag in args.histTag:
   for era in args.eras:
     for region in regions: # ...and even each region to control!!
-      print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",region,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+      log_region_start(era, region)
       OutputName = inputTag+"_"+tag+outputTag+TestTag+outputTagSuffix
       OutputPath = os.getcwd()+'/LimitInputs/'+OutputName+'/'
       os.system('mkdir -p '+OutputPath + era + '/' + region)
@@ -2594,11 +2875,27 @@ for tag in args.histTag:
         f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_norm_amcatnlo.root"
       else:
         f_path_wz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ.root"
-        f_path_wz_ewk            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_EWK.root"
+      f_path_wz_ewk            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WZ_EWK.root"
       f_path_zz            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_ZZ_norm.root"
       f_path_ww            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WW_norm.root"
       f_path_prompt_inc    = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_Prompt_inc.root"
       f_path_prompt_others = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_Prompt_others.root"
+      f_path_alt_wz = (
+        MainPath
+        + "/MergedFiles/"
+        + Analyzer + "_" + inputTag + outputTag
+        + "/" + era
+        + "/"
+        + PreFlag
+        + RegionToDefFlagMap[region]
+        + "RunPrompt__"
+        + PostFlag
+        + "/"
+        + Analyzer
+        + "_"
+        + ALT_WZ_SAMPLE
+        + ".root"
+      ) if ALT_WZ_ENABLED else None
       f_path_mc_inc        = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"MergeMC__"+PostFlag+"/"+Analyzer+"_MC_inc.root"
       f_path_mc_others     = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"MergeMC__"+PostFlag+"/"+Analyzer+"_MC_others.root"
       f_path_mc_individual = {
@@ -2606,24 +2903,47 @@ for tag in args.histTag:
         for this_proc in MC_INDIVIDUAL_PROCS
       }
       
-      if not Blinded: f_data = TFile.Open(f_path_data)
-      f_fake          = TFile.Open(f_path_fake)
-      f_cf            = TFile.Open(f_path_cf)
-      f_zg            = TFile.Open(f_path_zg)
-      f_conv_inc      = TFile.Open(f_path_conv_inc)
-      f_conv_others   = TFile.Open(f_path_conv_others)
-      f_wz            = TFile.Open(f_path_wz)
-      f_wz_ewk        = TFile.Open(f_path_wz_ewk)
-      f_zz            = TFile.Open(f_path_zz)
-      f_ww            = TFile.Open(f_path_ww)
-      f_prompt_inc    = TFile.Open(f_path_prompt_inc)
-      f_prompt_others = TFile.Open(f_path_prompt_others)
-      f_mc_inc        = TFile.Open(f_path_mc_inc)
-      f_mc_others     = TFile.Open(f_path_mc_others)
+      if not Blinded:
+        f_data = CheckFile(f_path_data, missing_level=1)
+      else:
+        f_data = None
+      
+      f_fake          = CheckFile(f_path_fake, missing_level=1)
+      f_cf            = CheckFile(f_path_cf, missing_level=1)
+      ## Below MCs are now stacked from each MC file, not going through the MergedFiles. But keep it just in case.
+      #f_zg            = CheckFile(f_path_zg, missing_level=2)
+      #f_conv_inc      = CheckFile(f_path_conv_inc, missing_level=3)
+      #f_conv_others   = CheckFile(f_path_conv_others, missing_level=3)
+      #f_wz            = CheckFile(f_path_wz, missing_level=2)
+      #f_wz_ewk        = CheckFile(f_path_wz_ewk, missing_level=2)
+      #f_zz            = CheckFile(f_path_zz, missing_level=2)
+      #f_ww            = CheckFile(f_path_ww, missing_level=2)
+      #f_prompt_inc    = CheckFile(f_path_prompt_inc, missing_level=3)
+      #f_prompt_others = CheckFile(f_path_prompt_others, missing_level=3)
+      #f_mc_inc        = CheckFile(f_path_mc_inc, missing_level=3)
+      #f_mc_others     = CheckFile(f_path_mc_others, missing_level=2)
+      
       f_mc_individual = {
-        this_proc: TFile.Open(f_path_mc_individual[this_proc])
+        this_proc: CheckFile(
+          f_path_mc_individual[this_proc],
+          missing_level=2
+        )
         for this_proc in MC_INDIVIDUAL_PROCS
       }
+
+      f_alt_wz = None
+      if ALT_WZ_ENABLED:
+        if os.path.exists(f_path_alt_wz):
+          f_alt_wz = TFile.Open(f_path_alt_wz)
+        else:
+          print(
+            "[AltWZ][WARNING] Missing merged powheg WZ file:",
+            f_path_alt_wz
+          )
+          print(
+            "[AltWZ][WARNING] "
+            "AltWZ templates will be skipped for this era/region."
+          )
 
       # Cache raw ROOT histograms by exact input path.  The helper always returns
       # detached clones, so later scaling/truncation never contaminates the cache.
@@ -2731,10 +3051,21 @@ for tag in args.histTag:
             Weinbergscaler = 10000. # Set the signalWeinberg scaler
 
           #print("f_cf :",f_path_cf)
-          print("input_hist :", LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel])
-          input_hist = LimitDir+"/"+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
+          input_hist = (
+            LimitDir
+            + "/" + tag
+            + "/" + RegionToChannelMap[region][channel]
+            + "/" + InputHistMass
+            + RegionToHistSuffixMap[region][channel]
+          )
           
-          print("##### Initiating",region,mass,channel,"...")
+          log_card_start(
+            era,
+            region,
+            mass,
+            channel,
+            input_hist
+          )
 
           if not Blinded:
             h_data = get_hist_cached(
@@ -2770,7 +3101,7 @@ for tag in args.histTag:
               this_proc,
             )
 
-          print("##### histo done.")
+          vprint(2, "##### histo done.")
 
           # Make list of [file path, histogram, histo name].
           # At this stage keep only source processes.  Aggregated MC processes
@@ -2807,6 +3138,7 @@ for tag in args.histTag:
               item[1],
               item[2] + " " + item[0] + " " + input_hist,
               zero_too=True,
+              log_level=2
             )
 
           if KEEP_MC_SUMMARY_PROCS:
@@ -2847,7 +3179,7 @@ for tag in args.histTag:
             input_list.append([f_path_data, h_data, "data_obs"])
           else:
             input_list.append([f_path_data, h_data, "data_obs"])
-          print("##### Data done.")
+          vprint(2, "##### Data done.")
 
           # Now list has bkg, (pseudo) data. Finally let's add signals
           #if args.CR:
@@ -2860,7 +3192,7 @@ for tag in args.histTag:
             f_path_signalVBF = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalVBF_"+mass+".root"
             f_path_signalSSWW  = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalSSWW_"+mass+".root"
   
-            f_signalDYVBF = CheckFile(f_path_signalDYVBF)
+            f_signalDYVBF = CheckFile(f_path_signalDYVBF, missing_level=1)
             if f_signalDYVBF:
               h_signalDYVBF = CheckHist(f_signalDYVBF,input_hist,"signalDYVBF")
               input_list.append([f_path_signalDYVBF, h_signalDYVBF, "signalDYVBF"])
@@ -2871,7 +3203,7 @@ for tag in args.histTag:
                 print("##### Making 2D hist for","signalDYVBF","#####")
                 FillScan(h_scan,h_signalDYVBF,"signalDYVBF") # out, in, name
 
-            f_signalDY = CheckFile(f_path_signalDY)
+            f_signalDY = CheckFile(f_path_signalDY, missing_level=1)
             if f_signalDY:
               h_signalDY = CheckHist(f_signalDY,input_hist,"signalDY")
               input_list.append([f_path_signalDY, h_signalDY, "signalDY"])
@@ -2882,7 +3214,7 @@ for tag in args.histTag:
                 print("##### Making 2D hist for","signalDY","#####")
                 FillScan(h_scan,h_signalDY,"signalDY") # out, in, name
 
-            f_signalVBF = CheckFile(f_path_signalVBF)
+            f_signalVBF = CheckFile(f_path_signalVBF, missing_level=1)
             if f_signalVBF:
               h_signalVBF = CheckHist(f_signalVBF,input_hist,"signalVBF")
               input_list.append([f_path_signalVBF, h_signalVBF, "signalVBF"])
@@ -2893,7 +3225,7 @@ for tag in args.histTag:
                 print("##### Making 2D hist for","signalVBF","#####")
                 FillScan(h_scan,h_signalVBF,"signalVBF") # out, in, name
 
-            f_signalSSWW = CheckFile(f_path_signalSSWW)
+            f_signalSSWW = CheckFile(f_path_signalSSWW, missing_level=1)
             if f_signalSSWW:
               h_signalSSWW = CheckHist(f_signalSSWW,input_hist,"signalSSWW")
               input_list.append([f_path_signalSSWW, h_signalSSWW, "signalSSWW"])
@@ -2906,7 +3238,7 @@ for tag in args.histTag:
           else:
             f_path_signalWeinberg  = MainPath +"/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+ "/" + era + "/"+PreFlag+RegionToDefFlagMap[region]+"RunSignal__"+PostFlag+"/"+Analyzer+"_signalWeinberg.root"
 
-            f_signalWeinberg = CheckFile(f_path_signalWeinberg)
+            f_signalWeinberg = CheckFile(f_path_signalWeinberg, missing_level=1)
             if f_signalWeinberg:
               h_signalWeinberg = CheckHist(f_signalWeinberg,input_hist,"signalWeinberg")
               if h_signalWeinberg:
@@ -2920,7 +3252,7 @@ for tag in args.histTag:
           if args.Scan:
             scan_list.append(h_scan)
 
-          print("##### Signal done.")
+          vprint(2, "##### Signal done.")
 
           NoNOM_names = set()
 
@@ -2952,7 +3284,7 @@ for tag in args.histTag:
               continue
 
             if not is_valid_th1(item[1]):
-              print("[!!WARNING!!] There is no NOMINAL hist named", input_hist, "for", proc, "in", item[0], ".")
+              vprint(process_detail_level(proc), "[!!WARNING!!] There is no NOMINAL hist named", input_hist, "for", proc, "in", item[0], ".")
               if proc in NOM_EXCEPTION_PROCS:
                 NoNOM_names.add(proc)
               continue
@@ -2966,16 +3298,36 @@ for tag in args.histTag:
                 item[1],
                 proc + " " + item[0] + " " + input_hist,
                 zero_too=True,
+                log_level=2
               )
 
             if item[1].Integral() <= 0.:
-              print("!!!!!! Zero norm detected in",proc,item[0],input_hist,"!!!!!!")
+              vprint(
+                process_detail_level(proc),
+                "[Nominal] Zero integral for",
+                proc,
+                "in",
+                item[0],
+                input_hist
+              )
+            
               if proc in NOM_EXCEPTION_PROCS:
                 NoNOM_names.add(proc)
+            
               elif proc in DIAGNOSTIC_ONLY_PROCS:
-                print("This is a diagnostic-only process. Keep the histogram, but do not make a datacard NoNOM rule.")
+                vprint(
+                  3,
+                  "[Nominal] Diagnostic-only process has zero integral:",
+                  proc,
+                  ". Keeping the histogram without making a datacard NoNOM rule."
+                )
+            
               elif proc == "tot_bkg":
-                print("This is a utility histogram. Keep it out of NoNOM rules.")
+                vprint(
+                  2,
+                  "[Nominal] tot_bkg has zero integral. "
+                  "Keeping it out of NoNOM rules."
+                )
 
           for proc in sorted(NoNOM_names):
             print("No nominal hist/rate for",proc,"in",tag,era,region,mass,channel,". Making exception list ...")
@@ -2984,7 +3336,7 @@ for tag in args.histTag:
           Nproc = len(input_list)
 
           if args.Syst:
-            print("##### Systematics activated.")
+            vprint(2, "##### Systematics activated.")
 
             source_process_names = ["fake"]
             if "E" in channel:
@@ -3007,7 +3359,8 @@ for tag in args.histTag:
 
               nom_yield_for_syst, _ = hist_integral_and_error(h_nom)
               if nom_yield_for_syst <= 0.:
-                print(
+                vprint(
+                  process_detail_level(proc),
                   "[Syst][WARNING] Non-positive nominal yield for",
                   proc, tag, era, region, mass, channel,
                   "; skipping all systematics for this zero-nominal source process."
@@ -3020,7 +3373,7 @@ for tag in args.histTag:
                 if h_scan.Integral(0,this_nbins,1,1)!=0.: sys.exit()
                 h_scan.SetDirectory(0)
 
-              f_syst = CheckFile(src_path)
+              f_syst = CheckFile(src_path, missing_level=process_detail_level(proc))
               if not f_syst:
                 print("[!!ERROR!!] No syst file",src_path,". Exiting...")
                 sys.exit()
@@ -3028,7 +3381,7 @@ for tag in args.histTag:
               ###### PDF error sets for signals and WZ only ######
               hist_pdfUp = None
               hist_pdfDown = None
-              if "PDFUp" in SystList and should_make_syst_for_process(proc, "PDFUp") and pdf_scale_label_for_process(proc) is not None:
+              if "PDFUp" in SystList and should_make_syst_for_process(proc, "PDFUp", era) and pdf_scale_label_for_process(proc) is not None:
                 hist_pdfUp = h_nom.Clone("pdfUp_tmp")
                 hist_pdfUp.Reset("ICES")
                 hist_pdfUp.SetDirectory(0)
@@ -3079,7 +3432,7 @@ for tag in args.histTag:
                   down_total = nom_total - delta
 
                   if down_total <= 0.:
-                    print(
+                    vprint(2,
                       "[PDF/CnC][WARNING]",
                       proc,
                       "PDF down total is non-positive:",
@@ -3115,7 +3468,7 @@ for tag in args.histTag:
                     hist_pdfDown.SetBinContent(it_bin, max(nom - delta, 0.))
 
               for this_syst in SystList:
-                if not should_make_syst_for_process(proc, this_syst):
+                if not should_make_syst_for_process(proc, this_syst, era):
                   continue
 
                 syst_input_hist = LimitDir+"/Syst_"+this_syst+tag+"/"+RegionToChannelMap[region][channel]+"/"+InputHistMass+RegionToHistSuffixMap[region][channel]
@@ -3148,11 +3501,34 @@ for tag in args.histTag:
                   if proc == "fake" and "FR" in this_syst and "CF" not in this_syst:
                     treat_fake_zero_bins(h_syst, src_path + " " + syst_input_hist + " with syst " + name_syst)
                   else:
-                    truncate_nonpositive_bins(h_syst, proc + " " + syst_input_hist + " with syst " + name_syst, zero_too=True)
+                    truncate_nonpositive_bins(h_syst, proc + " " + syst_input_hist + " with syst " + name_syst, zero_too=True, log_level=2)
 
                   if h_syst.Integral() <= 0.:
-                    print("!!!!!! Zero norm detected in",proc,syst_input_hist,"with syst:",name_syst,"!!!!!!")
-                    print("Making a makeup hist(=copy of nominal)...")
+                    warning_level = process_detail_level(proc)
+                  
+                    vprint(
+                      warning_level,
+                      "[SystFallback][WARNING] Non-positive integral for",
+                      name_syst,
+                      "| source file =",
+                      src_path,
+                      "| source hist =",
+                      syst_input_hist,
+                      "| card =",
+                      era,
+                      region,
+                      mass,
+                      channel,
+                      "| replacing with nominal",
+                      proc
+                    )
+                  
+                    vprint(
+                      warning_level,
+                      "[SystFallback] Making makeup histogram from nominal",
+                      proc
+                    )
+                  
                     h_syst = h_nom.Clone(name_syst)
                     h_syst.SetName(name_syst)
                     h_syst.SetTitle(name_syst)
@@ -3164,8 +3540,23 @@ for tag in args.histTag:
                     print("##### Making 2D hist for",name_syst,"#####")
                     FillScan(h_scan,h_syst,name_syst)
 
-                  print("No hist for",name_syst,".")
-                  print("Making a makeup hist(=copy of nominal)...")
+                  vprint(
+                    process_detail_level(proc),
+                    "[SystFallback][WARNING] Missing",
+                    name_syst,
+                    "| source file =",
+                    src_path,
+                    "| requested hist =",
+                    syst_input_hist,
+                    "| card =",
+                    era,
+                    region,
+                    mass,
+                    channel,
+                    "| using nominal",
+                    proc
+                  )
+
                   h_syst = h_nom.Clone(name_syst)
                   h_syst.SetName(name_syst)
                   h_syst.SetTitle(name_syst)
@@ -3174,7 +3565,7 @@ for tag in args.histTag:
 
                 if is_signal_process(proc) and ('PDFUp' not in this_syst and 'PDFDown' not in this_syst) and (not made_from_nominal):
                   h_syst.Scale(signal_scale_factor(proc, is_Weinberg, DYVBFscaler if not is_Weinberg else 1., SSWWscaler if not is_Weinberg else 1., Weinbergscaler if is_Weinberg else 1.))
-                  truncate_nonpositive_bins(h_syst, proc + " scaled syst " + name_syst, zero_too=True)
+                  truncate_nonpositive_bins(h_syst, proc + " scaled syst " + name_syst, zero_too=True, log_level=2)
 
                 force_lowstat_syst_bins_to_nominal(
                   h_syst,
@@ -3184,7 +3575,7 @@ for tag in args.histTag:
                   tag + " " + era + " " + region + " " + mass + " " + channel
                 )
 
-                print("Appending "+name_syst+"...")
+                vprint(3, "Appending "+name_syst+"...")
                 append_or_replace_hist(input_list, src_path, h_syst, name_syst)
 
               if args.Scan:
@@ -3207,7 +3598,7 @@ for tag in args.histTag:
                     continue
                   if agg_proc not in MC_COMPONENTS:
                     continue
-                  if not should_make_syst_for_process(agg_proc, this_syst):
+                  if not should_make_syst_for_process(agg_proc, this_syst, era):
                     continue
 
                   name_to_hist = {item[2]: item[1] for item in input_list}
@@ -3215,14 +3606,17 @@ for tag in args.histTag:
                   agg_name = agg_proc + "_" + agg_suffix
 
                   component_syst_names = []
+
+                  aggregate_log_level = 2 if agg_proc in CARD_BKG_PROCS else 3
+
                   for comp in MC_COMPONENTS[agg_proc]:
-                    if should_make_syst_for_process(comp, this_syst):
+                    if should_make_syst_for_process(comp, this_syst, era):
                       comp_suffix = output_syst_suffix(era, region, this_syst, comp)
                       comp_syst_name = comp + "_" + comp_suffix
                       if comp_syst_name in name_to_hist:
                         component_syst_names.append(comp_syst_name)
                       else:
-                        print("[AggregateSyst][WARNING]",comp_syst_name,"is missing; using nominal",comp,"instead.")
+                        vprint(3, "[AggregateSyst][WARNING]",comp_syst_name,"is missing; using nominal",comp,"instead.")
                         component_syst_names.append(comp)
                     else:
                       component_syst_names.append(comp)
@@ -3233,11 +3627,12 @@ for tag in args.histTag:
                     agg_name,
                     "aggregate syst " + agg_name,
                     missing_ok=True,
+                    missing_level=aggregate_log_level,
                   )
                   if not is_valid_th1(h_agg_syst):
                     continue
 
-                  truncate_nonpositive_bins(h_agg_syst, "aggregate syst " + agg_name, zero_too=True)
+                  truncate_nonpositive_bins(h_agg_syst, "aggregate syst " + agg_name, zero_too=True, log_level=2)
 
                   if should_symmetrize_zg_scale_j_2018_sr2_down(
                     era,
@@ -3274,10 +3669,151 @@ for tag in args.histTag:
                     tag + " " + era + " " + region + " " + mass + " " + channel
                   )
 
-                  print("Appending "+agg_name+"...")
+                  vprint(3, "Appending "+agg_name+"...")
                   append_or_replace_hist(input_list, "__aggregate__", h_agg_syst, agg_name)
 
-            print("##### Systematics done.")
+            # Alternative WZ generator shape:
+            #   Up   = powheg WZ
+            #   Down = nominal amcatnlo WZ
+            if ALT_WZ_ENABLED:
+            
+              h_wz_nom = get_hist_from_input_list(input_list, "wz")
+            
+              h_wz_powheg = get_hist_cached(
+                hist_read_cache,
+                ("AltWZ", f_path_alt_wz, input_hist),
+                f_alt_wz,
+                input_hist,
+                "wz_altwz_powheg",
+              )
+            
+              altwz_up_name = (
+                "wz_" + SystNameMap[era]["AltWZUp"]
+              )
+              altwz_down_name = (
+                "wz_" + SystNameMap[era]["AltWZDown"]
+              )
+            
+              if not is_valid_th1(h_wz_nom):
+                print(
+                  "[AltWZ][WARNING] "
+                  "Nominal wz histogram is missing; "
+                  "not creating AltWZ templates for "
+                  + era + " "
+                  + region + " "
+                  + mass + " "
+                  + channel
+                  + ". The nominal-process exception rule should handle this case."
+                )
+            
+              else:
+            
+                if not is_valid_th1(h_wz_powheg):
+                  print(
+                    "[AltWZ][WARNING] "
+                    "Powheg WZ histogram is missing for "
+                    + era + " "
+                    + region + " "
+                    + mass + " "
+                    + channel
+                    + "; using nominal wz for both AltWZ Up and Down."
+                  )
+            
+                  h_altwz_up = clone_detached(
+                    h_wz_nom,
+                    altwz_up_name
+                  )
+            
+                else:
+                  assert_same_binning(
+                    h_wz_nom,
+                    h_wz_powheg,
+                    (
+                      "AltWZ "
+                      + era + " "
+                      + region + " "
+                      + mass + " "
+                      + channel
+                    ),
+                  )
+            
+                  # Up: raw POWHEG WZ template
+                  h_altwz_up = clone_detached(
+                    h_wz_powheg,
+                    altwz_up_name
+                  )
+            
+                  truncate_nonpositive_bins(
+                    h_altwz_up,
+                    (
+                      "AltWZ powheg "
+                      + era + " "
+                      + region + " "
+                      + mass + " "
+                      + channel
+                    ),
+                    zero_too=True,
+                    log_level=2
+                  )
+            
+                  if h_altwz_up.Integral() <= 0.:
+                    print(
+                      "[AltWZ][WARNING] "
+                      "Non-positive powheg WZ template for "
+                      + era + " "
+                      + region + " "
+                      + mass + " "
+                      + channel
+                      + "; using nominal wz for AltWZ Up."
+                    )
+            
+                    h_altwz_up = clone_detached(
+                      h_wz_nom,
+                      altwz_up_name
+                    )
+            
+                  else:
+                    force_lowstat_syst_bins_to_nominal(
+                      h_altwz_up,
+                      h_wz_nom,
+                      "wz",
+                      altwz_up_name,
+                      (
+                        tag + " "
+                        + era + " "
+                        + region + " "
+                        + mass + " "
+                        + channel
+                      ),
+                    )
+            
+                # Down is nominal in the one-sided AltWZ construction.
+                h_altwz_down = clone_detached(
+                  h_wz_nom,
+                  altwz_down_name
+                )
+            
+                vprint(2, "Appending " + altwz_up_name + "...")
+                append_or_replace_hist(
+                  input_list,
+                  (
+                    f_path_alt_wz
+                    if is_valid_th1(h_wz_powheg)
+                    else "__AltWZ_nominal_fallback__"
+                  ),
+                  h_altwz_up,
+                  altwz_up_name
+                )
+            
+                vprint(2, "Appending " + altwz_down_name + "...")
+                append_or_replace_hist(
+                  input_list,
+                  "__aggregate__",
+                  h_altwz_down,
+                  altwz_down_name
+                )
+
+            vprint(2, "##### Systematics done.")
 
           ### Now remove NoNOMs only for datacard processes.
           ### Diagnostic-only individual MC hists are intentionally kept.
@@ -3366,47 +3902,93 @@ for tag in args.histTag:
             h_asimov.SetDirectory(0)
             append_or_replace_hist(input_list, "fake_data_path", h_asimov, "data_obs")
 
-          print("##### Now creating a limit input root file...")
-          outName = OutputPath+era+"/"+region+"/"+mass+"_"+channel+ExtTag
-          outfile = TFile.Open(outName+"_card_input.root","RECREATE")
+          vprint(2, "##### Now creating a limit input root file...")
+
+          outName = OutputPath + era + "/" + region + "/" + mass + "_" + channel + ExtTag
+          output_file = outName + "_card_input.root"
           
+          outfile = TFile.Open(output_file, "RECREATE")
           outfile.cd() # Move into it
           
           for item in input_list: # Remember, item = [path,hist,name]
             try:
               if not is_valid_th1(item[1]):
                 raise AttributeError
-
+          
               item[1].SetName(item[2])
               item[1].SetTitle(item[2])
-
+          
+              # Print this before the truncation.
+              #
+              # aggregate/summary/signal/data --> default,
+              # MC individual --> level 3.
+              vprint(
+                hist_write_level(item[2]),
+                "Writing " + item[2] + "..."
+              )
+          
               if item[2] != "data_obs":
                 truncate_nonpositive_bins(
                   item[1],
-                  "final write " + item[2] + " " + region + " " + mass + " " + channel,
+                  (
+                    "final write "
+                    + item[2] + " "
+                    + era + " "
+                    + region + " "
+                    + mass + " "
+                    + channel
+                  ),
                   zero_too=True,
+                  log_level=hist_detail_level(item[2]),
                 )
-
+          
               if item[1].Integral() <= 0. and item[2] != "data_obs":
-                print("[!!WARNING!!] Non-positive final integral " + str(item[1].Integral()) + " in " + item[2] + " ------------------------------------")
-
+                vprint(
+                  hist_detail_level(item[2]),
+                  "[!!WARNING!!] Non-positive final integral "
+                  + str(item[1].Integral())
+                  + " in "
+                  + item[2]
+                  + " "
+                  + era
+                  + " "
+                  + region
+                  + " "
+                  + mass
+                  + " "
+                  + channel
+                  + " ------------------------------------"
+                )
+          
               if args.CnC:
-                #print("!!Cut and count option activated!!")
-                #print("!!Merging all into 1 bin...!!")
-
                 CnChist = make_cnc_hist(item[1], item[2])
-
-                print("Writing "+item[2]+"...")
                 CnChist.Write()
               else:
-                print("Writing "+item[2]+"...")
-                item[1].Write() # Write each histogram while iterating
-
+                item[1].Write()
+          
             except AttributeError:
-              print("[!!WARNING!!] Final check: There is no hist",item[2],"in",region,mass,channel,item[0],".") # Final check
-
+              vprint(
+                hist_detail_level(item[2]),
+                "[!!WARNING!!] Final check: There is no hist",
+                item[2],
+                "in",
+                era,
+                region,
+                mass,
+                channel,
+                item[0],
+                "."
+              )
+          
           outfile.Close()
-          print(outName+"_card_input.root has been created.")
+          
+          log_card_done(
+            era,
+            region,
+            mass,
+            channel,
+            output_file
+          )
 
           if args.Scan:
             colors = array.array('i',[632,417,860])

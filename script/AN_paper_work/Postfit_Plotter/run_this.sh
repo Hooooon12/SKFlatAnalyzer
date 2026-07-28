@@ -2,9 +2,10 @@
 
 WPS=(
 #"ANv7_NewBinning_PR192_HNL_ULIDv2_FixCR3H_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"
-"ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"
+#"ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"
 #"ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"
 #"ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_FillHoles_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"
+"ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR195"
 )
 
 LOGY_OPTS=(
@@ -17,8 +18,9 @@ DATA_OPTS=(
 "--no-data"
 )
 
-#MASSES=("85" "90" "95" "100" "125" "150" "200" "250" "300" "350" "400" "450" "500" "600" "700" "800" "900" "1000" "1100" "1200" "1300" "1500" "1700" "2000" "2500" "3000" "5000" "7500" "10000" "15000" "20000" "25000" "30000" "40000" "50000" "60000")
-MASSES=("150")
+MASSES=("85" "90" "95" "100" "125" "150" "200" "250" "300" "350" "400" "450" "500" "600" "700" "800" "900" "1000" "1100" "1200" "1300" "1500" "1700" "2000" "2500" "3000" "5000" "7500" "10000" "15000" "20000" "25000" "30000" "40000" "50000" "60000")
+#MASSES=("85" "90" "95" "100" "125" "150" "200" "250" "300" "350" "400" "450" "500")
+#MASSES=("150")
 
 for WP in "${WPS[@]}"; do
   for LOGY in "${LOGY_OPTS[@]}"; do
@@ -32,8 +34,7 @@ for WP in "${WPS[@]}"; do
       -c EE EMu MuMu \
       -m ${MASS} \
       -s HNL \
-			--signal-mode separate \
-      --signal-scale-dy 50 \
+			--signal-mode none \
       -t AllSR SR3 \
       ${LOGY} \
       ${DATA}
@@ -57,6 +58,9 @@ END
 done
 done
 done
+
+# Common setting for signal drawing
+#--signal-mode separate \
 
 # Setting for M1000
 #--signal-scale-dy 20000 \
