@@ -1756,6 +1756,7 @@ for RunList in args.RunLists:
         os.chdir(source_dir)
 
         os.system(
+            f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -a -A fitDiagnostics_{this_shortcard}.root > pulls_{this_shortcard}.txt\n"
             f"cp pulls_{this_shortcard}.txt "
             f"{target_dir}/"
             f"pulls_{this_shortcard}_{AsimovName}"
