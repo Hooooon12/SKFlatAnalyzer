@@ -874,6 +874,29 @@ bool AnalyzerCore::PassGenFilterPhotonPt(){
 }
 
 
+bool AnalyzerCore::ConversionSplittingReg(std::vector<Lepton *> leps, bool RunConvMode,  int region, int nlep, AnalyzerParameter param){
+
+  vector<TString> RegConvSamples  = {"ZGTo","DYJet"};
+  bool IsRegionDep=false;
+  for(auto i : RegConvSamples) if (MCSample.Contains(i)) IsRegionDep=true;
+  if (!IsRegionDep) return ConversionSplitting(leps, RunConvMode, nlep,param);
+  if(region == 3)  return ConversionSplitting(leps, RunConvMode, nlep,param);
+  
+  if(!RunConvMode) return true;
+  if(IsData) return true;
+
+  //// Apply Gen Pt Cut on WG/ZG Photon to add to PtBinned samples                                                                                                                                                                                                                                                                                                            
+  if(!PassGenFilterPhotonPt()) return false;
+
+  if(nlep != int(leps.size())) return true;
+
+  if(MCSample.Contains("ZGTo")) return true;
+  else if(MCSample.Contains("DYJets"))return false;
+
+  return true;
+
+}
+
 
 bool AnalyzerCore::ConversionSplitting(std::vector<Lepton *> leps, bool RunConvMode,  int nlep, AnalyzerParameter param){
 
@@ -882,7 +905,8 @@ bool AnalyzerCore::ConversionSplitting(std::vector<Lepton *> leps, bool RunConvM
 
   //// Apply Gen Pt Cut on WG/ZG Photon to add to PtBinned samples
   if(!PassGenFilterPhotonPt()) return false;
-  
+
+
   
   bool IsSampleConvSplit = false;
   vector<TString> ConvSamples  = {"ZGTo","DYJet","WGToLNuG"};

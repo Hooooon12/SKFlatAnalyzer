@@ -585,7 +585,11 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
       SystList.push_back(AnalyzerParameter::FRElectronDown);
       SystList.push_back(AnalyzerParameter::FRElectronRateUp); //// Add
       SystList.push_back(AnalyzerParameter::FRElectronRateDown);
-
+      SystList.push_back(AnalyzerParameter::FRElectronLooseIDDJUp); //// Add
+      SystList.push_back(AnalyzerParameter::FRElectronLooseIDDJDown);
+      SystList.push_back(AnalyzerParameter::FRElectronAJUp); //// Add
+      SystList.push_back(AnalyzerParameter::FRElectronAJDown);
+      
     }
     if(SystType!="EE" ){
       SystList.push_back(AnalyzerParameter::FRMuonHighPtUp);
@@ -594,6 +598,10 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
       SystList.push_back(AnalyzerParameter::FRMuonDown);
       SystList.push_back(AnalyzerParameter::FRMuonRateUp); //// Add
       SystList.push_back(AnalyzerParameter::FRMuonRateDown);
+      SystList.push_back(AnalyzerParameter::FRMuonLooseIDDJUp); //// Add
+      SystList.push_back(AnalyzerParameter::FRMuonLooseIDDJDown);
+      SystList.push_back(AnalyzerParameter::FRMuonAJUp); //// Add
+      SystList.push_back(AnalyzerParameter::FRMuonAJDown);
 
     }
   }
@@ -893,83 +901,119 @@ bool  HNL_LeptonCore::UpdateParamBySyst(TString JobID, AnalyzerParameter& paramE
   if((JobID != "HNL_ULID")&&(JobID != "HNL_ULIDv2")) return false;
 
   //// Setup FR ID
-  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
-    paramEv.Muon_FR_ID        = "HNL_ULID_FO_Up";
+  if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJUp){
     paramEv.Electron_FR_ID    = "HNL_HighPt_ULID_FO_Up";
   }
-  else if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
-    paramEv.Muon_FR_ID        = "HNL_ULID_FO_Down";
+  else if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJDown){
     paramEv.Electron_FR_ID    = "HNL_HighPt_ULID_FO_Down";
   }
   else{
-    paramEv.Muon_FR_ID        = "HNL_ULID_FO";
     paramEv.Electron_FR_ID    = "HNL_HighPt_ULID_FO";
+  }
+  if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJUp){
+    paramEv.Muon_FR_ID        = "HNL_ULID_FO_Up";
+  }
+  else if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJDown){
+    paramEv.Muon_FR_ID        = "HNL_ULID_FO_Down";
+  }
+  else{
+    paramEv.Muon_FR_ID        = "HNL_ULID_FO";
   }
 
   TString MuFRBin = (paramEv.syst_ ==AnalyzerParameter::FRAltBinning) ? "_Binv2" : "";
   TString ElFRBin = (paramEv.syst_ ==AnalyzerParameter::FRAltBinning) ? "" : "_El12";
 
-  TString JFRJetPt = "_AJ40";
-  if(paramEv.syst_ ==AnalyzerParameter::FRAJUp) JFRJetPt = "_AJ30";
-  if(paramEv.syst_ ==AnalyzerParameter::FRAJDown) JFRJetPt = "_AJ60";
+  TString MuJFRJetPt = "_AJ40";
+  if(paramEv.syst_ ==AnalyzerParameter::FRMuonAJUp) MuJFRJetPt = "_AJ30";
+  if(paramEv.syst_ ==AnalyzerParameter::FRMuonAJDown) MuJFRJetPt = "_AJ60";
+  TString ElJFRJetPt = "_AJ40";
+  if(paramEv.syst_ ==AnalyzerParameter::FRElectronAJUp) ElJFRJetPt = "_AJ30";
+  if(paramEv.syst_ ==AnalyzerParameter::FRElectronAJDown) ElJFRJetPt = "_AJ60";
 
   if(GetEra() == "2016preVFP"){
 
-    if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+    if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJUp){
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+MuJFRJetPt+MuFRBin;
     }
-    else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
+    else  if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJDown){
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+MuJFRJetPt+MuFRBin;
     }
     else{
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+MuJFRJetPt+MuFRBin;
     }
+    
+    if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJUp){
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+ElJFRJetPt+ElFRBin;
+    }
+    else  if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJDown){
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+ElJFRJetPt+ElFRBin;
+    }
+    else{
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+ElJFRJetPt+ElFRBin;
+    }
+
   }
   if(GetEra() == "2016postVFP"){
 
-    if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+    if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJUp){
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+MuJFRJetPt+MuFRBin;
     }
-    else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
+    else  if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJDown){
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v3_a"+MuJFRJetPt+MuFRBin;
     }
     else {
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+MuJFRJetPt+MuFRBin;
+    }
+    if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJUp){
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+ElJFRJetPt+ElFRBin;
+    }
+    else  if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJDown){
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+ElJFRJetPt+ElFRBin;
+    }
+    else {
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+ElJFRJetPt+ElFRBin;
     }
   }
   if(GetYearString() == "2017"){
-    if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
-
+    if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJUp){
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+MuJFRJetPt+MuFRBin;
     }
-    else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
+    else  if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJDown){
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v3_a"+MuJFRJetPt+MuFRBin;;
     }
     else {
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v2_a"+MuJFRJetPt+MuFRBin;;
+    }
+
+    if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJUp){
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+ElJFRJetPt+ElFRBin;
+    }
+    else  if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJDown){
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+ElJFRJetPt+ElFRBin;
+    }
+    else {
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v9_a"+ElJFRJetPt+ElFRBin;
     }
   }
   if(GetYearString() == "2018"){
-    if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJUp){
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+JFRJetPt+ElFRBin;
+    if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJUp){
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v1_a"+MuJFRJetPt+MuFRBin;
     }
-    else  if(paramEv.syst_ == AnalyzerParameter::FRLooseIDDJDown){
-      paramEv.k.Muon_FR            = "HNL_ULID_FO_v4_a"+JFRJetPt+MuFRBin;
-      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+JFRJetPt+ElFRBin;
+    else  if(paramEv.syst_ == AnalyzerParameter::FRMuonLooseIDDJDown){
+      paramEv.k.Muon_FR            = "HNL_ULID_FO_v4_a"+MuJFRJetPt+MuFRBin;
     }
     else {
-      paramEv.k.Muon_FR         = "HNL_ULID_FO_v3_a"+JFRJetPt+MuFRBin;;
-      paramEv.k.Electron_FR     = "HNL_ULID_FO_v9_a"+JFRJetPt+ElFRBin;
+      paramEv.k.Muon_FR         = "HNL_ULID_FO_v3_a"+MuJFRJetPt+MuFRBin;;
+    }
+
+    if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJUp){
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v8_a"+ElJFRJetPt+ElFRBin;
+    }
+    else  if(paramEv.syst_ == AnalyzerParameter::FRElectronLooseIDDJDown){
+      paramEv.k.Electron_FR        = "HNL_ULID_FO_v0"+ElJFRJetPt+ElFRBin;
+    }
+    else {
+      paramEv.k.Electron_FR     = "HNL_ULID_FO_v9_a"+ElJFRJetPt+ElFRBin;
     }
   }
 

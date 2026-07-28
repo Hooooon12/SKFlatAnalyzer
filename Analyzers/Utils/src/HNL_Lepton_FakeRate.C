@@ -1137,12 +1137,17 @@ void HNL_Lepton_FakeRate::MakeFakeRatePlots(TString label, TString mutag,Analyze
   if(!truth_match) return;
 
   double AWJPt = -1;
-  vector<AnalyzerParameter::Syst> AJPt = { AnalyzerParameter::FRAJUp,AnalyzerParameter::FRAJ40,AnalyzerParameter::FRAJDown};
+  vector<AnalyzerParameter::Syst> AJPt = {};
+  if(param.Channel == "MuMu"){
+    AJPt = { AnalyzerParameter::FRMuonAJUp,AnalyzerParameter::FRMuonAJ40,AnalyzerParameter::FRMuonAJDown};
+  }
+  else     AJPt = { AnalyzerParameter::FRElectronAJUp,AnalyzerParameter::FRElectronAJ40,AnalyzerParameter::FRElectronAJDown};
 
+  
   for(auto isys : AJPt){
-    if(isys == AnalyzerParameter::FRAJUp)  AWJPt = 30;
-    if(isys == AnalyzerParameter::FRAJ40)  AWJPt = 40;
-    if(isys == AnalyzerParameter::FRAJDown)  AWJPt = 60;
+    if(isys == AnalyzerParameter::FRMuonAJUp || isys == AnalyzerParameter::FRElectronAJUp)  AWJPt = 30;
+    if(isys == AnalyzerParameter::FRMuonAJ40 || isys == AnalyzerParameter::FRElectronAJ40)  AWJPt = 40;
+    if(isys == AnalyzerParameter::FRMuonAJDown || isys == AnalyzerParameter::FRElectronAJDown)  AWJPt = 60;
 
     param.syst_ =  isys;
 

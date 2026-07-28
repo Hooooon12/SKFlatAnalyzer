@@ -583,11 +583,16 @@ TString AnalyzerParameter::GetSystType(){
   if(syst_==Syst::Central){
     return "Central";
   }
-  else if(syst_==Syst::FRAJUp)       return "AJUp";
-  else if(syst_==Syst::FRAJ40)  return "AJ40";
-  else if(syst_==Syst::FRAJDown)     return "AJDown";
-  else if(syst_==Syst::FRLooseIDDJUp)     return "LIDUp";
-  else if(syst_==Syst::FRLooseIDDJDown)   return "LIDDown";
+  else if(syst_==Syst::FRMuonAJUp)       return "FRAJMuonUp";
+  else if(syst_==Syst::FRMuonAJ40)  return "FRAJMuon40";
+  else if(syst_==Syst::FRMuonAJDown)     return "FRAJMuonDown";
+  else if(syst_==Syst::FRMuonLooseIDDJUp)     return "FRMuonIDUp";
+  else if(syst_==Syst::FRMuonLooseIDDJDown)   return "FRMuonIDDown";
+  else if(syst_==Syst::FRElectronAJUp)       return "FRAJElectronUp";
+  else if(syst_==Syst::FRElectronAJ40)  return "FRAJElectron40";
+  else if(syst_==Syst::FRElectronAJDown)     return "FRAJElectronDown";
+  else if(syst_==Syst::FRElectronLooseIDDJUp)     return "FRElectronIDUp";
+  else if(syst_==Syst::FRElectronLooseIDDJDown)   return "FRElectronIDDown";
   else if(syst_==Syst::FRPartonSFUp)   return "PSFUp"; 
   else if(syst_==Syst::FRPartonSFDown) return "PSFDown";
   else if(syst_==Syst::FRMuonHighPtUp) return "FRMuonHighPtUp";
@@ -724,7 +729,6 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::FRElectronDown)   return "FRElectronDown";
   else if(syst_==Syst::FRElectronRateUp)   return "FRElectronRateUp";
   else if(syst_==Syst::FRElectronRateDown)   return "FRElectronRateDown";
-
 
   else if(syst_==Syst::PDF)   return "PDF";
   else if(syst_==Syst::PDFUp)   return "PDFUp";
