@@ -70,25 +70,25 @@ void HNL_ControlRegion_Plotter::executeEvent(){
 
       AnalyzerParameter param_cr = Setup_Param_HNL_ULIDv2(id,GetChannelString(channel));
       if(runSyst){
-	/// Some code to remove unnecessary Syst runs
-
-	if(!PassMETFilter()) return;
-	
-	Event ev = GetEvent();
-	
-	if(channel==EE){
-	  if(!ev.PassTrigger(TrigList_HNL_DblEG)) continue;
-	  std::vector<Muon>       MuonCollV     = SelectMuons    (param_cr,param_cr.Muon_Veto_ID,     5., 2.4);  
-	  if(MuonCollV.size() > 0) continue;
-	}
-	if(channel==MuMu){
-	  if(!ev.PassTrigger(TrigList_HNL_DblMu)) continue;
-	  std::vector<Electron>   ElectronCollV = SelectElectrons(param_cr,param_cr.Electron_Veto_ID, 10., 2.5);	    
-	  if(ElectronCollV.size() >0) continue;
-	}
-	if(channel==EMu){
-	  if(!(ev.PassTrigger(TrigList_HNL_MuEG) || ev.PassTrigger(TrigList_HNL_EGMu) )) continue;
-	}
+        /// Some code to remove unnecessary Syst runs
+        
+        if(!PassMETFilter()) return;
+        
+        Event ev = GetEvent();
+        
+        if(channel==EE){
+          if(!ev.PassTrigger(TrigList_HNL_DblEG)) continue;
+          std::vector<Muon>       MuonCollV     = SelectMuons    (param_cr,param_cr.Muon_Veto_ID,     5., 2.4);  
+          if(MuonCollV.size() > 0) continue;
+        }
+        if(channel==MuMu){
+          if(!ev.PassTrigger(TrigList_HNL_DblMu)) continue;
+          std::vector<Electron>   ElectronCollV = SelectElectrons(param_cr,param_cr.Electron_Veto_ID, 10., 2.5);
+          if(ElectronCollV.size() >0) continue;
+        }
+        if(channel==EMu){
+          if(!(ev.PassTrigger(TrigList_HNL_MuEG) || ev.PassTrigger(TrigList_HNL_EGMu) )) continue;
+        }
       }
       
       /// set runplotter true for non syst and if runsyst only for RunSystPlotter runs
@@ -104,43 +104,45 @@ void HNL_ControlRegion_Plotter::executeEvent(){
       if(HasFlag("RunSyst") && HasFlag("RunSystPlotter")){
         if(IsData){
           if(RunFake) {
-	    if(channel!=EE) {
-              SystToPlot= {
-                AnalyzerParameter::Syst::FRMuonRateUp,AnalyzerParameter::Syst::FRMuonRateDown,
-                AnalyzerParameter::Syst::FRMuonHighPtUp,AnalyzerParameter::Syst::FRMuonHighPtDown};
-            }
+            if(channel!=EE) {
+                SystToPlot= {
+                  AnalyzerParameter::Syst::FRMuonRateUp,AnalyzerParameter::Syst::FRMuonRateDown,
+                  AnalyzerParameter::Syst::FRMuonHighPtUp,AnalyzerParameter::Syst::FRMuonHighPtDown
+                };
+              }
             if(channel!=MuMu) {
               SystToPlot= {
                 AnalyzerParameter::Syst::FRElectronRateUp,AnalyzerParameter::Syst::FRElectronRateDown,
-                AnalyzerParameter::Syst::FRElectronHighPtUp,AnalyzerParameter::Syst::FRElectronHighPtDown};
+                AnalyzerParameter::Syst::FRElectronHighPtUp,AnalyzerParameter::Syst::FRElectronHighPtDown
+              };
             }
-	  }
-	  if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown};
+          }
+          if(RunCF)   SystToPlot= {AnalyzerParameter::Syst::CFRateUp,AnalyzerParameter::Syst::CFRateDown};
         }
         else {
-	  SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown, AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,AnalyzerParameter::MuonResUp,AnalyzerParameter::MuonResDown,AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,AnalyzerParameter::ElectronResUp,AnalyzerParameter::ElectronResDown,AnalyzerParameter::RenScaleUp,AnalyzerParameter::RenScaleDown,AnalyzerParameter::FacScaleUp,AnalyzerParameter::FacScaleDown};
+          SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown, AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,AnalyzerParameter::MuonResUp,AnalyzerParameter::MuonResDown,AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,AnalyzerParameter::ElectronResUp,AnalyzerParameter::ElectronResDown,AnalyzerParameter::RenScaleUp,AnalyzerParameter::RenScaleDown,AnalyzerParameter::FacScaleUp,AnalyzerParameter::FacScaleDown};
         }
       } 
       
       for(auto iCR : CRToRun){
 
-	/// grab name for central job
-	TString param_name = param_cr.Name;
-	TString param_defname = param_cr.DefName;
-	
-	TString SystString=GetChannelString(channel);
-	
-	for(auto isyst : GetSystList(SystString)){
-
-	  if(std::find(SystToPlot.begin(), SystToPlot.end(), isyst) != SystToPlot.end()) param_cr.runPlotter = true;
-	  else  param_cr.runPlotter = false;
-
-	  bool runJob = UpdateParamBySyst(id,param_cr,AnalyzerParameter::Syst(isyst),param_name);
-	  if(runJob)         RunControlRegions(param_cr , {iCR} );
-	  /// Reset 
-	  param_cr.Name=param_name;
-	  param_cr.DefName=param_defname;
-	} // Systematics	  
+        /// grab name for central job
+        TString param_name = param_cr.Name;
+        TString param_defname = param_cr.DefName;
+        
+        TString SystString=GetChannelString(channel);
+        
+        for(auto isyst : GetSystList(SystString)){
+        
+          if(std::find(SystToPlot.begin(), SystToPlot.end(), isyst) != SystToPlot.end()) param_cr.runPlotter = true;
+          else  param_cr.runPlotter = false;
+        
+          bool runJob = UpdateParamBySyst(id,param_cr,AnalyzerParameter::Syst(isyst),param_name);
+          if(runJob)         RunControlRegions(param_cr , {iCR} );
+          /// Reset 
+          param_cr.Name=param_name;
+          param_cr.DefName=param_defname;
+        } // Systematics
       } /// CRs
     } // Channels
   } /// Lepton ID
@@ -288,43 +290,40 @@ void HNL_ControlRegion_Plotter::RunControlRegions(AnalyzerParameter param_cr, ve
     for (auto ir : RunEl) {
       
       for (unsigned int iw = 0; iw < weight_PDF->size(); iw++) {
-	
-	double pdfWeight = 1.0;
-	
-	TString pdfName =
-	  GetPDFUncertainty(iw, pdfWeight);
-	
-	
-	param_cr.Name =	  origName + pdfName;
-	
-	param_cr.DefName =	  origDefName + pdfName;
-	
-	
-	RunAllControlRegions(
 
-			     ElectronTightColl,
-			     ElectronVetoColl,
-			     
-			     MuonTightColl,
-			     MuonVetoColl,
-			     
-			     TauColl_Cleaned,
-			     
-			     AK4_JetCollLoose,
-			     AK4_JetColl,
-			     AK4_VBF_JetColl,
-			     AK8_JetColl,
-			     AK4_BJetColl,
-			     
-			     ev,
-			     METv,
-			     
-			     param_cr,
-			     CRs,
-			     ir,
-			     
-			     weight * pdfWeight
-			     );
+        double pdfWeight = 1.0;
+        
+        TString pdfName = GetPDFUncertainty(iw, pdfWeight);
+        
+        param_cr.Name = origName + pdfName;
+        
+        param_cr.DefName = origDefName + pdfName;
+        
+        RunAllControlRegions(
+        
+             ElectronTightColl,
+             ElectronVetoColl,
+             
+             MuonTightColl,
+             MuonVetoColl,
+             
+             TauColl_Cleaned,
+             
+             AK4_JetCollLoose,
+             AK4_JetColl,
+             AK4_VBF_JetColl,
+             AK8_JetColl,
+             AK4_BJetColl,
+             
+             ev,
+             METv,
+             
+             param_cr,
+             CRs,
+             ir,
+             
+             weight * pdfWeight
+             );
       }
     }
     
