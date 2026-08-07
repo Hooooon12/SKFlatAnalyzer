@@ -69,6 +69,8 @@ void HNL_ControlRegion_Plotter::executeEvent(){
       if(IsSignal() && !SelectChannel(channel)) continue;
 
       AnalyzerParameter param_cr = Setup_Param_HNL_ULIDv2(id,GetChannelString(channel));
+      TString SystLabel = GetChannelString(channel);
+
       if(runSyst){
         /// Some code to remove unnecessary Syst runs
         
@@ -101,7 +103,7 @@ void HNL_ControlRegion_Plotter::executeEvent(){
 
       //// Run plotter for specific systematics                                                                                                                                                                    
       vector<AnalyzerParameter::Syst> SystToPlot = {AnalyzerParameter::Syst::Central};
-      if(HasFlag("RunSyst") && HasFlag("RunSystPlotter")){
+      /*if(HasFlag("RunSyst") && HasFlag("RunSystPlotter")){
         if(IsData){
           if(RunFake) {
             if(channel!=EE) {
@@ -122,8 +124,11 @@ void HNL_ControlRegion_Plotter::executeEvent(){
         else {
           SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown, AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,AnalyzerParameter::MuonResUp,AnalyzerParameter::MuonResDown,AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,AnalyzerParameter::ElectronResUp,AnalyzerParameter::ElectronResDown,AnalyzerParameter::RenScaleUp,AnalyzerParameter::RenScaleDown,AnalyzerParameter::FacScaleUp,AnalyzerParameter::FacScaleDown};
         }
-      } 
-      
+      }*/
+      if(HasFlag("RunSyst") && HasFlag("RunSystPlotter")){
+        SystToPlot=GetSystList(SystLabel);
+      }
+
       for(auto iCR : CRToRun){
 
         /// grab name for central job

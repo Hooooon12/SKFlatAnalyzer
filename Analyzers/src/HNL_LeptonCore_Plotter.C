@@ -77,9 +77,16 @@ void HNL_LeptonCore::Fill_PlotsAK8(AnalyzerParameter& param, TString  region, TS
   double AK8bins[nAk8bins+1] = { 0.0,300.0,500.0,2000.0};
 
   // Fill mass histograms [binned for python plotter, Main plots for unbinned]
-  //FillHist(plot_dir + region + "/AK8J_Mass/l1J", N1Cand.M(), w, nAk8bins,AK8bins, "Reco M_{l1J}");
-  //FillHist(plot_dir + region + "/AK8J_Mass/l2J", N2Cand.M(), w,nAk8bins,AK8bins , "Reco M_{l2J}");
-  //FillHist(plot_dir + region + "/AK8J_Mass/llJ", llJCand.M(), w, nAk8bins,AK8bins, "Reco M_{llJ}");
+  FillHist(plot_dir + region + "/AK8J_Mass/l1J", N1Cand.M(), w, nAk8bins,AK8bins, "Reco M_{l1J}");
+  FillHist(plot_dir + region + "/AK8J_Mass/l2J", N2Cand.M(), w, nAk8bins,AK8bins, "Reco M_{l2J}");
+  FillHist(plot_dir + region + "/AK8J_Mass/llJ", llJCand.M(), w, nAk8bins,AK8bins, "Reco M_{llJ}");
+
+  FillHist(plot_dir + region + "/AK8J_Unbinned_Mass/l1J", N1Cand.M(),  w, 9999, 0.0, 9999.0, "Reco M_{l1J}");
+  FillHist(plot_dir + region + "/AK8J_Unbinned_Mass/l2J", N2Cand.M(),  w, 9999, 0.0, 9999.0, "Reco M_{l2J}");
+  FillHist(plot_dir + region + "/AK8J_Unbinned_Mass/llJ", llJCand.M(), w, 9999, 0.0, 9999.0, "Reco M_{llJ}");
+
+  //// Now Add detailed plots by adding userflag
+  if(!User("jalmond")) return;
   
   //// Now Add detailed plots by adding userflag
   //if(!User("jalmond")) return;
@@ -195,7 +202,15 @@ void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter& param, TString plot_dir
   // Restore original name
   param.Name = baseName;
 }
- 
+
+void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter& param, TString plot_dir, vector<Tau>& taus,   std::vector<Jet>& jets,    std::vector<Jet>& vbfjets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, TString mN, double MVAvalue, double nvtx,  double w){
+
+  if(!param.runPlotter)  return;
+
+  // Initial region plots
+  Fill_RegionPlotsFull(param, plot_dir, taus, jets, vbfjets, fatjets, leps, met, mN, MVAvalue, nvtx, w);
+
+} 
 
 void HNL_LeptonCore::Fill_RegionPlots(AnalyzerParameter& param, TString plot_dir,   std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w){
 
@@ -250,7 +265,33 @@ void HNL_LeptonCore::Fill_RegionPlotsFull(AnalyzerParameter& param, TString plot
     if (param.syst_ == AnalyzerParameter::Syst::Central) Fill_Plots(param, r, plot_dir, Taus, jets, fatjets, leps, met, nvtx, w);
   }
 }
-  
+
+void HNL_LeptonCore::Fill_RegionPlotsFull(AnalyzerParameter& param, TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>& jets,    std::vector<Jet>& vbfjets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, TString mN, double MVAvalue, double nvtx,  double w, int DrawConfig){
+
+  TString region = "/" + param.Name + param.hprefix;
+  TString regionL = "/" + param.NameInclusive_Channel + param.hprefix;
+
+  if (_jentry < 1) {
+    std::cout << "[Plotting] plot_dir: " << plot_dir
+              << ", region: " << region
+              << ", regionL: " << regionL << std::endl;
+  }
+
+  std::vector<TString> regions;
+  regions.push_back(region);
+
+  //// If name has _q_ then plots are for charge split, so do not draw Inclusivce lepton as it double counts
+  if(!param.Name.Contains("_q_")){
+    if (!param.NameInclusive_Channel.IsNull() && !param.NameInclusive_Channel.IsWhitespace())
+      regions.push_back(regionL);
+  }
+
+  for (const TString& r : regions) {
+    Fill_Main_Plots(param, r, plot_dir, Taus, jets, vbfjets, fatjets, leps, met, mN, MVAvalue, nvtx, w);
+    Fill_Standard_Plots(param, r, plot_dir, Taus, jets, fatjets, leps, met, nvtx, w);
+    if (param.syst_ == AnalyzerParameter::Syst::Central) Fill_Plots(param, r, plot_dir, Taus, jets, fatjets, leps, met, nvtx, w);
+  }
+}
 
 void HNL_LeptonCore::Fill_Standard_Plots(AnalyzerParameter& param, TString  region,  TString plot_dir,
              vector<Tau>& TauColl,  std::vector<Jet>& jets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps ,
@@ -450,6 +491,109 @@ void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter& param, TString  region, 
   if(leps.size() > 2)  LT+= leps[2]->Pt();
   if(leps.size() > 3)  LT+= leps[3]->Pt();
   FillHist( plot_dir + region + "/MainPlots/L_T", LT, w, 9999, 0, 9999, "l_{T} p_{T} GeV");
+
+  if(User("jalmond"))  {
+    double NJ = 0.;
+    if(jets.size() > 1) NJ = 1.;
+    FillHist( plot_dir+ region+ "/MainPlots/SR3_Scan",  min(1199.0,LT), min(9.0,met2_st), NJ, w, 120, 0, 1200,18, 0, 9.0, 2, 0, 2);
+  }
+  return;
+
+}
+
+void HNL_LeptonCore::Fill_Main_Plots(AnalyzerParameter& param, TString  region,  TString plot_dir,
+                                vector<Tau>& TauColl,  std::vector<Jet>& jets, std::vector<Jet>& vbfjets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps ,
+                                Particle&  met, TString mN, double MVAvalue, double nvtx,  double w){
+
+  if (!RunPlotter(param,"Main")) return;
+
+  bool isM100 = false;
+  if(mN == "100") isM100 = true;
+  else isM100 = false;
+
+  if(leps.size() < 2) return;
+
+  double ST      = GetST(leps, jets, fatjets, met);
+  double met2_st = pow(met.Pt(),2.)/ ST;
+
+  if(isM100) FillHist( plot_dir+ region+ "/MainPlots/Ev_MET2_ST", met2_st  , w, 1000, 0.0, 100.0,"MET2/ST GeV");
+
+  double PTLep1  = leps[0]->Pt();
+  double PTLep2  = leps[1]->Pt();
+  double LT = PTLep1 + PTLep2;
+
+  if(fatjets.size() > 0){
+
+    Particle N1Cand  = fatjets[0] + *leps[0] ;
+    FillHist( plot_dir+ region+ "/MainPlots/M_l1J",          N1Cand.M(),       w, 9999, 0, 9999, "M_{Jl_{1}} GeV" );
+
+    double M_corr = N1Cand.M() - fatjets[0].SDMass() + M_W;
+    FillHist( plot_dir+ region+ "/MainPlots/M_l1J_constrained",      M_corr,       w, 9999, 0, 9999, "M_{Jl_{1}} GeV" );
+
+  }
+  else{
+
+    if(HasFlag("SSDilepBDT")){
+      if(isM100) FillHist( plot_dir+ region+ "/MainPlots/N_vbfjet", vbfjets.size(), w, 10, 0, 10, "VBF size");
+      if(isM100) FillHist( plot_dir+ region+ "/MainPlots/dR_ll", leps[0]->DeltaR(*leps[1] ), w, 100, 0., 10., "#DeltaR(l,l)");
+      if(mN=="100" || mN=="150" || mN=="200" || mN=="400"){
+        FillHist( plot_dir+ region+ "/MainPlots/MVA_M"+mN, MVAvalue, w, 400, -1., 1., "MVA_M"+mN);
+      }
+    }
+
+    if(jets.size() > 1){
+      //// Check for Jet pair from N->Wl->jjl
+      double dijetmass_tmp=999.;
+      double dijetmass=9990000.;
+      int m=-999;
+      int n=-999;
+
+      for(UInt_t emme=0; emme<jets.size(); emme++){
+        for(UInt_t enne=1; enne<jets.size(); enne++) {
+          if(emme == enne) continue;
+          dijetmass_tmp = (jets[emme]+jets[enne]).M();
+
+          if ( fabs(dijetmass_tmp-M_W) < fabs(dijetmass-M_W) ) {
+            dijetmass = dijetmass_tmp;
+            m = emme;
+            n = enne;
+          }
+        }
+      }
+      Particle WCand   = jets[m]+jets[n];
+      Particle N1Cand  = jets[m]+jets[n]+ *leps[0] ;
+
+      Particle llj1 = *leps[0] + *leps[1] + jets[0];
+      Particle l2j1 = *leps[1] + jets[0];
+
+      if(HasFlag("SSDilepBDT")){
+        if(isM100) FillHist( plot_dir+ region+ "/MainPlots/M_llj1", llj1.M(), w, 9999, 0, 9999, "M(llj_{1}) GeV");
+        if(isM100) FillHist( plot_dir+ region+ "/MainPlots/M_l2j1", l2j1.M(), w, 9999, 0, 9999, "M(l_{2}j_{1}) GeV");
+      }
+
+    }
+
+    FillHist( plot_dir+ region+ "/MainPlots/HT_PT1",     leps[0]->HTOverPt(),     w, 100, 0, 10, "H_{T}/p_{T}");
+
+  }
+
+  if(isM100){
+
+    FillHist( plot_dir + region + "/MainPlots/Lepton_1_pt", PTLep1, w, 9999, 0, 9999, "l_{1} p_{T} GeV");
+    FillHist( plot_dir + region + "/MainPlots/Lepton_2_pt", PTLep2, w, 9999, 0, 9999, "l_{2} p_{T} GeV");
+    if(leps.size() > 2) FillHist( plot_dir + region + "/MainPlots/Lepton_3_pt", leps[2]->Pt(), w, 9999, 0, 9999, "l_{3} p_{T} GeV");
+    if(leps.size() > 3) FillHist( plot_dir + region + "/MainPlots/Lepton_4_pt", leps[3]->Pt(), w, 9999, 0, 9999, "l_{4} p_{T} GeV");
+
+    FillHist( plot_dir + region + "/MainPlots/Lepton_pt", PTLep1, w, 9999, 0, 9999, "l p_{T} GeV");
+    FillHist( plot_dir + region + "/MainPlots/Lepton_pt", PTLep2, w, 9999, 0, 9999, "l p_{T} GeV");
+    if(leps.size() > 2) FillHist( plot_dir + region + "/MainPlots/Lepton_pt", leps[2]->Pt(), w, 9999, 0, 9999, "l p_{T} GeV");
+    if(leps.size() > 3) FillHist( plot_dir + region + "/MainPlots/Lepton_pt", leps[3]->Pt(), w, 9999, 0, 9999, "l p_{T} GeV");
+
+  }
+
+  if(leps.size() > 2)  LT+= leps[2]->Pt();
+  if(leps.size() > 3)  LT+= leps[3]->Pt();
+  if(isM100) FillHist( plot_dir + region + "/MainPlots/L_T", LT, w, 9999, 0, 9999, "l_{T} p_{T} GeV");
 
   if(User("jalmond"))  {
     double NJ = 0.;

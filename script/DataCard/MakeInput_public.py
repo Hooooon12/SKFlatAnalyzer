@@ -159,6 +159,14 @@ TestTag = args.TestTag if args.TestTag == '' else "_"+args.TestTag
 ExtTag = '_Ext' if args.Ext else ''
 
 ALT_WZ_SAMPLE = "WZTo3LNu_mllmin4p0_powheg"
+
+# File/process alias in MergedFiles/.../RunPrompt__/
+ALT_WZ_RUNPROMPT_PROC = "WZ_POWHEG"
+
+# Histogram name retained in the final limit-input ROOT file
+ALT_WZ_LIMIT_PROC = "wz_powheg"
+
+ALT_WZ_NORM_ENABLED = "AltWZNorm" in args.TestTag
 ALT_WZ_ENABLED = "AltWZ" in args.TestTag
 
 BDTver = args.BDTver
@@ -397,6 +405,39 @@ else:
   RegionToHistSuffixMap['sr1'] = {'MuMu':'LimitBins/MuonSR1', 'EE':'LimitBins/ElectronSR1', 'EMu':'LimitBins/ElectronMuonSR1'}
   RegionToHistSuffixMap['sr2'] = {'MuMu':'LimitBins/MuonSR2', 'EE':'LimitBins/ElectronSR2', 'EMu':'LimitBins/ElectronMuonSR2'}
   RegionToHistSuffixMap['sr3'] = {'MuMu':'LimitBins/MuonSR3', 'EE':'LimitBins/ElectronSR3', 'EMu':'LimitBins/ElectronMuonSR3'}
+
+# ----------------------------------------------------------------------
+# AltWZNorm configuration
+#
+# sr1/wz_cr1, sr2/wz_cr2, sr3/wz_cr3 share one normalization anchor.
+# Other CRs use local shape-only normalization.
+# ----------------------------------------------------------------------
+
+ALT_WZ_ANCHOR_INDEX_BY_REGION = {
+  "sr1": "1",
+  "wz_cr1": "1",
+
+  "sr2": "2",
+  "wz_cr2": "2",
+
+  "sr3": "3",
+  "wz_cr3": "3",
+}
+
+ALT_WZ_CR_CHANNEL_MAP = {
+  "MuMu": "MuMuMu",
+  "EE":   "EEE",
+  "EMu":  "EMuL",
+}
+
+ALT_WZ_CR_HIST_SUFFIX = {
+  "1": "LimitShape_WZ_SR1/Binned",
+  "2": "LimitShape_WZ_SR2/Binned",
+  "3": "LimitShape_WZ_SR3/Binned",
+}
+
+ALT_WZ_NORM_FACTOR_CACHE = {}
+
 
 # Optional region filter for card-input production.
 # Example: --regions sr2
@@ -810,10 +851,14 @@ SUMMARY_MC_PROCS = [
 ]
 
 DIAGNOSTIC_ONLY_PROCS = set(MC_INDIVIDUAL_PROCS + [
+  ALT_WZ_LIMIT_PROC,
   "conv_inc", "conv_others", "prompt_inc", "prompt_others", "mc_inc",
 ])
 
-LOW_PRIORITY_LOG_PROCS = set(MC_INDIVIDUAL_PROCS)
+LOW_PRIORITY_LOG_PROCS = set(
+  MC_INDIVIDUAL_PROCS
+  + [ALT_WZ_LIMIT_PROC]
+)
 
 
 def process_detail_level(proc):
@@ -854,17 +899,58 @@ def hist_write_level(hist_name):
   """
   Successful final-write message level.
 
-  Aggregate/summary/signal/data histograms:
-    visible by default
+  wz_powheg:
+    visible by default because confirming that the AltWZ diagnostic template
+    was actually written is useful for production auditing.
 
-  Individual MC histograms:
-    visible only in the complete level-3 log
+  Aggregate/summary/signal/data:
+    visible by default.
+
+  Ordinary individual MC:
+    visible only in the complete level-3 log.
   """
+
+  if hist_name == ALT_WZ_LIMIT_PROC:
+    return 1
+
   for proc in sorted(LOW_PRIORITY_LOG_PROCS, key=len, reverse=True):
     if hist_name == proc or hist_name.startswith(proc + "_"):
       return 3
 
   return 1
+
+
+def template_rewrite_log_level(proc):
+  """
+  Logging level for an intentional modification of a histogram before writing.
+
+  level 1:
+    A process/template used directly by the datacard, or a diagnostic source
+    that directly determines a datacard template.
+
+  level 2:
+    Summary/audit histograms not directly used by the datacard.
+
+  level 3:
+    Ordinary individual-MC diagnostic histograms.
+  """
+
+  if proc in CARD_BKG_PROCS:
+    return 1
+
+  if proc and proc.startswith("signal"):
+    return 1
+
+  # Although wz_powheg is retained as a diagnostic histogram, it is the direct
+  # source of the AltWZ Up template. Any raw-template rewrite must be visible.
+  if proc == ALT_WZ_LIMIT_PROC:
+    return 1
+
+  if proc in SUMMARY_MC_PROCS:
+    return 2
+
+  return 3
+
 
 # signalDYVBF is kept for comparison/diagnostics, but the datacard is expected
 # to use the split DY and VBF signals.
@@ -909,6 +995,8 @@ if args.CheckFiles:
       DataList['2018'].append(stream+"_"+period)
   ConvList = MergeList['RunConv']['Conv_inc'][:]
   PromptList = MergeList['RunPrompt']['Prompt_inc'][:]
+  if ALT_WZ_ENABLED:
+    PromptList.append(ALT_WZ_SAMPLE)
   SignalList = [f"DYTypeI_DF_M{mass}_private" for mass in [85, 90, 95, 100, 125, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000, 2500, 3000]] +\
                [f"VBFTypeI_DF_M{mass}_private" for mass in [300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000, 2500, 3000]] +\
                [f"SSWWTypeI_SF_M{mass}_private" for mass in [500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000, 2500, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000]] +\
@@ -1150,20 +1238,17 @@ if args.Merge:
             merge_or_copy_root(OutFile, in_files)
   
   if MergeAltWZ:
-
-    print("[MergeAltWZ] Copying", ALT_WZ_SAMPLE, "only...")
-
+  
+    print(
+      "[MergeAltWZ] Copying",
+      ALT_WZ_SAMPLE,
+      "to both RunPrompt and MergeMC..."
+    )
+  
     for era in args.eras:
       for DefFlag in DefFlags:
-
-        out_dir = (
-          MainPath
-          + "/MergedFiles/"
-          + Analyzer + "_" + inputTag + outputTag
-          + "/" + era
-          + "/" + PreFlag + DefFlag + "RunPrompt__" + PostFlag
-        )
-
+  
+        # Original SKFlat POWHEG WZ sample.
         in_file = (
           SKFlatOutputPath
           + "/" + Analyzer + "_" + inputTag
@@ -1175,17 +1260,62 @@ if args.Merge:
           + ALT_WZ_SAMPLE
           + ".root"
         )
-
-        out_file = (
-          out_dir
+  
+        # ----------------------------------------------------------
+        # 1. RunPrompt-level alias
+        #
+        # Nominal:
+        #   Analyzer_WZ.root
+        #
+        # Alternative:
+        #   Analyzer_WZ_POWHEG.root
+        # ----------------------------------------------------------
+        out_file_runprompt = (
+          MainPath
+          + "/MergedFiles/"
+          + Analyzer + "_" + inputTag + outputTag
+          + "/" + era
+          + "/"
+          + PreFlag + DefFlag + "RunPrompt__" + PostFlag
+          + "/"
+          + Analyzer
+          + "_"
+          + ALT_WZ_RUNPROMPT_PROC
+          + ".root"
+        )
+  
+        # ----------------------------------------------------------
+        # 2. Individual-MC-level copy
+        #
+        # Nominal:
+        #   Analyzer_WZTo3LNu_amcatnlo.root
+        #
+        # Alternative:
+        #   Analyzer_WZTo3LNu_mllmin4p0_powheg.root
+        # ----------------------------------------------------------
+        out_file_mergemc = (
+          MainPath
+          + "/MergedFiles/"
+          + Analyzer + "_" + inputTag + outputTag
+          + "/" + era
+          + "/"
+          + PreFlag + DefFlag + "MergeMC__" + PostFlag
           + "/"
           + Analyzer
           + "_"
           + ALT_WZ_SAMPLE
           + ".root"
         )
-
-        merge_or_copy_root(out_file, [in_file])
+  
+        merge_or_copy_root(
+          out_file_runprompt,
+          [in_file]
+        )
+  
+        merge_or_copy_root(
+          out_file_mergemc,
+          [in_file]
+        )
 
   if MergeSignal:
   
@@ -1404,7 +1534,7 @@ RUN2_PROCESS_BASES = [
   "signalVBF",
   "signalSSWW",
   "signalWeinberg",
-] + MC_INDIVIDUAL_PROCS
+] + MC_INDIVIDUAL_PROCS + [ALT_WZ_LIMIT_PROC]
 
 def split_process_and_syst_from_hist_name(hist_name):
   """
@@ -1846,7 +1976,7 @@ def build_mc_summary_hists(input_list, summary_proc_names=SUMMARY_MC_PROCS):
       missing_level=missing_level,
     )
     if is_valid_th1(h):
-      truncate_nonpositive_bins(h, "MC summary " + proc, zero_too=True, log_level=2)
+      truncate_nonpositive_bins(h, "MC summary " + proc, zero_too=True, log_level=template_rewrite_log_level(proc))
       out.append(["__aggregate__", h, proc])
   return out
 
@@ -2032,7 +2162,7 @@ def symmetrize_down_from_up(h_down, h_nom, h_up, bins_to_fix, label):
     h_down.SetBinContent(ibin, new_down)
     h_down.SetBinError(ibin, h_up.GetBinError(ibin))
 
-    vprint(2,
+    vprint(1,
       "[PruneZG]",
       label,
       "bin",
@@ -2242,11 +2372,21 @@ def nominal_bin_neff(h_nom, ibin):
   return (val / err) * (val / err)
 
 
-def force_lowstat_syst_bins_to_nominal(h_syst, h_nom, proc, hist_name, label):
+def force_lowstat_syst_bins_to_nominal(
+  h_syst,
+  h_nom,
+  proc,
+  hist_name,
+  label
+):
   """
-  If nominal Neff is below threshold in a bin, set the systematic template bin
-  to the nominal template bin. This is intentionally bin-by-bin, not whole-region.
+  If nominal Neff is below threshold in a bin, force the systematic-template
+  bin to the nominal-template bin.
+
+  Datacard-level rewrites are always logged at verbose level 1.
+  Individual-MC-only rewrites remain verbose level 3.
   """
+
   if not FITTEST_LOWSTAT_ACTIVE:
     return False
 
@@ -2262,34 +2402,115 @@ def force_lowstat_syst_bins_to_nominal(h_syst, h_nom, proc, hist_name, label):
       + label + " " + proc + " " + hist_name
     )
 
-  changed = []
+  forced = []
+  actually_changed = []
+
   for ibin in range(1, h_nom.GetNbinsX() + 1):
     neff = nominal_bin_neff(h_nom, ibin)
 
-    if neff < FITTEST_LOWSTAT_NEFF_MIN:
-      h_syst.SetBinContent(ibin, h_nom.GetBinContent(ibin))
-      h_syst.SetBinError(ibin, h_nom.GetBinError(ibin))
-      changed.append((ibin, neff))
+    if neff >= FITTEST_LOWSTAT_NEFF_MIN:
+      continue
 
-  if changed:
-    preview = ", ".join([str(b) + ":" + format(neff, ".2f") for b, neff in changed[:12]])
-    if len(changed) > 12:
-      preview += ", ..."
+    old_content = h_syst.GetBinContent(ibin)
+    old_error = h_syst.GetBinError(ibin)
 
-    vprint(3,
-      "[FitTest][LowStatNeff]",
-      label,
-      "proc =",
-      proc,
-      "hist =",
-      hist_name,
-      "threshold =",
-      FITTEST_LOWSTAT_NEFF_MIN,
-      "changed bins bin:Neff =",
-      preview
+    nominal_content = h_nom.GetBinContent(ibin)
+    nominal_error = h_nom.GetBinError(ibin)
+
+    content_changed = not np.isclose(
+      old_content,
+      nominal_content,
+      rtol=1e-12,
+      atol=1e-15
     )
 
-  return len(changed) > 0
+    error_changed = not np.isclose(
+      old_error,
+      nominal_error,
+      rtol=1e-12,
+      atol=1e-15
+    )
+
+    forced.append((ibin, neff))
+
+    if content_changed or error_changed:
+      actually_changed.append((
+        ibin,
+        neff,
+        old_content,
+        old_error,
+        nominal_content,
+        nominal_error,
+      ))
+
+    h_syst.SetBinContent(
+      ibin,
+      nominal_content
+    )
+
+    h_syst.SetBinError(
+      ibin,
+      nominal_error
+    )
+
+  if forced:
+    forced_preview = ", ".join([
+      str(ibin) + ":" + format(neff, ".2f")
+      for ibin, neff in forced[:12]
+    ])
+
+    if len(forced) > 12:
+      forced_preview += ", ..."
+
+    changed_preview = ", ".join([
+      (
+        str(ibin)
+        + ":"
+        + format(old_content, ".4g")
+        + "+/-"
+        + format(old_error, ".4g")
+        + " -> "
+        + format(nominal_content, ".4g")
+        + "+/-"
+        + format(nominal_error, ".4g")
+      )
+      for (
+        ibin,
+        neff,
+        old_content,
+        old_error,
+        nominal_content,
+        nominal_error
+      ) in actually_changed[:6]
+    ])
+
+    if len(actually_changed) > 6:
+      changed_preview += ", ..."
+
+    if not changed_preview:
+      changed_preview = "none; bins were already nominal at this stage"
+
+    vprint(
+      template_rewrite_log_level(proc),
+      "[TemplateRewrite][LowStatNeff]",
+      label,
+      "| proc =",
+      proc,
+      "| hist =",
+      hist_name,
+      "| threshold =",
+      FITTEST_LOWSTAT_NEFF_MIN,
+      "| forced bins bin:Neff =",
+      forced_preview,
+      "| actual changes =",
+      str(len(actually_changed)) + "/" + str(len(forced)),
+      "| old -> nominal =",
+      changed_preview
+    )
+
+  # Preserve the previous semantic meaning:
+  # True means that LowStat policy applied to at least one bin.
+  return len(forced) > 0
 
 
 def hist_bin_edges(h):
@@ -2368,7 +2589,15 @@ def clone_with_merged_adjacent_bins(h_in, out_name, first_bin_to_merge, label):
   h_out.SetBinContent(nbins_new + 1, h_in.GetBinContent(nbins_old + 1))
   h_out.SetBinError(nbins_new + 1, h_in.GetBinError(nbins_old + 1))
 
-  vprint(3,
+  merge_proc = process_base_from_hist_name(out_name)
+  
+  merge_log_level = (
+    template_rewrite_log_level(merge_proc)
+    if merge_proc is not None
+    else 3
+  )
+
+  vprint(merge_log_level,
     "[FitTest][MergeBins]",
     label,
     "merged bins",
@@ -2466,7 +2695,10 @@ def fill_holes_in_hist(h, hist_name, label):
     if len(changed) > 12:
       preview += ", ..."
 
-    vprint(3,
+    proc = process_base_from_hist_name(hist_name)
+
+    vprint(
+      template_rewrite_log_level(proc),
       "[FitTest][FillHoles]",
       label,
       "hist =",
@@ -2791,6 +3023,238 @@ def write_exceptions_module(path, code_str, save, exceptionTag):
         with open(path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
 
+def get_altwz_local_norm_factor(h_nom, h_powheg, label):
+  """
+  Return nominal_integral / powheg_integral for the current region.
+
+  None means that normalization is impossible because either histogram is
+  missing or has a non-positive/non-finite integral.
+  """
+
+  if not is_valid_th1(h_nom):
+    print(
+      "[AltWZNorm][WARNING] "
+      "Cannot calculate local normalization because nominal WZ is missing:",
+      label
+    )
+    return None
+
+  if not is_valid_th1(h_powheg):
+    print(
+      "[AltWZNorm][WARNING] "
+      "Cannot calculate local normalization because POWHEG WZ is missing:",
+      label
+    )
+    return None
+
+  nom_yield = h_nom.Integral()
+  powheg_yield = h_powheg.Integral()
+
+  if (not np.isfinite(nom_yield)) or nom_yield <= 0.:
+    print(
+      "[AltWZNorm][WARNING] "
+      "Cannot calculate local normalization because nominal WZ yield is "
+      "non-positive or non-finite:",
+      nom_yield,
+      label
+    )
+    return None
+
+  if (not np.isfinite(powheg_yield)) or powheg_yield <= 0.:
+    print(
+      "[AltWZNorm][WARNING] "
+      "Cannot calculate local normalization because POWHEG WZ yield is "
+      "non-positive or non-finite:",
+      powheg_yield,
+      label
+    )
+    return None
+
+  norm_factor = nom_yield / powheg_yield
+
+  if (not np.isfinite(norm_factor)) or norm_factor <= 0.:
+    print(
+      "[AltWZNorm][WARNING] Invalid local normalization factor:",
+      norm_factor,
+      label
+    )
+    return None
+
+  return norm_factor
+
+def get_altwz_anchor_norm_factor(era, tag, channel, anchor_index):
+  """
+  Calculate and cache
+
+      integral(amcatnlo in wz_cr{anchor_index})
+      ------------------------------------------
+      integral(powheg   in wz_cr{anchor_index})
+
+  for one era, histogram tag, flavor channel, and topology.
+
+  The same factor is subsequently used in sr{i} and wz_cr{i}.
+  """
+
+  cache_key = (era, tag, channel, anchor_index)
+
+  if cache_key in ALT_WZ_NORM_FACTOR_CACHE:
+    return ALT_WZ_NORM_FACTOR_CACHE[cache_key]
+
+  cr_analyzer = "HNL_ControlRegion_Plotter"
+
+  cr_base_dir = (
+    MainPath
+    + "/MergedFiles/"
+    + cr_analyzer + "_" + inputTag + outputTag
+    + "/" + era
+    + "/"
+    + PreFlag
+    + "MultiLepton__"
+  )
+
+  f_path_anchor_nom = (
+    cr_base_dir
+    + "RunPrompt__"
+    + PostFlag
+    + "/"
+    + cr_analyzer
+    + "_WZ.root"
+  )
+  
+  f_path_anchor_powheg = (
+    cr_base_dir
+    + "RunPrompt__"
+    + PostFlag
+    + "/"
+    + cr_analyzer
+    + "_"
+    + ALT_WZ_RUNPROMPT_PROC
+    + ".root"
+  )
+
+  anchor_input_hist = (
+    "LimitExtraction/"
+    + tag
+    + "/"
+    + ALT_WZ_CR_CHANNEL_MAP[channel]
+    + "/"
+    + ALT_WZ_CR_HIST_SUFFIX[anchor_index]
+  )
+
+  f_anchor_nom = CheckFile(
+    f_path_anchor_nom,
+    missing_level=1
+  )
+
+  f_anchor_powheg = CheckFile(
+    f_path_anchor_powheg,
+    missing_level=1
+  )
+
+  h_anchor_nom = None
+  h_anchor_powheg = None
+
+  try:
+    if f_anchor_nom:
+      h_anchor_nom = clone_detached(
+        CheckHist(
+          f_anchor_nom,
+          anchor_input_hist,
+          "wz_altwz_anchor_nominal"
+        ),
+        "wz_altwz_anchor_nominal"
+      )
+
+    if f_anchor_powheg:
+      h_anchor_powheg = clone_detached(
+        CheckHist(
+          f_anchor_powheg,
+          anchor_input_hist,
+          "wz_altwz_anchor_powheg"
+        ),
+        "wz_altwz_anchor_powheg"
+      )
+
+  finally:
+    if f_anchor_nom:
+      f_anchor_nom.Close()
+
+    if f_anchor_powheg:
+      f_anchor_powheg.Close()
+
+  anchor_label = (
+    tag
+    + " "
+    + era
+    + " wz_cr"
+    + anchor_index
+    + " "
+    + channel
+  )
+
+  if not is_valid_th1(h_anchor_nom):
+    print(
+      "[AltWZNorm][WARNING] "
+      "Nominal WZ anchor histogram is missing:",
+      anchor_label,
+      anchor_input_hist
+    )
+    ALT_WZ_NORM_FACTOR_CACHE[cache_key] = None
+    return None
+
+  if not is_valid_th1(h_anchor_powheg):
+    print(
+      "[AltWZNorm][WARNING] "
+      "POWHEG WZ anchor histogram is missing:",
+      anchor_label,
+      anchor_input_hist
+    )
+    ALT_WZ_NORM_FACTOR_CACHE[cache_key] = None
+    return None
+
+  assert_same_binning(
+    h_anchor_nom,
+    h_anchor_powheg,
+    "AltWZNorm anchor " + anchor_label
+  )
+
+  truncate_nonpositive_bins(
+    h_anchor_nom,
+    "AltWZNorm anchor nominal " + anchor_label,
+    zero_too=True,
+    log_level=2
+  )
+
+  truncate_nonpositive_bins(
+    h_anchor_powheg,
+    "AltWZNorm anchor POWHEG " + anchor_label,
+    zero_too=True,
+    log_level=2
+  )
+
+# Derive the normalization factor from the full nominal AMC@NLO and alternative POWHEG yields in the WZ control region.
+  norm_factor = get_altwz_local_norm_factor(
+    h_anchor_nom,
+    h_anchor_powheg,
+    "anchor " + anchor_label
+  )
+
+  ALT_WZ_NORM_FACTOR_CACHE[cache_key] = norm_factor
+
+  if norm_factor is not None:
+    vprint(
+      1,
+      "[AltWZNorm][ANCHOR]",
+      "era =", era,
+      "| channel =", channel,
+      "| anchor = wz_cr" + anchor_index,
+      "| nominal =", h_anchor_nom.Integral(),
+      "| powheg =", h_anchor_powheg.Integral(),
+      "| factor =", norm_factor
+    )
+
+  return norm_factor
+
 
 ##### Main job starts #####
 Except_list = []
@@ -2880,7 +3344,7 @@ for tag in args.histTag:
       f_path_ww            = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_WW_norm.root"
       f_path_prompt_inc    = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_Prompt_inc.root"
       f_path_prompt_others = MainPath + "/MergedFiles/"+Analyzer+"_"+inputTag+outputTag+"/" + era + "/" + PreFlag+RegionToDefFlagMap[region]+"RunPrompt__"+PostFlag+"/"+Analyzer+"_Prompt_others.root"
-      f_path_alt_wz = (
+      f_path_wz_powheg = (
         MainPath
         + "/MergedFiles/"
         + Analyzer + "_" + inputTag + outputTag
@@ -2888,7 +3352,7 @@ for tag in args.histTag:
         + "/"
         + PreFlag
         + RegionToDefFlagMap[region]
-        + "RunPrompt__"
+        + "MergeMC__"
         + PostFlag
         + "/"
         + Analyzer
@@ -2931,19 +3395,14 @@ for tag in args.histTag:
         for this_proc in MC_INDIVIDUAL_PROCS
       }
 
-      f_alt_wz = None
-      if ALT_WZ_ENABLED:
-        if os.path.exists(f_path_alt_wz):
-          f_alt_wz = TFile.Open(f_path_alt_wz)
-        else:
-          print(
-            "[AltWZ][WARNING] Missing merged powheg WZ file:",
-            f_path_alt_wz
-          )
-          print(
-            "[AltWZ][WARNING] "
-            "AltWZ templates will be skipped for this era/region."
-          )
+      f_wz_powheg = (
+        CheckFile(
+          f_path_wz_powheg,
+          missing_level=1
+        )
+        if ALT_WZ_ENABLED
+        else None
+      )
 
       # Cache raw ROOT histograms by exact input path.  The helper always returns
       # detached clones, so later scaling/truncation never contaminates the cache.
@@ -3101,6 +3560,22 @@ for tag in args.histTag:
               this_proc,
             )
 
+          h_wz_powheg = (
+            get_hist_cached(
+              hist_read_cache,
+              (
+                ALT_WZ_LIMIT_PROC,
+                f_path_wz_powheg,
+                input_hist
+              ),
+              f_wz_powheg,
+              input_hist,
+              ALT_WZ_LIMIT_PROC,
+            )
+            if ALT_WZ_ENABLED
+            else None
+          )
+
           vprint(2, "##### histo done.")
 
           # Make list of [file path, histogram, histo name].
@@ -3117,6 +3592,13 @@ for tag in args.histTag:
                 h_mc_individual[this_proc],
                 this_proc,
               ])
+
+          if ALT_WZ_ENABLED and is_valid_th1(h_wz_powheg):
+            input_list.append([
+              f_path_wz_powheg,
+              h_wz_powheg,
+              ALT_WZ_LIMIT_PROC,
+            ])
 
           #### Treat 0 fakes: see v) of https://hypernews.cern.ch/HyperNews/CMS/get/EXO-21-002/25
           if not is_valid_th1(h_fake):
@@ -3138,7 +3620,7 @@ for tag in args.histTag:
               item[1],
               item[2] + " " + item[0] + " " + input_hist,
               zero_too=True,
-              log_level=2
+              log_level=template_rewrite_log_level(item[2])
             )
 
           if KEEP_MC_SUMMARY_PROCS:
@@ -3298,7 +3780,7 @@ for tag in args.histTag:
                 item[1],
                 proc + " " + item[0] + " " + input_hist,
                 zero_too=True,
-                log_level=2
+                log_level=template_rewrite_log_level(proc)
               )
 
             if item[1].Integral() <= 0.:
@@ -3501,7 +3983,7 @@ for tag in args.histTag:
                   if proc == "fake" and "FR" in this_syst and "CF" not in this_syst:
                     treat_fake_zero_bins(h_syst, src_path + " " + syst_input_hist + " with syst " + name_syst)
                   else:
-                    truncate_nonpositive_bins(h_syst, proc + " " + syst_input_hist + " with syst " + name_syst, zero_too=True, log_level=2)
+                    truncate_nonpositive_bins(h_syst, proc + " " + syst_input_hist + " with syst " + name_syst, zero_too=True, log_level=template_rewrite_log_level(proc))
 
                   if h_syst.Integral() <= 0.:
                     warning_level = process_detail_level(proc)
@@ -3565,7 +4047,7 @@ for tag in args.histTag:
 
                 if is_signal_process(proc) and ('PDFUp' not in this_syst and 'PDFDown' not in this_syst) and (not made_from_nominal):
                   h_syst.Scale(signal_scale_factor(proc, is_Weinberg, DYVBFscaler if not is_Weinberg else 1., SSWWscaler if not is_Weinberg else 1., Weinbergscaler if is_Weinberg else 1.))
-                  truncate_nonpositive_bins(h_syst, proc + " scaled syst " + name_syst, zero_too=True, log_level=2)
+                  truncate_nonpositive_bins(h_syst, proc + " scaled syst " + name_syst, zero_too=True, log_level=template_rewrite_log_level(proc))
 
                 force_lowstat_syst_bins_to_nominal(
                   h_syst,
@@ -3607,7 +4089,7 @@ for tag in args.histTag:
 
                   component_syst_names = []
 
-                  aggregate_log_level = 2 if agg_proc in CARD_BKG_PROCS else 3
+                  aggregate_log_level = template_rewrite_log_level(agg_proc)
 
                   for comp in MC_COMPONENTS[agg_proc]:
                     if should_make_syst_for_process(comp, this_syst, era):
@@ -3616,7 +4098,7 @@ for tag in args.histTag:
                       if comp_syst_name in name_to_hist:
                         component_syst_names.append(comp_syst_name)
                       else:
-                        vprint(3, "[AggregateSyst][WARNING]",comp_syst_name,"is missing; using nominal",comp,"instead.")
+                        vprint(aggregate_log_level, "[AggregateSyst][WARNING]",comp_syst_name,"is missing; using nominal",comp,"instead.")
                         component_syst_names.append(comp)
                     else:
                       component_syst_names.append(comp)
@@ -3632,7 +4114,7 @@ for tag in args.histTag:
                   if not is_valid_th1(h_agg_syst):
                     continue
 
-                  truncate_nonpositive_bins(h_agg_syst, "aggregate syst " + agg_name, zero_too=True, log_level=2)
+                  truncate_nonpositive_bins(h_agg_syst, "aggregate syst " + agg_name, zero_too=True, log_level=aggregate_log_level)
 
                   if should_symmetrize_zg_scale_j_2018_sr2_down(
                     era,
@@ -3673,61 +4155,96 @@ for tag in args.histTag:
                   append_or_replace_hist(input_list, "__aggregate__", h_agg_syst, agg_name)
 
             # Alternative WZ generator shape:
-            #   Up   = powheg WZ
-            #   Down = nominal amcatnlo WZ
+            #
+            # Raw AltWZ mode:
+            #   Up   = raw POWHEG WZ
+            #   Down = nominal AMC@NLO WZ
+            #
+            # AltWZNorm mode:
+            #   sr{i}, wz_cr{i}:
+            #     use normalization derived in wz_cr{i}
+            #
+            #   InvMET, InvBJet, zg_cr, zz_cr:
+            #     normalize POWHEG locally to the nominal yield
+            #
+            #   Down remains nominal in all cases.
             if ALT_WZ_ENABLED:
-            
-              h_wz_nom = get_hist_from_input_list(input_list, "wz")
-            
-              h_wz_powheg = get_hist_cached(
-                hist_read_cache,
-                ("AltWZ", f_path_alt_wz, input_hist),
-                f_alt_wz,
-                input_hist,
-                "wz_altwz_powheg",
+
+              h_wz_nom = get_hist_from_input_list(
+                input_list,
+                "wz"
               )
-            
+
+              h_wz_powheg_for_altwz = get_hist_from_input_list(
+                input_list,
+                ALT_WZ_LIMIT_PROC
+              )
+
               altwz_up_name = (
                 "wz_" + SystNameMap[era]["AltWZUp"]
               )
+
               altwz_down_name = (
                 "wz_" + SystNameMap[era]["AltWZDown"]
               )
-            
-              if not is_valid_th1(h_wz_nom):
+
+              nominal_wz_yield = (
+                h_wz_nom.Integral()
+                if is_valid_th1(h_wz_nom)
+                else 0.
+              )
+
+              nominal_wz_is_available = (
+                "wz" not in NoNOM_names
+                and is_valid_th1(h_wz_nom)
+                and np.isfinite(nominal_wz_yield)
+                and nominal_wz_yield > 0.
+              )
+
+              if not nominal_wz_is_available:
                 print(
                   "[AltWZ][WARNING] "
-                  "Nominal wz histogram is missing; "
+                  "Nominal WZ is missing, non-positive, or marked NoNOM; "
                   "not creating AltWZ templates for "
                   + era + " "
                   + region + " "
                   + mass + " "
                   + channel
-                  + ". The nominal-process exception rule should handle this case."
+                  + "."
                 )
-            
+
               else:
-            
-                if not is_valid_th1(h_wz_powheg):
+
+                # Down is always nominal in the one-sided construction.
+                h_altwz_down = clone_detached(
+                  h_wz_nom,
+                  altwz_down_name
+                )
+
+                # By default assume that Up must fall back to nominal.
+                h_altwz_up = None
+                altwz_up_source = "__AltWZ_nominal_fallback__"
+
+                if not is_valid_th1(h_wz_powheg_for_altwz):
                   print(
                     "[AltWZ][WARNING] "
-                    "Powheg WZ histogram is missing for "
+                    "POWHEG WZ histogram is missing for "
                     + era + " "
                     + region + " "
                     + mass + " "
                     + channel
-                    + "; using nominal wz for both AltWZ Up and Down."
+                    + "; using nominal WZ for AltWZ Up."
                   )
-            
+
                   h_altwz_up = clone_detached(
                     h_wz_nom,
                     altwz_up_name
                   )
-            
+
                 else:
                   assert_same_binning(
                     h_wz_nom,
-                    h_wz_powheg,
+                    h_wz_powheg_for_altwz,
                     (
                       "AltWZ "
                       + era + " "
@@ -3736,76 +4253,177 @@ for tag in args.histTag:
                       + channel
                     ),
                   )
-            
-                  # Up: raw POWHEG WZ template
+
                   h_altwz_up = clone_detached(
-                    h_wz_powheg,
+                    h_wz_powheg_for_altwz,
                     altwz_up_name
                   )
-            
+
                   truncate_nonpositive_bins(
                     h_altwz_up,
                     (
-                      "AltWZ powheg "
+                      "AltWZ POWHEG "
                       + era + " "
                       + region + " "
                       + mass + " "
                       + channel
                     ),
                     zero_too=True,
-                    log_level=2
+                    log_level=1
                   )
-            
-                  if h_altwz_up.Integral() <= 0.:
+
+                  if (
+                    (not np.isfinite(h_altwz_up.Integral()))
+                    or h_altwz_up.Integral() <= 0.
+                  ):
                     print(
                       "[AltWZ][WARNING] "
-                      "Non-positive powheg WZ template for "
+                      "Non-positive or non-finite POWHEG WZ template for "
                       + era + " "
                       + region + " "
                       + mass + " "
                       + channel
-                      + "; using nominal wz for AltWZ Up."
+                      + "; using nominal WZ for AltWZ Up."
                     )
-            
+
                     h_altwz_up = clone_detached(
                       h_wz_nom,
                       altwz_up_name
                     )
-            
+
                   else:
-                    force_lowstat_syst_bins_to_nominal(
-                      h_altwz_up,
-                      h_wz_nom,
-                      "wz",
-                      altwz_up_name,
-                      (
-                        tag + " "
-                        + era + " "
-                        + region + " "
-                        + mass + " "
-                        + channel
-                      ),
-                    )
-            
-                # Down is nominal in the one-sided AltWZ construction.
-                h_altwz_down = clone_detached(
-                  h_wz_nom,
-                  altwz_down_name
+                    altwz_up_source = f_path_wz_powheg
+
+                    if ALT_WZ_NORM_ENABLED:
+                      norm_factor = None
+                      norm_mode = None
+
+                      anchor_index = (
+                        ALT_WZ_ANCHOR_INDEX_BY_REGION.get(region)
+                      )
+
+                      if anchor_index is not None:
+                        # sr1/wz_cr1, sr2/wz_cr2, sr3/wz_cr3:
+                        # first try the corresponding WZ CR anchor.
+                        norm_factor = get_altwz_anchor_norm_factor(
+                          era,
+                          tag,
+                          channel,
+                          anchor_index
+                        )
+
+                        norm_mode = (
+                          "wz_cr" + anchor_index + " anchor"
+                        )
+
+                        # If the anchor histogram/file is unexpectedly absent,
+                        # do not revert to raw POWHEG normalization. Instead use
+                        # local shape-only normalization as a safe fallback.
+                        if norm_factor is None:
+                          print(
+                            "[AltWZNorm][WARNING] "
+                            "Could not obtain the wz_cr"
+                            + anchor_index
+                            + " anchor factor for "
+                            + era + " "
+                            + region + " "
+                            + mass + " "
+                            + channel
+                            + "; falling back to local normalization."
+                          )
+
+                          norm_factor = get_altwz_local_norm_factor(
+                            h_wz_nom,
+                            h_altwz_up,
+                            (
+                              "local anchor fallback "
+                              + tag + " "
+                              + era + " "
+                              + region + " "
+                              + mass + " "
+                              + channel
+                            )
+                          )
+
+                          norm_mode = "local anchor fallback"
+
+                      else:
+                        # InvMET, InvBJet, zg_cr, zz_cr:
+                        # remove the generator normalization difference within
+                        # the current region and retain only normalized shape.
+                        norm_factor = get_altwz_local_norm_factor(
+                          h_wz_nom,
+                          h_altwz_up,
+                          (
+                            "local "
+                            + tag + " "
+                            + era + " "
+                            + region + " "
+                            + mass + " "
+                            + channel
+                          )
+                        )
+
+                        norm_mode = "local"
+
+                      if norm_factor is None:
+                        print(
+                          "[AltWZNorm][WARNING] "
+                          "No valid normalization factor for "
+                          + era + " "
+                          + region + " "
+                          + mass + " "
+                          + channel
+                          + "; using nominal WZ for AltWZ Up."
+                        )
+
+                        h_altwz_up = clone_detached(
+                          h_wz_nom,
+                          altwz_up_name
+                        )
+
+                        altwz_up_source = (
+                          "__AltWZ_nominal_fallback__"
+                        )
+
+                      else:
+                        powheg_yield_before_norm = (
+                          h_altwz_up.Integral()
+                        )
+
+                        h_altwz_up.Scale(norm_factor)
+
+                        vprint(
+                          1,
+                          "[TemplateRewrite][AltWZNorm]",
+                          "era =", era,
+                          "| region =", region,
+                          "| mass =", mass,
+                          "| channel =", channel,
+                          "| mode =", norm_mode,
+                          "| nominal =", h_wz_nom.Integral(),
+                          "| powheg before =", powheg_yield_before_norm,
+                          "| factor =", norm_factor,
+                          "| powheg after =", h_altwz_up.Integral()
+                        )
+
+                vprint(
+                  2,
+                  "Appending " + altwz_up_name + "..."
                 )
-            
-                vprint(2, "Appending " + altwz_up_name + "...")
+
                 append_or_replace_hist(
                   input_list,
-                  (
-                    f_path_alt_wz
-                    if is_valid_th1(h_wz_powheg)
-                    else "__AltWZ_nominal_fallback__"
-                  ),
+                  altwz_up_source,
                   h_altwz_up,
                   altwz_up_name
                 )
-            
-                vprint(2, "Appending " + altwz_down_name + "...")
+
+                vprint(
+                  2,
+                  "Appending " + altwz_down_name + "..."
+                )
+
                 append_or_replace_hist(
                   input_list,
                   "__aggregate__",
@@ -3816,15 +4434,27 @@ for tag in args.histTag:
             vprint(2, "##### Systematics done.")
 
           ### Now remove NoNOMs only for datacard processes.
+          ### This removes both nominal and all systematic templates belonging to a NoNOM process.
           ### Diagnostic-only individual MC hists are intentionally kept.
           if NoNOM_names:
+
             kept = []
+
             for item in input_list:
-              if item[2] in NoNOM_names:
-                print("Erase nominal zero norm datacard process:")
-                print(item)
+              hist_name = item[2]
+              base_process, _ = split_process_and_syst_from_hist_name(hist_name)
+
+              if base_process in NoNOM_names:
+                print(
+                  "Erase NoNOM datacard process/template:",
+                  hist_name,
+                  "base process =",
+                  base_process
+                )
                 continue
+
               kept.append(item)
+
             input_list = kept
 
           # ------------------------------------------------------------

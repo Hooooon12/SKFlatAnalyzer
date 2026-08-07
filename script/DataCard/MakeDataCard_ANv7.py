@@ -138,6 +138,15 @@ regions_cr = ["cr1_InvMET","cr2_InvMET","cr3_InvMET","cr1_InvBJet","cr2_InvBJet"
 regions_sr = ["sr1","sr2","sr3"]
 regions_tot = regions_cr+regions_sr
 
+############# Excuse for the choice of normalization factors below ################
+# The physical meaning of this factor is indeed that of a normalization factor for MC WZ to match the data (up to different kinematics, sr1-3).
+# It would be natural e.g. to correlate WZNorm_sr3 simultaneously with sr3, wz_cr3, cr3_Inv*, zz_cr and zg_cr.
+# But there are two difficulties with this approach in terms of its interpretation:
+# (1) Which of the three WZNorm factors should be applied to zz_cr and zg_cr?
+# (2) What if there is no CR with sufficient statistical power to serve as the dominant constraint on its normalization? This is the case for WWNorm, whose normalization is determined using the InvMET CRs, where WW is not the dominant contribution.
+# So the choice made here prioritizes normalization power over logical consistency.
+###################################################################################
+
 proc_rateRegion_map = {}
 proc_rateRegion_map['WZ'] = regions_sr + [cr for cr in regions_cr if "wz" in cr]
 proc_rateRegion_map['WW'] = regions_sr + [cr for cr in regions_cr if "InvMET" in cr]
@@ -471,11 +480,11 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
             continue
         
           if process_rate_map["wz"] == "0":
-            print(
-              "[CardSetting][AltWZ] "
-              "Nominal wz is disabled; dropping AltWZ for",
-              era, region, channel, mass
-            )
+            #print(
+            #  "[CardSetting][AltWZ] "
+            #  "Nominal wz is disabled; dropping AltWZ for",
+            #  era, region, channel, mass
+            #)
             continue
 
         if is_syst_line(line):

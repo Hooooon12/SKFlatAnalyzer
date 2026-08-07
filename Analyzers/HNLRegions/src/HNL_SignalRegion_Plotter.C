@@ -123,7 +123,7 @@ void HNL_SignalRegion_Plotter::executeEvent(){
 
       //// Run plotter for specific systematics 
       vector<AnalyzerParameter::Syst> SystToPlot = {AnalyzerParameter::Syst::Central};
-      if(HasFlag("RunSyst") && HasFlag("RunSystPlotter")){
+      /*if(HasFlag("RunSyst") && HasFlag("RunSystPlotter")){
 	if(IsData){
 	  if(RunFake) {
 	    if(channel!=EE) {
@@ -143,8 +143,11 @@ void HNL_SignalRegion_Plotter::executeEvent(){
 	  SystToPlot= {AnalyzerParameter::Syst::JetEnUp, AnalyzerParameter::Syst::JetEnDown,AnalyzerParameter::JetResUp,AnalyzerParameter::JetResDown,AnalyzerParameter::JetPNETUp,AnalyzerParameter::JetPNETDown,AnalyzerParameter::MuonResUp,AnalyzerParameter::MuonResDown,AnalyzerParameter::MuonEnUp,AnalyzerParameter::MuonEnDown,AnalyzerParameter::ElectronEnUp,AnalyzerParameter::ElectronEnDown,AnalyzerParameter::ElectronResUp,AnalyzerParameter::ElectronResDown,AnalyzerParameter::RenScaleUp,AnalyzerParameter::RenScaleDown,AnalyzerParameter::FacScaleUp,AnalyzerParameter::FacScaleDown};
 	}
 	
+      }*/
+      if(HasFlag("RunSyst") && HasFlag("RunSystPlotter")){
+	SystToPlot=GetSystList(SystLabel);
       }
-         
+
       //// Run Systematics
       for(auto isyst : GetSystList(SystLabel)){
 

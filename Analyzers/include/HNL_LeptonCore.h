@@ -516,12 +516,14 @@ class HNL_LeptonCore : public AnalyzerCore {
   //// ===============================  SR PLOTS =============================== ////                                                                                                                                                                                                                                                                                                       
   void Fill_RegionPlots(AnalyzerParameter& param,  TString plot_dir,  std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w); 
   void Fill_RegionPlots(AnalyzerParameter& param,  TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w); 
+  void Fill_RegionPlots(AnalyzerParameter& param,  TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>& jets,    std::vector<Jet>& vbfjets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, TString mN, double MVAvalue, double nvtx,  double w);
 
   void Fill_RegionPlotsFull(AnalyzerParameter& param, TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>& jets,    std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, double nvtx,  double w, int DrawConfig=0);
-  
+  void Fill_RegionPlotsFull(AnalyzerParameter& param, TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>& jets,    std::vector<Jet>& vbfjets, std::vector<FatJet>& fatjets, std::vector<Lepton *>& leps , Particle&  met, TString mN, double MVAvalue, double nvtx,  double w, int DrawConfig=0);
 
   void Fill_Main_Plots(AnalyzerParameter& param, TString region, TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>&  jets,    std::vector<FatJet>&  fatjets, std::vector<Lepton *>&  leps , Particle&  met, double nvtx,  double w);
-  
+  void Fill_Main_Plots(AnalyzerParameter& param, TString region, TString plot_dir, vector<Tau>& Taus,  std::vector<Jet>&  jets,    std::vector<Jet>&  vbfjets, std::vector<FatJet>&  fatjets, std::vector<Lepton *>&  leps , Particle&  met, TString mN, double MVAvalue, double nvtx,  double w); 
+ 
   void Fill_Standard_Plots(AnalyzerParameter& param, TString region, TString plot_dir, vector<Tau>&  Taus,  std::vector<Jet>&  jets,    std::vector<FatJet>&  fatjets, std::vector<Lepton *>&  leps , Particle&  met, double nvtx,  double w);
 
   void Fill_Plots(AnalyzerParameter& param, TString region, TString plot_dir, vector<Tau>&  Taus,  std::vector<Jet>&  jets,    std::vector<FatJet>&  fatjets, std::vector<Lepton *>&  leps , Particle&  met, double nvtx,  double w); 

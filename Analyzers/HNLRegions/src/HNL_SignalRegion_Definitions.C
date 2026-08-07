@@ -502,6 +502,7 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
 
   }
 
+  if(!HasFlag("OldConv")){
   if(AK8_JetColl.size() > 0)  {
     if(!ConversionSplittingReg(LepsT,RunConv,1,2,param)) return;
   }
@@ -515,7 +516,8 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       if(!ConversionSplittingReg(LepsT,RunConv,3,2,param)) return;
     }
   }
-  
+  }
+
   if(!PassPreselection(IsSR,channel,qq, 
            LepsT, LepsV, TauColl, 
            JetColl, VBF_JetColl, AK8_JetColl, B_JetColl,
@@ -752,7 +754,7 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
 	      
 	      if(imapHP.first.Contains(SampleMass+"_"+channel_string+"_"+TString(iversion))){
 		
-		TString RegBDT = RunSignalRegionAK4StringBDT(IsSR,SampleMass , iversion, ibinning,  imapHP.second.first, imapHP.second.second, channel,qq, LepsT, JetColl,  B_JetColl,B_JetColl_CR, ev, METv ,param,weight_reg);
+		TString RegBDT = RunSignalRegionAK4StringBDT(IsSR,SampleMass , iversion, ibinning,  imapHP.second.first, imapHP.second.second, channel,qq, LepsT, JetColl, VBF_JetColl, B_JetColl,B_JetColl_CR, ev, METv ,param,weight_reg);
 		
 		if(RegBDT != "false"){
 		  
@@ -1234,7 +1236,7 @@ bool  HNL_RegionDefinitions::RunSignalRegionAK4(bool ApplyForSR,HNL_LeptonCore::
 
 
 
-TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TString mN, TString version, TString Binning,  TString NCut, TString NTree, HNL_LeptonCore::Channel channel, HNL_LeptonCore::ChargeType qq ,std::vector<Lepton *>& LepTColl, std::vector<Jet>& JetColl, std::vector<Jet>& B_JetColl, std::vector<Jet>& B_JetColl_CR,Event& ev, Particle& METv, AnalyzerParameter& param,  float w){
+TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TString mN, TString version, TString Binning,  TString NCut, TString NTree, HNL_LeptonCore::Channel channel, HNL_LeptonCore::ChargeType qq ,std::vector<Lepton *>& LepTColl, std::vector<Jet>& JetColl, std::vector<Jet>& VBF_JetColl, std::vector<Jet>& B_JetColl, std::vector<Jet>& B_JetColl_CR,Event& ev, Particle& METv, AnalyzerParameter& param,  float w){
   
   //// Only fill Cutflow/plots for 1 mass point and version
   bool FillCutFlow = (mN=="100" && version == "V3" && Binning == "Strict_15_Bin") ;
@@ -1256,7 +1258,6 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TStr
   bool PassRegionReq = ApplyForSR ? (PassHMMet && PassBJetMVeto) :  ((PassHMMet &&B_JetColl.size()==0)|| (PassBJetMVeto)) ;
 
   TString RegionTag                = ApplyForSR ? "SR3BDT" : "CR3BDT";
-
 
 
   if(qq==Plus && LepTColl[0]->Charge() < 0) return "false";
@@ -1283,7 +1284,7 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TStr
   if(FillCutFlow) FillCutflow(Reg, w, RegionTag+"_bveto",param);
 
   bool isBDTVar = false;
-  if(HasFlag("SSDilepBDT")) isBDTVar = true;
+  if(HasFlag("SSDilepBDT") && !HasFlag("RunSyst")) isBDTVar = true;
 
   float MVAvalueIncl    = EvaluateEventMVA(mN, "Incl", version, NCut, NTree, channel, LepTColl, ev, METv, param, w, isBDTVar); // true : fill MVA variables
 
@@ -1291,18 +1292,18 @@ TString HNL_RegionDefinitions::RunSignalRegionAK4StringBDT(bool ApplyForSR, TStr
 
   if(param.runPlotter){
 
-    if(!ApplyForSR|| HasFlag("PlotBDT")){
+    if(HasFlag("PlotBDT")){
       FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/"+BDTLabel, MVAvalueIncl, w, 400, -1., 1.);
       if(B_JetColl_CR.size() == 1) FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/InvBJet_"+BDTLabel, MVAvalueIncl, w*param.w.btagSF_tight/param.w.btagSF, 400, -1., 1.);
       else FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/InvMET_"+BDTLabel, MVAvalueIncl, w, 400, -1., 1.);
     }
     
-    if((ApplyForSR) && Binning == "Strict_15_Bin")   FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/"+BDTLabel_simple, MVAvalueIncl, w, 2000, -1., 1.);
+    if((ApplyForSR) && Binning == "Strict_15_Bin" && !HasFlag("SSDilepBDT"))   FillHist("LimitExtraction/"+param.Name+"/"+RegionTag+"BDT/"+BDTLabel_simple, MVAvalueIncl, w, 2000, -1., 1.);
     
-    if(ApplyForSR ) Fill_RegionPlots(param,"Pass"+RegionTag+"BDT" ,TauColl,  JetColl, AK8_JetColl, LepTColl,  METv, nPV, w);
+    if(ApplyForSR ) Fill_RegionPlots(param,"Pass"+RegionTag+"BDT" ,TauColl,  JetColl, VBF_JetColl, AK8_JetColl, LepTColl,  METv, mN, MVAvalueIncl, nPV, w);
     else{
-      if(B_JetColl_CR.size() ==1)   Fill_RegionPlots(param,"Pass"+RegionTag+"BDT_InvBJet" ,  TauColl, JetColl, AK8_JetColl, LepTColl,  METv,    nPV, w*param.w.btagSF_tight/param.w.btagSF);
-      else     Fill_RegionPlots(param,"Pass"+RegionTag+"BDT_InvMET" ,  TauColl, JetColl, AK8_JetColl, LepTColl,  METv, nPV, w);
+      if(B_JetColl_CR.size() ==1)   Fill_RegionPlots(param,"Pass"+RegionTag+"BDT_InvBJet" ,  TauColl, JetColl, VBF_JetColl, AK8_JetColl, LepTColl, METv, mN, MVAvalueIncl, nPV, w*param.w.btagSF_tight/param.w.btagSF);
+      else     Fill_RegionPlots(param,"Pass"+RegionTag+"BDT_InvMET" ,  TauColl, JetColl, VBF_JetColl, AK8_JetColl, LepTColl,  METv, mN, MVAvalueIncl, nPV, w);
     } 
   }
   
