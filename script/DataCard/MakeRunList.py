@@ -10,13 +10,50 @@ parser = argparse.ArgumentParser()
 parser.add_argument('dirNames', nargs='+') # nargs='+' force a user to feed this argument
 parser.add_argument('-e', dest='eras', default=[], choices=['2016preVFP','2016postVFP','2017','2018','Run2','Run2Sum'], nargs='+')
 parser.add_argument('-c', dest='channels', default=["MuMu","EE","EMu"], choices=['MuMu','EE','EMu','3ch'], nargs='+') # store [] if nothing is fed
-parser.add_argument('-m', dest='masses', default=[], choices=["85","90","95","100","125","150","200","250","300","350","400","450","500","600","700","800","900","1000","1100","1200","1300","1500","1700","2000","2500","3000","5000","7500","10000","15000","20000","25000","30000","40000","50000","60000"], nargs='+')
+MASS_POINTS = [
+  "85","90","95","100","125","150","200","250","300","350","400","450","500",
+  "600","700","800","900","1000","1100","1200","1300","1500","1700","2000",
+  "2500","3000","5000","7500","10000","15000","20000","25000","30000",
+  "40000","50000","60000"
+]
+
+LOW_MASSES = [
+  "85","90","95","100","125","150","200","250","300","350","400","450","500"
+]
+
+HIGH_MASSES = [
+  "600","700","800","900","1000","1100","1200","1300","1500","1700","2000",
+  "2500","3000","5000","7500","10000","15000","20000","25000","30000",
+  "40000","50000","60000","Weinberg"
+]
+
+parser.add_argument(
+  '-m',
+  dest='masses',
+  default=[],
+  choices=MASS_POINTS + ["Weinberg", "lowmass", "highmass"],
+  nargs='+'
+)
 parser.add_argument('-s', dest='signals', default=["HNL","Weinberg"], choices=["HNL","DY","VBF","DYVBF","SSWW","Weinberg"], nargs='+')
 parser.add_argument('-t', dest='tags', default=["AllSR"], choices=["AllSR","SR1","SR2","SR3"], nargs='+')
 parser.add_argument('--Ext', action='store_true', help='Extend cut based approach to M500')
 parser.add_argument('--Work', action='store_true', help='for workspace production purposes')
 parser.add_argument('--Limit', action='store_true', help='for limit extraction purposes')
 args = parser.parse_args()
+
+expanded_masses = []
+
+for mass in args.masses:
+  if mass == "lowmass":
+    expanded_masses.extend(LOW_MASSES)
+  elif mass == "highmass":
+    expanded_masses.extend(HIGH_MASSES)
+  else:
+    expanded_masses.append(mass)
+
+# remove duplications
+args.masses = list(dict.fromkeys(expanded_masses))
+
 
 if not args.Work and not args.Limit:
   print("Please set --Work or --Limit;")
@@ -146,7 +183,11 @@ for dirName in args.dirNames:
 
   mass_grep = ""
   if args.masses:
-    mass_grep = " | grep " + " ".join(["-e M"+mass+"_" for mass in args.masses])
+    mass_patterns = [
+      "Weinberg" if mass == "Weinberg" else "M"+mass+"_"
+      for mass in args.masses
+    ]
+    mass_grep = " | grep " + " ".join(["-e "+pattern for pattern in mass_patterns])
 
   signal_grep = ""
   if args.signals:

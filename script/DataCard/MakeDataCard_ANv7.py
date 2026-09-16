@@ -62,6 +62,9 @@ RUN2_INPUT_ERA = "Run2"
 RUN2_CARD_ERA = "Run2Sum"
 
 RUN2_COL_WIDTH = 32
+RUN2_SYST_NAME_WIDTH = 50
+RUN2_SYST_TYPE_WIDTH = 12
+RUN2_PREFIX_WIDTH = RUN2_SYST_NAME_WIDTH + RUN2_SYST_TYPE_WIDTH
 
 if args.Run2Sum:
   if args.Combine == "Era":
@@ -467,7 +470,9 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
           if "CMS_scale_j_" in line: continue
 
         # Fake Loose ID syst
-        if PRver < 195 and line.split()[0].endswith("loose_id"): continue
+        if line.split()[0].endswith("loose_id"):
+          if PRver < 195: continue
+          if "AltWZonly" in args.outputTag: continue
 
         # AltWZ generator systematic.
         #
@@ -534,6 +539,11 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
 
     # finally do the region decorrelation
     if args.Decorr:
+
+      # AltWZ region decorr
+      if 'AltWZRegDecorr' in WP:
+        RegionDecorr_list.append("CMS_SUS24014_altwz")
+
       for i in range(len(new_lines)):
         if new_lines[i].startswith(tuple(RegionDecorr_list)):
           this_syst = new_lines[i].split(' ')[0]
@@ -553,8 +563,6 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
             new_lines[i] = new_lines[i].replace(this_syst,this_syst+'_'+regionName_SystSep) # FR to FR_sr2
           else: # zg_cr, zz_cr
             new_lines[i] = new_lines[i].replace(this_syst,this_syst+'_sr3') # correlate to sr3
-
-    ####### finally adjust columns using ljust ######## # TODO?
 
     if region in regions_cr:
       lines_cr[region] = new_lines[:]
@@ -586,10 +594,10 @@ def _is_int_token(tok):
     return False
 
 def _format_run2sum_row(label, values):
-  return label.ljust(30) + " ".join(str(v).ljust(RUN2_COL_WIDTH) for v in values) + "\n"
+  return label.ljust(RUN2_PREFIX_WIDTH) + " ".join(str(v).ljust(RUN2_COL_WIDTH) for v in values) + "\n"
 
 def _format_run2sum_syst_row(name, syst_type, values):
-  return name.ljust(50) + syst_type.ljust(12) + " ".join(str(v).ljust(RUN2_COL_WIDTH) for v in values) + "\n"
+  return name.ljust(RUN2_SYST_NAME_WIDTH) + syst_type.ljust(RUN2_SYST_TYPE_WIDTH) + " ".join(str(v).ljust(RUN2_COL_WIDTH) for v in values) + "\n"
 
 def _find_process_name_and_id_lines(lines):
   proc_name_idx = None

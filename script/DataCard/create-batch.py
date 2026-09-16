@@ -602,6 +602,100 @@ def make_mask_set_freeze_options(
     return " ".join(options)
 
 
+FITDIAG_CR_RATEPARAMS = {
+    "zg_cr":  "ZGNorm_Run2Sum",
+    "zz_cr":  "ZZNorm_Run2Sum",
+    "wz_cr1": "WZNorm_Run2Sum_sr1",
+    "wz_cr2": "WZNorm_Run2Sum_sr2",
+    "wz_cr3": "WZNorm_Run2Sum_sr3",
+}
+
+def get_fully_masked_base_channels(mask_parameters, shortcard):
+    """
+    Return base channels that are completely masked.
+
+    Run2Sum / single-era:
+      mask_zg_cr -> zg_cr
+
+    Run2:
+      zg_cr counts as fully masked only if all four era-specific
+      mask_yearXX_zg_cr parameters are present.
+    """
+    mask_parameters = set(mask_parameters or [])
+    layout, _ = infer_mask_layout(shortcard)
+
+    fully_masked = set()
+
+    if layout in ("Run2Sum", "SingleEra"):
+        for channel in MASKABLE_CHANNELS:
+            if f"mask_{channel}" in mask_parameters:
+                fully_masked.add(channel)
+
+    elif layout == "Run2":
+        for channel in MASKABLE_CHANNELS:
+            expected = {
+                f"mask_{era_prefix}_{channel}"
+                for era_prefix in RUN2_ERA_PREFIXES.values()
+            }
+
+            if expected.issubset(mask_parameters):
+                fully_masked.add(channel)
+
+    return fully_masked
+
+
+def make_fitdiag_options(mask_parameters, shortcard):
+    """
+    FitDiagnostics-specific options.
+
+    1. Apply requested masks.
+    2. If a normalization CR is masked, set its rateParam to 1 and freeze it.
+    3. Determine whether the fit is CR-only / b-only:
+         - SRx card: srx masked
+         - AllRegion card: sr1, sr2, sr3 all masked
+    """
+    fully_masked = get_fully_masked_base_channels(
+        mask_parameters,
+        shortcard,
+    )
+
+    frozen_rateparams = [
+        rateparam
+        for cr, rateparam in FITDIAG_CR_RATEPARAMS.items()
+        if cr in fully_masked
+    ]
+
+    set_freeze_options = make_mask_set_freeze_options(
+        mask_parameters=mask_parameters,
+        extra_set_parameters=[
+            (rateparam, 1)
+            for rateparam in frozen_rateparams
+        ],
+        extra_freeze_parameters=frozen_rateparams,
+    )
+
+    # Four supported modes:
+    #   AllRegion
+    #   SR1 group
+    #   SR2 group
+    #   SR3 group
+    sr_match = re.search(r"(?:^|_)sr([123])(?:_|$)", shortcard)
+
+    if sr_match: # e.g. Run2Sum_MuMu_M1000_HNL_sr3_syst_Combined
+        # SRx group: signal exists only in that SR.
+        signal_srs = [f"sr{sr_match.group(1)}"]
+    else: # e.g. Run2Sum_MuMu_M1000_HNL_syst
+        # AllRegion: signal exists in sr1 + sr2 + sr3.
+        signal_srs = ["sr1", "sr2", "sr3"]
+
+    is_bonly = all(
+        sr in fully_masked
+        for sr in signal_srs
+    )
+
+    return set_freeze_options, is_bonly, frozen_rateparams
+
+
 def make_gof_bonly_set_freeze_options(mask_parameters=None):
     """
     b-only GOF:
@@ -1581,7 +1675,6 @@ UserTagPath = f"/{UserTagClean}" if UserTagClean else ""
 UserTagSuffix = f"_{UserTagClean}" if UserTagClean else ""
 
 # --- Main Logic ---
-
 for RunList in args.RunLists:
   cards = open(RunList).readlines() if args.Input is None else [args.Input]
   NCARD = len(cards)
@@ -1659,6 +1752,30 @@ for RunList in args.RunLists:
         requested_mask_parameters
     )
 
+    fitdiag_options = ""
+    fitdiag_bonly = False
+    fitdiag_frozen_rateparams = []
+    
+    if args.FitDiag:
+        (
+            fitdiag_options,
+            fitdiag_bonly,
+            fitdiag_frozen_rateparams,
+        ) = make_fitdiag_options(
+            requested_mask_parameters,
+            shortcard,
+        )
+
+        print(
+            f"[FitDiag] mode = "
+            f"{'b-only' if fitdiag_bonly else 's+b'}"
+        )
+        if fitdiag_frozen_rateparams:
+            print(
+                "[FitDiag] frozen rateParams: "
+                + ", ".join(fitdiag_frozen_rateparams)
+            )
+
     if requested_mask_parameters:
         print(f"[MASK] {shortcard}")
         print(
@@ -1705,7 +1822,7 @@ for RunList in args.RunLists:
         )
       
         os.chdir(f"{pwd}/{this_check}/{WP}/{AsimovName}{UserTagPath}/{SRname}")
-        os.system(f"pdftoppm -png -singlefile {impact_summary_pdf} {impact_summary_png}")
+        os.system(f"pdftoppm -png -singlefile -cropbox {impact_summary_pdf} {impact_summary_png}")
         os.chdir(pwd)
       if args.MDfit:
         source_dir = (
@@ -1756,6 +1873,16 @@ for RunList in args.RunLists:
         os.chdir(source_dir)
 
         os.system(
+            f"echo extracting pull of {this_shortcard} ...\n"
+            f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py "
+            f"-a -A "
+            f"--skipFitS "  # b-only pull
+            f"--vtol 999 "  # b-only pull
+            f"--stol 999 "  # b-only pull
+            f"--vtol2 999 " # b-only pull
+            f"--stol2 999 " # b-only pull
+            f"fitDiagnostics_{this_shortcard}.root "
+            f"> pulls_{this_shortcard}.txt\n"
             f"echo copying pull of {this_shortcard} ...\n"
             f"cp pulls_{this_shortcard}.txt "
             f"{target_dir}/"
@@ -2113,6 +2240,7 @@ for RunList in args.RunLists:
         for this_shortcard in list_shortcard:
           if args.FitDiag:
             if "DefMod" in this_shortcard: continue # Must use the actual physics model
+            fitdiag_bonly_option = "--skipSBFit " if fitdiag_bonly else ""
             runfile.write("echo Running FitDiagnostics...\n") # Asimov set as default; FIXME later to choose whether Asimov or not
             runfile.write(
               f"combine -M FitDiagnostics "
@@ -2124,12 +2252,30 @@ for RunList in args.RunLists:
               f"--saveNormalizations "
               f"--saveWorkspace "
               f"--verbose 3 "
-              f"{mask_only_options} "
+              f"{fitdiag_bonly_option}" # --skipSBFit
+              f"{fitdiag_options} " # masking regions + freezing rateParam
               f"-n _{this_shortcard} "
               f"--plots "
               f"{AsimovSetting}\n"
             )
-            runfile.write(f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py -a -A fitDiagnostics_{this_shortcard}.root > pulls_{this_shortcard}.txt\n")
+
+            # Now run diffNuisances.py ...
+            diffnuis_bonly_options = ""
+            if fitdiag_bonly:
+                diffnuis_bonly_options = (
+                    "--skipFitS "
+                    "--vtol 999 "
+                    "--stol 999 "
+                    "--vtol2 999 "
+                    "--stol2 999 "
+                )
+            runfile.write(
+              f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py "
+              f"-a -A "
+              f"{diffnuis_bonly_options}"
+              f"fitDiagnostics_{this_shortcard}.root "
+              f"> pulls_{this_shortcard}.txt\n"
+            )
           elif args.GOF:
             if "DefMod" in this_shortcard: continue # Must use the actual physics model
 

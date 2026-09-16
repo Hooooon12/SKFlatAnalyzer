@@ -29,32 +29,7 @@ LOGY_OPTS=(
 
 DATA_OPTS=(
 ""
-#"--no-data"
-)
-
-
-# ============================================================
-# Axis style
-#
-# Default: cuts only.
-#
-# Available values:
-#   cuts
-#   codes
-#   both
-#
-# To iterate over several styles, add them to AXIS_STYLE_OPTS,
-# for example:
-#
-# AXIS_STYLE_OPTS=(
-#     "cuts"
-#     "codes"
-#     "both"
-# )
-# ============================================================
-
-AXIS_STYLE_OPTS=(
-    "cuts"
+"--no-data"
 )
 
 
@@ -74,7 +49,7 @@ MASSES=(
 )
 
 # For a quick test, comment the full list above and use e.g.
-# MASSES=("350" "3000")
+# MASSES=("150")
 
 
 # ============================================================
@@ -98,8 +73,7 @@ MASSES=(
 #
 # ============================================================
 
-#SIGNAL_MODE="none"
-SIGNAL_MODE="separate"
+SIGNAL_MODE="none"
 
 
 # ------------------------------------------------------------
@@ -114,7 +88,7 @@ SIGNAL_MODE="separate"
 #
 # ------------------------------------------------------------
 
-SIGNAL_PRESET="Unblind_Step2"
+SIGNAL_PRESET=""
 
 
 # ------------------------------------------------------------
@@ -127,22 +101,10 @@ SIGNAL_PRESET="Unblind_Step2"
 #
 # ------------------------------------------------------------
 
-# Each value may be:
-#
-#   auto
-#   or any positive number
-#
-# Examples:
-#   auto
-#   0.1
-#   1
-#   10
-#   2000
-
-SIGNAL_SCALE_DY="auto"
-SIGNAL_SCALE_VBF="auto"
-SIGNAL_SCALE_SSWW="auto"
-SIGNAL_SCALE_WEINBERG="auto"
+SIGNAL_SCALE_DY="1"
+SIGNAL_SCALE_VBF="1"
+SIGNAL_SCALE_SSWW="1"
+SIGNAL_SCALE_WEINBERG="1"
 
 
 # ------------------------------------------------------------
@@ -159,9 +121,7 @@ SIGNAL_SCALE_WEINBERG="auto"
 #
 # ------------------------------------------------------------
 
-# Used for total/both HNL.
-# May be a positive number or "auto".
-SIGNAL_SCALE_TOTAL="auto"
+SIGNAL_SCALE_TOTAL="1"
 
 
 # ============================================================
@@ -176,22 +136,12 @@ if [[ "${SIGNAL_MODE}" == "separate" ]]; then
 
     if [[ -n "${SIGNAL_PRESET}" ]]; then
 
-        # Preset itself may freely mix:
-        #
-        #   "auto"
-        #   numeric overrides
-        #
         SIGNAL_ARGS+=(
             --signal-preset "${SIGNAL_PRESET}"
         )
 
     else
 
-        # Direct scales may independently be:
-        #
-        #   auto
-        #   positive number
-        #
         SIGNAL_ARGS+=(
             --signal-scale-dy "${SIGNAL_SCALE_DY}"
             --signal-scale-vbf "${SIGNAL_SCALE_VBF}"
@@ -221,34 +171,27 @@ for WP in "${WPS[@]}"; do
 
         for DATA in "${DATA_OPTS[@]}"; do
 
-            for AXIS_STYLE in "${AXIS_STYLE_OPTS[@]}"; do
+            echo ""
+            echo "================================================================"
+            echo "Running:"
+            echo "  WP          = ${WP}"
+            echo "  SIGNALS     = HNL Weinberg"
+            echo "  SIGNAL_MODE = ${SIGNAL_MODE}"
+            echo "  PRESET      = ${SIGNAL_PRESET:-none}"
+            echo "  LOGY        = ${LOGY:-OFF}"
+            echo "  DATA OPTION = ${DATA:-OFF}"
+            echo "================================================================"
 
-                echo ""
-                echo "================================================================"
-                echo "Running:"
-                echo "  WP          = ${WP}"
-                echo "  SIGNALS     = HNL Weinberg"
-                echo "  SIGNAL_MODE = ${SIGNAL_MODE}"
-                echo "  PRESET      = ${SIGNAL_PRESET:-none}"
-                echo "  LOGY        = ${LOGY:-OFF}"
-                echo "  DATA OPTION = ${DATA:-OFF}"
-                echo "  AXIS STYLE  = ${AXIS_STYLE}"
-                echo "================================================================"
-
-                python3 make_post_fit_plots_new.py \
-                    -wp "${WP}" \
-                    -e Run2Sum \
-                    -c EE EMu MuMu \
-                    -m "${MASSES[@]}" \
-                    -s HNL Weinberg \
-                    -t AllSR \
-                    --axis-style "${AXIS_STYLE}" \
-                    "${SIGNAL_ARGS[@]}" \
-                    ${LOGY} \
-                    ${DATA} \
-                    --sr2-merge78
-
-            done
+            python3 make_post_fit_plots.py \
+                -wp "${WP}" \
+                -e Run2Sum \
+                -c EE EMu MuMu \
+                -m "${MASSES[@]}" \
+                -s HNL Weinberg \
+                -t AllSR \
+                "${SIGNAL_ARGS[@]}" \
+                ${LOGY} \
+                ${DATA}
 
         done
 

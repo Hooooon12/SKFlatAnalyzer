@@ -464,6 +464,143 @@ void print_ratio_table(const vector<vector<double>>& mass_vs_nominal,
     cout << "[INFO] Ratio table written to " << filename << endl;
 }
 
+//=== EXO-22-011 active data
+// CMS Run2 trilepton HNL search, JHEP 06 (2024) 123
+//
+// Only the Majorana e/mu observed and expected limits are compiled,
+// since these are the only EXO-22-011 results used in this plot.
+// The full HEPData tables are archived below inside #if 0.
+
+static const double mass_22011_Maj_E[] = {
+  10, 12.5, 15, 17.5, 20, 25, 30, 30,
+  40, 40, 50, 60, 75, 85, 100, 125,
+  125, 150, 200, 250, 250, 300, 350, 400,
+  400, 450, 500, 600, 700, 800, 900, 1000,
+  1200, 1500
+};
+
+static const double obs_22011_Maj_E[] = {
+  2.3915e-05, 1.183e-05, 7.9718e-06, 5.9217e-06,
+  4.8494e-06, 4.5586e-06, 4.4901e-06, 4.1909e-06,
+  5.0726e-06, 4.4101e-06, 8.0162e-06, 1.4994e-05,
+  0.00033461, 0.001179, 0.00088167, 0.0023747,
+  0.0019704, 0.0025595, 0.0040197, 0.0076581,
+  0.015281, 0.022674, 0.032834, 0.04752,
+  0.035299, 0.044487, 0.056878, 0.078471,
+  0.12027, 0.17825, 0.25522, 0.36015,
+  0.6758, 1.9457
+};
+
+static const double exp_22011_Maj_E[] = {
+  2.3226e-05, 1.0152e-05, 7.7432e-06, 5.4127e-06,
+  4.6782e-06, 4.5044e-06, 4.7917e-06, 4.6406e-06,
+  6.2578e-06, 6.6563e-06, 1.1133e-05, 2.1641e-05,
+  0.00052344, 0.0018828, 0.0015, 0.0035469,
+  0.0026641, 0.0031523, 0.0052148, 0.010117,
+  0.0077344, 0.010469, 0.014727, 0.021172,
+  0.025469, 0.033203, 0.043164, 0.061172,
+  0.094531, 0.1418, 0.20391, 0.28945,
+  0.54297, 1.5625
+};
+
+static const int n_mass_22011_Maj_E =
+  sizeof(mass_22011_Maj_E) / sizeof(mass_22011_Maj_E[0]);
+
+
+static const double mass_22011_Maj_Mu[] = {
+  10, 12.5, 15, 17.5, 20, 25, 30, 30,
+  40, 40, 50, 60, 75, 85, 100, 125,
+  125, 150, 200, 200, 250, 300, 350, 400,
+  400, 450, 500, 600, 700, 800, 900, 1000,
+  1200, 1500
+};
+
+static const double obs_22011_Maj_Mu[] = {
+  1.8633e-05, 7.9616e-06, 4.8171e-06, 3.8873e-06,
+  2.949e-06, 2.4784e-06, 2.4783e-06, 2.4879e-06,
+  2.6358e-06, 2.7869e-06, 3.5288e-06, 6.3397e-06,
+  0.00020036, 0.0014455, 0.0011399, 0.0035922,
+  0.0025494, 0.0030577, 0.0047868, 0.0069421,
+  0.0098934, 0.014314, 0.02106, 0.030748,
+  0.029897, 0.037891, 0.047196, 0.059902,
+  0.085255, 0.12042, 0.1674, 0.2593,
+  0.41964, 0.92285
+};
+
+static const double exp_22011_Maj_Mu[] = {
+  1.8359e-05, 7.8099e-06, 4.7495e-06, 3.7266e-06,
+  2.6899e-06, 2.4242e-06, 2.4388e-06, 2.375e-06,
+  2.7344e-06, 2.8359e-06, 3.1875e-06, 5.6484e-06,
+  0.00019922, 0.00094883, 0.00094063, 0.0027109,
+  0.0020859, 0.0025547, 0.0040625, 0.005125,
+  0.0061914, 0.008375, 0.012109, 0.017578,
+  0.018437, 0.024453, 0.032344, 0.045625,
+  0.071094, 0.10586, 0.15469, 0.24766,
+  0.41211, 0.94922
+};
+
+static const int n_mass_22011_Maj_Mu =
+  sizeof(mass_22011_Maj_Mu) / sizeof(mass_22011_Maj_Mu[0]);
+
+vector<TGraph*> BuildSegmentedGraphs(const vector<double>& masses,
+                                     const vector<double>& values,
+                                     int line_color,
+                                     int line_width=3,
+                                     int line_style=1)
+{
+  vector<TGraph*> graphs;
+
+  if(masses.empty()) return graphs;
+
+  if(masses.size() != values.size()){
+    cout << "[ERROR] BuildSegmentedGraphs: mass/value size mismatch." << endl;
+    return graphs;
+  }
+
+  size_t segment_start = 0;
+
+  for(size_t i=1; i<=masses.size(); ++i){
+
+    bool end_of_vector = (i == masses.size());
+    bool training_boundary = false;
+
+    if(!end_of_vector){
+      training_boundary = (masses[i] == masses[i-1]);
+    }
+
+    if(end_of_vector || training_boundary){
+
+      size_t n_points = i - segment_start;
+
+      if(n_points > 0){
+        TGraph *gr = new TGraph(
+          n_points,
+          &masses[segment_start],
+          &values[segment_start]
+        );
+
+        gr->SetLineColor(line_color);
+        gr->SetLineWidth(line_width);
+        gr->SetLineStyle(line_style);
+
+        graphs.push_back(gr);
+      }
+
+      segment_start = i;
+    }
+  }
+
+  return graphs;
+}
+
+
+void DrawSegmentedGraphs(const vector<TGraph*>& graphs, TString option="lsame")
+{
+  for(TGraph *gr : graphs){
+    if(gr) gr->Draw(option);
+  }
+}
+
 
 void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool AddPub=true, int SepLimit=0, bool CompareLimits=false, bool AppendLimitTable=false, bool IsXsecLimit=false, bool Logy=true, TString preset_name="", bool DrawObserved=false){
 
@@ -550,7 +687,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv7_NewBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SR3Update_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
-  TString WP_nom = "ANv7_ConvUpdate_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"; // set the nominal WP
+  //TString WP_nom = "ANv7_ConvUpdate_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"; // set the nominal WP
+  TString WP_nom = "ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"; // set the nominal WP
 
   PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
 
@@ -760,35 +898,133 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //);
 
     // *** Compare before vs after additional two systematics (Loose ID, AltWZ) +  low stat MC treatment + MergeSR2Bin78
-    plot_cfg.nominal.tag_nom = "_HNL_syst";
-    plot_cfg.study.subdir = "Before_vs_After_TwoNewSyst_WZNorm";
-    plot_cfg.study.entries.push_back(
-      ComparisonEntry("ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194",
-                      "_HNL_syst",
-                      "Low stat MC + Merge SR2",
-                      kBlue,
-                      0.01,
-                      plot_cfg.nominal.method_nom,
-                      "Run2Sum") // if this is not specified, the comparison will follow the nominal year
-    );
-    plot_cfg.study.entries.push_back(
-      ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZ_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR195",
-                      "_HNL_syst",
-                      "Low stat MC + Merge SR2 + New systs",
-                      kOrange,
-                      0.01,
-                      plot_cfg.nominal.method_nom,
-                      "Run2Sum") // if this is not specified, the comparison will follow the nominal year
-    );
-    plot_cfg.study.entries.push_back(
-      ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZNorm_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR195",
-                      "_HNL_syst",
-                      "Low stat MC + Merge SR2 + New systs (WZ norm)",
-                      kRed,
-                      0.01,
-                      plot_cfg.nominal.method_nom,
-                      "Run2Sum") // if this is not specified, the comparison will follow the nominal year
-    );
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "Before_vs_After_TwoNewSyst_WZNorm";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2",
+    //                  kBlue,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZ_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + New systs",
+    //                  kOrange,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZNorm_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + New systs (WZ norm)",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+
+    // *** Compare before vs after adding AltWZ-symmetrized-inflated only, but with different settings +  low stat MC treatment + MergeSR2Bin78
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "Before_vs_After_AltWZSyms";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2",
+    //                  kBlue,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZ_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + New systs",
+    //                  kOrange,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZSym0_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + AltWZ (Sym 0%)",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZSym20_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + AltWZ (Sym 20%)",
+    //                  kRed+1,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZNormSym20_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + AltWZ norm. (Sym 20%)",
+    //                  kAzure+1,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZNormSym20_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + AltWZ norm. (Sym 20%) reg. decorr",
+    //                  kViolet,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+
+    // *** Compare before vs after adding AltWZ-symmetrized-inflated only (AltWZNorms are deprecated due to sensitivity loss) + low stat MC treatment + MergeSR2Bin78
+    //plot_cfg.nominal.tag_nom = "_HNL_syst";
+    //plot_cfg.study.subdir = "Before_vs_After_AltWZSyms_NoWZNorm";
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2",
+    //                  kBlue,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZ_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + New systs",
+    //                  kRed,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZSym0_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + AltWZ (Sym 0%)",
+    //                  kOrange,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
+    //plot_cfg.study.entries.push_back(
+    //  ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZSym20_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195",
+    //                  "_HNL_syst",
+    //                  "Low stat MC + Merge SR2 + AltWZ (Sym 20%)",
+    //                  kViolet,
+    //                  0.01,
+    //                  plot_cfg.nominal.method_nom,
+    //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    //);
 
 
   }
@@ -892,6 +1128,12 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   if (std::any_of(compare_entries.begin(), compare_entries.end(),
                   [](const ComparisonEntry& entry){
                     return entry.wp.Contains("Merged");
+                  })) {
+    forced_max_mass = 500.;
+  }
+  if (std::any_of(compare_entries.begin(), compare_entries.end(),
+                  [](const ComparisonEntry& entry){
+                    return entry.wp.Contains("AltWZonly");
                   })) {
     forced_max_mass = 500.;
   }
@@ -1354,6 +1596,408 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   gr_trilepLimit->SetLineColor(kRed);
 
 
+  //=== EXO-22-011 overlay
+  // CMS Run2 trilepton HNL search
+  // JHEP 06 (2024) 123
+  //
+  // Store all Dirac/Majorana and e/mu/tau coupling results.
+  // Only Majorana e/mu results are used for the EE/MuMu overlays below.
+  //
+  // Repeated mass points correspond to boundaries between different trainings.
+  // They must therefore be drawn as separate graph segments, not as one TGraph.
+
+#if 0
+  // Full EXO-22-011 HEPData archive.
+  //
+  // These values are intentionally excluded from compilation.
+  // Keep Dirac/Majorana and e/mu/tau results, including expected bands,
+  // here for future reference.
+
+  //--- EXO-22-011: Dirac HNL, electron coupling
+  vector<double> mass_22011_Dirac_E = {
+    10, 12.5, 15, 17.5, 20, 25, 30, 30,
+    40, 40, 50, 60, 75, 85, 100, 125,
+    125, 150, 200, 250, 250, 300, 350, 400,
+    400, 450, 500, 600, 700, 800, 900, 1000,
+    1200, 1500
+  };
+
+  vector<double> obs_22011_Dirac_E = {
+    5.7415e-05, 3.4322e-05, 2.4092e-05, 2.2246e-05, 2.2348e-05, 2.2467e-05, 2.3412e-05, 2.1386e-05,
+    1.8877e-05, 1.4696e-05, 1.9231e-05, 3.2845e-05, 0.00095518, 0.0014553, 0.0012746, 0.0033508,
+    0.0017024, 0.0023286, 0.0037992, 0.0078008, 0.01092, 0.016793, 0.024861, 0.03652,
+    0.029669, 0.040754, 0.054455, 0.082357, 0.13275, 0.20825, 0.30535, 0.44465,
+    0.86508, 2.5392
+  };
+
+  vector<double> exp_22011_Dirac_E = {
+    4.0495e-05, 2.2239e-05, 1.6048e-05, 1.0623e-05, 9.9671e-06, 9.8462e-06, 1.094e-05, 1.0406e-05,
+    1.2141e-05, 1.6781e-05, 1.9141e-05, 3.6094e-05, 0.001043, 0.0023672, 0.0019375, 0.0051875,
+    0.0041719, 0.0053438, 0.0076172, 0.015859, 0.010352, 0.013437, 0.018516, 0.026016,
+    0.026016, 0.033887, 0.043945, 0.064922, 0.10234, 0.15859, 0.23203, 0.33516,
+    0.64844, 1.8828
+  };
+
+  vector<double> exp68low_22011_Dirac_E = {
+    5.2531e-05, 3.203e-05, 2.351e-05, 2.1693e-05, 2.1917e-05, 2.1635e-05, 2.2646e-05, 2.0169e-05,
+    2.4011e-05, 3.3234e-05, 3.8047e-05, 7.2027e-05, 0.002084, 0.004603, 0.0037307, 0.009861,
+    0.007995, 0.010323, 0.014832, 0.030738, 0.020157, 0.026371, 0.036503, 0.051521,
+    0.052992, 0.069907, 0.09195, 0.13694, 0.21885, 0.34009, 0.49617, 0.72075,
+    1.389, 4.0718
+  };
+
+  vector<double> exp68high_22011_Dirac_E = {
+    4.6609e-05, 2.4391e-05, 2.0596e-05, 1.7347e-05, 1.7162e-05, 1.6753e-05, 1.8059e-05, 1.4762e-05,
+    1.7367e-05, 2.4072e-05, 2.7304e-05, 5.192e-05, 0.0015044, 0.0033579, 0.0027484, 0.0073173,
+    0.0059013, 0.0075803, 0.010836, 0.022497, 0.014725, 0.019169, 0.026486, 0.037319,
+    0.037837, 0.04969, 0.06479, 0.096234, 0.15252, 0.23635, 0.34579, 0.49948,
+    0.96377, 2.8059
+  };
+
+  vector<double> exp95low_22011_Dirac_E = {
+    2.4761e-05, 1.581e-05, 9.0911e-06, 7.1866e-06, 6.2519e-06, 5.5023e-06, 5.9723e-06, 5.5283e-06,
+    6.3549e-06, 8.7839e-06, 1.0019e-05, 1.8893e-05, 0.00054593, 0.0012483, 0.0010293, 0.0027761,
+    0.0022163, 0.0028389, 0.0040466, 0.0083633, 0.0054588, 0.0070337, 0.0096918, 0.013618,
+    0.013313, 0.017208, 0.022144, 0.032461, 0.051172, 0.078677, 0.11511, 0.16758,
+    0.32422, 0.94141
+  };
+
+  vector<double> exp95high_22011_Dirac_E = {
+    3.2172e-05, 1.9311e-05, 9.9766e-06, 8.7505e-06, 8.2672e-06, 7.8421e-06, 8.2768e-06, 7.3957e-06,
+    8.5697e-06, 1.1908e-05, 1.3511e-05, 2.5276e-05, 0.00074009, 0.0016766, 0.0013841, 0.0037181,
+    0.0029802, 0.0038173, 0.0054135, 0.011233, 0.0073318, 0.0094851, 0.01307, 0.018364,
+    0.018176, 0.023593, 0.03032, 0.044634, 0.070361, 0.10865, 0.15896, 0.22911,
+    0.44327, 1.2944
+  };
+
+
+  //--- EXO-22-011: Dirac HNL, muon coupling
+  vector<double> mass_22011_Dirac_Mu = {
+    10, 12.5, 15, 17.5, 20, 25, 30, 30,
+    40, 40, 50, 60, 75, 85, 100, 125,
+    125, 150, 200, 200, 250, 300, 350, 400,
+    400, 450, 500, 600, 700, 800, 900, 1000,
+    1200, 1500
+  };
+
+  vector<double> obs_22011_Dirac_Mu = {
+    4.1553e-05, 2.3266e-05, 1.735e-05, 1.2402e-05, 1.0466e-05, 1.1645e-05, 1.17e-05, 1.0528e-05,
+    1.29e-05, 2.3926e-05, 2.2485e-05, 3.6119e-05, 0.0012635, 0.0023128, 0.0018582, 0.0063129,
+    0.005341, 0.0069802, 0.0096299, 0.013835, 0.017413, 0.023288, 0.03326, 0.04863,
+    0.041795, 0.052411, 0.06658, 0.091386, 0.13599, 0.19576, 0.28503, 0.43873,
+    0.7546, 1.7316
+  };
+
+  vector<double> exp_22011_Dirac_Mu = {
+    3.8181e-05, 2.2295e-05, 1.6374e-05, 9.9871e-06, 9.4565e-06, 9.4589e-06, 9.557e-06, 9e-06,
+    1.0656e-05, 1.8563e-05, 1.2703e-05, 2.0344e-05, 0.00088125, 0.001832, 0.0016563, 0.0042969,
+    0.0038281, 0.0050156, 0.007, 0.0090312, 0.0091797, 0.011625, 0.016484, 0.023828,
+    0.022734, 0.029453, 0.038789, 0.0575, 0.091602, 0.13867, 0.20859, 0.33438,
+    0.58984, 1.4102
+  };
+
+  vector<double> exp68low_22011_Dirac_Mu = {
+    4.9138e-05, 3.1204e-05, 2.3587e-05, 2.1121e-05, 2.0068e-05, 2.0734e-05, 2.0655e-05, 1.7083e-05,
+    2.0197e-05, 3.5182e-05, 2.454e-05, 3.919e-05, 0.0016727, 0.0035674, 0.0031996, 0.0081441,
+    0.0073745, 0.0096894, 0.013694, 0.017422, 0.017957, 0.022814, 0.032351, 0.04689,
+    0.045969, 0.06025, 0.08002, 0.11947, 0.193, 0.29387, 0.44, 0.71424,
+    1.2486, 2.9851
+  };
+
+  vector<double> exp68high_22011_Dirac_Mu = {
+    4.4887e-05, 2.4345e-05, 2.0779e-05, 1.6755e-05, 1.4859e-05, 1.5441e-05, 1.5633e-05, 1.2659e-05,
+    1.4946e-05, 2.6036e-05, 1.802e-05, 2.8696e-05, 0.0012395, 0.0026061, 0.0023494, 0.0060268,
+    0.0053998, 0.0071148, 0.0099855, 0.012775, 0.013095, 0.016583, 0.023515, 0.034181,
+    0.032974, 0.042954, 0.056879, 0.084545, 0.13542, 0.205, 0.3092, 0.49698,
+    0.86963, 2.079
+  };
+
+  vector<double> exp95low_22011_Dirac_Mu = {
+    2.4382e-05, 1.6123e-05, 9.1872e-06, 7.0838e-06, 5.3645e-06, 4.9198e-06, 4.9666e-06, 4.8164e-06,
+    5.7028e-06, 9.9338e-06, 6.7485e-06, 1.0808e-05, 0.00047161, 0.00096611, 0.00087988, 0.0022995,
+    0.0020337, 0.0026646, 0.0036641, 0.0047979, 0.0048409, 0.006085, 0.0086285, 0.012473,
+    0.011722, 0.015072, 0.019698, 0.029199, 0.046159, 0.069336, 0.10511, 0.16719,
+    0.29723, 0.71609
+  };
+
+  vector<double> exp95high_22011_Dirac_Mu = {
+    2.9032e-05, 1.9448e-05, 1.0387e-05, 8.6714e-06, 7.6021e-06, 7.25e-06, 7.4225e-06, 6.4506e-06,
+    7.6377e-06, 1.3304e-05, 9.0745e-06, 1.4458e-05, 0.00063162, 0.0012976, 0.0011771, 0.0030797,
+    0.0027346, 0.0035646, 0.0049411, 0.0064184, 0.0065357, 0.008249, 0.011636, 0.016908,
+    0.015938, 0.020465, 0.026857, 0.039812, 0.0632, 0.095337, 0.14392, 0.22988,
+    0.40696, 0.97637
+  };
+
+
+  //--- EXO-22-011: Dirac HNL, tau coupling
+  vector<double> mass_22011_Dirac_Tau = {
+    10, 15, 20, 25, 30, 30, 40, 40,
+    50, 60, 75, 85, 100, 125, 150, 200,
+    250, 300, 350, 400, 450, 500, 600, 700,
+    800, 900, 1000
+  };
+
+  vector<double> obs_22011_Dirac_Tau = {
+    0.00075437, 0.000526, 0.00062761, 0.0005104, 0.00064295, 0.00053425, 0.00056866, 0.00083825,
+    0.00089819, 0.0019005, 0.024369, 0.26979, 0.086876, 0.092318, 0.11303, 0.14763,
+    0.13908, 0.16985, 0.21139, 0.273, 0.33067, 0.432, 0.59063, 0.88346,
+    1.2368, 1.7177, 2.3898
+  };
+
+  vector<double> exp_22011_Dirac_Tau = {
+    0.00072538, 0.00048045, 0.00049765, 0.00049138, 0.00058019, 0.00049219, 0.00059062, 0.00055312,
+    0.00069727, 0.0016875, 0.024141, 0.23926, 0.10078, 0.081641, 0.089844, 0.12109,
+    0.13281, 0.17568, 0.23291, 0.30469, 0.3584, 0.46094, 0.61719, 0.89453,
+    1.2891, 1.8359, 2.4609
+  };
+
+  vector<double> exp68low_22011_Dirac_Tau = {
+    0.0017645, 0.00097671, 0.00098007, 0.00095705, 0.0011301, 0.00099087, 0.0012097, 0.0011038,
+    0.0013914, 0.0033719, 0.0486, 0.46524, 0.19442, 0.15698, 0.17356, 0.23981,
+    0.26738, 0.35414, 0.46744, 0.60881, 0.72781, 0.92914, 1.2625, 1.8299,
+    2.6529, 3.7784, 5.1071
+  };
+
+  vector<double> exp68high_22011_Dirac_Tau = {
+    0.0010494, 0.00070773, 0.00071837, 0.00069909, 0.0007807, 0.00071192, 0.00086372, 0.00079565,
+    0.001003, 0.0024341, 0.034918, 0.3394, 0.14256, 0.11548, 0.12745, 0.17371,
+    0.1921, 0.25482, 0.33689, 0.4395, 0.52126, 0.66855, 0.9001, 1.3046,
+    1.88, 2.6775, 3.6086
+  };
+
+  vector<double> exp95low_22011_Dirac_Tau = {
+    0.00044021, 0.00023885, 0.00031286, 0.00030872, 0.00036972, 0.00025571, 0.00030454, 0.00028953,
+    0.00036497, 0.00087671, 0.012542, 0.12711, 0.05354, 0.043372, 0.047729, 0.063385,
+    0.068481, 0.090587, 0.12009, 0.1571, 0.1834, 0.23767, 0.31342, 0.45425,
+    0.6546, 0.93231, 1.2497
+  };
+
+  vector<double> exp95high_22011_Dirac_Tau = {
+    0.0005215, 0.000349, 0.00041397, 0.00040778, 0.00045244, 0.00034346, 0.00041182, 0.00039044,
+    0.00049218, 0.0011871, 0.016982, 0.17004, 0.071994, 0.05832, 0.06418, 0.085477,
+    0.093108, 0.12316, 0.16328, 0.2136, 0.25039, 0.3214, 0.4297, 0.6228,
+    0.89748, 1.2712, 1.7039
+  };
+
+
+  //--- EXO-22-011: Majorana HNL, electron coupling
+  vector<double> mass_22011_Maj_E = {
+    10, 12.5, 15, 17.5, 20, 25, 30, 30,
+    40, 40, 50, 60, 75, 85, 100, 125,
+    125, 150, 200, 250, 250, 300, 350, 400,
+    400, 450, 500, 600, 700, 800, 900, 1000,
+    1200, 1500
+  };
+
+  vector<double> obs_22011_Maj_E = {
+    2.3915e-05, 1.183e-05, 7.9718e-06, 5.9217e-06, 4.8494e-06, 4.5586e-06, 4.4901e-06, 4.1909e-06,
+    5.0726e-06, 4.4101e-06, 8.0162e-06, 1.4994e-05, 0.00033461, 0.001179, 0.00088167, 0.0023747,
+    0.0019704, 0.0025595, 0.0040197, 0.0076581, 0.015281, 0.022674, 0.032834, 0.04752,
+    0.035299, 0.044487, 0.056878, 0.078471, 0.12027, 0.17825, 0.25522, 0.36015,
+    0.6758, 1.9457
+  };
+
+  vector<double> exp_22011_Maj_E = {
+    2.3226e-05, 1.0152e-05, 7.7432e-06, 5.4127e-06, 4.6782e-06, 4.5044e-06, 4.7917e-06, 4.6406e-06,
+    6.2578e-06, 6.6563e-06, 1.1133e-05, 2.1641e-05, 0.00052344, 0.0018828, 0.0015, 0.0035469,
+    0.0026641, 0.0031523, 0.0052148, 0.010117, 0.0077344, 0.010469, 0.014727, 0.021172,
+    0.025469, 0.033203, 0.043164, 0.061172, 0.094531, 0.1418, 0.20391, 0.28945,
+    0.54297, 1.5625
+  };
+
+  vector<double> exp68low_22011_Maj_E = {
+    3.6685e-05, 2.0915e-05, 1.3507e-05, 9.7337e-06, 9.1155e-06, 9.2249e-06, 9.7747e-06, 9.6305e-06,
+    1.2987e-05, 1.3911e-05, 2.2911e-05, 4.4269e-05, 0.0010695, 0.0037621, 0.0029572, 0.0068424,
+    0.0052689, 0.0063463, 0.010453, 0.020342, 0.015956, 0.021905, 0.031064, 0.044609,
+    0.051878, 0.068414, 0.090316, 0.12978, 0.2035, 0.30931, 0.44603, 0.63553,
+    1.2042, 3.5092
+  };
+
+  vector<double> exp68high_22011_Maj_E = {
+    2.5055e-05, 1.6822e-05, 9.4044e-06, 8.0717e-06, 6.8807e-06, 6.7812e-06, 7.6075e-06, 6.8049e-06,
+    9.1762e-06, 9.787e-06, 1.6236e-05, 3.1561e-05, 0.00076129, 0.0027159, 0.0021457, 0.0050172,
+    0.0038109, 0.0045597, 0.0075222, 0.014594, 0.011341, 0.015434, 0.021829, 0.031299,
+    0.037042, 0.048556, 0.063638, 0.090676, 0.14126, 0.21301, 0.30632, 0.43598,
+    0.82216, 2.3784
+  };
+
+  vector<double> exp95low_22011_Maj_E = {
+    1.7645e-05, 7.7909e-06, 4.6432e-06, 3.7156e-06, 2.566e-06, 2.3691e-06, 2.4439e-06, 2.3747e-06,
+    3.2022e-06, 3.3801e-06, 5.7404e-06, 1.1158e-05, 0.0002699, 0.00098553, 0.00078516, 0.0018843,
+    0.0013945, 0.0016254, 0.0026685, 0.0051376, 0.0039276, 0.0052344, 0.0073633, 0.010503,
+    0.013132, 0.016861, 0.021919, 0.030586, 0.046896, 0.069791, 0.10036, 0.14247,
+    0.26512, 0.75684
+  };
+
+  vector<double> exp95high_22011_Maj_E = {
+    2.0683e-05, 9.0081e-06, 5.3848e-06, 4.4537e-06, 3.7181e-06, 3.2229e-06, 3.6069e-06, 3.2244e-06,
+    4.36e-06, 4.6087e-06, 7.7625e-06, 1.5089e-05, 0.00036497, 0.001329, 0.0010588, 0.0025337,
+    0.0018805, 0.0022099, 0.0036135, 0.007005, 0.0053551, 0.0071973, 0.010125, 0.014504,
+    0.017758, 0.023117, 0.029886, 0.042056, 0.064759, 0.096793, 0.13838, 0.19644,
+    0.36823, 1.0527
+  };
+
+
+  //--- EXO-22-011: Majorana HNL, muon coupling
+  vector<double> mass_22011_Maj_Mu = {
+    10, 12.5, 15, 17.5, 20, 25, 30, 30,
+    40, 40, 50, 60, 75, 85, 100, 125,
+    125, 150, 200, 200, 250, 300, 350, 400,
+    400, 450, 500, 600, 700, 800, 900, 1000,
+    1200, 1500
+  };
+
+  vector<double> obs_22011_Maj_Mu = {
+    1.8633e-05, 7.9616e-06, 4.8171e-06, 3.8873e-06, 2.949e-06, 2.4784e-06, 2.4783e-06, 2.4879e-06,
+    2.6358e-06, 2.7869e-06, 3.5288e-06, 6.3397e-06, 0.00020036, 0.0014455, 0.0011399, 0.0035922,
+    0.0025494, 0.0030577, 0.0047868, 0.0069421, 0.0098934, 0.014314, 0.02106, 0.030748,
+    0.029897, 0.037891, 0.047196, 0.059902, 0.085255, 0.12042, 0.1674, 0.2593,
+    0.41964, 0.92285
+  };
+
+  vector<double> exp_22011_Maj_Mu = {
+    1.8359e-05, 7.8099e-06, 4.7495e-06, 3.7266e-06, 2.6899e-06, 2.4242e-06, 2.4388e-06, 2.375e-06,
+    2.7344e-06, 2.8359e-06, 3.1875e-06, 5.6484e-06, 0.00019922, 0.00094883, 0.00094063, 0.0027109,
+    0.0020859, 0.0025547, 0.0040625, 0.005125, 0.0061914, 0.008375, 0.012109, 0.017578,
+    0.018437, 0.024453, 0.032344, 0.045625, 0.071094, 0.10586, 0.15469, 0.24766,
+    0.41211, 0.94922
+  };
+
+  vector<double> exp68low_22011_Maj_Mu = {
+    2.4584e-05, 1.4037e-05, 8.7936e-06, 6.4598e-06, 4.9126e-06, 4.8492e-06, 4.9255e-06, 5.0098e-06,
+    5.8408e-06, 6.1158e-06, 6.8354e-06, 1.2052e-05, 0.00041343, 0.0020175, 0.0018961, 0.0051953,
+    0.0040618, 0.0050781, 0.0082697, 0.010363, 0.012864, 0.017666, 0.025719, 0.037334,
+    0.038262, 0.051106, 0.068071, 0.097457, 0.15375, 0.23069, 0.33709, 0.54524,
+    0.91401, 2.1222
+  };
+
+  vector<double> exp68high_22011_Maj_Mu = {
+    2.2296e-05, 9.4702e-06, 6.7217e-06, 4.6604e-06, 4.0413e-06, 3.7458e-06, 3.8599e-06, 3.5205e-06,
+    4.0641e-06, 4.2264e-06, 4.7503e-06, 8.3727e-06, 0.00029213, 0.001414, 0.0013643, 0.0038348,
+    0.0029673, 0.0036443, 0.00586, 0.0074334, 0.0091036, 0.012414, 0.017998, 0.026126,
+    0.027036, 0.035955, 0.047686, 0.067812, 0.10595, 0.1586, 0.23176, 0.37303,
+    0.62402, 1.4373
+  };
+
+  vector<double> exp95low_22011_Maj_Mu = {
+    9.7472e-06, 4.7662e-06, 3.3634e-06, 2.3572e-06, 2.0662e-06, 1.588e-06, 1.4819e-06, 1.2153e-06,
+    1.3779e-06, 1.418e-06, 1.5937e-06, 2.8463e-06, 0.00010194, 0.00047071, 0.00048501, 0.0014402,
+    0.0010919, 0.0013572, 0.0021423, 0.0026426, 0.0030957, 0.0041548, 0.0060074, 0.0086517,
+    0.0093628, 0.012418, 0.016298, 0.022991, 0.035547, 0.05293, 0.07674, 0.12189,
+    0.20284, 0.46719
+  };
+
+  vector<double> exp95high_22011_Maj_Mu = {
+    1.3034e-05, 5.5821e-06, 4.083e-06, 2.5199e-06, 2.3134e-06, 2.0437e-06, 2.0067e-06, 1.6547e-06,
+    1.8866e-06, 1.9497e-06, 2.1914e-06, 3.8971e-06, 0.00013842, 0.00065, 0.00065942, 0.0019366,
+    0.0014802, 0.0018109, 0.0028774, 0.0035929, 0.0042566, 0.0057374, 0.0082956, 0.011999,
+    0.012766, 0.016931, 0.022315, 0.031479, 0.048599, 0.072365, 0.10536, 0.16905,
+    0.28131, 0.64419
+  };
+
+
+  //--- EXO-22-011: Majorana HNL, tau coupling
+  vector<double> mass_22011_Maj_Tau = {
+    10, 15, 20, 25, 30, 30, 40, 40,
+    50, 60, 75, 500
+  };
+
+  vector<double> obs_22011_Maj_Tau = {
+    0.00078429, 0.00048907, 0.00061141, 0.00049445, 0.00055233, 0.00051964,
+    0.00054049, 0.0007726, 0.00086347, 0.0018054, 0.023485, 0.48307
+  };
+
+  vector<double> exp_22011_Maj_Tau = {
+    0.00079412, 0.00048093, 0.00049346, 0.00048077, 0.00052162, 0.00047852,
+    0.00057891, 0.00055312, 0.00070547, 0.0017734, 0.030234, 0.56445
+  };
+
+  vector<double> exp68low_22011_Maj_Tau = {
+    0.0019198, 0.00097292, 0.00095156, 0.00091813, 0.00099008, 0.00095366,
+    0.0011741, 0.0011023, 0.0013971, 0.0035344, 0.060413, 1.1078
+  };
+
+  vector<double> exp68high_22011_Maj_Tau = {
+    0.0012801, 0.00070364, 0.00070278, 0.00067481, 0.00073103, 0.00068642,
+    0.00083966, 0.00079345, 0.001012, 0.002544, 0.043612, 0.8052
+  };
+
+  vector<double> exp95low_22011_Maj_Tau = {
+    0.00046373, 0.00024513, 0.000306, 0.00028332, 0.00031849, 0.00025047,
+    0.00030302, 0.00028953, 0.00036927, 0.00092828, 0.015826, 0.29546
+  };
+
+  vector<double> exp95high_22011_Maj_Tau = {
+    0.00058582, 0.00035913, 0.00040732, 0.00038968, 0.00042043, 0.0003351,
+    0.00040648, 0.00039044, 0.00049534, 0.0012518, 0.021342, 0.39843
+  };
+#endif
+
+  // Use only Majorana e/mu coupling results for comparison to this analysis.
+  // EXO-22-011 has no limit corresponding to our EMu mixing definition.
+  vector<double> mass_22011;
+  vector<double> obs_22011;
+  vector<double> exp_22011;
+
+  if(channel=="EE"){
+
+    mass_22011.assign(
+      mass_22011_Maj_E,
+      mass_22011_Maj_E + n_mass_22011_Maj_E
+    );
+
+    obs_22011.assign(
+      obs_22011_Maj_E,
+      obs_22011_Maj_E + n_mass_22011_Maj_E
+    );
+
+    exp_22011.assign(
+      exp_22011_Maj_E,
+      exp_22011_Maj_E + n_mass_22011_Maj_E
+    );
+  }
+  else if(channel=="MuMu"){
+
+    mass_22011.assign(
+      mass_22011_Maj_Mu,
+      mass_22011_Maj_Mu + n_mass_22011_Maj_Mu
+    );
+
+    obs_22011.assign(
+      obs_22011_Maj_Mu,
+      obs_22011_Maj_Mu + n_mass_22011_Maj_Mu
+    );
+
+    exp_22011.assign(
+      exp_22011_Maj_Mu,
+      exp_22011_Maj_Mu + n_mass_22011_Maj_Mu
+    );
+  }
+
+
+  // Build separate graphs for each training segment.
+  vector<TGraph*> gr_22011_exp;
+  vector<TGraph*> gr_22011_obs;
+
+  if(!mass_22011.empty()){
+    gr_22011_exp = BuildSegmentedGraphs(
+      mass_22011,
+      exp_22011,
+      kMagenta+1,
+      3,
+      1
+    );
+
+    gr_22011_obs = BuildSegmentedGraphs(
+      mass_22011,
+      obs_22011,
+      kMagenta+1,
+      3,
+      1
+    );
+  }
+
+
   //=== EXO-21-003 overlay
   const int n_mass_21003 = 19;
   vector<double> mass_21003 = {50,150,300,450,600,750,900,1000,1250,1500,1750,2000,2500,5000,7500,10000,15000,20000,25000};
@@ -1461,6 +2105,14 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   gr_202316_obs->SetLineWidth(3);
   gr_202316_obs->SetLineColor(kBlue-9);
 
+  // Select expected/observed published limits consistently with DrawObserved
+  TGraph *gr_17028_pub = DrawObserved ? gr_17028_obs : gr_17028_exp;
+  vector<TGraph*> gr_22011_pub = DrawObserved ? gr_22011_obs : gr_22011_exp; // vector of TGraph due to discts limits
+  TGraph *gr_21003_pub = DrawObserved ? gr_21003_obs : gr_21003_exp;
+  TGraph *gr_202006_pub = DrawObserved ? gr_202006_obs : gr_202006_exp;
+  TGraph *gr_202316_pub = DrawObserved ? gr_202316_obs : gr_202316_exp;
+  
+  TString pub_limit_type = DrawObserved ? "obs" : "exp";
 
 
 
@@ -1961,10 +2613,11 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     else lg = new TLegend(0.5, 0.55, 0.94, 0.8);
   }
   else if(draw_ratio_panel){
-    if(Logy) lg = new TLegend(0.48, 0.1, 0.9, 0.55);
-    else lg = new TLegend(0.18, 0.3, 0.6, 0.75);
+    if(Logy) lg = new TLegend(0.48, 0.1, 0.9, 0.65);
+    else lg = new TLegend(0.18, 0.3, 0.6, 0.85);
+    //lg = new TLegend(0.18, 0.3, 0.6, 0.75); //FIXME -- For showing left legend with log-scale limit https://cms-pub-talk.web.cern.ch/t/unblinding/51385/10
   }
-  else lg = new TLegend(0.48, 0.2, 0.9, 0.55);
+  else lg = new TLegend(0.48, 0.2, 0.9, 0.65);
   lg->SetBorderSize(0);
   lg->SetFillStyle(0);
   //TH1D *hist_emptylegend = new TH1D("hist_emptylegend","",1,0.,1.);
@@ -1978,7 +2631,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   if(!SepLimit) lg->AddEntry(gr_band_2sigma_0,"95% expected", "f");
   //lg->AddEntry(hist_emptylegend,"","l");
   if(AddPub){
-    TLegendEntry* e1 = lg->AddEntry(gr_17028_exp, "#splitline{CMS 2016 CCDY+W#gamma SS2l}{#it{JHEP} 01 (2019) 122 (exp)}", "l"); // EXO-17-028
+    TLegendEntry* e1 = lg->AddEntry(gr_17028_pub, Form("#splitline{CMS 2016 CCDY+W#gamma SS2l}{#it{JHEP} 01 (2019) 122 (%s)}",pub_limit_type.Data()), "l"); // EXO-17-028
     if(draw_ratio_panel) e1->SetTextSize(0.028);
     else e1->SetTextSize(0.025);
   }
@@ -2012,21 +2665,39 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //if(!IsXsecLimit) lg_Alt->AddEntry(gr_21003_exp, "EXO-21-003 Run2 (exp)", "l"); // EXO-21-003
     if(!IsXsecLimit){
       if(AddPub){
-        TLegendEntry* e1 = lg->AddEntry(gr_21003_exp, "#splitline{CMS Run2 SSWW SS2l}{#it{PRL} 131 (2023) 011803 (exp)}", "l"); // EXO-21-003
-        TLegendEntry* e2 = lg->AddEntry(gr_202006_exp, "#splitline{ATLAS Run2 SSWW SS2l}{#it{Eur. Phys. J. C} 83 (2023) 824 (exp)}", "l"); // EXOT-2020-06
+        TLegendEntry* e1 = lg->AddEntry(
+          gr_22011_pub[0],
+          Form("#splitline{CMS Run2 CCDY+W#gamma 3l}{#it{JHEP} 06 (2024) 123 (%s)}",pub_limit_type.Data()),
+          "l"
+        ); // EXO-22-011
+
+        TLegendEntry* e2 = lg->AddEntry(
+          gr_21003_pub,
+          Form("#splitline{CMS Run2 SSWW SS2l}{#it{PRL} 131 (2023) 011803 (%s)}",pub_limit_type.Data()),
+          "l"
+        ); // EXO-21-003
+
+        TLegendEntry* e3 = lg->AddEntry(
+          gr_202006_pub,
+          Form("#splitline{ATLAS Run2 SSWW SS2l}{#it{Eur. Phys. J. C} 83 (2023) 824 (%s)}",pub_limit_type.Data()),
+          "l"
+        ); // EXOT-2020-06
+
         if(draw_ratio_panel){
           e1->SetTextSize(0.028);
           e2->SetTextSize(0.028);
+          e3->SetTextSize(0.028);
         }
         else{
           e1->SetTextSize(0.025);
-          e2->SetTextSize(0.023);
+          e2->SetTextSize(0.025);
+          e3->SetTextSize(0.023);
         }
       }
     }
     else{
       if(AddPub){
-        TLegendEntry* e1 = lg->AddEntry(gr_21003_exp, "#splitline{CMS Run2 SSWW SS2l}{#it{PRL} 131 (2023) 011803 (exp)}", "l"); // EXO-21-003
+        TLegendEntry* e1 = lg->AddEntry(gr_21003_pub, Form("#splitline{CMS Run2 SSWW SS2l}{#it{PRL} 131 (2023) 011803 (%s)}",pub_limit_type.Data()), "l"); // EXO-21-003
         if(draw_ratio_panel){
           e1->SetTextSize(0.028);
         }
@@ -2048,9 +2719,26 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //lg_Alt->AddEntry(gr_EWPD_ee, "EWPD", "l");
     if(!IsXsecLimit){
       if(AddPub){
-        TLegendEntry* e1 = lg->AddEntry(gr_202316_exp, "#splitline{ATLAS Run2 SSWW SS2l}{#it{Phys. Lett. B} 856 (2024) 138865 (exp)}", "l"); // EXOT-2023-16
-        if(draw_ratio_panel) e1->SetTextSize(0.028);
-        else e1->SetTextSize(0.022);
+        TLegendEntry* e1 = lg->AddEntry(
+          gr_22011_pub[0],
+          Form("#splitline{CMS Run2 CCDY+W#gamma 3l}{#it{JHEP} 06 (2024) 123 (%s)}",pub_limit_type.Data()),
+          "l"
+        ); // EXO-22-011
+
+        TLegendEntry* e2 = lg->AddEntry(
+          gr_202316_pub,
+          Form("#splitline{ATLAS Run2 SSWW SS2l}{#it{Phys. Lett. B} 856 (2024) 138865 (%s)}",pub_limit_type.Data()),
+          "l"
+        ); // EXOT-2023-16
+
+        if(draw_ratio_panel){
+          e1->SetTextSize(0.028);
+          e2->SetTextSize(0.028);
+        }
+        else{
+          e1->SetTextSize(0.025);
+          e2->SetTextSize(0.022);
+        }
       }
     }
   }
@@ -2061,7 +2749,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //lg_Alt->AddEntry(gr_17028_obs, "CMS 13 TeV dilepton", "l");
     if(!IsXsecLimit){
       if(AddPub){
-        TLegendEntry* e1 = lg->AddEntry(gr_202316_exp, "#splitline{ATLAS Run2 SSWW SS2l}{#it{Phys. Lett. B} 856 (2024) 138865 (exp)}", "l"); // EXOT-2023-16
+        TLegendEntry* e1 = lg->AddEntry(gr_202316_pub, Form("#splitline{ATLAS Run2 SSWW SS2l}{#it{Phys. Lett. B} 856 (2024) 138865 (%s)}",pub_limit_type.Data()), "l"); // EXOT-2023-16
         if(draw_ratio_panel) e1->SetTextSize(0.028);
         else e1->SetTextSize(0.022);
       }
@@ -2143,7 +2831,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //else dummy->GetXaxis()->SetRangeUser(80., 25000); //FIXME
   if(IsXsecLimit) dummy->GetYaxis()->SetRangeUser(1e-5, 0.1); //FIXME
   else dummy->GetYaxis()->SetRangeUser(5e-5, 1.); //FIXME
-  //dummy->GetXaxis()->SetRangeUser(1000, 30000); //FIXME
+  //dummy->GetXaxis()->SetRangeUser(80, 500); //FIXME -- Low mass limit only !!
   dummy->SetTitle("");
   dummy->Draw("hist");
 
@@ -2161,7 +2849,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     if(!SepLimit) gr_band_1sigma_2->Draw("3same");
     gr_exp_2->Draw("lsame");
   }
-  if(AddPub) gr_17028_exp->Draw("lsame"); // EXO-17-028
+  if(AddPub) gr_17028_pub->Draw("lsame"); // EXO-17-028
   for (size_t i = 0; i < gr_exp_list.size(); ++i) {
     if (gr_exp_list[i]) gr_exp_list[i]->Draw("lsame");
   }
@@ -2175,8 +2863,15 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //gr_EWPD_mm->Draw("lsame");
     //gr_ATLAS_MuMu->Draw("lsame");
     if(AddPub){
-      gr_21003_exp->Draw("lsame"); // EXO-21-003
-      if(!IsXsecLimit) gr_202006_exp->Draw("lsame"); // EXOT-2020-06
+      if(!IsXsecLimit){
+        DrawSegmentedGraphs(gr_22011_pub, "lsame"); // EXO-22-011
+      }
+
+      gr_21003_pub->Draw("lsame"); // EXO-21-003
+
+      if(!IsXsecLimit){
+        gr_202006_pub->Draw("lsame"); // EXOT-2020-06
+      }
     }
   }
   else if(channel=="EE"){
@@ -2187,12 +2882,15 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //gr_dbeta->Draw("lsame");
     //gr_ATLAS_EE->Draw("lsame");
     if(!IsXsecLimit){
-      if(AddPub) gr_202316_exp->Draw("lsame"); // EXOT-2023-16
+      if(AddPub){
+        DrawSegmentedGraphs(gr_22011_pub, "lsame"); // EXO-22-011
+        gr_202316_pub->Draw("lsame"); // EXOT-2023-16
+      }
     }
   }
   else if(channel=="EMu"){
     if(!IsXsecLimit){
-      if(AddPub) gr_202316_exp->Draw("lsame"); // EXOT-2023-16
+      if(AddPub) gr_202316_pub->Draw("lsame"); // EXOT-2023-16
     }
   }
 
@@ -2256,7 +2954,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     c_down->SetLeftMargin(0.14);
     c_down->SetRightMargin(0.04);
     c_down->SetLogx();
-    if(Logy) c_down->SetLogy();
+    if(Logy) c_down->SetLogy(); // FIXME -- Turn log-scale on for the ratio plot 
     c_down->SetGridx();
     c_down->SetGridy();
     c_down->Draw();
@@ -2269,7 +2967,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     vector<int> ratio_colors;
 
     vector<double> mass_nominal = masses[0];
-    vector<double> limit_nominal = limits[0];
+    vector<double> limit_nominal = DrawObserved ? obss[0] : limits[0];
 
     for (size_t entry_idx = 0; entry_idx < compare_entries.size(); ++entry_idx) {
       const size_t limit_idx = n_nominal_limits + entry_idx;
@@ -2308,7 +3006,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       ratio_colors.push_back(compare_entries[entry_idx].color);
     }
 
-    // ratio with EXO-17-028 expected
+    // ratio with EXO-17-028
     vector<double> ratio_17028;
     vector<double> mass_comp_17028;
     
@@ -2317,7 +3015,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       auto it = find(mass_nominal.begin(), mass_nominal.end(), m);
       if (it != mass_nominal.end()) {
         int idx = distance(mass_nominal.begin(), it);
-        double ratio = exp_17028[i] / limit_nominal[idx];
+        double ratio = (DrawObserved ? obs_17028[i] : exp_17028[i]) / limit_nominal[idx];
         ratio_17028.push_back(ratio);
         mass_comp_17028.push_back(m);
       } else {
@@ -2325,7 +3023,67 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       }
     }
 
-    // ratio with EXO-21-003 expected
+    // ratio with EXO-22-011
+    vector<vector<double>> mass_comp_22011_segments;
+    vector<vector<double>> ratio_22011_segments;
+
+    if(!IsXsecLimit && (channel=="EE" || channel=="MuMu")){
+
+      const vector<double>& limit_22011 =
+        DrawObserved ? obs_22011 : exp_22011;
+
+      size_t segment_start = 0;
+
+      for(size_t i=1; i<=mass_22011.size(); ++i){
+
+        bool end_of_vector = (i == mass_22011.size());
+        bool training_boundary = false;
+
+        if(!end_of_vector){
+          training_boundary = (mass_22011[i] == mass_22011[i-1]);
+        }
+
+        if(end_of_vector || training_boundary){
+
+          vector<double> this_mass_comp;
+          vector<double> this_ratio;
+
+          for(size_t j=segment_start; j<i; ++j){
+
+            double m = mass_22011[j];
+
+            auto it = find(
+              mass_nominal.begin(),
+              mass_nominal.end(),
+              m
+            );
+
+            if(it != mass_nominal.end()){
+
+              int idx = distance(
+                mass_nominal.begin(),
+                it
+              );
+
+              double ratio =
+                limit_22011[j] / limit_nominal[idx];
+
+              this_mass_comp.push_back(m);
+              this_ratio.push_back(ratio);
+            }
+          }
+
+          if(!this_mass_comp.empty()){
+            mass_comp_22011_segments.push_back(this_mass_comp);
+            ratio_22011_segments.push_back(this_ratio);
+          }
+
+          segment_start = i;
+        }
+      }
+    }
+
+    // ratio with EXO-21-003
     vector<double> ratio_21003;
     vector<double> mass_comp_21003;
 
@@ -2334,7 +3092,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       auto it = find(mass_nominal.begin(), mass_nominal.end(), m);
       if (it != mass_nominal.end()) {
         int idx = distance(mass_nominal.begin(), it);
-        double ratio = this_exp_21003[i] / limit_nominal[idx];
+        double ratio = (DrawObserved ? this_obs_21003[i] : this_exp_21003[i]) / limit_nominal[idx];
         ratio_21003.push_back(ratio);
         mass_comp_21003.push_back(m);
       } else {
@@ -2351,7 +3109,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       auto it = find(mass_nominal.begin(), mass_nominal.end(), m);
       if (it != mass_nominal.end()) {
         int idx = distance(mass_nominal.begin(), it);
-        double ratio = exp_202006[i] / limit_nominal[idx];
+        double ratio = (DrawObserved ? obs_202006[i] : exp_202006[i]) / limit_nominal[idx];
         ratio_202006.push_back(ratio);
         mass_comp_202006.push_back(m);
       } else {
@@ -2368,7 +3126,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       auto it = find(mass_nominal.begin(), mass_nominal.end(), m);
       if (it != mass_nominal.end()) {
         int idx = distance(mass_nominal.begin(), it);
-        double ratio = exp_202316[i] / limit_nominal[idx];
+        double ratio = (DrawObserved ? obs_202316[i] : exp_202316[i]) / limit_nominal[idx];
         ratio_202316.push_back(ratio);
         mass_comp_202316.push_back(m);
       } else {
@@ -2403,6 +3161,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //else dummy2->GetYaxis()->SetRangeUser(0.85, 2);
     //else dummy2->GetYaxis()->SetRangeUser(0.94, 1.06);
     else dummy2->GetYaxis()->SetRangeUser(0.5, 1.5);
+    //dummy2->GetXaxis()->SetRangeUser(80., 500); // FIXME -- Low mass limit comparison only !!
+    //dummy2->GetYaxis()->SetRangeUser(0.9, 1.1); // FIXME -- Low mass limit internal comparison only !!
     dummy2->SetTitle("");
     dummy2->Draw("hist");
 
@@ -2435,6 +3195,27 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     gr_ratio_17028->SetLineColor(kRed);
     gr_ratio_17028->SetLineWidth(2);
     if(AddPub) gr_ratio_17028->Draw("lpsame"); // EXO-17-028
+
+    // limit ratios to EXO-22-011
+    if(AddPub && !IsXsecLimit && (channel=="EE" || channel=="MuMu")){
+
+      for(size_t i=0; i<mass_comp_22011_segments.size(); ++i){
+
+        if(mass_comp_22011_segments[i].empty()) continue;
+
+        TGraph *gr_ratio_22011 = new TGraph(
+          mass_comp_22011_segments[i].size(),
+          &mass_comp_22011_segments[i][0],
+          &ratio_22011_segments[i][0]
+        );
+
+        gr_ratio_22011->SetMarkerColor(kMagenta+1);
+        gr_ratio_22011->SetLineColor(kMagenta+1);
+        gr_ratio_22011->SetLineWidth(2);
+
+        gr_ratio_22011->Draw("lpsame"); // EXO-22-011
+      }
+    }
 
     // limit ratios to EXO-21-003
     if(channel=="MuMu"){
