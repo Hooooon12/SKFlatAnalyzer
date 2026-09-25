@@ -1873,21 +1873,24 @@ for RunList in args.RunLists:
         os.chdir(source_dir)
 
         os.system(
-            f"echo extracting pull of {this_shortcard} ...\n"
-            f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py "
-            f"-a -A "
-            f"--skipFitS "  # b-only pull
-            f"--vtol 999 "  # b-only pull
-            f"--stol 999 "  # b-only pull
-            f"--vtol2 999 " # b-only pull
-            f"--stol2 999 " # b-only pull
-            f"fitDiagnostics_{this_shortcard}.root "
-            f"> pulls_{this_shortcard}.txt\n"
-            f"echo copying pull of {this_shortcard} ...\n"
-            f"cp pulls_{this_shortcard}.txt "
+            #f"echo extracting pull of {this_shortcard} ...\n"
+            #f"python3 $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/diffNuisances.py "
+            #f"-a -A "
+            #f"--skipFitS "  # b-only pull
+            #f"--vtol 999 "  # b-only pull
+            #f"--stol 999 "  # b-only pull
+            #f"--vtol2 999 " # b-only pull
+            #f"--stol2 999 " # b-only pull
+            #f"fitDiagnostics_{this_shortcard}.root "
+            #f"> pulls_{this_shortcard}.txt\n"
+            #f"echo copying pull of {this_shortcard} ...\n"
+            #f"cp pulls_{this_shortcard}.txt "
+            #f"{target_dir}/"
+            #f"pulls_{this_shortcard}_{AsimovName}"
+            #f"{UserTagSuffix}.txt\n"
+            f"echo copying {this_shortcard} root file ...\n"
+            f"cp fitDiagnostics_{this_shortcard}.root "
             f"{target_dir}/"
-            f"pulls_{this_shortcard}_{AsimovName}"
-            f"{UserTagSuffix}.txt"
         )
 
         os.chdir(pwd)

@@ -235,7 +235,7 @@ for WP in "${WPS[@]}"; do
                 echo "  AXIS STYLE  = ${AXIS_STYLE}"
                 echo "================================================================"
 
-                python3 make_post_fit_plots_new.py \
+                python3 make_post_fit_plots.py \
                     -wp "${WP}" \
                     -e Run2Sum \
                     -c EE EMu MuMu \

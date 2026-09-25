@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Standalone cosmetic alternative to make_post_fit_plots(8).py.
+"""Standalone cosmetic alternative to make_post_fit_plots.py.
 
 Original CLI, signal scaling, process stacking and uncertainty helpers retained.
 Added: region-specific bin metadata, cuts/codes/both axes, bin-key TXT export,
 explicit already-merged input maps, separate outputs, direct ROOT-file input.
 Sources: AN2019_206_v7 Tables 39-46 and 63-64.
-See postfit_cosmetic_guide.md for commands and configuration examples.
 """
 
 import os, argparse, math, re, json, fnmatch, copy, sys
@@ -2828,11 +2827,25 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     safe = re.sub(r"[^A-Za-z0-9_]", "_", spec["raw_region"])
     uid = f"{safe}_{fit_type}_{style}"
     width = args.canvas_width or (900 if n <= 8 else 1200 if n <= 15 else 1400)
+
+    # SR3 summaries contain many categorical bins (SR + IB + IM + WZ CR).
+    # Give them substantially more horizontal room than ordinary region plots.
+    # An explicit --canvas-width still takes precedence.
+    if (
+        not args.canvas_width
+        and spec.get("summary_mode")
+        and spec.get("summary_sr_number") == 3
+    ):
+        width = max(width, 1800, min(2400, 300 + 48 * n))
+
     height = 900
     canvas = ROOT.TCanvas("c_"+uid,"",width,height)
     upper = ROOT.TPad("upper_"+uid,"",0.,.34,1.,1.)
     ratio = ROOT.TPad("ratio_"+uid,"",0.,0.,1.,.34)
     left, right = .12, .97
+    if spec.get("summary_mode") and spec.get("summary_sr_number") == 3:
+        # Use a little more of the available canvas width for the dense SR3 summary.
+        left, right = .10, .985
     grouped = bool(spec["groups"])
 
     # --------------------------------------------------------
@@ -2883,7 +2896,11 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     usable_fraction = max(.34, min(.78, usable_fraction))
     boundary_fraction = min(.90, usable_fraction + .03,)
 
-    if args.label_angle is not None:
+    # Summary canvases use short categorical bin IDs (SR1, IB1, IM1, WZ1, ...).
+    # Keep those labels horizontal regardless of the ordinary cut-label rotation rules.
+    if spec.get("summary_mode"):
+        angle = 0
+    elif args.label_angle is not None:
         angle = args.label_angle
     elif style == "cuts" and n > 10:
         #angle = 65
@@ -3021,15 +3038,79 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     keep.append(draw_text(right-.005,cms_y,f"{lumi:g} fb^{{-1}} (13 TeV)",21,align=31))
 
     boundaries = sorted({g["first"]-1 for g in spec["groups"] if g["first"] > 1})
+
+    # For SR+CR summary canvases, visually separate the signal region from the
+    # control regions with the same "double-slit" language used by the old
+    # combined prefit plots: a narrow white gap bounded by two black lines.
+    # The later CR-to-CR boundaries remain gray dashed separators.
+    summary_gap_boundary = boundaries[0] if spec.get("summary_mode") and boundaries else None
+
+    def draw_summary_bin_ticks(y_bottom, y_top, log_scale=False, skip_x=None):
+        """Draw short inward ticks at every categorical-bin boundary, top and bottom."""
+        if not spec.get("summary_mode"):
+            return []
+        ticks = []
+        if log_scale:
+            if y_bottom <= 0 or y_top <= y_bottom:
+                return ticks
+            factor = (y_top / y_bottom) ** 0.018
+            bottom_inner = y_bottom * factor
+            top_inner = y_top / factor
+        else:
+            dy = 0.018 * (y_top - y_bottom)
+            bottom_inner = y_bottom + dy
+            top_inner = y_top - dy
+        for xb in range(n + 1):
+            # At the SR/CR split the two black sides of the white gap already
+            # provide a stronger boundary marker; keep its centre clean.
+            if skip_x is not None and xb == skip_x:
+                continue
+            for y1, y2 in ((y_bottom, bottom_inner), (top_inner, y_top)):
+                tick = ROOT.TLine(float(xb), y1, float(xb), y2)
+                tick.SetLineColor(ROOT.kBlack)
+                tick.SetLineStyle(1)
+                tick.SetLineWidth(1)
+                tick.Draw("SAME")
+                ticks.append(tick)
+        return ticks
+
+    if summary_gap_boundary is not None:
+        gap_half_width = 0.08  # in categorical-bin x units; total white gap = 0.16 bin
+        gap = ROOT.TBox(summary_gap_boundary-gap_half_width, ymin,
+                        summary_gap_boundary+gap_half_width, boundary_top)
+        gap.SetFillColor(ROOT.kWhite)
+        gap.SetFillStyle(1001)
+        gap.SetLineColor(ROOT.kWhite)
+        gap.Draw("SAME")
+        keep.append(gap)
+        for xedge in (summary_gap_boundary-gap_half_width,
+                      summary_gap_boundary+gap_half_width):
+            line = ROOT.TLine(xedge,ymin,xedge,boundary_top)
+            line.SetLineStyle(1)
+            line.SetLineWidth(2)
+            line.SetLineColor(ROOT.kBlack)
+            line.Draw()
+            keep.append(line)
+
     for x in boundaries:
+        if summary_gap_boundary is not None and x == summary_gap_boundary:
+            continue
         line = ROOT.TLine(x,ymin,x,boundary_top)
         line.SetLineStyle(2)
+        line.SetLineWidth(2)
         line.SetLineColor(ROOT.kGray+2)
         line.Draw()
         keep.append(line)
     for g in spec["groups"]:
         x = left+(right-left)*((g["first"]-1+g["last"])/2)/n
         keep.append(draw_text(x,category_y,g["label"],20,align=23))
+
+    # Summary-only categorical ticks at every bin boundary on both the
+    # bottom and top frame edges.  This includes the nominal SR/CR boundary;
+    # the white gap remains visible because the tick is only a short frame mark.
+    keep += draw_summary_bin_ticks(
+        ymin, ymax, log_scale=logy
+    )
     upper.RedrawAxis()
 
     ratio.cd()
@@ -3059,12 +3140,24 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     ratio_graph.SetLineColor(ROOT.kBlack)
     ratio_graph.Draw("PZ SAME")
     keep += [ratio_frame,ratio_band,ratio_graph,line]
-    for x in boundaries:
-        line = ROOT.TLine(x,0.,x,args.ratio_max)
-        line.SetLineStyle(2)
-        line.SetLineColor(ROOT.kGray+2)
-        line.Draw()
-        keep.append(line)
+
+    # Do not carry the SR/CR white gap (or the summary group separators)
+    # into the ratio panel.  Keep the ratio visually continuous, as in the
+    # original combined SR+CR plots.  Ordinary non-summary grouped plots
+    # retain their existing dashed separators.
+    if not spec.get("summary_mode"):
+        for x in boundaries:
+            line = ROOT.TLine(x,0.,x,args.ratio_max)
+            line.SetLineStyle(2)
+            line.SetLineWidth(2)
+            line.SetLineColor(ROOT.kGray+2)
+            line.Draw()
+            keep.append(line)
+
+    # Summary-only categorical ticks at every bin boundary on the floor
+    # and ceiling of the ratio frame.  Unlike the upper pad, there is no
+    # white SR/CR gap here, so the split boundary receives a normal tick.
+    keep += draw_summary_bin_ticks(0., args.ratio_max, log_scale=False)
 
     # Manual TLatex labels: supports inequalities and preserves one label per bin.
     label_y = ratio.GetBottomMargin()-.035
@@ -3077,7 +3170,9 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     # Keep the x-axis title much closer to the labels, comparable to the old
     # ROOT-axis layout.  A one-bin inclusive region gets the explicit title
     # "Region" instead of leaving a large blank lower margin.
-    if n == 1:
+    if spec.get("summary_mode"):
+        axis_title = ""
+    elif n == 1:
         axis_title = "Region"
     elif style == "cuts":
         axis_title = spec["axis_title"]
@@ -3168,6 +3263,247 @@ def plot_region(region_dir, signal_region_dir, fit_type, outdir, logy,
                       os.path.join(outdir,"axis_"+style),style,logy,args)
 
 
+def _concat_categorical_hists(parts, name):
+    """Concatenate already-categorical TH1s without changing contents/errors."""
+    nbins = sum(h.GetNbinsX() for h in parts)
+    out = ROOT.TH1D(name, "", nbins, 0., float(nbins))
+    out.SetDirectory(0)
+    dst = 1
+    for hist in parts:
+        for src in range(1, hist.GetNbinsX() + 1):
+            out.SetBinContent(dst, hist.GetBinContent(src))
+            out.SetBinError(dst, hist.GetBinError(src))
+            dst += 1
+    if parts:
+        src = parts[0]
+        for prop in ("LineColor","LineStyle","LineWidth","FillColor","FillStyle",
+                     "MarkerColor","MarkerStyle","MarkerSize"):
+            getattr(out,"Set"+prop)(getattr(src,"Get"+prop)())
+    return out
+
+
+def _concat_categorical_graphs(parts, nbins_parts, name):
+    """Concatenate categorical TGraphAsymmErrors, preserving y-errors."""
+    out = ROOT.TGraphAsymmErrors()
+    out.SetName(name)
+    offset = 0
+    for graph, nbin in zip(parts, nbins_parts):
+        if graph is not None:
+            for i in range(graph.GetN()):
+                x = graph.GetPointX(i)
+                y = graph.GetPointY(i)
+                j = out.GetN()
+                out.SetPoint(j, offset + x, y)
+                out.SetPointError(j, graph.GetErrorXlow(i), graph.GetErrorXhigh(i),
+                                  graph.GetErrorYlow(i), graph.GetErrorYhigh(i))
+        offset += nbin
+    return out
+
+
+def _directory_map(parent):
+    """Map canonical analysis-region names to TDirectory objects."""
+    result = {}
+    if parent is None:
+        return result
+    for key in parent.GetListOfKeys():
+        obj = key.ReadObj()
+        if not obj.InheritsFrom("TDirectory"):
+            continue
+        canon = canonical_region(obj.GetName())
+        if canon in result:
+            print(f"[WARNING] Multiple directories map to {canon}; keeping {result[canon].GetName()}, ignoring {obj.GetName()}.")
+            continue
+        result[canon] = obj
+    return result
+
+
+def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
+                    signal_mode, signal_scales, signal_colors, draw_data, mass,
+                    point_signal, channel, era, args, rules):
+    """Draw SR + InvBJet + InvMET + WZ-CR in one post-fit-style canvas.
+
+    No fit content is recomputed.  Each displayed bin is copied from the same
+    Combine shapes used by plot_region().  For auto signal scaling we resolve
+    the scale once from the SR, then use that same benchmark in all three CRs.
+    """
+    sr = f"sr{sr_number}"
+    wanted = [sr, f"cr{sr_number}_InvBJet", f"cr{sr_number}_InvMET", f"wz_cr{sr_number}"]
+    labels = [f"SR{sr_number}", f"CR{sr_number} IB", f"CR{sr_number} IM", f"WZ CR{sr_number}"]
+
+    # A summary is meaningful only when the signal region and all three
+    # associated control regions are present in this mass-point workspace.
+    missing = [key for key in wanted if key not in fit_map]
+    if missing:
+        if sr in fit_map:
+            print(f"[SUMMARY] {sr}: skipped because associated region(s) are missing: {', '.join(missing)}")
+        return False
+
+    region_dirs = [fit_map[key] for key in wanted]
+    signal_dirs = []
+    for key, region_dir in zip(wanted, region_dirs):
+        if fit_type == "shapes_fit_b":
+            signal_dirs.append(prefit_map.get(key))
+        else:
+            signal_dirs.append(region_dir)
+
+    specs = []
+    nbins_parts = []
+    bkg_parts = []
+    data_parts = []
+    ratio_parts = []
+    process_parts = {proc: [] for proc in STACK_ORDER}
+
+    for key, region_dir in zip(wanted, region_dirs):
+        raw = region_dir.GetName()
+        source = region_dir.Get("total_background")
+        if not source:
+            raise BinningError(raw + ": total_background not found")
+        spec = resolve_bin_spec(raw, channel, mass, point_signal, era, args, rules)
+        n = len(spec["bins"])
+        validate_region_padding(region_dir, n)
+        specs.append(spec)
+        nbins_parts.append(n)
+        bkg = categorical_hist(source, n, f"summary_bkg_{key}_{fit_type}")
+        bkg_parts.append(bkg)
+
+        raw_data = region_dir.Get("data") if draw_data else None
+        data = categorical_data(raw_data, source, n, f"summary_data_{key}_{fit_type}") if raw_data else None
+        data_parts.append(data)
+        ratio_parts.append(data if data is not None else make_background_pseudodata_graph(bkg))
+
+        for proc in STACK_ORDER:
+            h = get_combined_process(region_dir, proc)
+            if h:
+                h = categorical_hist(h, n, f"summary_{proc}_{key}_{fit_type}")
+            else:
+                h = ROOT.TH1D(f"summary_{proc}_{key}_{fit_type}", "", n, 0., float(n))
+                h.SetDirectory(0)
+            h.SetFillColor(root_color(PROCESS_COLORS[proc]))
+            h.SetLineColor(ROOT.kBlack)
+            h.SetLineWidth(1)
+            process_parts[proc].append(h)
+
+    total_bkg = _concat_categorical_hists(bkg_parts, f"summary_total_bkg_{sr}_{fit_type}")
+    processes = []
+    for proc in STACK_ORDER:
+        h = _concat_categorical_hists(process_parts[proc], f"summary_{proc}_{sr}_{fit_type}")
+        if any(h.GetBinContent(i) != 0.0 for i in range(1, h.GetNbinsX()+1)):
+            h.SetFillColor(root_color(PROCESS_COLORS[proc]))
+            h.SetLineColor(ROOT.kBlack)
+            h.SetLineWidth(1)
+            processes.append((proc, h))
+
+    max_diff = max(abs(sum(h.GetBinContent(i) for _,h in processes) - total_bkg.GetBinContent(i))
+                   for i in range(1, total_bkg.GetNbinsX()+1))
+    if max_diff > 1e-5 * max(1., max(total_bkg.GetBinContent(i) for i in range(1,total_bkg.GetNbinsX()+1))):
+        raise BinningError(f"{sr}_summary: drawn processes do not sum to total_background "
+                           f"(largest bin difference {max_diff:g}).")
+
+    data = None
+    if draw_data and any(g is not None for g in data_parts):
+        data = _concat_categorical_graphs(data_parts, nbins_parts, f"summary_data_{sr}_{fit_type}")
+    ratio_input = _concat_categorical_graphs(ratio_parts, nbins_parts, f"summary_ratio_{sr}_{fit_type}")
+
+    # Resolve auto scales from the SR exactly as the ordinary SR plot does.
+    sr_signal_dir = signal_dirs[0]
+    effective_signal_scales = resolve_effective_signal_scales(
+        signal_region_dir=sr_signal_dir,
+        fit_type=fit_type,
+        signal_mode=signal_mode,
+        mass=mass,
+        point_signal=point_signal,
+        total_bkg=bkg_parts[0],
+        n=nbins_parts[0],
+        logy=logy,
+        scale_specs=signal_scales,
+    )
+
+    per_region_curves = []
+    for key, region_dir, signal_dir, n in zip(wanted, region_dirs, signal_dirs, nbins_parts):
+        curves = load_signal_curves(region_dir, signal_dir, fit_type, signal_mode,
+                                    effective_signal_scales, signal_colors, mass, point_signal)
+        cooked = {}
+        for idx, curve in enumerate(curves):
+            curve["hist"] = categorical_hist(curve["hist"], n,
+                                                f"summary_sig_{idx}_{key}_{fit_type}")
+            cooked[curve["label"]] = curve
+        per_region_curves.append(cooked)
+
+    curves = []
+    # The SR determines which signal curves/legend entries are relevant.
+    for label, sr_curve in per_region_curves[0].items():
+        pieces = []
+        for idx, n in enumerate(nbins_parts):
+            c = per_region_curves[idx].get(label)
+            if c is not None:
+                pieces.append(c["hist"])
+            else:
+                z = ROOT.TH1D(f"summary_sig_zero_{len(curves)}_{idx}_{fit_type}", "", n, 0., float(n))
+                z.SetDirectory(0)
+                pieces.append(z)
+        h = _concat_categorical_hists(pieces, f"summary_signal_{len(curves)}_{sr}_{fit_type}")
+        # Restore the SR curve styling, since zero placeholders have no style.
+        src = sr_curve["hist"]
+        h.SetLineColor(src.GetLineColor())
+        h.SetLineStyle(src.GetLineStyle())
+        h.SetLineWidth(src.GetLineWidth())
+        h.SetFillStyle(0)
+        curves.append({"hist": h, "label": label,
+                       "raw_yield": sum(c.get(label, {}).get("raw_yield", 0.0) for c in per_region_curves),
+                       "draw_yield": h.Integral()})
+
+    # Preserve the resolved SR title.  In particular, ordinary SR3 already
+    # knows whether this mass point uses SR3L (BDT) or SR3H (high-mass LT);
+    # propagate that distinction into the summary title and group label.
+    if sr_number == 3:
+        labels[0] = specs[0].get("title", "SR3")
+
+    # Summary x axis is intentionally categorical.  Keep the fitted content
+    # bin-for-bin unchanged, but replace the long physics-cut labels by compact
+    # IDs matching the old combined prefit convention.
+    #
+    #   SR1, SR2, ... | IB1, IB2, ... | IM1, IM2, ... | WZ1, WZ2, ...
+    #
+    # Both cut/code styles receive the same text so --axis-style does not alter
+    # the appearance of a summary canvas.
+    bins = []
+    groups = []
+    first = 1
+    short_prefixes = ["SR", "IB", "IM", "WZ"]
+    for label, spec, n, prefix in zip(labels, specs, nbins_parts, short_prefixes):
+        for i, original in enumerate(spec["bins"], 1):
+            b = copy.deepcopy(original)
+            short = f"{prefix}{i}"
+            b["cut_label"] = short
+            b["code"] = short
+            b["group"] = label
+            bins.append(b)
+        groups.append({"label": label, "first": first, "last": first+n-1})
+        first += n
+    summary_spec = {
+        "region_key": f"{sr}_summary",
+        "raw_region": f"{sr}_summary",
+        "title": f"{labels[0]} + associated CRs",
+        "axis_title": "",
+        "source": "Concatenated fitted shapes: " + ", ".join(wanted),
+        "bins": bins,
+        "groups": groups,
+        "notes": ["Summary view only; fitted bin contents and errors are copied unchanged."],
+        "channel": channel,
+        "mass": mass,
+        "era": era,
+        "summary_mode": True,
+        "summary_sr_number": sr_number,
+    }
+
+    print(f"[SUMMARY] {sr}: {' + '.join(wanted)} -> {sum(nbins_parts)} displayed bins")
+    styles = ("cuts","codes") if args.axis_style == "both" else (args.axis_style,)
+    for style in styles:
+        render_region(total_bkg, processes, data, ratio_input, curves, summary_spec, fit_type,
+                      os.path.join(outdir, "axis_"+style), style, logy, args)
+    return True
+
+
 def selected_region(raw, patterns):
     key = canonical_region(raw)
     return not patterns or any(fnmatch.fnmatchcase(v.lower(),p.lower())
@@ -3211,6 +3547,24 @@ def run_one_file(input_file, output_point_dir, era, logy, signal_mode, signal_sc
                 except BinningError as exc:
                     failed += 1
                     print(f"[BINNING ERROR] {fit_type}/{obj.GetName()}: {exc}")
+
+            # Add compact SR+CR summary canvases for every requested fit type:
+            # pre-fit, post-fit B-only, and post-fit S+B.  Existing individual
+            # region plots and command-line arguments are unchanged.  Respect
+            # --regions: if the user explicitly filters regions, do not silently
+            # add plots outside that requested selection.
+            if not args.regions:
+                fit_map = _directory_map(fit_dir)
+                prefit_map = _directory_map(prefit)
+                for sr_number in (1, 2, 3):
+                    try:
+                        if plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, fit_outdir,
+                                           logy, signal_mode, signal_scales, signal_colors,
+                                           draw_data, mass, point_signal, channel, era, args, rules):
+                            made += 1
+                    except BinningError as exc:
+                        failed += 1
+                        print(f"[BINNING ERROR] {fit_type}/sr{sr_number}_summary: {exc}")
     finally:
         f.Close()
     if not made and not failed:
