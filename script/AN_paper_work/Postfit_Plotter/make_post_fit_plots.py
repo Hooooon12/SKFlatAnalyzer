@@ -26,13 +26,26 @@ if ROOT is not None:
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetOptTitle(0)
 
+    # PDF/vector-output cosmetics.  ROOT's precision-3 fonts (e.g. 43) and
+    # default PostScript line scaling can look noticeably heavier/rougher in
+    # PDF than in raster PNG output.  Keep vector fonts/lines thin and stable.
+    try:
+        ROOT.gStyle.SetLineScalePS(1.0)
+    except Exception:
+        pass
+    try:
+        ROOT.gStyle.SetHatchesLineWidth(1)
+        ROOT.gStyle.SetHatchesSpacing(1.2)
+    except Exception:
+        pass
+
 # ------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------
 
 BASE_DIR = "/data9/Users/HNL_public/SUS-24-014/Combine/CMSSW_14_1_0_pre4/src/DilepHN"
 
-OUTDIR_BASE = "plots"
+OUTDIR_BASE = "plots" if args.overlay_preset is None else "plots_overlay"
 
 MASS_CHOICES = [
     "85","90","95","100","125","150","200","250","300","350","400","450","500",
@@ -84,10 +97,10 @@ PROCESS_COLORS = {
     "mc_others": "#b9ac70",
 }
 
-SIGNAL_COMPONENTS = {
+SIGNAL_COMPONENTS = { # signal components for ordinary drawing
     "DY": {
         "process": "signalDY",
-        "label": "DY signal",
+        "label": "CCDY signal",
         "line_style": 1,
     },
     "VBF": {
@@ -104,6 +117,29 @@ SIGNAL_COMPONENTS = {
         "process": "signalWeinberg",
         "label": "Weinberg signal",
         "line_style": 1,
+    },
+}
+
+OVERLAY_COMPONENTS = { # signal components for multi-signal overlay
+    "DY": {
+        "process": "signalDY",
+        "label": "CCDY",
+    },
+    "VBF": {
+        "process": "signalVBF",
+        "label": "W#gamma",
+    },
+    "DYVBF": {
+        "process": None,  # built on the fly as signalDY + signalVBF
+        "label": "CCDY+W#gamma",
+    },
+    "SSWW": {
+        "process": "signalSSWW",
+        "label": "SSWW",
+    },
+    "Weinberg": {
+        "process": "signalWeinberg",
+        "label": "Weinberg op.",
     },
 }
 
@@ -141,6 +177,7 @@ AUTO_SIGNAL_TARGET_RATIO_LINEAR = {
     "total":    1.0,
     "DY":       1.0,
     "VBF":      0.6,
+    "DYVBF":    1.0,
     "SSWW":     0.3,
     "Weinberg": 1.0,
 }
@@ -149,6 +186,7 @@ AUTO_SIGNAL_TARGET_RATIO_LOGY = {
     "total":    1.0,
     "DY":       1.0,
     "VBF":      0.6,
+    "DYVBF":    1.0,
     "SSWW":     0.3,
     "Weinberg": 1.0,
 }
@@ -304,6 +342,70 @@ SIGNAL_SCALE_PRESETS = {
     },
 }
 
+# ------------------------------------------------------------
+# Multi-mass signal-overlay presets
+# ------------------------------------------------------------
+#
+# These presets are intentionally separate from SIGNAL_SCALE_PRESETS:
+#   * SIGNAL_SCALE_PRESETS controls the scale of the ordinary signal attached
+#     to one FitDiagnostics workspace.
+#   * SIGNAL_OVERLAY_PRESETS defines publication-style figures in which one
+#     canonical fit workspace supplies the background/binning while arbitrary
+#     pre-fit signal templates are overlaid from other mass points.
+#
+# Each SR has exactly one canonical background workspace (fit_mass).  Associated
+# CRs and the SR+CR summary inherit the same recipe.  HNL overlay curves are
+# read from the shapes_prefit directory of the requested HNL mass workspace;
+# Weinberg curves are read from the corresponding Weinberg workspace.
+#
+# Curve fields:
+#   component  : DY, VBF (= Wgamma), DYVBF (= DY+Wgamma), SSWW, or Weinberg
+#   mass       : HNL mass in GeV; omit for Weinberg
+#   scale      : positive histogram draw scale or "auto"
+#   color      : anything accepted by root_color()
+#   line_style : ROOT line style integer
+#   line_width : optional, default 3
+#   target_ratio: optional override for auto scaling
+#
+# The ANv8 choices below are deliberately centralized here so that changing
+# representative masses/styles never requires touching the plotting logic.
+SIGNAL_OVERLAY_PRESETS = {
+    "ANv8": {
+        "regions": {
+            "SR1": {
+                "fit_mass": "1000",
+                "fit_signal": "HNL",
+                "curves": [
+                    {"component": "DYVBF",  "mass": "1000", "scale": "100", "color": "kRed",     "line_style": 1},
+                ],
+            },
+            "SR2": {
+                "fit_mass": "1000",
+                "fit_signal": "HNL",
+                "curves": [
+                    {"component": "SSWW",     "mass": "1000",  "scale": "900", "color": "kBlue",  "line_style": 1},
+                    {"component": "Weinberg",                  "scale": "1", "color": "kMagenta", "line_style": 2},
+                ],
+            },
+            "SR3H": {
+                "fit_mass": "1000",
+                "fit_signal": "HNL",
+                "curves": [
+                    {"component": "DYVBF",    "mass": "1000", "scale": "10000", "color": "kRed",     "line_style": 1},
+                    {"component": "SSWW",     "mass": "1000", "scale": "10000", "color": "kBlue",    "line_style": 2},
+                ],
+            },
+            "SR3L": {
+                "fit_mass": "100",
+                "fit_signal": "HNL",
+                "curves": [
+                    {"component": "DY",       "mass": "100", "scale": "10", "color": "kRed",     "line_style": 1},
+                ],
+            },
+        },
+    },
+}
+
 ERAS = [
     "2016preVFP",
     "2016postVFP",
@@ -397,6 +499,19 @@ def parse_args():
         help=(
             "Scale preset for --signal-mode separate. "
             "The preset may contain channel- and mass-dependent overrides."
+        ),
+    )
+
+    parser.add_argument(
+        "--overlay-preset",
+        default=None,
+        choices=sorted(SIGNAL_OVERLAY_PRESETS.keys()),
+        help=(
+            "Publication-style multi-mass signal overlay preset. "
+            "For pre-fit and post-fit B-only plots, backgrounds/binning come "
+            "from the preset's canonical fit_mass while signal curves are read "
+            "from each curve's own shapes_prefit workspace. Post-fit S+B plots "
+            "are skipped in overlay mode."
         ),
     )
 
@@ -550,8 +665,8 @@ def parse_args():
         args.eras = ["Run2Sum"]
 
     mass_dependent_signals = [s for s in args.signals if s != "Weinberg"]
-    if mass_dependent_signals and not args.masses:
-        parser.error("-m/--masses is required for HNL/DY/VBF/DYVBF/SSWW signals.")
+    if mass_dependent_signals and not args.masses and args.overlay_preset is None:
+        parser.error("-m/--masses is required for HNL/DY/VBF/DYVBF/SSWW signals unless --overlay-preset is used.")
 
     if args.signal_preset is not None and args.signal_mode != "separate":
         parser.error(
@@ -562,6 +677,8 @@ def parse_args():
         parser.error("Supply -wp or --input-file (or use --describe-bins).")
     if args.InputWPs and args.input_file:
         parser.error("Choose either -wp or --input-file.")
+    if args.overlay_preset is not None and args.input_file:
+        parser.error("--overlay-preset requires -wp so the additional signal-source FitDiagnostics files can be located.")
     if args.input_file and (len(args.eras) != 1 or len(args.channels) != 1
                             or len(args.signals) != 1 or len(args.masses) > 1):
         parser.error("--input-file needs one -e, -c and -s, and at most one -m.")
@@ -776,6 +893,9 @@ def resolve_signal_scales(
 
 def get_signal_mode_subdir(args):
 
+    if args.overlay_preset is not None:
+        return f"signal_overlay_{args.overlay_preset}"
+
     # A named preset is already a unique scaling recipe.
     if (
         args.signal_mode == "separate"
@@ -836,6 +956,7 @@ def make_prefit_hnl_component_label(component_key, mass, draw_scale):
 
     return (
         f"{SIGNAL_COMPONENTS[component_key]['label']}, "
+        f"m_{{N}} = {mass} GeV, "
         f"|V|^{{2}} = {displayed_mixing_squared:g}"
     )
 
@@ -931,6 +1052,381 @@ def get_combined_process(region_dir, proc):
 
     return hsum
 
+
+
+# ------------------------------------------------------------
+# Publication-style multi-mass signal overlays
+# ------------------------------------------------------------
+
+def overlay_region_group(raw_region, fit_mass):
+    """
+    Return the logical overlay recipe key.
+
+      SR1 regions -> SR1
+      SR2 regions -> SR2
+      SR3 regions with fit_mass <= 500 -> SR3L
+      SR3 regions with fit_mass > 500  -> SR3H
+    """
+    key = canonical_region(raw_region)
+
+    if key in {
+        "sr1",
+        "cr1_InvBJet",
+        "cr1_InvMET",
+        "wz_cr1",
+    }:
+        return "SR1"
+
+    if key in {
+        "sr2",
+        "cr2_InvBJet",
+        "cr2_InvMET",
+        "wz_cr2",
+    }:
+        return "SR2"
+
+    if key in {
+        "sr3",
+        "cr3_InvBJet",
+        "cr3_InvMET",
+        "wz_cr3",
+    }:
+        if fit_mass is None:
+            return None
+
+        if int(fit_mass) <= 500:
+            return "SR3L"
+
+        return "SR3H"
+
+    return None
+
+def overlay_source_key(curve_spec):
+    component = curve_spec["component"]
+    if component == "Weinberg":
+        return ("Weinberg", None)
+    return ("HNL", str(curve_spec["mass"]))
+
+
+def validate_overlay_preset(preset_name):
+    preset = SIGNAL_OVERLAY_PRESETS[preset_name]
+    regions = preset.get("regions")
+    if not isinstance(regions, dict) or not regions:
+        raise ValueError(f"Overlay preset {preset_name!r} needs a non-empty 'regions' dictionary.")
+
+    allowed_regions = {"SR1", "SR2", "SR3H", "SR3L"}
+    allowed_components = {"DY", "VBF", "DYVBF", "SSWW", "Weinberg"}
+    for region_name, recipe in regions.items():
+        if region_name not in allowed_regions:
+            raise ValueError(
+                f"Overlay preset {preset_name!r}: unknown region {region_name!r}; "
+                "use SR1, SR2, SR3H or SR3L."
+            )
+        fit_signal = recipe.get("fit_signal", "HNL")
+        fit_mass = recipe.get("fit_mass")
+        if fit_signal not in {"HNL", "Weinberg"}:
+            raise ValueError(
+                f"Overlay preset {preset_name!r}/{region_name}: fit_signal must be HNL or Weinberg."
+            )
+        if fit_signal != "Weinberg":
+            if fit_mass is None or str(fit_mass) not in MASS_CHOICES:
+                raise ValueError(
+                    f"Overlay preset {preset_name!r}/{region_name}: invalid fit_mass {fit_mass!r}."
+                )
+        curves = recipe.get("curves", [])
+        if not isinstance(curves, list) or not curves:
+            raise ValueError(
+                f"Overlay preset {preset_name!r}/{region_name} needs at least one curve."
+            )
+        for i, curve in enumerate(curves):
+            component = curve.get("component")
+            if component not in allowed_components:
+                raise ValueError(
+                    f"Overlay preset {preset_name!r}/{region_name} curve {i}: "
+                    f"unknown component {component!r}."
+                )
+            if component != "Weinberg":
+                mass = curve.get("mass")
+                if mass is None or str(mass) not in MASS_CHOICES:
+                    raise ValueError(
+                        f"Overlay preset {preset_name!r}/{region_name} curve {i}: "
+                        f"invalid HNL mass {mass!r}."
+                    )
+            normalize_scale_spec(curve.get("scale", "auto"),
+                                 f"overlay scale for {preset_name}/{region_name}/curve{i}")
+            if int(curve.get("line_style", 1)) <= 0:
+                raise ValueError("Overlay line_style must be a positive ROOT line-style integer.")
+            if int(curve.get("line_width", 3)) <= 0:
+                raise ValueError("Overlay line_width must be positive.")
+            if curve.get("target_ratio") is not None:
+                ratio = float(curve["target_ratio"])
+                if not math.isfinite(ratio) or ratio <= 0:
+                    raise ValueError("Overlay target_ratio must be positive when supplied.")
+    return preset
+
+
+def overlay_binning_signature(spec):
+    """Physics bin definition only; ignore titles/source prose."""
+    rows = []
+    for b in spec["bins"]:
+        rows.append((
+            b.get("low"),
+            b.get("high"),
+            b.get("closure"),
+            b.get("group", ""),
+            b.get("cut_label", ""),
+            tuple(b.get("table_bins", [])),
+        ))
+    return (spec.get("region_key"), spec.get("axis_title", ""), tuple(rows))
+
+
+def assert_overlay_binning_compatible(raw_region, anchor_spec, source_region_dir,
+                                      source_mass, source_point_signal,
+                                      channel, era, args, rules):
+    """Refuse to overlay templates defined with a different analysis binning."""
+    source_spec = resolve_bin_spec(
+        source_region_dir.GetName(), channel, source_mass,
+        source_point_signal, era, args, rules,
+    )
+    if overlay_binning_signature(anchor_spec) != overlay_binning_signature(source_spec):
+        raise BinningError(
+            f"{raw_region}: overlay source {source_point_signal}"
+            + (f" M{source_mass}" if source_mass is not None else "")
+            + " uses a different binning from the canonical fit workspace. "
+              "Choose a binning-compatible overlay mass or a different fit_mass in the overlay preset."
+        )
+
+
+def _overlay_hist_peak(hist, n):
+    if hist is None:
+        return 0.0
+    return max([0.0] + [max(0.0, hist.GetBinContent(i)) for i in range(1, n + 1)])
+
+
+def get_overlay_component_hist(region_dir, component):
+    """Return one overlay signal histogram; DYVBF is built as DY + VBF."""
+    if component == "DYVBF":
+        h_dy = get_combined_process(region_dir, "signalDY")
+        h_vbf = get_combined_process(region_dir, "signalVBF")
+
+        if h_dy is None and h_vbf is None:
+            return None
+
+        if h_dy is not None:
+            hist = h_dy.Clone("signalDYVBF_combined")
+            hist.SetDirectory(0)
+            if h_vbf is not None:
+                hist.Add(h_vbf)
+            return hist
+
+        hist = h_vbf.Clone("signalDYVBF_combined")
+        hist.SetDirectory(0)
+        return hist
+
+    process = OVERLAY_COMPONENTS[component]["process"]
+    return get_combined_process(region_dir, process)
+
+
+def resolve_overlay_draw_scale(curve_spec, hist, total_bkg, n, logy):
+    """Resolve one overlay curve's numeric draw scale, including physical rounding."""
+    requested = normalize_scale_spec(curve_spec.get("scale", "auto"), "overlay scale")
+    if not is_auto_scale(requested):
+        return requested
+
+    component = curve_spec["component"]
+    bkg_peak = max([0.0] + [max(0.0, total_bkg.GetBinContent(i)) for i in range(1, n + 1)])
+    raw_peak = _overlay_hist_peak(hist, n)
+    if bkg_peak <= 0 or raw_peak <= 0:
+        print(f"[OVERLAY AUTO] {component}: non-positive background/signal peak; using x1.")
+        return 1.0
+
+    target_ratio = curve_spec.get("target_ratio")
+    if target_ratio is None:
+        target_ratio = auto_target_ratio(component, logy)
+    target_ratio = float(target_ratio)
+    continuous_scale = target_ratio * bkg_peak / raw_peak
+
+    if component == "Weinberg":
+        desired_display_scale = WEINBERG_INPUT_SCALE * continuous_scale
+        rounded_display_scale = round_one_significant(desired_display_scale)
+        scale = rounded_display_scale / WEINBERG_INPUT_SCALE
+        print(
+            f"[OVERLAY AUTO] Weinberg: Bmax={bkg_peak:g}, target ratio={target_ratio:g}, "
+            f"display x{rounded_display_scale:g}, hist x{scale:g}"
+        )
+        return scale
+
+    mass = str(curve_spec["mass"])
+    input_v2 = get_hnl_input_mixing_squared(mass)
+    if component in ("DY", "VBF", "DYVBF"):
+        desired_v2 = input_v2 * continuous_scale
+        rounded_v2 = round_one_significant(desired_v2)
+        scale = rounded_v2 / input_v2
+    elif component == "SSWW":
+        desired_v2 = input_v2 * math.sqrt(continuous_scale)
+        rounded_v2 = round_one_significant(desired_v2)
+        scale = (rounded_v2 / input_v2) ** 2
+    else:
+        raise ValueError(f"Unsupported overlay component: {component}")
+
+    print(
+        f"[OVERLAY AUTO] {component} M{mass}: Bmax={bkg_peak:g}, "
+        f"target ratio={target_ratio:g}, |V|^2={rounded_v2:g}, hist x{scale:g}"
+    )
+    return scale
+
+
+def open_overlay_prefit_sources(overlay_job, era, channel, fit_subdir):
+    """Open every unique FitDiagnostics source needed by one overlay anchor job."""
+    if overlay_job is None:
+        return {}, []
+
+    source_maps = {}
+    handles = []
+    required = {}
+    for recipe in overlay_job["region_recipes"].values():
+        for curve in recipe.get("curves", []):
+            key = overlay_source_key(curve)
+            required[key] = curve
+
+    for key in required:
+        point_signal, mass = key
+        point_name = build_point_name(
+            era, channel, mass, point_signal, overlay_job["tag_suffix"]
+        )
+        path = build_input_file(overlay_job["wp"], point_name, fit_subdir)
+        if not os.path.isfile(path):
+            print(f"[OVERLAY WARNING] Signal source does not exist: {path}")
+            source_maps[key] = {}
+            continue
+        handle = ROOT.TFile.Open(path)
+        if not handle or handle.IsZombie():
+            print(f"[OVERLAY WARNING] Could not open signal source: {path}")
+            source_maps[key] = {}
+            continue
+        prefit = handle.Get("shapes_prefit")
+        if not prefit:
+            print(f"[OVERLAY WARNING] shapes_prefit missing in signal source: {path}")
+            handle.Close()
+            source_maps[key] = {}
+            continue
+        handles.append(handle)
+        source_maps[key] = _directory_map(prefit)
+        print(f"[OVERLAY SOURCE] {point_signal}{'' if mass is None else ' M'+str(mass)} <- {path}")
+
+    return source_maps, handles
+
+
+def materialize_overlay_recipe(raw_region, anchor_spec, total_bkg, n, logy,
+                               recipe, source_maps, channel, era, args, rules):
+    """Resolve auto scales from one region (normally the SR) and return numeric curves."""
+    effective = copy.deepcopy(recipe)
+    effective_curves = []
+    canon = canonical_region(raw_region)
+
+    for index, curve in enumerate(recipe.get("curves", [])):
+        key = overlay_source_key(curve)
+        source_map = source_maps.get(key, {})
+        source_region_dir = source_map.get(canon)
+        if source_region_dir is None:
+            print(
+                f"[OVERLAY INFO] {raw_region}: no {curve['component']}"
+                + (f" M{curve.get('mass')}" if curve['component'] != 'Weinberg' else "")
+                + " template in this source; skipping it."
+            )
+            continue
+
+        source_signal, source_mass = key
+        assert_overlay_binning_compatible(
+            raw_region, anchor_spec, source_region_dir, source_mass,
+            source_signal, channel, era, args, rules,
+        )
+
+        component = curve["component"]
+        hist = get_overlay_component_hist(source_region_dir, component)
+        if not hist:
+            print(f"[OVERLAY INFO] {raw_region}: {component} template not found; skipping curve.")
+            continue
+        validate_hist_padding(hist, n, f"overlay {component} {raw_region}")
+
+        item = copy.deepcopy(curve)
+        item["_resolved_scale"] = resolve_overlay_draw_scale(
+            item, hist, total_bkg, n, logy
+        )
+        item["_overlay_index"] = index
+        effective_curves.append(item)
+
+    effective["curves"] = effective_curves
+    return effective
+
+
+def load_overlay_curves(raw_region, anchor_spec, effective_recipe, source_maps,
+                        channel, era, args, rules, fit_type):
+    """Load/style pre-fit templates for one ordinary or summary sub-region."""
+    curves = []
+    canon = canonical_region(raw_region)
+    n = len(anchor_spec["bins"])
+    safe_region = raw_region.replace("/", "_")
+
+    for curve in effective_recipe.get("curves", []):
+        key = overlay_source_key(curve)
+        source_map = source_maps.get(key, {})
+        source_region_dir = source_map.get(canon)
+        if source_region_dir is None:
+            continue
+        source_signal, source_mass = key
+        assert_overlay_binning_compatible(
+            raw_region, anchor_spec, source_region_dir, source_mass,
+            source_signal, channel, era, args, rules,
+        )
+
+        component = curve["component"]
+        hist = get_overlay_component_hist(source_region_dir, component)
+        if not hist:
+            continue
+        validate_hist_padding(hist, n, f"overlay {component} {raw_region}")
+        scale = curve["_resolved_scale"]
+
+        if component == "Weinberg":
+            total_display_scale = WEINBERG_INPUT_SCALE * scale
+            label = (
+                f"{OVERLAY_COMPONENTS[component]['label']}, "
+                f"c_{{5}} = {WEINBERG_GENERATED_C5:g}, "
+                f"#Lambda = {WEINBERG_GENERATED_LAMBDA_TEV:g} TeV "
+                f"(x{total_display_scale:g})"
+            )
+        else:
+            mass = str(curve["mass"])
+            input_v2 = get_hnl_input_mixing_squared(mass)
+        
+            if component in ("DY", "VBF", "DYVBF"):
+                displayed_v2 = input_v2 * scale
+            elif component == "SSWW":
+                displayed_v2 = input_v2 * math.sqrt(scale)
+            else:
+                raise ValueError(f"Unsupported overlay component: {component}")
+        
+            label = (
+                f"{OVERLAY_COMPONENTS[component]['label']}, "
+                f"m_{{N}} = {mass} GeV, "
+                f"|V|^{{2}} = {displayed_v2:g}"
+            )
+
+        curves.append(
+            prepare_signal_hist(
+                hist=hist,
+                unique_name=(
+                    f"overlay_{component}_{curve.get('mass','Weinberg')}_"
+                    f"{fit_type}_{safe_region}_{curve.get('_overlay_index',0)}"
+                ),
+                label=label,
+                scale=scale,
+                color_spec=curve.get("color", "kRed"),
+                line_style=int(curve.get("line_style", 1)),
+                line_width=int(curve.get("line_width", 3)),
+            )
+        )
+    return curves
 
 def resolve_effective_signal_scales(
     signal_region_dir,
@@ -2123,8 +2619,10 @@ def make_unc_band(hist):
         g.SetPointError(i - 1, ex, ex, ey, ey)
 
     g.SetFillColor(ROOT.kGray + 2)
-    g.SetFillStyle(3344)
-    g.SetLineColor(ROOT.kGray + 2)
+    #g.SetFillStyle(3344)
+    g.SetFillStyle(3144)
+    g.SetLineColor(0)
+    g.SetLineWidth(0)
 
     return g
 
@@ -2263,7 +2761,8 @@ def make_ratio_band(hist):
 
     g.SetFillColor(ROOT.kGray + 2)
 
-    g.SetFillStyle(3344)
+    #g.SetFillStyle(3344)
+    g.SetFillStyle(3144) # thicker
 
     g.SetLineColor(ROOT.kGray + 2)
 
@@ -2813,8 +3312,28 @@ def pdf_safe_tlatex(text):
 def draw_text(x, y, text, size=22, align=11, font=43, angle=0):
     obj = ROOT.TLatex(x,y,pdf_safe_tlatex(text))
     obj.SetNDC(True)
-    obj.SetTextFont(font)
-    obj.SetTextSize(size)
+
+    # Precision-2 ROOT fonts are true vector fonts in PDF/PS.  Preserve the
+    # familiar family choices while replacing 43/53/63 by 42/52/62.
+    vector_font = {43: 42, 53: 52, 63: 62}.get(font, font)
+    obj.SetTextFont(vector_font)
+
+    # Existing callers specify text sizes in pixels.  With precision-2 vector
+    # fonts, ROOT's SetTextSizePixels can be backend-dependent and was not
+    # reliably shrinking the PDF text.  Convert the requested pixel height
+    # explicitly into the current pad's NDC text size instead.
+    if size > 1:
+        try:
+            canvas_h = float(ROOT.gPad.GetCanvas().GetWh())
+            pad_h = canvas_h * float(ROOT.gPad.GetAbsHNDC())
+            if pad_h <= 0:
+                raise ValueError
+        except Exception:
+            pad_h = 850.0
+        obj.SetTextSize(float(size) / pad_h)
+    else:
+        obj.SetTextSize(size)
+
     obj.SetTextAlign(align)
     obj.SetTextAngle(angle)
     obj.Draw()
@@ -2838,8 +3357,12 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     ):
         width = max(width, 1800, min(2400, 300 + 48 * n))
 
-    height = 900
+    # A slightly landscape canvas gives ROOT's PDF backend more physical room
+    # for labels; summary plots get the wider sizing above.
+    height = 850
     canvas = ROOT.TCanvas("c_"+uid,"",width,height)
+    canvas.SetFillColor(ROOT.kWhite)
+    canvas.SetBorderMode(0)
     upper = ROOT.TPad("upper_"+uid,"",0.,.34,1.,1.)
     ratio = ROOT.TPad("ratio_"+uid,"",0.,0.,1.,.34)
     left, right = .12, .97
@@ -2864,7 +3387,17 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     #title_x = left + .015
     title_x = left + .035
     title_y = .865
-    fit_y = .825
+    # Summary titles such as ``SR2 + associated CRs, e#mu`` are long and the
+    # vector-font PDF version is visually taller than the old precision-3 text.
+    # Give the second line more vertical clearance in summary plots.
+    # SR1/SR2 summaries are especially cramped, so move the fit-status line
+    # farther down instead of relying only on a smaller font.
+    if spec.get("summary_mode"):
+        # Keep the summary fit-status line close to the main title, comparable
+        # to ordinary region plots.  The previous revision pushed it too far down.
+        fit_y = .823
+    else:
+        fit_y = .825
 
     # One-column component legend, inset from the right-side ticks.
     component_x1 = .715 if width <= 900 else .735
@@ -2916,7 +3449,9 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
         pad.SetLeftMargin(left)
         pad.SetRightMargin(1-right)
         pad.SetFillColor(0)
+        pad.SetFillStyle(0)
         pad.SetBorderMode(0)
+        pad.SetFrameBorderMode(0)
         pad.SetTicks(1,1)
     upper.SetTopMargin(top_margin)
     upper.SetBottomMargin(bottom_margin)
@@ -2936,7 +3471,9 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
         stack.Add(hist)
 
     ymax_candidates = [total_bkg.GetBinContent(i)+total_bkg.GetBinError(i) for i in range(1,n+1)]
-    ymax_candidates += [c["hist"].GetMaximum() for c in curves]
+    for c in curves:
+        draw_hists = c.get("draw_hists") or [c["hist"]]
+        ymax_candidates += [h.GetMaximum() for h in draw_hists]
     if data is not None:
         ymax_candidates += [data.GetPointY(i)+data.GetErrorYhigh(i) for i in range(data.GetN())]
     data_top = max([1.] + ymax_candidates)
@@ -2960,12 +3497,11 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     frame.GetXaxis().SetLabelSize(0)
     frame.GetXaxis().SetTickLength(0)
     frame.GetYaxis().SetTitle("Events / bin")
-    frame.GetYaxis().SetTitleFont(43)
-    frame.GetYaxis().SetTitleSize(24)
-    frame.GetYaxis().SetLabelFont(43)
-    frame.GetYaxis().SetLabelSize(21)
-    #frame.GetYaxis().SetTitleOffset(1.45)
-    frame.GetYaxis().SetTitleOffset(1.85)
+    frame.GetYaxis().SetTitleFont(42)
+    frame.GetYaxis().SetTitleSize(0.055)
+    frame.GetYaxis().SetLabelFont(42)
+    frame.GetYaxis().SetLabelSize(0.045)
+    frame.GetYaxis().SetTitleOffset(1.05)
     frame.Draw("AXIS")
 
     if processes:
@@ -2977,7 +3513,16 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     band.Draw("E2 SAME")
 
     for curve in curves:
-        curve["hist"].Draw("HIST SAME")
+        draw_hists = curve.get("draw_hists")
+        if draw_hists:
+            # Summary curves are split by region.  The ROOT "][" option avoids
+            # vertical closing strokes at the ends, so a missing CR has no
+            # signal primitive at all (and therefore no artificial y=0 line).
+            for hdraw in draw_hists:
+                hdraw.Draw("HIST ][ SAME")
+                keep.append(hdraw)
+        else:
+            curve["hist"].Draw("HIST SAME")
 
     if data is not None:
         data.SetMarkerStyle(20)
@@ -2992,25 +3537,49 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     title = spec["title"]+", "+channel_label
     if spec["mass"] is not None:
         title += f", m_{{N}} = {spec['mass']} GeV"
-    keep.append(draw_text(title_x,title_y,title,22,font=63))
+    # The long SR+CR summary title and fit-status line need smaller text than
+    # an ordinary single-region canvas.  This avoids overlap in the vector PDF
+    # while leaving the ordinary plot labels close to their previous size.
+    if spec.get("summary_mode"):
+        # Summary title block: slightly larger than v4, with the two lines kept
+        # close in visual weight.  Ordinary single-region labels are unchanged.
+        title_text_size = 20
+        fit_text_size = 19
+    else:
+        title_text_size = 22
+        fit_text_size = 19
+
+    keep.append(draw_text(title_x,title_y,title,title_text_size,font=63))
 
     fit_label = {"shapes_prefit":"Pre-fit", "shapes_fit_b":"Post-fit (B-only)",
                  "shapes_fit_s":"Post-fit (S+B)"}[fit_type]
-    keep.append(draw_text(title_x,fit_y,fit_label,19,align=11))
+    keep.append(draw_text(title_x,fit_y,fit_label,fit_text_size,align=11))
 
     # Data/background/uncertainty: one vertical legend on the right.
     legend = ROOT.TLegend(component_x1,component_bottom,component_x2,component_top)
     legend.SetNColumns(1)
     legend.SetBorderSize(0)
     legend.SetFillStyle(0)
-    legend.SetTextFont(43)
-    legend.SetTextSize(18)
+    legend.SetTextFont(42)
+    legend.SetTextSize(0.030)
     legend.SetMargin(.24)
+
+    def _legend_fill_entry(leg, obj, label):
+        entry = leg.AddEntry(obj, label, "f")
+        # Prevent black box outlines from becoming visually heavy in PDF.
+        try:
+            entry.SetLineWidth(0)
+            entry.SetLineColor(0)
+            entry.SetMarkerSize(0)
+        except Exception:
+            pass
+        return entry
+
     if data is not None:
         legend.AddEntry(data,"Data","pe")
     for proc,hist in processes:
-        legend.AddEntry(hist,PROCESS_LABELS[proc],"f")
-    legend.AddEntry(band,"Bkg. total unc.","f")
+        _legend_fill_entry(legend, hist, PROCESS_LABELS[proc])
+    _legend_fill_entry(legend, band, "Bkg. total unc.")
     legend.Draw()
     keep.append(legend)
 
@@ -3019,11 +3588,12 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
         signal_legend.SetNColumns(1)
         signal_legend.SetBorderSize(0)
         signal_legend.SetFillStyle(0)
-        signal_legend.SetTextFont(43)
-        signal_legend.SetTextSize(18)
+        signal_legend.SetTextFont(42)
+        signal_legend.SetTextSize(0.030)
         signal_legend.SetMargin(.18)
         for curve in curves:
-            signal_legend.AddEntry(curve["hist"],curve["label"],"l")
+            legend_obj = (curve.get("draw_hists") or [curve["hist"]])[0]
+            signal_legend.AddEntry(legend_obj,curve["label"],"l")
         signal_legend.Draw()
         keep.append(signal_legend)
 
@@ -3103,7 +3673,57 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
         keep.append(line)
     for g in spec["groups"]:
         x = left+(right-left)*((g["first"]-1+g["last"])/2)/n
-        keep.append(draw_text(x,category_y,g["label"],20,align=23))
+
+        # Category/region labels need different limits in different layouts.
+        #
+        #  * SR1/SR2 summaries have relatively narrow CR blocks (e.g. CR2 IB),
+        #    so use a deliberately conservative maximum size and a stronger
+        #    width-fit safety factor.
+        #  * The dense SR3 summary already has an enlarged canvas and looked
+        #    good in the previous revision, so keep it close to that sizing.
+        #  * Ordinary grouped plots include long two-line selections such as
+        #    N(j) >= 2 and MET^2/ST categories; those need to be smaller even
+        #    when their group spans several bins.
+        group_span = max(1, g["last"] - g["first"] + 1)
+        group_width_px = width * (right-left) * group_span / max(1, n)
+
+        # For #splitline{...}{...} category labels, the horizontal fit should
+        # be controlled by the longer visible line, not by the concatenated
+        # character count of both lines.  Otherwise labels such as N(j) and
+        # MET^2/ST are made artificially tiny.
+        plain_group = plain_text(g["label"])
+        label_chars = max(
+            1,
+            max(len(part.strip()) for part in plain_group.split(";")),
+        )
+
+        if spec.get("summary_mode"):
+            # Use one common summary-label scale for SR1/SR2/SR3.  Raise the
+            # region-name labels only slightly relative to v4; narrow CR blocks
+            # still shrink automatically so labels remain inside their region.
+            max_category_size = 15.0
+            min_category_size = 10.0
+            width_safety = 0.84
+        else:
+            # Ordinary in-frame selection/category text, e.g. DeltaPhi(l,l),
+            # N(j), and MET^2/ST.  Make these deliberately prominent while
+            # retaining width-aware shrinking for genuinely narrow groups.
+            max_category_size = 18.0
+            min_category_size = 11.0
+            width_safety = 0.88
+
+        fitted_size = width_safety * group_width_px / (0.58 * label_chars)
+        category_size = max(
+            min_category_size,
+            min(max_category_size, fitted_size),
+        )
+
+        keep.append(
+            draw_text(
+                x, category_y, g["label"],
+                category_size, align=23,
+            )
+        )
 
     # Summary-only categorical ticks at every bin boundary on both the
     # bottom and top frame edges.  This includes the nominal SR/CR boundary;
@@ -3122,11 +3742,11 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     ratio_frame.GetXaxis().SetTickLength(0)
     ratio_frame.GetYaxis().SetTitle("Data / Pred." if data is not None else "Asimov / Pred.")
     ratio_frame.GetYaxis().SetNdivisions(505)
-    ratio_frame.GetYaxis().SetTitleFont(43)
-    ratio_frame.GetYaxis().SetTitleSize(22)
-    ratio_frame.GetYaxis().SetLabelFont(43)
-    ratio_frame.GetYaxis().SetLabelSize(20)
-    ratio_frame.GetYaxis().SetTitleOffset(1.45)
+    ratio_frame.GetYaxis().SetTitleFont(42)
+    ratio_frame.GetYaxis().SetTitleSize(0.10)
+    ratio_frame.GetYaxis().SetLabelFont(42)
+    ratio_frame.GetYaxis().SetLabelSize(0.085)
+    ratio_frame.GetYaxis().SetTitleOffset(0.58)
     ratio_frame.Draw("AXIS")
     ratio_band = make_ratio_band(total_bkg)
     ratio_band.Draw("E2 SAME")
@@ -3160,6 +3780,9 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     keep += draw_summary_bin_ticks(0., args.ratio_max, log_scale=False)
 
     # Manual TLatex labels: supports inequalities and preserves one label per bin.
+    # Keep the x-axis sizing at the v4 level; the larger physics-selection
+    # labels requested above are the in-frame group/category annotations, not
+    # these ratio-pad bin labels.
     label_y = ratio.GetBottomMargin()-.035
     for i,b in enumerate(spec["bins"]):
         x = left+(right-left)*(i+.5)/n
@@ -3188,15 +3811,23 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     canvas.Modified()
     canvas.Update()
     os.makedirs(output_dir,exist_ok=True)
-    for ext in ("pdf","png"):
-        canvas.SaveAs(os.path.join(output_dir,spec["raw_region"]+"."+ext))
+
+    png_path = os.path.join(output_dir, spec["raw_region"] + ".png")
+    pdf_path = os.path.join(output_dir, spec["raw_region"] + ".pdf")
+
+    # Raster preview first; then force one final vector repaint for PDF.
+    canvas.SaveAs(png_path)
+    canvas.Modified()
+    canvas.Update()
+    canvas.Print(pdf_path, "pdf")
     with open(os.path.join(output_dir,spec["raw_region"]+"_bins.txt"),"w") as handle:
         handle.write(bin_key_text(spec))
     canvas.Close()
 
 def plot_region(region_dir, signal_region_dir, fit_type, outdir, logy,
                 signal_mode, signal_scales, signal_colors, draw_data, mass,
-                point_signal, channel, era, args, rules):
+                point_signal, channel, era, args, rules, overlay_recipe=None,
+                overlay_source_maps=None):
     region = region_dir.GetName()
     source = region_dir.Get("total_background")
     if not source:
@@ -3228,38 +3859,80 @@ def plot_region(region_dir, signal_region_dir, fit_type, outdir, logy,
         raise BinningError(f"{region}: drawn processes do not sum to total_background "
                            f"(largest bin difference {max_diff:g}); check process names / selected era.")
 
-    effective_signal_scales = (
-        resolve_effective_signal_scales(
-            signal_region_dir=signal_region_dir,
-            fit_type=fit_type,
-            signal_mode=signal_mode,
-            mass=mass,
-            point_signal=point_signal,
+    use_multi_overlay = (
+        overlay_recipe is not None
+        and overlay_source_maps is not None
+        and fit_type in ("shapes_prefit", "shapes_fit_b")
+    )
+
+    if use_multi_overlay:
+        effective_overlay_recipe = materialize_overlay_recipe(
+            raw_region=region,
+            anchor_spec=spec,
             total_bkg=total_bkg,
             n=n,
             logy=logy,
-            scale_specs=signal_scales,
+            recipe=overlay_recipe,
+            source_maps=overlay_source_maps,
+            channel=channel,
+            era=era,
+            args=args,
+            rules=rules,
         )
-    )
+        curves = load_overlay_curves(
+            raw_region=region,
+            anchor_spec=spec,
+            effective_recipe=effective_overlay_recipe,
+            source_maps=overlay_source_maps,
+            channel=channel,
+            era=era,
+            args=args,
+            rules=rules,
+            fit_type=fit_type,
+        )
+    else:
+        effective_signal_scales = (
+            resolve_effective_signal_scales(
+                signal_region_dir=signal_region_dir,
+                fit_type=fit_type,
+                signal_mode=signal_mode,
+                mass=mass,
+                point_signal=point_signal,
+                total_bkg=total_bkg,
+                n=n,
+                logy=logy,
+                scale_specs=signal_scales,
+            )
+        )
 
-    curves = load_signal_curves(
-        region_dir,
-        signal_region_dir,
-        fit_type,
-        signal_mode,
-        effective_signal_scales,
-        signal_colors,
-        mass,
-        point_signal,
-    )
+        curves = load_signal_curves(
+            region_dir,
+            signal_region_dir,
+            fit_type,
+            signal_mode,
+            effective_signal_scales,
+            signal_colors,
+            mass,
+            point_signal,
+        )
 
     for i,curve in enumerate(curves):
         curve["hist"] = categorical_hist(curve["hist"],n,f"sig_{i}_{region}_{fit_type}")
     print(f"[BINS] {region}: {source.GetNbinsX()} stored -> {n} displayed; {spec['source']}")
     print(f"[YIELD] total_background = {total_bkg.Integral():.6g}; style = {args.axis_style}")
+    display_spec = spec
+    if use_multi_overlay:
+        # The fit mass is only a canonical source/binning anchor in a multi-mass
+        # figure.  Do not present it as if the whole plot represented one HNL mass.
+        display_spec = copy.deepcopy(spec)
+        display_spec["mass"] = None
+        display_spec["notes"].append(
+            f"Multi-mass overlay; canonical background/binning workspace uses mN={mass} GeV."
+        )
+
     styles = ("cuts","codes") if args.axis_style == "both" else (args.axis_style,)
     for style in styles:
-        render_region(total_bkg,processes,data,ratio_input,curves,spec,fit_type,
+        render_region(total_bkg,processes,data,ratio_input,curves,display_spec,fit_type,
                       os.path.join(outdir,"axis_"+style),style,logy,args)
 
 
@@ -3319,7 +3992,8 @@ def _directory_map(parent):
 
 def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
                     signal_mode, signal_scales, signal_colors, draw_data, mass,
-                    point_signal, channel, era, args, rules):
+                    point_signal, channel, era, args, rules, overlay_recipe=None,
+                    overlay_source_maps=None):
     """Draw SR + InvBJet + InvMET + WZ-CR in one post-fit-style canvas.
 
     No fit content is recomputed.  Each displayed bin is copied from the same
@@ -3404,53 +4078,142 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
         data = _concat_categorical_graphs(data_parts, nbins_parts, f"summary_data_{sr}_{fit_type}")
     ratio_input = _concat_categorical_graphs(ratio_parts, nbins_parts, f"summary_ratio_{sr}_{fit_type}")
 
-    # Resolve auto scales from the SR exactly as the ordinary SR plot does.
-    sr_signal_dir = signal_dirs[0]
-    effective_signal_scales = resolve_effective_signal_scales(
-        signal_region_dir=sr_signal_dir,
-        fit_type=fit_type,
-        signal_mode=signal_mode,
-        mass=mass,
-        point_signal=point_signal,
-        total_bkg=bkg_parts[0],
-        n=nbins_parts[0],
-        logy=logy,
-        scale_specs=signal_scales,
+    # Resolve signal scales from the SR and reuse the exact same physical
+    # benchmark in all associated CRs.
+    use_multi_overlay = (
+        overlay_recipe is not None
+        and overlay_source_maps is not None
+        and fit_type in ("shapes_prefit", "shapes_fit_b")
     )
 
-    per_region_curves = []
-    for key, region_dir, signal_dir, n in zip(wanted, region_dirs, signal_dirs, nbins_parts):
-        curves = load_signal_curves(region_dir, signal_dir, fit_type, signal_mode,
-                                    effective_signal_scales, signal_colors, mass, point_signal)
-        cooked = {}
-        for idx, curve in enumerate(curves):
-            curve["hist"] = categorical_hist(curve["hist"], n,
-                                                f"summary_sig_{idx}_{key}_{fit_type}")
-            cooked[curve["label"]] = curve
-        per_region_curves.append(cooked)
+    if use_multi_overlay:
+        effective_overlay_recipe = materialize_overlay_recipe(
+            raw_region=region_dirs[0].GetName(),
+            anchor_spec=specs[0],
+            total_bkg=bkg_parts[0],
+            n=nbins_parts[0],
+            logy=logy,
+            recipe=overlay_recipe,
+            source_maps=overlay_source_maps,
+            channel=channel,
+            era=era,
+            args=args,
+            rules=rules,
+        )
+        per_region_curves = []
+        for key, region_dir, spec, n in zip(wanted, region_dirs, specs, nbins_parts):
+            region_curves = load_overlay_curves(
+                raw_region=region_dir.GetName(),
+                anchor_spec=spec,
+                effective_recipe=effective_overlay_recipe,
+                source_maps=overlay_source_maps,
+                channel=channel,
+                era=era,
+                args=args,
+                rules=rules,
+                fit_type=fit_type,
+            )
+            cooked = {}
+            for idx, curve in enumerate(region_curves):
+                curve["hist"] = categorical_hist(
+                    curve["hist"], n, f"summary_overlay_sig_{idx}_{key}_{fit_type}"
+                )
+                cooked[curve["label"]] = curve
+            per_region_curves.append(cooked)
+    else:
+        sr_signal_dir = signal_dirs[0]
+        effective_signal_scales = resolve_effective_signal_scales(
+            signal_region_dir=sr_signal_dir,
+            fit_type=fit_type,
+            signal_mode=signal_mode,
+            mass=mass,
+            point_signal=point_signal,
+            total_bkg=bkg_parts[0],
+            n=nbins_parts[0],
+            logy=logy,
+            scale_specs=signal_scales,
+        )
+
+        per_region_curves = []
+        for key, region_dir, signal_dir, n in zip(wanted, region_dirs, signal_dirs, nbins_parts):
+            region_curves = load_signal_curves(
+                region_dir, signal_dir, fit_type, signal_mode,
+                effective_signal_scales, signal_colors, mass, point_signal
+            )
+            cooked = {}
+            for idx, curve in enumerate(region_curves):
+                curve["hist"] = categorical_hist(
+                    curve["hist"], n, f"summary_sig_{idx}_{key}_{fit_type}"
+                )
+                cooked[curve["label"]] = curve
+            per_region_curves.append(cooked)
 
     curves = []
     # The SR determines which signal curves/legend entries are relevant.
+    #
+    # Keep a concatenated bookkeeping histogram, but DRAW each region as its
+    # own x-local segment.  Previously a missing CR was represented by a zero
+    # placeholder and ROOT connected the signal through that CR at y=0.
+    # Region-local segments remove that artificial baseline completely.
     for label, sr_curve in per_region_curves[0].items():
         pieces = []
+        draw_hists = []
+        offset = 0
+
         for idx, n in enumerate(nbins_parts):
             c = per_region_curves[idx].get(label)
+
             if c is not None:
-                pieces.append(c["hist"])
+                local = c["hist"]
+                pieces.append(local)
+
+                seg = ROOT.TH1D(
+                    f"summary_sig_segment_{len(curves)}_{idx}_{fit_type}",
+                    "", n, float(offset), float(offset + n)
+                )
+                seg.SetDirectory(0)
+                for ibin in range(1, n + 1):
+                    seg.SetBinContent(ibin, local.GetBinContent(ibin))
+                    seg.SetBinError(ibin, local.GetBinError(ibin))
+
+                seg.SetLineColor(local.GetLineColor())
+                seg.SetLineStyle(local.GetLineStyle())
+                seg.SetLineWidth(local.GetLineWidth())
+                seg.SetFillStyle(0)
+                draw_hists.append(seg)
+
             else:
-                z = ROOT.TH1D(f"summary_sig_zero_{len(curves)}_{idx}_{fit_type}", "", n, 0., float(n))
+                # Zero is retained only for bookkeeping/integrals.  It is never
+                # drawn, so a signal absent from this CR leaves a genuine gap.
+                z = ROOT.TH1D(
+                    f"summary_sig_zero_{len(curves)}_{idx}_{fit_type}",
+                    "", n, 0., float(n)
+                )
                 z.SetDirectory(0)
                 pieces.append(z)
-        h = _concat_categorical_hists(pieces, f"summary_signal_{len(curves)}_{sr}_{fit_type}")
-        # Restore the SR curve styling, since zero placeholders have no style.
+
+            offset += n
+
+        h = _concat_categorical_hists(
+            pieces, f"summary_signal_{len(curves)}_{sr}_{fit_type}"
+        )
+
         src = sr_curve["hist"]
         h.SetLineColor(src.GetLineColor())
         h.SetLineStyle(src.GetLineStyle())
         h.SetLineWidth(src.GetLineWidth())
         h.SetFillStyle(0)
-        curves.append({"hist": h, "label": label,
-                       "raw_yield": sum(c.get(label, {}).get("raw_yield", 0.0) for c in per_region_curves),
-                       "draw_yield": h.Integral()})
+
+        curves.append({
+            "hist": h,
+            "draw_hists": draw_hists,
+            "label": label,
+            "raw_yield": sum(
+                c.get(label, {}).get("raw_yield", 0.0)
+                for c in per_region_curves
+            ),
+            "draw_yield": h.Integral(),
+        })
 
     # Preserve the resolved SR title.  In particular, ordinary SR3 already
     # knows whether this mass point uses SR3L (BDT) or SR3H (high-mass LT);
@@ -3490,7 +4253,7 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
         "groups": groups,
         "notes": ["Summary view only; fitted bin contents and errors are copied unchanged."],
         "channel": channel,
-        "mass": mass,
+        "mass": None if use_multi_overlay else mass,
         "era": era,
         "summary_mode": True,
         "summary_sr_number": sr_number,
@@ -3511,7 +4274,8 @@ def selected_region(raw, patterns):
 
 
 def run_one_file(input_file, output_point_dir, era, logy, signal_mode, signal_scales,
-                 signal_colors, draw_data, mass, point_signal, channel, args, rules):
+                 signal_colors, draw_data, mass, point_signal, channel, args, rules,
+                 overlay_job=None):
     global PROCESS_ERAS
     PROCESS_ERAS = get_process_eras(era)
     if not os.path.isfile(input_file):
@@ -3522,9 +4286,19 @@ def run_one_file(input_file, output_point_dir, era, logy, signal_mode, signal_sc
         print("[ERROR] Failed to open:",input_file)
         return 0,1
     made, failed = 0,0
+    overlay_source_maps = {}
+    overlay_handles = []
     try:
         prefit = f.Get("shapes_prefit")
+        if overlay_job is not None:
+            overlay_source_maps, overlay_handles = open_overlay_prefit_sources(
+                overlay_job, era, channel, args.fit_subdir
+            )
         for fit_type in args.fit_types:
+            if overlay_job is not None and fit_type == "shapes_fit_s":
+                print("[OVERLAY] Skipping post-fit S+B plots.")
+                continue
+
             fit_dir = f.Get(fit_type)
             if not fit_dir:
                 print("[WARNING] Missing fit directory:",fit_type)
@@ -3536,36 +4310,65 @@ def run_one_file(input_file, output_point_dir, era, logy, signal_mode, signal_sc
                 obj = key.ReadObj()
                 if not obj.InheritsFrom("TDirectory") or not selected_region(obj.GetName(),args.regions):
                     continue
+                overlay_recipe = None
+                if overlay_job is not None:
+                    group = overlay_region_group(obj.GetName(), mass)
+                    if group not in overlay_job["region_recipes"]:
+                        continue
+                    overlay_recipe = overlay_job["region_recipes"][group]
                 signal_dir = obj
                 if fit_type == "shapes_fit_b":
                     signal_dir = prefit.Get(obj.GetName()) if prefit else None
                     if not signal_dir: signal_dir = None
                 try:
-                    plot_region(obj,signal_dir,fit_type,fit_outdir,logy,signal_mode,signal_scales,
-                                signal_colors,draw_data,mass,point_signal,channel,era,args,rules)
+                    plot_region(
+                        obj, signal_dir, fit_type, fit_outdir, logy, signal_mode, signal_scales,
+                        signal_colors, draw_data, mass, point_signal, channel, era, args, rules,
+                        overlay_recipe=overlay_recipe, overlay_source_maps=overlay_source_maps,
+                    )
                     made += 1
                 except BinningError as exc:
                     failed += 1
                     print(f"[BINNING ERROR] {fit_type}/{obj.GetName()}: {exc}")
 
             # Add compact SR+CR summary canvases for every requested fit type:
-            # pre-fit, post-fit B-only, and post-fit S+B.  Existing individual
-            # region plots and command-line arguments are unchanged.  Respect
-            # --regions: if the user explicitly filters regions, do not silently
+            # pre-fit, post-fit B-only, and post-fit S+B (skipped in overlay mode).
+            # Existing individual region plots and command-line arguments are unchanged.
+            # Respect --regions: if the user explicitly filters regions, do not silently
             # add plots outside that requested selection.
             if not args.regions:
                 fit_map = _directory_map(fit_dir)
                 prefit_map = _directory_map(prefit)
                 for sr_number in (1, 2, 3):
+                    overlay_recipe = None
+                
+                    if overlay_job is not None:
+                
+                        group = overlay_region_group(
+                            f"sr{sr_number}",
+                            mass,
+                        )
+                
+                        if group not in overlay_job["region_recipes"]:
+                            continue
+                
+                        overlay_recipe = overlay_job["region_recipes"][group]
                     try:
-                        if plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, fit_outdir,
-                                           logy, signal_mode, signal_scales, signal_colors,
-                                           draw_data, mass, point_signal, channel, era, args, rules):
+                        if plot_sr_summary(
+                            fit_map, prefit_map, sr_number, fit_type, fit_outdir,
+                            logy, signal_mode, signal_scales, signal_colors,
+                            draw_data, mass, point_signal, channel, era, args, rules,
+                            overlay_recipe=overlay_recipe,
+                            overlay_source_maps=overlay_source_maps,
+                        ):
                             made += 1
                     except BinningError as exc:
                         failed += 1
                         print(f"[BINNING ERROR] {fit_type}/sr{sr_number}_summary: {exc}")
     finally:
+        for handle in overlay_handles:
+            if handle:
+                handle.Close()
         f.Close()
     if not made and not failed:
         print("[ERROR] No matching regions with saved shapes in",input_file)
@@ -3578,6 +4381,11 @@ def main():
     args = parse_args()
     BASE_DIR = args.base_dir
     rules = load_bin_rules(args)
+    overlay_preset = (
+        validate_overlay_preset(args.overlay_preset)
+        if args.overlay_preset is not None
+        else None
+    )
 
     if args.describe_bins:
         if not args.regions or any(any(c in r for c in "*?[") for r in args.regions):
@@ -3600,8 +4408,37 @@ def main():
     if args.input_file:
         mass = args.masses[0] if args.masses else None
         name = os.path.basename(args.input_file).removesuffix(".root")
-        jobs.append((args.input_file,os.path.join(args.outdir,name,signal_subdir),
-                     args.eras[0],args.channels[0],args.signals[0],mass))
+        jobs.append((args.input_file, os.path.join(args.outdir, name, signal_subdir),
+                     args.eras[0], args.channels[0], args.signals[0], mass, None))
+    elif overlay_preset is not None:
+        # Build only the canonical background workspaces requested by the overlay
+        # preset.  If several SRs share the same fit_mass/fit_signal, they share
+        # one job and one opened FitDiagnostics file.
+        for wp in args.InputWPs:
+            for era in args.eras:
+                for channel in args.channels:
+                    for tag in args.tags:
+                        for suffix in TAG_MAP[tag]:
+                            grouped = {}
+                            for region_name, recipe in overlay_preset["regions"].items():
+                                fit_signal = recipe.get("fit_signal", "HNL")
+                                fit_mass = None if fit_signal == "Weinberg" else str(recipe.get("fit_mass"))
+                                grouped.setdefault((fit_signal, fit_mass), {})[region_name] = recipe
+
+                            for (fit_signal, fit_mass), region_recipes in grouped.items():
+                                name = build_point_name(era, channel, fit_mass, fit_signal, suffix)
+                                input_file = build_input_file(wp, name, args.fit_subdir)
+                                wp_out = wp if not os.path.isabs(wp) else os.path.basename(wp.rstrip(os.sep))
+                                out = os.path.join(args.outdir, wp_out, name, signal_subdir)
+                                overlay_job = {
+                                    "preset_name": args.overlay_preset,
+                                    "wp": wp,
+                                    "tag_suffix": suffix,
+                                    "region_recipes": region_recipes,
+                                }
+                                jobs.append((
+                                    input_file, out, era, channel, fit_signal, fit_mass, overlay_job
+                                ))
     else:
         for wp in args.InputWPs:
             for era in args.eras:
@@ -3615,13 +4452,22 @@ def main():
                                     # Absolute WPs must not discard the chosen output directory.
                                     wp_out = wp if not os.path.isabs(wp) else os.path.basename(wp.rstrip(os.sep))
                                     out = os.path.join(args.outdir,wp_out,name,signal_subdir)
-                                    jobs.append((input_file,out,era,channel,signal,mass))
+                                    jobs.append((input_file,out,era,channel,signal,mass,None))
     made,failed = 0,0
-    for input_file,out,era,channel,signal,mass in jobs:
+    for input_file,out,era,channel,signal,mass,overlay_job in jobs:
         scales = resolve_signal_scales(args,channel,mass)
         print("[INPUT]",input_file)
-        m,f = run_one_file(input_file,out,era,args.logy,args.signal_mode,scales,colors,
-                           not args.no_data,mass,signal,channel,args,rules)
+        if overlay_job is not None:
+            print(
+                f"[OVERLAY] preset={overlay_job['preset_name']} "
+                f"regions={','.join(sorted(overlay_job['region_recipes']))} "
+                f"anchor={signal}{'' if mass is None else ' M'+str(mass)}"
+            )
+        m,f = run_one_file(
+            input_file, out, era, args.logy, args.signal_mode, scales, colors,
+            not args.no_data, mass, signal, channel, args, rules,
+            overlay_job=overlay_job,
+        )
         made += m
         failed += f
     print(f"[DONE] {made} region/fit plots completed; {failed} failed. Output: {args.outdir}")
