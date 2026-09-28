@@ -2614,7 +2614,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   }
   else if(draw_ratio_panel){
     if(Logy) lg = new TLegend(0.48, 0.1, 0.9, 0.65);
-    else lg = new TLegend(0.18, 0.3, 0.6, 0.85);
+    else lg = new TLegend(0.18, 0.22, 0.6, 0.75);
     //lg = new TLegend(0.18, 0.3, 0.6, 0.75); //FIXME -- For showing left legend with log-scale limit https://cms-pub-talk.web.cern.ch/t/unblinding/51385/10
   }
   else lg = new TLegend(0.48, 0.2, 0.9, 0.65);
