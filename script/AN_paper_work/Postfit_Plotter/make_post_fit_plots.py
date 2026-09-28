@@ -45,7 +45,7 @@ if ROOT is not None:
 
 BASE_DIR = "/data9/Users/HNL_public/SUS-24-014/Combine/CMSSW_14_1_0_pre4/src/DilepHN"
 
-OUTDIR_BASE = "plots" if args.overlay_preset is None else "plots_overlay"
+OUTDIR_BASE = "plots"
 
 MASS_CHOICES = [
     "85","90","95","100","125","150","200","250","300","350","400","450","500",
@@ -632,7 +632,7 @@ def parse_args():
     parser.add_argument("--axis-style", choices=["cuts", "codes", "both"], default="cuts",
                         help="EXO-21-003-like cut intervals, EXO-22-011-like bin IDs, or both.")
     parser.add_argument("--base-dir", default=BASE_DIR)
-    parser.add_argument("--outdir", default=OUTDIR_BASE)
+    parser.add_argument("--outdir", default=None)
     parser.add_argument("--input-file", help="Read one explicit FitDiagnostics ROOT file instead of -wp.")
     parser.add_argument("--fit-subdir", default="Unblind",
                         help="Subdirectory below FitDiag; e.g. Unblind/mask-cr3_InvMET.")
@@ -660,6 +660,13 @@ def parse_args():
     parser.add_argument("--label-angle", type=float, default=None,
                         help="Override bin-label rotation, in degrees (normally automatic).")
     args = parser.parse_args()
+
+    if args.outdir is None:
+        args.outdir = (
+            "plots_overlay"
+            if args.overlay_preset is not None
+            else OUTDIR_BASE
+        )
 
     if not args.eras:
         args.eras = ["Run2Sum"]
@@ -3812,15 +3819,67 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     canvas.Update()
     os.makedirs(output_dir,exist_ok=True)
 
-    png_path = os.path.join(output_dir, spec["raw_region"] + ".png")
-    pdf_path = os.path.join(output_dir, spec["raw_region"] + ".pdf")
+    # --------------------------------------------------------
+    # Output filename
+    # --------------------------------------------------------
+    
+    output_region = spec["raw_region"]
+    
+    # Keep the case style of the original region prefix:
+    #   sr3 -> sr3l / sr3h
+    #   SR3 -> SR3L / SR3H
+    if output_region.startswith("SR3"):
+        sr3_low_name  = "SR3L"
+        sr3_high_name = "SR3H"
+    else:
+        sr3_low_name  = "sr3l"
+        sr3_high_name = "sr3h"
+    
+    # For SR3, reflect whether this mass point uses SR3L or SR3H.
+    # Reuse the already-resolved title so the filename follows exactly
+    # the same low/high-mass decision as the legend/title.
+    if re.match(r"(?i)^sr3", output_region):
+        resolved_title = spec.get("title", "")
+    
+        if resolved_title.startswith("SR3L"):
+            output_region = re.sub(
+                r"(?i)^sr3",
+                sr3_low_name,
+                output_region,
+                count=1,
+            )
+    
+        elif resolved_title.startswith("SR3H"):
+            output_region = re.sub(
+                r"(?i)^sr3",
+                sr3_high_name,
+                output_region,
+                count=1,
+            )
+    
+    filename_parts = [
+        output_region,
+        args.output_channel,
+    ]
+    
+    if args.output_mass is not None:
+        filename_parts.append(f"M{args.output_mass}")
+    
+    if args.output_wp is not None:
+        filename_parts.append(args.output_wp)
+    
+    output_stem = "_".join(filename_parts)
+    
+    png_path = os.path.join(output_dir, output_stem + ".png")
+    pdf_path = os.path.join(output_dir, output_stem + ".pdf")
+    bins_txt_path = os.path.join(output_dir, output_stem + "_bins.txt")
 
     # Raster preview first; then force one final vector repaint for PDF.
     canvas.SaveAs(png_path)
     canvas.Modified()
     canvas.Update()
     canvas.Print(pdf_path, "pdf")
-    with open(os.path.join(output_dir,spec["raw_region"]+"_bins.txt"),"w") as handle:
+    with open(bins_txt_path, "w") as handle:
         handle.write(bin_key_text(spec))
     canvas.Close()
 
@@ -4409,7 +4468,7 @@ def main():
         mass = args.masses[0] if args.masses else None
         name = os.path.basename(args.input_file).removesuffix(".root")
         jobs.append((args.input_file, os.path.join(args.outdir, name, signal_subdir),
-                     args.eras[0], args.channels[0], args.signals[0], mass, None))
+                     args.eras[0], args.channels[0], args.signals[0], mass, None, None))
     elif overlay_preset is not None:
         # Build only the canonical background workspaces requested by the overlay
         # preset.  If several SRs share the same fit_mass/fit_signal, they share
@@ -4437,7 +4496,7 @@ def main():
                                     "region_recipes": region_recipes,
                                 }
                                 jobs.append((
-                                    input_file, out, era, channel, fit_signal, fit_mass, overlay_job
+                                    input_file, out, era, channel, fit_signal, fit_mass, overlay_job, wp_out
                                 ))
     else:
         for wp in args.InputWPs:
@@ -4452,10 +4511,16 @@ def main():
                                     # Absolute WPs must not discard the chosen output directory.
                                     wp_out = wp if not os.path.isabs(wp) else os.path.basename(wp.rstrip(os.sep))
                                     out = os.path.join(args.outdir,wp_out,name,signal_subdir)
-                                    jobs.append((input_file,out,era,channel,signal,mass,None))
+                                    jobs.append((input_file,out,era,channel,signal,mass,None,wp_out))
     made,failed = 0,0
-    for input_file,out,era,channel,signal,mass,overlay_job in jobs:
+
+    for input_file,out,era,channel,signal,mass,overlay_job,wp_label in jobs:
+        args.output_channel = channel
+        args.output_mass = mass
+        args.output_wp = wp_label
+    
         scales = resolve_signal_scales(args,channel,mass)
+
         print("[INPUT]",input_file)
         if overlay_job is not None:
             print(

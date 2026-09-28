@@ -688,7 +688,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_ConvUpdate_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"; // set the nominal WP
-  TString WP_nom = "ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"; // set the nominal WP
+  TString WP_nom = "ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"; // set the nominal WP; This is the ANv8 limit setting.
 
   PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
 
@@ -1125,18 +1125,18 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
 
   // Set the upper bound of HNL mass to show
   double forced_max_mass = 999999.;
-  if (std::any_of(compare_entries.begin(), compare_entries.end(),
-                  [](const ComparisonEntry& entry){
-                    return entry.wp.Contains("Merged");
-                  })) {
-    forced_max_mass = 500.;
-  }
-  if (std::any_of(compare_entries.begin(), compare_entries.end(),
-                  [](const ComparisonEntry& entry){
-                    return entry.wp.Contains("AltWZonly");
-                  })) {
-    forced_max_mass = 500.;
-  }
+  //if (std::any_of(compare_entries.begin(), compare_entries.end(),
+  //                [](const ComparisonEntry& entry){
+  //                  return entry.wp.Contains("Merged");
+  //                })) {
+  //  forced_max_mass = 500.;
+  //}
+  //if (std::any_of(compare_entries.begin(), compare_entries.end(),
+  //                [](const ComparisonEntry& entry){
+  //                  return entry.wp.Contains("AltWZonly");
+  //                })) {
+  //  forced_max_mass = 500.;
+  //}
 
   vector<vector<double>> masses, obss, limits, onesig_lefts, onesig_rights, twosig_lefts, twosig_rights;
   vector<int> n_centrals;
@@ -1357,8 +1357,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   };
 
   // Internal comparison overlays (separate from nominal WP_noms / DrawExt nominals)
-  vector<TGraph*> gr_exp_list;
-  vector<TString> gr_exp_list_descrps;
+  vector<TGraph*> gr_compare_list;
+  vector<TString> gr_compare_list_descrps;
 
   if (!DrawExt && !compare_entries.empty()){
 
@@ -1389,7 +1389,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
         auto it = find(masses[limit_idx].begin(), masses[limit_idx].end(), m);
         if (it != masses[limit_idx].end()) {
           int idx = distance(masses[limit_idx].begin(), it);
-          y_limit.push_back(limits[limit_idx][idx]);
+          y_limit.push_back(DrawObserved ? obss[limit_idx][idx] : limits[limit_idx][idx]);
         }
       }
 
@@ -1399,11 +1399,11 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
         continue;
       }
 
-      TGraph* gr_limit = new TGraph(common_mass_list.size(), &common_mass_list[0], &y_limit[0]);
-      gr_limit->SetLineWidth(3);
-      gr_limit->SetLineColor(compare_entries[entry_idx].color);
-      gr_exp_list.push_back(gr_limit);
-      gr_exp_list_descrps.push_back(compare_descrps[entry_idx]);
+      TGraph* gr_compare = new TGraph(common_mass_list.size(), &common_mass_list[0], &y_limit[0]);
+      gr_compare->SetLineWidth(3);
+      gr_compare->SetLineColor(compare_entries[entry_idx].color);
+      gr_compare_list.push_back(gr_compare);
+      gr_compare_list_descrps.push_back(compare_descrps[entry_idx]);
     }
 
   }
@@ -2636,8 +2636,12 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     else e1->SetTextSize(0.025);
   }
   if(!DrawExt){
-    for (size_t i = 0; i < gr_exp_list.size(); ++i) {
-      if (gr_exp_list[i]) lg->AddEntry(gr_exp_list[i], gr_exp_list_descrps[i], "l");
+    TString comparison_limit_type = DrawObserved ? "obs" : "exp";
+
+    for (size_t i = 0; i < gr_compare_list.size(); ++i) {
+      if (gr_compare_list[i]) {
+        lg->AddEntry(gr_compare_list[i], Form("%s (%s)", gr_compare_list_descrps[i].Data(), comparison_limit_type.Data()), "l");
+      }
     }
   }
 
@@ -2647,8 +2651,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //if(!IsXsecLimit){
   //  lg_Alt->AddEntry(gr_17028_exp, "EXO-17-028 2016 (exp)", "l"); // EXO-17-028
   //  if(draw_ratio_panel){
-  //    for (size_t i = 0; i < gr_exp_list.size(); ++i) {
-  //      if (gr_exp_list[i]) lg_Alt->AddEntry(gr_exp_list[i], descrps[i], "l");
+  //    for (size_t i = 0; i < gr_compare_list.size(); ++i) {
+  //      if (gr_compare_list[i]) lg_Alt->AddEntry(gr_compare_list[i], descrps[i], "l");
   //    }
   //  }
   //}
@@ -2850,8 +2854,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     gr_exp_2->Draw("lsame");
   }
   if(AddPub) gr_17028_pub->Draw("lsame"); // EXO-17-028
-  for (size_t i = 0; i < gr_exp_list.size(); ++i) {
-    if (gr_exp_list[i]) gr_exp_list[i]->Draw("lsame");
+  for (size_t i = 0; i < gr_compare_list.size(); ++i) {
+    if (gr_compare_list[i]) gr_compare_list[i]->Draw("lsame");
   }
   //gr_17028_obs->Draw("lsame");
   //gr_8and13TeV_obs->Draw("lsame");
@@ -2901,6 +2905,14 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     }
     if(WP_noms.size()>2){
       gr_obs_2->Draw("lsame");
+    }
+  }
+
+  // For signal-/SR-separated limits, keep internal comparison curves
+  // on top of the nominal observed limit.
+  if(DrawObserved && (SepLimit==1 || SepLimit==2)){
+    for (size_t i = 0; i < gr_compare_list.size(); ++i) {
+      if (gr_compare_list[i]) gr_compare_list[i]->Draw("lsame");
     }
   }
 
@@ -2977,7 +2989,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
       }
 
       vector<double> this_mass = masses[limit_idx];
-      vector<double> this_limit = limits[limit_idx];
+      vector<double> this_limit = DrawObserved ? obss[limit_idx] : limits[limit_idx];
       vector<double> ratio_i, mass_i;
 
       for (size_t j = 0; j < this_mass.size(); ++j) {
