@@ -2610,7 +2610,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   TLegend *lg = 0;
   if(IsXsecLimit){
     if(draw_ratio_panel) lg = new TLegend(0.5, 0.45, 0.94, 0.8);
-    else lg = new TLegend(0.5, 0.55, 0.94, 0.8);
+    else lg = new TLegend(0.5, 0.5, 0.94, 0.8);
   }
   else if(draw_ratio_panel){
     if(Logy) lg = new TLegend(0.48, 0.1, 0.9, 0.65);
