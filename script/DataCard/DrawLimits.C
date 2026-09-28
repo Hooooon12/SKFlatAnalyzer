@@ -3173,6 +3173,7 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //else dummy2->GetYaxis()->SetRangeUser(0.85, 2);
     //else dummy2->GetYaxis()->SetRangeUser(0.94, 1.06);
     else dummy2->GetYaxis()->SetRangeUser(0.5, 1.5);
+    //else dummy2->GetYaxis()->SetRangeUser(0., 2.); // Only for ANv8 -- EE, Observed, AddPub, compare, mixing limit, linear
     //dummy2->GetXaxis()->SetRangeUser(80., 500); // FIXME -- Low mass limit comparison only !!
     //dummy2->GetYaxis()->SetRangeUser(0.9, 1.1); // FIXME -- Low mass limit internal comparison only !!
     dummy2->SetTitle("");

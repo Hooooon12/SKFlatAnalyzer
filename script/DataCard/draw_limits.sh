@@ -14,6 +14,7 @@
 for ch in MuMu EE EMu;
 #for ch in MuMu EE;
 #for ch in MuMu;
+#for ch in EE;
 do
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",true,true,0,false,false,false,true)"; # Ext, AddPub, mixing limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",true,true,0,false,false,true ,true)"; # Ext, AddPub, xsec limit, logy
