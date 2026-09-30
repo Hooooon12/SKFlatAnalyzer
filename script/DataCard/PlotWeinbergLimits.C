@@ -1,3 +1,4 @@
+#include <TSystem.h>
 #include <TCanvas.h>
 #include <TPad.h>
 #include <TLegend.h>
@@ -119,7 +120,7 @@ static void SetTDRStyle() {
 }
 
 static void DrawCMSHeader(TPad* pad,
-                          const std::string& lumiText = "138 fb^{-1} (13 TeV)",
+                          const std::string& lumiText = "137.6 fb^{-1} (13 TeV)",
                           const std::string& extraText = "Preliminary",
                           int cmsPos = 11) {
   pad->cd();
@@ -165,10 +166,10 @@ static void DrawCMSHeader(TPad* pad,
 }
 
 //---------------------- Main drawing function ----------------------
-void PlotWeinbergLimits(
+void PlotWeinbergLimits_legend_inside(
     const char* WP="ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195",
     bool observed=false,
-    const char* lumi_text="138 fb^{-1} (13 TeV)",
+    const char* lumi_text="137.6 fb^{-1} (13 TeV)",
     const char* extra_text="Preliminary") {
 
   SetTDRStyle();
@@ -232,13 +233,16 @@ void PlotWeinbergLimits(
   double span = xmax - xmin;
   if(span <= 0){ xmin -= 1; xmax += 1; span = xmax - xmin; }
   xmin -= 0.05 * span;
-  xmax += 0.15 * span;
+  // Add extra room on the right so the legend can sit inside the plotting frame
+  // without covering the limit bands/markers.
+  xmax += 0.25 * span;
 
-  // Canvas: make it wider and reserve a dedicated right-side gutter for the legend.
-  const int H = 480 + 120*N;
-  TCanvas* c = new TCanvas("c", observed ? "Weinberg Observed Limits" : "Weinberg Expected Limits", 1300, H);
-  c->SetLeftMargin(0.12);
-  c->SetRightMargin(0.28);
+  // Canvas: use almost the full width for the plotting frame.
+  // The legend will be drawn inside the frame in the upper-right corner.
+  const int H = 520 + 130*N;
+  TCanvas* c = new TCanvas("c", observed ? "Weinberg Observed Limits" : "Weinberg Expected Limits", 1500, H);
+  c->SetLeftMargin(0.09);
+  c->SetRightMargin(0.05);
   c->SetBottomMargin(0.13);
   c->SetTopMargin(0.10);
 
@@ -385,18 +389,18 @@ void PlotWeinbergLimits(
 
   DrawCMSHeader(c, lumi_text, extra_text, 11);
 
-  // Legend: use the dedicated right margin, shifted down and away from all bands.
-  const double frameRight = 1.0 - c->GetRightMargin();
-  const double x1 = frameRight + 0.018;
-  const double x2 = 0.985;
-  const double y1 = 0.14;
-  const double y2 = observed ? 0.46 : 0.43;
+  // Legend: draw it inside the plotting frame, CMS-style.
+  // Extra horizontal headroom above keeps it away from the actual limits.
+  const double x1 = 0.60;
+  const double x2 = 0.92;
+  const double y1 = 0.6;
+  const double y2 = 0.88;
 
   TLegend* leg = new TLegend(x1, y1, x2, y2);
-  leg->SetTextSize(0.021);
+  leg->SetTextSize(0.026);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
-  leg->SetMargin(0.15);
+  leg->SetMargin(0.18);
 
   leg->AddEntry(box2s, "Expected #pm2#sigma", "f");
   leg->AddEntry(box1s, "Expected #pm1#sigma", "f");
@@ -427,8 +431,13 @@ void PlotWeinbergLimits(
   leg->Draw();
   c->RedrawAxis();
 
-  std::string base("plots/" + std::string(WP) + "/" + std::string(WP) + "_Weinberg");
+  std::string outDir = "plots/" + std::string(WP);
+  
+  gSystem->mkdir(outDir.c_str(), true); // true: recursive
+  
+  std::string base = outDir + "/" + std::string(WP) + "_Weinberg";
   base += observed ? "_obs" : "_exp";
+  
   c->SaveAs((base + ".pdf").c_str());
   c->SaveAs((base + ".png").c_str());
 }

@@ -74,7 +74,7 @@ MASSES=(
 )
 
 # For a quick test, comment the full list above and use e.g.
-# MASSES=("350" "3000")
+MASSES=("1000" "10000")
 
 
 # ============================================================
@@ -215,53 +215,6 @@ fi
 # Ordinary run
 # ============================================================
 
-#for WP in "${WPS[@]}"; do
-#
-#    for LOGY in "${LOGY_OPTS[@]}"; do
-#
-#        for DATA in "${DATA_OPTS[@]}"; do
-#
-#            for AXIS_STYLE in "${AXIS_STYLE_OPTS[@]}"; do
-#
-#                echo ""
-#                echo "================================================================"
-#                echo "Running:"
-#                echo "  WP          = ${WP}"
-#                echo "  SIGNALS     = HNL Weinberg"
-#                echo "  SIGNAL_MODE = ${SIGNAL_MODE}"
-#                echo "  PRESET      = ${SIGNAL_PRESET:-none}"
-#                echo "  LOGY        = ${LOGY:-OFF}"
-#                echo "  DATA OPTION = ${DATA:-OFF}"
-#                echo "  AXIS STYLE  = ${AXIS_STYLE}"
-#                echo "================================================================"
-#
-#                python3 make_post_fit_plots.py \
-#                    -wp "${WP}" \
-#                    -e Run2Sum \
-#                    -c EE EMu MuMu \
-#                    -m "${MASSES[@]}" \
-#                    -s HNL Weinberg \
-#                    -t AllSR \
-#                    --axis-style "${AXIS_STYLE}" \
-#                    "${SIGNAL_ARGS[@]}" \
-#                    ${LOGY} \
-#                    ${DATA} \
-#                    --sr2-merge78
-#
-#            done
-#
-#        done
-#
-#    done
-#
-#done
-
-
-
-# ============================================================
-# Overlay mode (for AN, paper)
-# ============================================================
-
 for WP in "${WPS[@]}"; do
 
     for LOGY in "${LOGY_OPTS[@]}"; do
@@ -273,27 +226,27 @@ for WP in "${WPS[@]}"; do
                 echo ""
                 echo "================================================================"
                 echo "Running:"
-                echo "  WP              = ${WP}"
-                echo "  SIGNALS         = HNL Weinberg"
-                echo "  SIGNAL_MODE     = ${SIGNAL_MODE}"
-                echo "  OVERLAY PRESET  = ANv8"
-                echo "  LOGY            = ${LOGY:-OFF}"
-                echo "  DATA OPTION     = ${DATA:-OFF}"
-                echo "  AXIS STYLE      = ${AXIS_STYLE}"
+                echo "  WP          = ${WP}"
+                echo "  SIGNALS     = HNL Weinberg"
+                echo "  SIGNAL_MODE = ${SIGNAL_MODE}"
+                echo "  PRESET      = ${SIGNAL_PRESET:-none}"
+                echo "  LOGY        = ${LOGY:-OFF}"
+                echo "  DATA OPTION = ${DATA:-OFF}"
+                echo "  AXIS STYLE  = ${AXIS_STYLE}"
                 echo "================================================================"
 
                 python3 make_post_fit_plots.py \
                     -wp "${WP}" \
                     -e Run2Sum \
                     -c EE EMu MuMu \
+                    -m "${MASSES[@]}" \
                     -s HNL Weinberg \
                     -t AllSR \
                     --axis-style "${AXIS_STYLE}" \
                     "${SIGNAL_ARGS[@]}" \
                     ${LOGY} \
                     ${DATA} \
-                    --sr2-merge78 \
-                    --overlay-preset ANv8 # with this argument, -m option is disabled.
+                    --sr2-merge78
 
             done
 
@@ -302,3 +255,49 @@ for WP in "${WPS[@]}"; do
     done
 
 done
+
+
+# ============================================================
+# Overlay mode (for AN, paper)
+# ============================================================
+
+#for WP in "${WPS[@]}"; do
+#
+#    for LOGY in "${LOGY_OPTS[@]}"; do
+#
+#        for DATA in "${DATA_OPTS[@]}"; do
+#
+#            for AXIS_STYLE in "${AXIS_STYLE_OPTS[@]}"; do
+#
+#                echo ""
+#                echo "================================================================"
+#                echo "Running:"
+#                echo "  WP              = ${WP}"
+#                echo "  SIGNALS         = HNL Weinberg"
+#                echo "  SIGNAL_MODE     = ${SIGNAL_MODE}"
+#                echo "  OVERLAY PRESET  = ANv8"
+#                echo "  LOGY            = ${LOGY:-OFF}"
+#                echo "  DATA OPTION     = ${DATA:-OFF}"
+#                echo "  AXIS STYLE      = ${AXIS_STYLE}"
+#                echo "================================================================"
+#
+#                python3 make_post_fit_plots.py \
+#                    -wp "${WP}" \
+#                    -e Run2Sum \
+#                    -c EE EMu MuMu \
+#                    -s HNL Weinberg \
+#                    -t AllSR \
+#                    --axis-style "${AXIS_STYLE}" \
+#                    "${SIGNAL_ARGS[@]}" \
+#                    ${LOGY} \
+#                    ${DATA} \
+#                    --sr2-merge78 \
+#                    --overlay-preset ANv8 # with this argument, -m option is disabled.
+#
+#            done
+#
+#        done
+#
+#    done
+#
+#done

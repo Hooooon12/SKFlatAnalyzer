@@ -3,7 +3,8 @@
 
 Original CLI, signal scaling, process stacking and uncertainty helpers retained.
 Added: region-specific bin metadata, cuts/codes/both axes, bin-key TXT export,
-explicit already-merged input maps, separate outputs, direct ROOT-file input.
+per-process bin content/error TXT tables, explicit already-merged input maps,
+separate outputs, direct ROOT-file input.
 Sources: AN2019_206_v7 Tables 39-46 and 63-64.
 """
 
@@ -3228,6 +3229,245 @@ def bin_key_text(spec):
     return "\n".join(lines)+"\n"
 
 
+def _yield_number(value):
+    """Compact but sufficiently precise numeric formatting for TXT yield dumps."""
+    value = float(value)
+    if not math.isfinite(value):
+        return str(value)
+    return f"{value:.8g}"
+
+
+def _logical_process_name(hist_name):
+    """Map one FitDiagnostics histogram key to the plotter's logical process name.
+
+    Run-2 FitDiagnostics directories contain era-suffixed process histograms.  The
+    plotter sums those eras, and it also folds wz_ewk into wz.  Keep exactly that
+    convention in the TXT yield dump while leaving any otherwise-unknown process
+    name untouched.
+    """
+    name = str(hist_name)
+    for era_name in ERAS:
+        suffix = "_" + era_name
+        if name.endswith(suffix):
+            name = name[:-len(suffix)]
+            break
+    if name == "wz_ewk":
+        name = "wz"
+    return name
+
+
+def collect_yield_processes(region_dir, n, fit_type):
+    """Collect every non-signal TH1 process in a region for the TXT report.
+
+    Unlike the drawing stack, this is not restricted to STACK_ORDER: any extra
+    background process saved by FitDiagnostics is retained.  Era-suffixed pieces
+    are summed into one logical process using the same Run-2 convention as the
+    plotter.  Combine helper totals are omitted except total_background, whose
+    own bin errors are important because they retain the fitted correlations.
+
+    Signals are deliberately handled separately from the already-prepared
+    ``curves`` objects so their contents, errors, scaling and labels are exactly
+    what is drawn in the figure.
+    """
+    if region_dir is None:
+        return []
+
+    grouped = {}
+    for key in region_dir.GetListOfKeys():
+        obj = key.ReadObj()
+        if not obj.InheritsFrom("TH1") or obj.GetDimension() != 1:
+            continue
+
+        raw_name = obj.GetName()
+        logical = _logical_process_name(raw_name)
+
+        # Signal rows come from the plotter-prepared curves below.  This is
+        # essential for B-only (prefit signal source) and for physical HNL /
+        # Weinberg rescaling.
+        if logical.startswith("signal") or logical == "total_signal":
+            continue
+
+        # total_overall is a Combine bookkeeping total and would duplicate the
+        # background/signal information already reported explicitly.
+        if logical == "total_overall":
+            continue
+
+        h = categorical_hist(
+            obj,
+            n,
+            f"txt_{re.sub(r'[^A-Za-z0-9_]', '_', logical)}_{fit_type}_{len(grouped)}",
+        )
+
+        if logical in grouped:
+            grouped[logical].Add(h)
+        else:
+            grouped[logical] = h
+
+    # Familiar plot-stack order first, arbitrary additional saved processes
+    # next, and the Combine total last.
+    ordered = []
+    for name in STACK_ORDER:
+        if name in grouped:
+            ordered.append((name, grouped.pop(name)))
+
+    for name in sorted(k for k in grouped if k != "total_background"):
+        ordered.append((name, grouped[name]))
+
+    if "total_background" in grouped:
+        ordered.append(("total_background", grouped["total_background"]))
+
+    return ordered
+
+
+def concat_yield_processes(region_dirs, nbins_parts, fit_type, name_prefix):
+    """Concatenate the dynamic TXT-process set across an SR+CR summary.
+
+    A process missing from one region gets a zero bookkeeping histogram for
+    that region, exactly as the summary stack does.  This keeps arbitrary extra
+    FitDiagnostics background processes in the TXT even though they are not
+    part of the fixed drawing STACK_ORDER.
+    """
+    per_region = []
+    all_names = set()
+
+    for region_dir, n in zip(region_dirs, nbins_parts):
+        mapping = dict(collect_yield_processes(region_dir, n, fit_type))
+        per_region.append(mapping)
+        all_names.update(mapping)
+
+    ordered_names = [name for name in STACK_ORDER if name in all_names]
+    ordered_names += sorted(
+        name for name in all_names
+        if name not in STACK_ORDER and name != "total_background"
+    )
+    if "total_background" in all_names:
+        ordered_names.append("total_background")
+
+    result = []
+    for name in ordered_names:
+        parts = []
+        for idx, (mapping, n) in enumerate(zip(per_region, nbins_parts)):
+            hist = mapping.get(name)
+            if hist is None:
+                hist = ROOT.TH1D(
+                    f"{name_prefix}_{name}_zero_{idx}_{fit_type}",
+                    "", n, 0., float(n),
+                )
+                hist.SetDirectory(0)
+            parts.append(hist)
+        result.append((
+            name,
+            _concat_categorical_hists(
+                parts,
+                f"{name_prefix}_{name}_{fit_type}",
+            ),
+        ))
+
+    return result
+
+
+def _yield_hist_block(kind, label, hist, spec, source_text=None, present_bins=None):
+    """Return one per-bin content/error block for a TH1.
+
+    ``present_bins`` is used only by SR+CR summaries.  A missing CR signal is
+    represented internally by zeros for concatenation/bookkeeping, but those
+    bins are omitted from the TXT block so "template absent" is never confused
+    with a genuine zero-yield signal template.
+    """
+    lines = [f"{kind}: {plain_text(label)}"]
+    if source_text:
+        lines.append(f"Source: {source_text}")
+
+    rows = []
+    for i, b in enumerate(spec["bins"], 1):
+        if present_bins is not None and not present_bins[i - 1]:
+            continue
+        rows.append([
+            str(i),
+            plain_text(b.get("code", str(i))),
+            _yield_number(hist.GetBinContent(i)),
+            _yield_number(hist.GetBinError(i)),
+        ])
+
+    header = ["Input bin", "ID", "Content", "Error"]
+    if not rows:
+        lines.append("No bins with a signal template in this region/summary.")
+        return "\n".join(lines)
+    widths = [max(len(row[j]) for row in [header] + rows) for j in range(4)]
+    lines += [
+        "  ".join(s.ljust(w) for s, w in zip(header, widths)),
+        "  ".join("-" * w for w in widths),
+    ]
+    lines += [
+        "  ".join(s.ljust(w) for s, w in zip(row, widths)).rstrip()
+        for row in rows
+    ]
+    lines.append(
+        "Integral: " + _yield_number(hist.Integral())
+        + "  (integral error is not reconstructed from per-bin errors)"
+    )
+    return "\n".join(lines)
+
+
+def yield_report_text(spec, fit_type, yield_processes, curves, args):
+    """Append process-by-process per-bin yields to the existing bin-key TXT."""
+    fit_label = {
+        "shapes_prefit": "Pre-fit",
+        "shapes_fit_b": "Post-fit (B-only)",
+        "shapes_fit_s": "Post-fit (S+B)",
+    }[fit_type]
+
+    if fit_type == "shapes_fit_b":
+        signal_source = "shapes_prefit (B-only benchmark signal; region-by-region if present)"
+    elif fit_type == "shapes_prefit":
+        signal_source = "shapes_prefit"
+    else:
+        signal_source = "shapes_fit_s (fitted signal)"
+
+    if args.overlay_preset is not None and fit_type in ("shapes_prefit", "shapes_fit_b"):
+        signal_source = (
+            f"overlay prefit source(s) from preset {args.overlay_preset}; "
+            "each row is the curve actually drawn"
+        )
+
+    lines = [
+        "",
+        "================================================================",
+        "Per-process yields",
+        "================================================================",
+        f"Fit type: {fit_label} ({fit_type})",
+        f"Background/process source: {fit_type}",
+        f"Signal source: {signal_source}",
+        "Values are the displayed-bin TH1 content and TH1 bin error.",
+        "Era-suffixed process histograms are combined with the same TH1::Add convention used by the plotter; wz_ewk is folded into wz.",
+        "total_background uses Combine's saved total uncertainty; it is not rebuilt from process errors.",
+        "Signal rows use the already-scaled histograms actually drawn by the plotter.",
+        "Therefore their labels carry the same |V|^2 / Weinberg scale, or fitted xN convention, as the legend.",
+        "A signal row is omitted when that signal template does not exist in this region.",
+    ]
+
+    for name, hist in yield_processes:
+        lines += ["", _yield_hist_block("Process", name, hist, spec)]
+
+    for curve in curves:
+        hist = curve.get("hist")
+        if hist is None:
+            continue
+        lines += [
+            "",
+            _yield_hist_block(
+                "Signal",
+                curve.get("label", "signal"),
+                hist,
+                spec,
+                source_text=signal_source,
+                present_bins=curve.get("_present_bins"),
+            ),
+        ]
+
+    return "\n".join(lines) + "\n"
+
+
 def nonzero(value):
     # Exact zero, not a yield threshold: never drop a small fitted tail.
     return not math.isfinite(float(value)) or float(value) != 0.0
@@ -3348,7 +3588,7 @@ def draw_text(x, y, text, size=22, align=11, font=43, angle=0):
 
 
 def render_region(total_bkg, processes, data, ratio_input, curves, spec,
-                  fit_type, output_dir, style, logy, args):
+                  fit_type, output_dir, style, logy, args, yield_processes=None):
     n = len(spec["bins"])
     safe = re.sub(r"[^A-Za-z0-9_]", "_", spec["raw_region"])
     uid = f"{safe}_{fit_type}_{style}"
@@ -3881,6 +4121,15 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     canvas.Print(pdf_path, "pdf")
     with open(bins_txt_path, "w") as handle:
         handle.write(bin_key_text(spec))
+        handle.write(
+            yield_report_text(
+                spec=spec,
+                fit_type=fit_type,
+                yield_processes=(yield_processes or []),
+                curves=curves,
+                args=args,
+            )
+        )
     canvas.Close()
 
 def plot_region(region_dir, signal_region_dir, fit_type, outdir, logy,
@@ -3977,6 +4226,13 @@ def plot_region(region_dir, signal_region_dir, fit_type, outdir, logy,
 
     for i,curve in enumerate(curves):
         curve["hist"] = categorical_hist(curve["hist"],n,f"sig_{i}_{region}_{fit_type}")
+
+    # TXT export: dynamically retain every non-signal TH1 process saved in
+    # this FitDiagnostics region, rather than only the processes in STACK_ORDER.
+    # Signals are exported from ``curves`` so B-only/prefit fallback and all
+    # plotter scaling conventions remain exactly synchronized with the figure.
+    yield_processes = collect_yield_processes(region_dir, n, fit_type)
+
     print(f"[BINS] {region}: {source.GetNbinsX()} stored -> {n} displayed; {spec['source']}")
     print(f"[YIELD] total_background = {total_bkg.Integral():.6g}; style = {args.axis_style}")
     display_spec = spec
@@ -3992,7 +4248,8 @@ def plot_region(region_dir, signal_region_dir, fit_type, outdir, logy,
     styles = ("cuts","codes") if args.axis_style == "both" else (args.axis_style,)
     for style in styles:
         render_region(total_bkg,processes,data,ratio_input,curves,display_spec,fit_type,
-                      os.path.join(outdir,"axis_"+style),style,logy,args)
+                      os.path.join(outdir,"axis_"+style),style,logy,args,
+                      yield_processes=yield_processes)
 
 
 def _concat_categorical_hists(parts, name):
@@ -4217,6 +4474,7 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
     for label, sr_curve in per_region_curves[0].items():
         pieces = []
         draw_hists = []
+        present_bins = []
         offset = 0
 
         for idx, n in enumerate(nbins_parts):
@@ -4225,6 +4483,7 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
             if c is not None:
                 local = c["hist"]
                 pieces.append(local)
+                present_bins.extend([True] * n)
 
                 seg = ROOT.TH1D(
                     f"summary_sig_segment_{len(curves)}_{idx}_{fit_type}",
@@ -4250,6 +4509,7 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
                 )
                 z.SetDirectory(0)
                 pieces.append(z)
+                present_bins.extend([False] * n)
 
             offset += n
 
@@ -4267,6 +4527,7 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
             "hist": h,
             "draw_hists": draw_hists,
             "label": label,
+            "_present_bins": present_bins,
             "raw_yield": sum(
                 c.get(label, {}).get("raw_yield", 0.0)
                 for c in per_region_curves
@@ -4318,11 +4579,21 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
         "summary_sr_number": sr_number,
     }
 
+    # Summary TXT dynamically retains all FitDiagnostics background processes
+    # across the component regions, not only the fixed drawing STACK_ORDER.
+    summary_yield_processes = concat_yield_processes(
+        region_dirs,
+        nbins_parts,
+        fit_type,
+        f"summary_txt_{sr}",
+    )
+
     print(f"[SUMMARY] {sr}: {' + '.join(wanted)} -> {sum(nbins_parts)} displayed bins")
     styles = ("cuts","codes") if args.axis_style == "both" else (args.axis_style,)
     for style in styles:
         render_region(total_bkg, processes, data, ratio_input, curves, summary_spec, fit_type,
-                      os.path.join(outdir, "axis_"+style), style, logy, args)
+                      os.path.join(outdir, "axis_"+style), style, logy, args,
+                      yield_processes=summary_yield_processes)
     return True
 
 
