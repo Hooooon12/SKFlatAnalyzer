@@ -100,13 +100,15 @@ label_map = {
     "Jet uncert.":    "Jet selection \\& energy",
     "MET scale":      "Unclustered energy",
     "b-tagging":      "b tagging efficiency",
-    "Pileup":         "Pileup modeling",
+    "Pileup":         "Pileup modelling",
     "Prefiring":      "L1 prefiring",
     "HEM":            "HEM",
     "Cross section":  "Cross-section uncertainty",
     "MC stats":       "Template statistical",
     "PDF":            "PDF variation",
-    "Scale":          "QCD scale variation",
+    "RenScale":       r"$\mu_{\mathrm{R}}$ variation",
+    "FacScale":       r"$\mu_{\mathrm{F}}$ variation",
+    "WZ modelling":   "WZ modelling",
     "Fake rate":      "Nonprompt leptons",
     "Charge Flip":    "Charge misidentification", 
     # Special Keys
@@ -123,30 +125,32 @@ for mass in TargetMasses:
         WorkPath = f"{BasePath}/{args.InputWP}/{args.era}_{channel}_M{mass}_{SignalType}_syst/Breakdown/{AsimovName}"
         
         # Define file structure (Cumulative Freezing Order)
-        # Note: Must match the original script's logic exactly
+        # Must match the cumulative freeze order produced by create-batch_updated.py
         files = [
             ("Total",            f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_total.MultiDimFit.mH120.root"),
             ("Freeze Jet",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet.MultiDimFit.mH120.root"),
             ("Freeze PDF",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf.MultiDimFit.mH120.root"),
-            ("Freeze Scale",     f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale.MultiDimFit.mH120.root"),
-            ("Freeze Fake",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake.MultiDimFit.mH120.root"),
-            ("Freeze Lep",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep.MultiDimFit.mH120.root"),
-            ("Freeze Pileup",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup.MultiDimFit.mH120.root"),
-            ("Freeze Lumi",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi.MultiDimFit.mH120.root"),
-            ("Freeze Btag",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root"),
-            ("Freeze Prefire",   f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root"),
-            ("Freeze MET",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root"),
-            ("Freeze Xsec",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root"),
-            ("Freeze HEM",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM.MultiDimFit.mH120.root"),
-            ("Freeze MCstat",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat.MultiDimFit.mH120.root"),
+            ("Freeze RenScale",  f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale.MultiDimFit.mH120.root"),
+            ("Freeze FacScale",  f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale.MultiDimFit.mH120.root"),
+            ("Freeze Fake",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake.MultiDimFit.mH120.root"),
+            ("Freeze Lep",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep.MultiDimFit.mH120.root"),
+            ("Freeze Pileup",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup.MultiDimFit.mH120.root"),
+            ("Freeze Lumi",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi.MultiDimFit.mH120.root"),
+            ("Freeze Btag",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi_btag.MultiDimFit.mH120.root"),
+            ("Freeze Prefire",   f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi_btag_prefire.MultiDimFit.mH120.root"),
+            ("Freeze MET",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi_btag_prefire_met.MultiDimFit.mH120.root"),
+            ("Freeze Xsec",      f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi_btag_prefire_met_xsec.MultiDimFit.mH120.root"),
+            ("Freeze HEM",       f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM.MultiDimFit.mH120.root"),
+            ("Freeze AltWZ",     f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_altwz.MultiDimFit.mH120.root"),
+            ("Freeze MCstat",    f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_altwz_mcstat.MultiDimFit.mH120.root"),
         ]
-        
-        # Labels for the step-by-step subtraction
-        # Order MUST correspond to the 'files' list indices [1] to [N]
+
+        # Labels MUST follow the cumulative freeze order above.
         step_labels = [
             "Jet uncert.",
             "PDF",
-            "Scale",
+            "RenScale",
+            "FacScale",
             "Fake rate",
             "Lepton uncert.",
             "Pileup",
@@ -156,12 +160,13 @@ for mass in TargetMasses:
             "MET scale",
             "Cross section",
             "HEM",
+            "WZ modelling",
             "MC stats",
         ]
-        
+
         # Handle Charge Flip for EE, EMu
         if "E" in channel:
-            files.append(("Freeze CF", f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_scale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_mcstat_cf.MultiDimFit.mH120.root"))
+            files.append(("Freeze CF", f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_jet_pdf_renscale_facscale_fake_lep_pileup_lumi_btag_prefire_met_xsec_HEM_altwz_mcstat_cf.MultiDimFit.mH120.root"))
             step_labels.append("Charge Flip")
             
         files.append(("Stat Only", f"{WorkPath}/higgsCombine.{args.era}_{channel}_M{mass}_{SignalType}_syst_{AsimovName}_freeze_all.MultiDimFit.mH120.root"))
@@ -225,7 +230,6 @@ for mass in TargetMasses:
 
 # Define the row order strictly as requested
 row_structure = [
-    #(r"\multicolumn{1}{c}{\textbf{Simulation:}}", None),
     (r"\multicolumn{1}{c}{\textbf{Simulation:}} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
@@ -235,21 +239,14 @@ row_structure = [
     ("Jet selection \\& energy",    "Jet selection \\& energy"),
     ("Unclustered energy",          "Unclustered energy"),
     ("b tagging efficiency",        "b tagging efficiency"),
-    ("Pileup modeling",             "Pileup modeling"),
+    ("Pileup modelling",             "Pileup modelling"),
     ("L1 prefiring",                "L1 prefiring"),
     ("HEM",                         "HEM"),
+    ("WZ modelling",                "WZ modelling"),
     ("Cross-section uncertainty",   "Cross-section uncertainty"),
     ("Template statistical",        "Template statistical"),
     (r"\hline", None),
-    #(r"\multicolumn{1}{c}{\textbf{Theory:}}", None),
-    (r"\multicolumn{1}{c}{\textbf{Theory:}} &", None),
-    (r"\multicolumn{3}{c|}{} &", None),
-    (r"\multicolumn{3}{c|}{} &", None),
-    (r"\multicolumn{3}{c}{} \\", None),
-    ("PDF variation",               "PDF variation"),
-    ("QCD scale variation",         "QCD scale variation"),
-    (r"\hline", None),
-    #(r"\multicolumn{1}{c}{\textbf{Data-driven:}}", None),
+
     (r"\multicolumn{1}{c}{\textbf{Data-driven:}} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
     (r"\multicolumn{3}{c|}{} &", None),
@@ -257,8 +254,18 @@ row_structure = [
     ("Nonprompt leptons",           "Nonprompt leptons"),
     ("Charge misidentification",    "Charge misidentification"),
     (r"\hline", None),
+
+    (r"\multicolumn{1}{c}{\textbf{Theory:}} &", None),
+    (r"\multicolumn{3}{c|}{} &", None),
+    (r"\multicolumn{3}{c|}{} &", None),
+    (r"\multicolumn{3}{c}{} \\", None),
+    ("PDF variation",                       "PDF variation"),
+    (r"$\mu_{\mathrm{R}}$ variation", r"$\mu_{\mathrm{R}}$ variation"),
+    (r"$\mu_{\mathrm{F}}$ variation", r"$\mu_{\mathrm{F}}$ variation"),
+    (r"\hline", None),
+
     (r"\textbf{Total systematic}",  "Total systematic"),
-    (r"\textbf{Data statistical}",       "Data statistical"),
+    (r"\textbf{Data statistical}",  "Data statistical"),
     (r"\hline", None),
 ]
 

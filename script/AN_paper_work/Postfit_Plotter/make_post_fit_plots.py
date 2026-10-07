@@ -144,9 +144,22 @@ OVERLAY_COMPONENTS = { # signal components for multi-signal overlay
     },
 }
 
-# HNL input-template normalization.
-# The analyzer output is produced at |V|^2 = 1, and these factors are
-# applied when the Combine input histograms are built.
+# HNL Combine-input scale factors used by MakeInput.
+#
+# These numbers are applied uniformly to the input templates:
+#   DY / Wgamma : x s
+#   SSWW        : x s^2
+#
+# They are NOT, by themselves, always the physical |V|^2 represented by
+# FitDiagnostics shapes_prefit. In the EMu physics model the prefit workspace
+# is evaluated at r = 1 with
+#
+#   DY / Wgamma : r
+#   SSWW        : 4 r^2
+#
+# because for equal Ve = Vmu the EMu DY/Wgamma rate is proportional to
+# |V|^2 / 2, whereas SSWW is proportional to |V|^4. Consequently the common
+# physical reference point represented by EMu shapes_prefit is |V|^2 = 2 s.
 HNL_INPUT_MIXING_SQUARED_DEFAULT = 0.01
 HNL_INPUT_MIXING_SQUARED_LOW_MASS = 0.001
 HNL_INPUT_MIXING_SQUARED_HIGH_MASS = 0.1
@@ -704,17 +717,17 @@ def get_process_eras(era):
     return [era]
 
 
-def get_hnl_input_mixing_squared(mass):
+def get_hnl_makeinput_scaler(mass):
     """
-    Return the |V|^2 value already encoded in the HNL input histogram.
+    Return the mass-dependent scaler s used by MakeInput.
 
-    The analyzer output itself is at |V|^2 = 1. The Combine-input builder
-    then applies the mass-dependent DY/VBF scaler below, while SSWW gets
-    the square of the same scaler.
+    MakeInput applies:
+        DY / Wgamma : x s
+        SSWW        : x s^2
     """
     if mass is None:
         raise ValueError(
-            "HNL input mixing cannot be determined without a mass."
+            "HNL MakeInput scaler cannot be determined without a mass."
         )
 
     mass_int = int(mass)
@@ -726,6 +739,32 @@ def get_hnl_input_mixing_squared(mass):
         return HNL_INPUT_MIXING_SQUARED_HIGH_MASS
 
     return HNL_INPUT_MIXING_SQUARED_DEFAULT
+
+
+
+def get_hnl_prefit_reference_mixing_squared(mass, channel):
+    """
+    Return the physical |V|^2 represented by FitDiagnostics shapes_prefit.
+
+    EE / MuMu:
+        DY/Wgamma ~ |V|^2 and SSWW ~ |V|^4.
+        The ordinary physics model evaluates shapes_prefit at r = 1, so
+        the reference point is |V|^2 = s.
+
+    EMu:
+        DY/Wgamma ~ |V|^2 / 2, while SSWW ~ |V|^4.
+        The EMu physics model uses r for DY/Wgamma and 4*r^2 for SSWW.
+        Since shapes_prefit is evaluated at r = 1, the common physical
+        reference point is therefore |V|^2 = 2*s.
+
+    Here s is the mass-dependent MakeInput scaler.
+    """
+    scaler = get_hnl_makeinput_scaler(mass)
+
+    if channel == "EMu":
+        return 2.0 * scaler
+
+    return scaler
 
 
 def resolve_separate_signal_scales(
@@ -948,15 +987,29 @@ def get_signal_mode_subdir(args):
     return base
 
 
-def make_prefit_hnl_component_label(component_key, mass, draw_scale):
-    input_mixing_squared = get_hnl_input_mixing_squared(mass)
+def make_prefit_hnl_component_label(
+    component_key,
+    mass,
+    draw_scale,
+    channel,
+):
+    reference_v2 = get_hnl_prefit_reference_mixing_squared(
+        mass,
+        channel,
+    )
 
     if component_key in ["DY", "VBF"]:
-        displayed_mixing_squared = input_mixing_squared * draw_scale
+        # DY/Wgamma scale linearly with |V|^2.
+        # The EMu factor 1/2 is already part of the shapes_prefit reference
+        # normalization, so only the relative |V|^2 multiplier is needed here.
+        displayed_mixing_squared = reference_v2 * draw_scale
+
     elif component_key == "SSWW":
+        # SSWW scales as |V|^4 = (|V|^2)^2 in every channel.
         displayed_mixing_squared = (
-            input_mixing_squared * math.sqrt(draw_scale)
+            reference_v2 * math.sqrt(draw_scale)
         )
+
     else:
         raise ValueError(
             f"Not an HNL component: {component_key}"
@@ -969,16 +1022,25 @@ def make_prefit_hnl_component_label(component_key, mass, draw_scale):
     )
 
 
-def make_prefit_hnl_total_label(mass, mixing_multiplier):
-    input_mixing_squared = get_hnl_input_mixing_squared(mass)
+def make_prefit_hnl_total_label(
+    mass,
+    mixing_multiplier,
+    channel,
+):
+    reference_v2 = get_hnl_prefit_reference_mixing_squared(
+        mass,
+        channel,
+    )
+
     displayed_mixing_squared = (
-        input_mixing_squared * mixing_multiplier
+        reference_v2 * mixing_multiplier
     )
 
     return (
         f"Total HNL signal, |V|^{{2}} = "
         f"{displayed_mixing_squared:g}"
     )
+
 
 
 def make_prefit_weinberg_label(plotter_scale):
@@ -1235,7 +1297,7 @@ def get_overlay_component_hist(region_dir, component):
     return get_combined_process(region_dir, process)
 
 
-def resolve_overlay_draw_scale(curve_spec, hist, total_bkg, n, logy):
+def resolve_overlay_draw_scale(curve_spec, hist, total_bkg, n, logy, channel):
     """Resolve one overlay curve's numeric draw scale, including physical rounding."""
     requested = normalize_scale_spec(curve_spec.get("scale", "auto"), "overlay scale")
     if not is_auto_scale(requested):
@@ -1265,7 +1327,7 @@ def resolve_overlay_draw_scale(curve_spec, hist, total_bkg, n, logy):
         return scale
 
     mass = str(curve_spec["mass"])
-    input_v2 = get_hnl_input_mixing_squared(mass)
+    input_v2 = get_hnl_prefit_reference_mixing_squared(mass, channel)
     if component in ("DY", "VBF", "DYVBF"):
         desired_v2 = input_v2 * continuous_scale
         rounded_v2 = round_one_significant(desired_v2)
@@ -1359,7 +1421,7 @@ def materialize_overlay_recipe(raw_region, anchor_spec, total_bkg, n, logy,
 
         item = copy.deepcopy(curve)
         item["_resolved_scale"] = resolve_overlay_draw_scale(
-            item, hist, total_bkg, n, logy
+            item, hist, total_bkg, n, logy, channel
         )
         item["_overlay_index"] = index
         effective_curves.append(item)
@@ -1405,7 +1467,7 @@ def load_overlay_curves(raw_region, anchor_spec, effective_recipe, source_maps,
             )
         else:
             mass = str(curve["mass"])
-            input_v2 = get_hnl_input_mixing_squared(mass)
+            input_v2 = get_hnl_prefit_reference_mixing_squared(mass, channel)
         
             if component in ("DY", "VBF", "DYVBF"):
                 displayed_v2 = input_v2 * scale
@@ -1442,6 +1504,7 @@ def resolve_effective_signal_scales(
     signal_mode,
     mass,
     point_signal,
+    channel,
     total_bkg,
     n,
     logy,
@@ -1780,8 +1843,8 @@ def resolve_effective_signal_scales(
     # ========================================================
 
     input_v2 = (
-        get_hnl_input_mixing_squared(
-            mass
+        get_hnl_prefit_reference_mixing_squared(
+            mass, channel,
         )
     )
 
@@ -2199,6 +2262,7 @@ def load_signal_curves(
     signal_colors,
     mass,
     point_signal,
+    channel,
 ):
     """
     Return a list of signal curves to draw.
@@ -2314,6 +2378,7 @@ def load_signal_curves(
                         component_key=key,
                         mass=mass,
                         draw_scale=component_scale,
+                        channel=channel,
                     )
 
             else:
@@ -2424,6 +2489,7 @@ def load_signal_curves(
                     label=make_prefit_hnl_total_label(
                         mass=mass,
                         mixing_multiplier=signal_scales["total"],
+                        channel=channel,
                     ),
                     scale=1.0,
                     color_spec=signal_colors["total"],
@@ -4206,6 +4272,7 @@ def plot_region(region_dir, signal_region_dir, fit_type, outdir, logy,
                 signal_mode=signal_mode,
                 mass=mass,
                 point_signal=point_signal,
+                channel=channel,
                 total_bkg=total_bkg,
                 n=n,
                 logy=logy,
@@ -4222,6 +4289,7 @@ def plot_region(region_dir, signal_region_dir, fit_type, outdir, logy,
             signal_colors,
             mass,
             point_signal,
+            channel,
         )
 
     for i,curve in enumerate(curves):
@@ -4444,6 +4512,7 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
             signal_mode=signal_mode,
             mass=mass,
             point_signal=point_signal,
+            channel=channel,
             total_bkg=bkg_parts[0],
             n=nbins_parts[0],
             logy=logy,
@@ -4454,7 +4523,7 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
         for key, region_dir, signal_dir, n in zip(wanted, region_dirs, signal_dirs, nbins_parts):
             region_curves = load_signal_curves(
                 region_dir, signal_dir, fit_type, signal_mode,
-                effective_signal_scales, signal_colors, mass, point_signal
+                effective_signal_scales, signal_colors, mass, point_signal, channel
             )
             cooked = {}
             for idx, curve in enumerate(region_curves):

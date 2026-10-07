@@ -1075,7 +1075,8 @@ def NuisanceGrouping(this_card):
                 'lumi'        : [],
                 'xsec'        : [],
                 'pdf'         : [],
-                'scale'       : [],
+                'RenScale'    : [],
+                'FacScale'    : [],
                 'fake'        : [],
                 'cf'          : [],
                 'jet_uncert'  : [],
@@ -1085,6 +1086,7 @@ def NuisanceGrouping(this_card):
                 'prefire'     : [],
                 'pileup'      : [],
                 'HEM'         : [],
+                'altwz'       : [],
   }
   for line in lines[:]:
     line = line.split(' ')[0]
@@ -1094,8 +1096,12 @@ def NuisanceGrouping(this_card):
       group_nuis["xsec"].append(line)
     elif "pdf" in line:
       group_nuis["pdf"].append(line)
-    elif "QCDscale" in line or "RenScale" in line or "FacScale" in line:
-      group_nuis["scale"].append(line)
+    #elif "QCDscale" in line or "RenScale" in line or "FacScale" in line:
+    #  group_nuis["scale"].append(line) # obsolete. Separate Ren- and Fac-Scale uncertainty
+    elif "RenScale" in line:
+      group_nuis["RenScale"].append(line)
+    elif "FacScale" in line:
+      group_nuis["FacScale"].append(line)
     elif "CMS_SUS24014_fake" in line:
       group_nuis["fake"].append(line)
     elif "CMS_SUS24014_cf" in line:
@@ -1119,6 +1125,8 @@ def NuisanceGrouping(this_card):
       group_nuis["pileup"].append(line)
     elif "HEM" in line:
       group_nuis["HEM"].append(line)
+    elif "altwz" in line:
+      group_nuis["altwz"].append(line)
 
   with open(this_card,'a') as f:
     for key, value in list(group_nuis.items()):
