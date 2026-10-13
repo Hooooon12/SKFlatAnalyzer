@@ -386,39 +386,67 @@ SIGNAL_SCALE_PRESETS = {
 SIGNAL_OVERLAY_PRESETS = {
     "ANv8": {
         "regions": {
-            "SR1": {
-                "fit_mass": "1000",
-                "fit_signal": "HNL",
-                "curves": [
-                    {"component": "DYVBF",  "mass": "1000", "scale": "100", "color": "kRed",     "line_style": 1},
-                ],
-            },
-            "SR2": {
-                "fit_mass": "1000",
-                "fit_signal": "HNL",
-                "curves": [
-                    {"component": "SSWW",     "mass": "1000",  "scale": "900", "color": "kBlue",  "line_style": 1},
-                    {"component": "Weinberg",                  "scale": "1", "color": "kMagenta", "line_style": 2},
-                ],
-            },
-            "SR3H": {
-                "fit_mass": "1000",
-                "fit_signal": "HNL",
-                "curves": [
-                    {"component": "DYVBF",    "mass": "1000", "scale": "10000", "color": "kRed",     "line_style": 1},
-                    {"component": "SSWW",     "mass": "1000", "scale": "10000", "color": "kBlue",    "line_style": 2},
-                ],
-            },
-            "SR3L": {
-                "fit_mass": "100",
-                "fit_signal": "HNL",
-                "curves": [
-                    {"component": "DY",       "mass": "100", "scale": "10", "color": "kRed",     "line_style": 1},
-                ],
-            },
+
+            "SR1": [
+                {
+                    "fit_mass": "1000",
+                    "fit_signal": "HNL",
+                    "curves": [
+                        {"component": "DYVBF", "mass": "1000",
+                         "scale": "100", "color": "kRed", "line_style": 1},
+                    ],
+                },
+            ],
+
+            "SR2": [
+                {
+                    "fit_mass": "1000",
+                    "fit_signal": "HNL",
+                    "curves": [
+                        {"component": "SSWW", "mass": "1000",
+                         "scale": "900", "color": "kBlue", "line_style": 1},
+                        {"component": "Weinberg",
+                         "scale": "1", "color": "kMagenta", "line_style": 2},
+                    ],
+                },
+            ],
+
+            "SR3H": [
+                {
+                    "fit_mass": "1000",
+                    "fit_signal": "HNL",
+                    "curves": [
+                        {"component": "DYVBF", "mass": "1000",
+                         "scale": "10000", "color": "kRed", "line_style": 1},
+                        {"component": "SSWW", "mass": "1000",
+                         "scale": "10000", "color": "kBlue", "line_style": 2},
+                    ],
+                },
+            ],
+
+            "SR3L": [
+                {
+                    "fit_mass": "100",
+                    "fit_signal": "HNL",
+                    "curves": [
+                        {"component": "DY", "mass": "100",
+                         "scale": "10", "color": "kRed", "line_style": 1},
+                    ],
+                },
+                {
+                    "fit_mass": "400",
+                    "fit_signal": "HNL",
+                    "curves": [
+                        {"component": "DY", "mass": "400",
+                         "scale": "10", "color": "kRed", "line_style": 1},
+                    ],
+                },
+            ],
+
         },
     },
 }
+
 
 ERAS = [
     "2016preVFP",
@@ -670,6 +698,12 @@ def parse_args():
     parser.add_argument("--lumi", type=float, default=None,
                         help="Luminosity in fb^-1; override the era-based display default.")
     parser.add_argument("--canvas-width", type=int, default=0, help="0: adapt width to bin count.")
+    parser.add_argument("--large-sr1-sr2-summary", action="store_true",
+        help=(
+            "Draw SR1/SR2 summary plots with the enlarged horizontal canvas "
+            "used for SR3 summaries. Ordinary region plots are unchanged."
+        ),
+    )
     parser.add_argument("--ratio-max", type=float, default=2.5)
     parser.add_argument("--label-angle", type=float, default=None,
                         help="Override bin-label rotation, in degrees (normally automatic).")
@@ -1178,6 +1212,29 @@ def overlay_source_key(curve_spec):
     return ("HNL", str(curve_spec["mass"]))
 
 
+def iter_overlay_recipes(preset):
+    """
+    Allow either a single recipe or multiple recipes per region.
+    """
+    for region_name, value in preset["regions"].items():
+
+        recipes = value if isinstance(value, list) else [value]
+
+        if not recipes:
+            raise ValueError(
+                f"Overlay region {region_name!r} has no recipes."
+            )
+
+        for recipe in recipes:
+            if not isinstance(recipe, dict):
+                raise ValueError(
+                    f"Overlay region {region_name!r}: "
+                    "each recipe must be a dictionary."
+                )
+
+            yield region_name, recipe
+
+
 def validate_overlay_preset(preset_name):
     preset = SIGNAL_OVERLAY_PRESETS[preset_name]
     regions = preset.get("regions")
@@ -1186,7 +1243,7 @@ def validate_overlay_preset(preset_name):
 
     allowed_regions = {"SR1", "SR2", "SR3H", "SR3L"}
     allowed_components = {"DY", "VBF", "DYVBF", "SSWW", "Weinberg"}
-    for region_name, recipe in regions.items():
+    for region_name, recipe in iter_overlay_recipes(preset):
         if region_name not in allowed_regions:
             raise ValueError(
                 f"Overlay preset {preset_name!r}: unknown region {region_name!r}; "
@@ -2937,7 +2994,7 @@ REGION_TITLES = {"sr1":"SR1", "sr2":"SR2", "sr3":"SR3",
                  "wz_cr1":"WZ CR1", "wz_cr2":"WZ CR2", "wz_cr3":"WZ CR3",
                  "zg_cr":"Z#gamma CR", "zz_cr":"ZZ CR"}
 LUMI = {"2016preVFP":19.5, "2016postVFP":16.8, "2017":41.5, "2018":59.8,
-        "Run2":138.0, "Run2Sum":138.0}
+        "Run2":137.6, "Run2Sum":137.6}
 
 
 def canonical_region(raw):
@@ -3660,14 +3717,29 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     uid = f"{safe}_{fit_type}_{style}"
     width = args.canvas_width or (900 if n <= 8 else 1200 if n <= 15 else 1400)
 
-    # SR3 summaries contain many categorical bins (SR + IB + IM + WZ CR).
-    # Give them substantially more horizontal room than ordinary region plots.
-    # An explicit --canvas-width still takes precedence.
-    if (
+    # Optional enlarged SR1/SR2 summary layout.
+    #
+    # Keep an explicit --canvas-width higher priority than this automatic
+    # enlargement, consistent with the existing SR3-summary behaviour.
+    large_sr12_summary = (
         not args.canvas_width
+        and args.large_sr1_sr2_summary
         and spec.get("summary_mode")
-        and spec.get("summary_sr_number") == 3
-    ):
+        and spec.get("summary_sr_number") in (1, 2)
+    )
+
+    # SR3 summaries are enlarged by default.  With
+    # --large-sr1-sr2-summary, apply the same horizontal sizing rule
+    # to SR1/SR2 summaries.
+    enlarged_summary = (
+        spec.get("summary_mode")
+        and (
+            spec.get("summary_sr_number") == 3
+            or large_sr12_summary
+        )
+    )
+
+    if not args.canvas_width and enlarged_summary:
         width = max(width, 1800, min(2400, 300 + 48 * n))
 
     # A slightly landscape canvas gives ROOT's PDF backend more physical room
@@ -3679,8 +3751,8 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     upper = ROOT.TPad("upper_"+uid,"",0.,.34,1.,1.)
     ratio = ROOT.TPad("ratio_"+uid,"",0.,0.,1.,.34)
     left, right = .12, .97
-    if spec.get("summary_mode") and spec.get("summary_sr_number") == 3:
-        # Use a little more of the available canvas width for the dense SR3 summary.
+    if enlarged_summary:
+        # Use more of the available canvas width for enlarged summary plots.
         left, right = .10, .985
     grouped = bool(spec["groups"])
 
@@ -3814,7 +3886,10 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     frame.GetYaxis().SetTitleSize(0.055)
     frame.GetYaxis().SetLabelFont(42)
     frame.GetYaxis().SetLabelSize(0.045)
-    frame.GetYaxis().SetTitleOffset(1.05)
+    if enlarged_summary:
+        frame.GetYaxis().SetTitleOffset(0.85)
+    else:
+        frame.GetYaxis().SetTitleOffset(1.05)
     frame.Draw("AXIS")
 
     if processes:
@@ -4059,7 +4134,10 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     ratio_frame.GetYaxis().SetTitleSize(0.10)
     ratio_frame.GetYaxis().SetLabelFont(42)
     ratio_frame.GetYaxis().SetLabelSize(0.085)
-    ratio_frame.GetYaxis().SetTitleOffset(0.58)
+    if enlarged_summary:
+        ratio_frame.GetYaxis().SetTitleOffset(0.45)
+    else:
+        ratio_frame.GetYaxis().SetTitleOffset(0.58)
     ratio_frame.Draw("AXIS")
     ratio_band = make_ratio_band(total_bkg)
     ratio_band.Draw("E2 SAME")
@@ -4175,9 +4253,17 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
         filename_parts.append(args.output_wp)
     
     output_stem = "_".join(filename_parts)
-    
-    png_path = os.path.join(output_dir, output_stem + ".png")
-    pdf_path = os.path.join(output_dir, output_stem + ".pdf")
+
+    # Only the enlarged SR1/SR2 figure files receive the _Large tag.
+    # Keep the TXT filename unchanged so the enlarged and ordinary figures
+    # share the same yield/bin report rather than producing duplicate TXT files.
+    plot_output_stem = output_stem
+
+    if large_sr12_summary:
+        plot_output_stem += "_Large"
+
+    png_path = os.path.join(output_dir, plot_output_stem + ".png")
+    pdf_path = os.path.join(output_dir, plot_output_stem + ".pdf")
     bins_txt_path = os.path.join(output_dir, output_stem + "_bins.txt")
 
     # Raster preview first; then force one final vector repaint for PDF.
@@ -4819,10 +4905,28 @@ def main():
                     for tag in args.tags:
                         for suffix in TAG_MAP[tag]:
                             grouped = {}
-                            for region_name, recipe in overlay_preset["regions"].items():
+                            
+                            for region_name, recipe in iter_overlay_recipes(overlay_preset):
+                            
                                 fit_signal = recipe.get("fit_signal", "HNL")
-                                fit_mass = None if fit_signal == "Weinberg" else str(recipe.get("fit_mass"))
-                                grouped.setdefault((fit_signal, fit_mass), {})[region_name] = recipe
+                            
+                                fit_mass = (
+                                    None if fit_signal == "Weinberg"
+                                    else str(recipe.get("fit_mass"))
+                                )
+                            
+                                group_key = (fit_signal, fit_mass)
+                            
+                                # Prevent silently overwriting a recipe for the same
+                                # region and background workspace.
+                                if region_name in grouped.get(group_key, {}):
+                                    raise ValueError(
+                                        f"Duplicate overlay recipe: {region_name}, "
+                                        f"{fit_signal}, M{fit_mass}. "
+                                        "Use one recipe with multiple curves instead."
+                                    )
+                            
+                                grouped.setdefault(group_key, {})[region_name] = recipe
 
                             for (fit_signal, fit_mass), region_recipes in grouped.items():
                                 name = build_point_name(era, channel, fit_mass, fit_signal, suffix)
