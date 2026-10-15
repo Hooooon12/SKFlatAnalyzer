@@ -552,7 +552,7 @@ def parse_args():
             "Publication-style multi-mass signal overlay preset. "
             "For pre-fit and post-fit B-only plots, backgrounds/binning come "
             "from the preset's canonical fit_mass while signal curves are read "
-            "from each curve's own shapes_prefit workspace. Post-fit S+B plots "
+            "from each curve's own shapes_prefit workspace. Postfit S+B plots "
             "are skipped in overlay mode."
         ),
     )
@@ -3535,9 +3535,9 @@ def _yield_hist_block(kind, label, hist, spec, source_text=None, present_bins=No
 def yield_report_text(spec, fit_type, yield_processes, curves, args):
     """Append process-by-process per-bin yields to the existing bin-key TXT."""
     fit_label = {
-        "shapes_prefit": "Pre-fit",
-        "shapes_fit_b": "Post-fit (B-only)",
-        "shapes_fit_s": "Post-fit (S+B)",
+        "shapes_prefit": "Prefit",
+        "shapes_fit_b": "Postfit (B-only)",
+        "shapes_fit_s": "Postfit (S+B)",
     }[fit_type]
 
     if fit_type == "shapes_fit_b":
@@ -3748,12 +3748,16 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     canvas = ROOT.TCanvas("c_"+uid,"",width,height)
     canvas.SetFillColor(ROOT.kWhite)
     canvas.SetBorderMode(0)
-    upper = ROOT.TPad("upper_"+uid,"",0.,.34,1.,1.)
-    ratio = ROOT.TPad("ratio_"+uid,"",0.,0.,1.,.34)
-    left, right = .12, .97
+    # Summary: ratio pad is half its original height.
+    split_y = .25 if spec.get("summary_mode") else .34
+    upper = ROOT.TPad("upper_"+uid,"",0.,split_y,1.,1.)
+    ratio = ROOT.TPad("ratio_"+uid,"",0.,0.,1.,split_y)
+    left, right = .14, .97 # This controls canvas margins
     if enlarged_summary:
-        # Use more of the available canvas width for enlarged summary plots.
-        left, right = .10, .985
+        left = .06
+        right = .985
+    elif spec.get("summary_mode"):
+        left = .07
     grouped = bool(spec["groups"])
 
     # --------------------------------------------------------
@@ -3771,33 +3775,58 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     # Move in-frame text a little away from the left/right ticks.
     #title_x = left + .015
     title_x = left + .035
-    title_y = .865
+    title_y = .855
     # Summary titles such as ``SR2 + associated CRs, e#mu`` are long and the
     # vector-font PDF version is visually taller than the old precision-3 text.
     # Give the second line more vertical clearance in summary plots.
     # SR1/SR2 summaries are especially cramped, so move the fit-status line
     # farther down instead of relying only on a smaller font.
     if spec.get("summary_mode"):
-        # Keep the summary fit-status line close to the main title, comparable
-        # to ordinary region plots.  The previous revision pushed it too far down.
-        fit_y = .823
+        fit_y = .81
     else:
-        fit_y = .825
+        fit_y = .82
 
-    # One-column component legend, inset from the right-side ticks.
-    component_x1 = .715 if width <= 900 else .735
-    component_x2 = right - .025
-    component_top = .865
+    # Background legend layout.
+    # Summaries: two columns.
+    # Ordinary regions: preserve the original one-column layout.
     component_items = len(processes) + 1 + (1 if data is not None else 0)
-    component_row = .039
-    component_bottom = component_top - component_row * max(1, component_items)
+
+    if spec.get("summary_mode"):
+        component_x1 = .66 if width <= 1200 else .72
+        component_x2 = right - .015 if width <= 1200 else right - .07
+        component_row = .044 # vertical interval between entries
+        component_rows = (component_items + 1) // 2
+
+    else:
+        component_x1 = .715 if width <= 900 else .735
+        component_x2 = right - .025
+        component_row = .039
+        component_rows = component_items
+
+    component_top = .865
+    component_bottom = component_top - component_row * max(1, component_rows)
 
     # Signal entries live on the left/middle, leaving the component legend
     # visually grouped on the right.  Keep them vertical as well when present.
-    signal_x1 = title_x
+
     signal_x2 = component_x1 - .025
+
+    if spec.get("summary_mode"):
+        signal_margin = .08
+
+        # Align the LEFT END OF THE SIGNAL LINE with title_x.
+        symbol_inset = 0.15 * signal_margin
+
+        signal_x1 = (
+            title_x - symbol_inset * signal_x2
+        ) / (1.0 - symbol_inset)
+
+    else:
+        signal_margin = .18
+        signal_x1 = title_x
+
     signal_top = .785
-    signal_row = .041
+    signal_row = .046
     signal_bottom = signal_top - signal_row * len(curves)
 
     # Category labels (e.g. the two SR2 Delta-phi categories) must sit below
@@ -3816,19 +3845,32 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
 
     # Summary canvases use short categorical bin IDs (SR1, IB1, IM1, WZ1, ...).
     # Keep those labels horizontal regardless of the ordinary cut-label rotation rules.
+
+    # Rotation of x-axis bin labels.
+    # Positive: counterclockwise (numerical cut intervals)
+    # Negative: clockwise (short code labels)
+
     if spec.get("summary_mode"):
-        angle = 0
+        # Preserve horizontal labels in SR1/SR2 summaries.
+        # Rotate SR3L/SR3H summary labels clockwise.
+        angle = -25 if spec.get("summary_sr_number") == 3 else 0
+
+    elif style == "codes" and spec.get("title") in ("SR3L", "SR3H"):
+        # Code names in ordinary SR3L/SR3H plots.
+        angle = -25
+
     elif args.label_angle is not None:
         angle = args.label_angle
+
     elif style == "cuts" and n > 10:
-        #angle = 65
         angle = 40
+
     elif style == "cuts" and spec.get("axis_title") == "BDT score" and n >= 8:
-        # The 8-bin CR3L BDT labels otherwise collide at the default 900 px width.
-        #angle = 55
         angle = 30
+
     else:
         angle = 0
+
 
     for pad in (upper,ratio):
         pad.SetLeftMargin(left)
@@ -3841,8 +3883,12 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     upper.SetTopMargin(top_margin)
     upper.SetBottomMargin(bottom_margin)
     ratio.SetTopMargin(.045)
-    #ratio.SetBottomMargin(.62 if angle else .34)
-    ratio.SetBottomMargin(.48 if angle else .34)
+    if enlarged_summary:
+        ratio.SetBottomMargin(.48 if angle else .36)
+    elif spec.get("summary_mode"):
+        ratio.SetBottomMargin(.48 if angle else .36)
+    else:
+        ratio.SetBottomMargin(.48 if angle else .34)
     upper.Draw()
     ratio.Draw()
     keep = [upper,ratio]
@@ -3851,8 +3897,10 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     if logy:
         upper.SetLogy()
 
-    stack = ROOT.THStack("stack_"+uid,"")
-    for _,hist in processes:
+    # Fixed background stacking order for all plots.
+    stack = ROOT.THStack("stack_"+uid, "")
+
+    for _, hist in processes:
         stack.Add(hist)
 
     ymax_candidates = [total_bkg.GetBinContent(i)+total_bkg.GetBinError(i) for i in range(1,n+1)]
@@ -3864,7 +3912,7 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     data_top = max([1.] + ymax_candidates)
 
     positive = [total_bkg.GetBinContent(i) for i in range(1,n+1) if total_bkg.GetBinContent(i)>0]
-    ymin = max(1.e-6,min([.1]+[v*.2 for v in positive])) if logy else 0.
+    ymin = max(1.e-6,min([.11]+[v*.2 for v in positive])) if logy else 0.
 
     if logy:
         safe_data_top = max(data_top, ymin * 1.01)
@@ -3887,7 +3935,15 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     frame.GetYaxis().SetLabelFont(42)
     frame.GetYaxis().SetLabelSize(0.045)
     if enlarged_summary:
-        frame.GetYaxis().SetTitleOffset(0.85)
+        frame.GetYaxis().SetTitleOffset(0.37)
+        frame.GetYaxis().SetTitleSize(0.06)
+        frame.GetYaxis().SetLabelOffset(0.001)
+        frame.GetYaxis().SetLabelSize(0.04)
+    elif spec.get("summary_mode"):
+        frame.GetYaxis().SetTitleOffset(0.53)
+        frame.GetYaxis().SetTitleSize(0.05)
+        frame.GetYaxis().SetLabelOffset(0.002)
+        frame.GetYaxis().SetLabelSize(0.03)
     else:
         frame.GetYaxis().SetTitleOffset(1.05)
     frame.Draw("AXIS")
@@ -3928,29 +3984,26 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     # The long SR+CR summary title and fit-status line need smaller text than
     # an ordinary single-region canvas.  This avoids overlap in the vector PDF
     # while leaving the ordinary plot labels close to their previous size.
-    if spec.get("summary_mode"):
-        # Summary title block: slightly larger than v4, with the two lines kept
-        # close in visual weight.  Ordinary single-region labels are unchanged.
-        title_text_size = 20
-        fit_text_size = 19
+    if enlarged_summary:
+        title_text_size = 27
+        fit_text_size = 24
+    elif spec.get("summary_mode"):
+        title_text_size = 27
+        fit_text_size = 24
     else:
         title_text_size = 22
         fit_text_size = 19
 
     keep.append(draw_text(title_x,title_y,title,title_text_size,font=63))
 
-    fit_label = {"shapes_prefit":"Pre-fit", "shapes_fit_b":"Post-fit (B-only)",
-                 "shapes_fit_s":"Post-fit (S+B)"}[fit_type]
+    fit_label = {"shapes_prefit":"Prefit", "shapes_fit_b":"Postfit (B-only)",
+                 "shapes_fit_s":"Postfit (S+B)"}[fit_type]
     keep.append(draw_text(title_x,fit_y,fit_label,fit_text_size,align=11))
 
-    # Data/background/uncertainty: one vertical legend on the right.
-    legend = ROOT.TLegend(component_x1,component_bottom,component_x2,component_top)
-    legend.SetNColumns(1)
-    legend.SetBorderSize(0)
-    legend.SetFillStyle(0)
-    legend.SetTextFont(42)
-    legend.SetTextSize(0.030)
-    legend.SetMargin(.24)
+
+    # --------------------------------------------------------
+    # Background legend
+    # --------------------------------------------------------
 
     def _legend_fill_entry(leg, obj, label):
         entry = leg.AddEntry(obj, label, "f")
@@ -3963,37 +4016,183 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
             pass
         return entry
 
-    if data is not None:
-        legend.AddEntry(data,"Data","pe")
-    for proc,hist in processes:
-        _legend_fill_entry(legend, hist, PROCESS_LABELS[proc])
-    _legend_fill_entry(legend, band, "Bkg. total unc.")
-    legend.Draw()
-    keep.append(legend)
+    if spec.get("summary_mode"):
+
+        # Display order:
+        # Data -> largest background -> ... -> smallest background
+        # -> total uncertainty.
+        legend_entries = []
+
+        if data is not None:
+            legend_entries.append((data, "Data", "pe"))
+
+        for proc, hist in processes:
+            legend_entries.append(
+                (hist, PROCESS_LABELS[proc], "f")
+            )
+
+        legend_entries.append(
+            (band, "Bkg. total unc.", "f")
+        )
+
+        # --------------------------------------------------
+        # One two-column background legend for summaries.
+        # Entries are ordered vertically within each column.
+        # --------------------------------------------------
+
+        n_left = (len(legend_entries) + 1) // 2
+
+        left_entries = legend_entries[:n_left]
+        right_entries = legend_entries[n_left:]
+
+        legend = ROOT.TLegend(
+            component_x1, component_bottom,
+            component_x2, component_top
+        )
+
+        legend.SetNColumns(2)
+        legend.SetBorderSize(0)
+        legend.SetFillStyle(0)
+        legend.SetTextFont(42)
+        legend.SetTextSize(0.035)
+        legend.SetMargin(0.16)
+        legend.SetColumnSeparation(0.01)
+
+        # ROOT fills a multi-column TLegend row by row.
+        # Interleave the desired left/right column entries.
+        for i in range(n_left):
+
+            for column in (left_entries, right_entries):
+
+                if i >= len(column):
+                    continue
+
+                obj, label, option = column[i]
+
+                if option == "f":
+                    _legend_fill_entry(legend, obj, label)
+                else:
+                    legend.AddEntry(obj, label, option)
+
+        legend.Draw()
+        keep.append(legend)
+
+    else:
+
+        # Preserve the original single-column legend
+        # for ordinary region plots.
+        legend = ROOT.TLegend(
+            component_x1, component_bottom,
+            component_x2, component_top
+        )
+
+        legend.SetNColumns(1)
+        legend.SetBorderSize(0)
+        legend.SetFillStyle(0)
+        legend.SetTextFont(42)
+        legend.SetTextSize(0.030)
+        legend.SetMargin(.24)
+
+        if data is not None:
+            legend.AddEntry(data, "Data", "pe")
+
+        for proc, hist in processes:
+            _legend_fill_entry(
+                legend, hist, PROCESS_LABELS[proc]
+            )
+
+        _legend_fill_entry(
+            legend, band, "Bkg. total unc."
+        )
+
+        legend.Draw()
+        keep.append(legend)
+
 
     if curves:
-        signal_legend = ROOT.TLegend(signal_x1,signal_bottom,signal_x2,signal_top)
+        signal_legend = ROOT.TLegend(
+            signal_x1, signal_bottom,
+            signal_x2, signal_top
+        )
+
         signal_legend.SetNColumns(1)
         signal_legend.SetBorderSize(0)
         signal_legend.SetFillStyle(0)
         signal_legend.SetTextFont(42)
-        signal_legend.SetTextSize(0.030)
-        signal_legend.SetMargin(.18)
+
+        signal_legend.SetTextSize(
+            0.036 if spec.get("summary_mode") else 0.030
+        )
+        signal_legend.SetMargin(signal_margin)
+
         for curve in curves:
-            legend_obj = (curve.get("draw_hists") or [curve["hist"]])[0]
-            signal_legend.AddEntry(legend_obj,curve["label"],"l")
+            legend_obj = (
+                curve.get("draw_hists") or [curve["hist"]]
+            )[0]
+
+            signal_label = curve["label"].replace(
+                "|V|^{2}",
+                "|V_{#font[12]{l}N}|^{2}"
+            )
+
+            signal_legend.AddEntry(
+                legend_obj, signal_label, "l"
+            )
+
         signal_legend.Draw()
         keep.append(signal_legend)
 
-    # Standard CMS top-margin labels, moved slightly closer to the frame than
-    # in v2 while remaining outside the plotting area.
-    #cms_y = .944
-    cms_y = .914
-    keep.append(draw_text(left+.005,cms_y,"CMS",29,font=63))
+
+    # Standard CMS top-margin labels
+    cms_y = .924
+
+    if enlarged_summary:
+        cms_size = 36
+        cms_label_size = 25
+    else:
+        cms_size = 29
+        cms_label_size = 20
+
+    cms_x = left + .005
+
+    # Increase the spacing to account for the larger CMS text.
+    cms_label_x = cms_x + (74.0 * cms_size / 29.0) / width
+
+    keep.append(
+        draw_text(cms_x, cms_y, "CMS", cms_size, font=63)
+    )
+
     if args.cms_label:
-        keep.append(draw_text(left+.005+74./width,cms_y+.002,args.cms_label,20,font=53))
+        keep.append(
+            draw_text(
+                cms_label_x,
+                cms_y + .002,
+                args.cms_label,
+                cms_label_size,
+                font=53
+            )
+        )
+
     lumi = args.lumi if args.lumi is not None else LUMI[spec["era"]]
-    keep.append(draw_text(right-.005,cms_y,f"{lumi:g} fb^{{-1}} (13 TeV)",21,align=31))
+
+    if spec.get("summary_mode"):
+        lumi_x = min(.99, right - .002)
+        lumi_size = 26
+    else:
+        #lumi_x = right - .005
+        #lumi_size = 21
+        lumi_x = min(.99, right - .002)
+        lumi_size = 26
+
+    keep.append(
+        draw_text(
+            lumi_x,
+            cms_y,
+            f"{lumi:g} fb^{{-1}} (13 TeV)",
+            lumi_size,
+            align=31
+        )
+    )
 
     boundaries = sorted({g["first"]-1 for g in spec["groups"] if g["first"] > 1})
 
@@ -4089,9 +4288,9 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
             # Use one common summary-label scale for SR1/SR2/SR3.  Raise the
             # region-name labels only slightly relative to v4; narrow CR blocks
             # still shrink automatically so labels remain inside their region.
-            max_category_size = 15.0
-            min_category_size = 10.0
-            width_safety = 0.84
+            max_category_size = 22.0
+            min_category_size = 12.0
+            width_safety = 0.92
         else:
             # Ordinary in-frame selection/category text, e.g. DeltaPhi(l,l),
             # N(j), and MET^2/ST.  Make these deliberately prominent while
@@ -4124,19 +4323,25 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     ratio.cd()
     ratio_frame = ROOT.TH1D("ratio_frame_"+uid,"",n,0.,float(n))
     ratio_frame.SetDirectory(0)
+    ratio_ymax = 2.0 if spec.get("summary_mode") else args.ratio_max
     ratio_frame.SetMinimum(0.)
-    ratio_frame.SetMaximum(args.ratio_max)
+    ratio_frame.SetMaximum(ratio_ymax)
     ratio_frame.GetXaxis().SetLabelSize(0)
     ratio_frame.GetXaxis().SetTickLength(0)
-    ratio_frame.GetYaxis().SetTitle("Data / Pred." if data is not None else "Asimov / Pred.")
-    ratio_frame.GetYaxis().SetNdivisions(505)
+    ratio_title = "Data / Pred." if data is not None else "Asimov / Pred."
+    ratio_frame.GetYaxis().SetTitle("" if spec.get("summary_mode") else ratio_title) # If it's summary mode, set y-axis title matually below
     ratio_frame.GetYaxis().SetTitleFont(42)
-    ratio_frame.GetYaxis().SetTitleSize(0.10)
     ratio_frame.GetYaxis().SetLabelFont(42)
-    ratio_frame.GetYaxis().SetLabelSize(0.085)
-    if enlarged_summary:
-        ratio_frame.GetYaxis().SetTitleOffset(0.45)
+    if enlarged_summary: # Here, the ratio title will be handled separately using TLatex later.
+        ratio_frame.GetYaxis().SetNdivisions(504) # Avoid too many numbers on the y-axis
+        ratio_frame.GetYaxis().SetLabelSize(0.11)
+    elif spec.get("summary_mode"):
+        ratio_frame.GetYaxis().SetNdivisions(504) # Avoid too many numbers on the y-axis
+        ratio_frame.GetYaxis().SetLabelSize(0.09)
     else:
+        ratio_frame.GetYaxis().SetNdivisions(505)
+        ratio_frame.GetYaxis().SetLabelSize(0.085)
+        ratio_frame.GetYaxis().SetTitleSize(0.10)
         ratio_frame.GetYaxis().SetTitleOffset(0.58)
     ratio_frame.Draw("AXIS")
     ratio_band = make_ratio_band(total_bkg)
@@ -4152,13 +4357,40 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     ratio_graph.Draw("PZ SAME")
     keep += [ratio_frame,ratio_band,ratio_graph,line]
 
+    # Manually positioned ratio y-axis title for summary plots.
+    if spec.get("summary_mode"):
+
+        if enlarged_summary:
+            # Large SR1/SR2 summaries and SR3 summaries
+            ratio_title_x = 0.028
+            ratio_title_y = 0.62
+            ratio_title_size = 32
+
+        else:
+            # Ordinary SR1/SR2 summaries
+            ratio_title_x = 0.028
+            ratio_title_y = 0.62
+            ratio_title_size = 30
+
+        keep.append(
+            draw_text(
+                ratio_title_x,
+                ratio_title_y,
+                ratio_title,
+                ratio_title_size,
+                align=22,
+                font=42,
+                angle=90
+            )
+        )
+
     # Do not carry the SR/CR white gap (or the summary group separators)
     # into the ratio panel.  Keep the ratio visually continuous, as in the
     # original combined SR+CR plots.  Ordinary non-summary grouped plots
     # retain their existing dashed separators.
     if not spec.get("summary_mode"):
         for x in boundaries:
-            line = ROOT.TLine(x,0.,x,args.ratio_max)
+            line = ROOT.TLine(x,0.,x,ratio_ymax)
             line.SetLineStyle(2)
             line.SetLineWidth(2)
             line.SetLineColor(ROOT.kGray+2)
@@ -4168,34 +4400,80 @@ def render_region(total_bkg, processes, data, ratio_input, curves, spec,
     # Summary-only categorical ticks at every bin boundary on the floor
     # and ceiling of the ratio frame.  Unlike the upper pad, there is no
     # white SR/CR gap here, so the split boundary receives a normal tick.
-    keep += draw_summary_bin_ticks(0., args.ratio_max, log_scale=False)
+    keep += draw_summary_bin_ticks(0., ratio_ymax, log_scale=False)
 
     # Manual TLatex labels: supports inequalities and preserves one label per bin.
     # Keep the x-axis sizing at the v4 level; the larger physics-selection
     # labels requested above are the in-frame group/category annotations, not
     # these ratio-pad bin labels.
-    label_y = ratio.GetBottomMargin()-.035
-    for i,b in enumerate(spec["bins"]):
-        x = left+(right-left)*(i+.5)/n
+    label_y = ratio.GetBottomMargin() - .035
+
+    # Align labels according to their rotation direction.
+    if angle > 0:
+        label_align = 33   # Right/top anchored
+    elif angle < 0:
+        label_align = 13   # Left/top anchored
+    else:
+        label_align = 23   # Center/top anchored
+
+    for i, b in enumerate(spec["bins"]):
+        x = left + (right-left) * (i+.5) / n
+
         text = b["cut_label"] if style == "cuts" else b["code"]
-        keep.append(draw_text(x,label_y,text,
-                              18 if angle else 20,align=33 if angle else 23,angle=angle))
+
+        keep.append(
+            draw_text(
+                x, label_y, text,
+                18 if angle else 20,
+                align=label_align,
+                angle=angle
+            )
+        )
+
 
     # Keep the x-axis title much closer to the labels, comparable to the old
     # ROOT-axis layout.  A one-bin inclusive region gets the explicit title
     # "Region" instead of leaving a large blank lower margin.
     if spec.get("summary_mode"):
-        axis_title = ""
+        #axis_title = "Region bin"
+        axis_title = "" # There is no space in paper ...
     elif n == 1:
         axis_title = "Region"
     elif style == "cuts":
         axis_title = spec["axis_title"]
     else:
         axis_title = "Bin ID"
+
     if axis_title:
-        #axis_title_y = .080 if angle else .155
-        axis_title_y = .1 if angle else .155
-        keep.append(draw_text(right-.005,axis_title_y,axis_title,23,align=31))
+
+        if enlarged_summary:
+            axis_title_x = right - .05
+            axis_title_y = .08
+            axis_title_size = 35
+            axis_title_align = 21
+
+        elif spec.get("summary_mode"):
+            axis_title_x = right - .08
+            axis_title_y = .08
+            axis_title_size = 35
+            axis_title_align = 21
+
+        else:
+            axis_title_x = right - .005
+            axis_title_y = .1 if angle else .155
+            axis_title_size = 23
+            axis_title_align = 31
+
+        keep.append(
+            draw_text(
+                axis_title_x,
+                axis_title_y,
+                axis_title,
+                axis_title_size,
+                align=axis_title_align
+            )
+        )
+
     ratio.RedrawAxis()
 
     canvas.cd()
@@ -4707,17 +4985,32 @@ def plot_sr_summary(fit_map, prefit_map, sr_number, fit_type, outdir, logy,
     bins = []
     groups = []
     first = 1
+
     short_prefixes = ["SR", "IB", "IM", "WZ"]
-    for label, spec, n, prefix in zip(labels, specs, nbins_parts, short_prefixes):
-        for i, original in enumerate(spec["bins"], 1):
+
+    for label, spec, n, prefix in zip(
+        labels, specs, nbins_parts, short_prefixes
+    ):
+
+        for i, original in enumerate(spec["bins"]):
             b = copy.deepcopy(original)
-            short = f"{prefix}{i}"
+
+            # Example: SR1a, SR1b, IB1a, IM1a, WZ1a
+            short = f"{prefix}{sr_number}{chr(ord('a') + i)}" # a, b, c, d, e, ...
+
             b["cut_label"] = short
             b["code"] = short
             b["group"] = label
             bins.append(b)
-        groups.append({"label": label, "first": first, "last": first+n-1})
+
+        groups.append({
+            "label": label,
+            "first": first,
+            "last": first + n - 1
+        })
+
         first += n
+
     summary_spec = {
         "region_key": f"{sr}_summary",
         "raw_region": f"{sr}_summary",

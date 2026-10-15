@@ -294,7 +294,7 @@ for WP in "${WPS[@]}"; do
                     ${DATA} \
                     --sr2-merge78 \
                     --overlay-preset ANv8 \
-										--large-sr1-sr2-summary # Enlarge SR1, SR2 summary plots for paper showing.
+                    --large-sr1-sr2-summary # Enlarge SR1, SR2 summary plots horizontally for paper showing.
 
             done
 
@@ -303,3 +303,31 @@ for WP in "${WPS[@]}"; do
     done
 
 done
+
+
+#################TEST######################
+#python3 make_post_fit_plots.py \
+#    -wp "ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195" \
+#    -e Run2Sum \
+#    -c EMu \
+#    -s HNL \
+#    -t AllSR \
+#    --axis-style cuts \
+#    --signal-mode separate \
+#    --logy \
+#    --sr2-merge78 \
+#    --overlay-preset ANv8 \
+#    --large-sr1-sr2-summary # Enlarge SR1, SR2 summary plots horizontally for paper showing.
+#
+#python3 make_post_fit_plots.py \
+#    -wp "ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195" \
+#    -e Run2Sum \
+#    -c EMu \
+#    -s HNL \
+#    -t AllSR \
+#    --axis-style cuts \
+#    --signal-mode separate \
+#    --logy \
+#    --sr2-merge78 \
+#    --overlay-preset ANv8
+#
