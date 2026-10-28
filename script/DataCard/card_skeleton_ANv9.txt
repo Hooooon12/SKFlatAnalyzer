@@ -22,11 +22,11 @@ lumi_13TeV_161718                 lnN    -      -      1.05   1.05        1.05  
 mc_xsec                           lnN    -      -      -      1.2         -      -        -      -        -           -              -             -
 CMS_SUS24014_fake_m_stat          shape  1      -      -      -           -      -        -      -        -           -              -             -
 CMS_SUS24014_fake_m_highpt        shape  1      -      -      -           -      -        -      -        -           -              -             -
-CMS_SUS24014_fake_m_loose_id      shape  1      -      -      -           -      -        -      -        -           -              -             -
+#CMS_SUS24014_fake_m_loose_id      shape  1      -      -      -           -      -        -      -        -           -              -             -
 CMS_SUS24014_fake_m_syst          shape  1      -      -      -           -      -        -      -        -           -              -             -
 CMS_SUS24014_fake_e_stat          shape  1      -      -      -           -      -        -      -        -           -              -             -
 CMS_SUS24014_fake_e_highpt        shape  1      -      -      -           -      -        -      -        -           -              -             -
-CMS_SUS24014_fake_e_loose_id      shape  1      -      -      -           -      -        -      -        -           -              -             -
+#CMS_SUS24014_fake_e_loose_id      shape  1      -      -      -           -      -        -      -        -           -              -             -
 CMS_SUS24014_fake_e_syst          shape  1      -      -      -           -      -        -      -        -           -              -             -
 CMS_SUS24014_cf_stat              shape  -      1      -      -           -      -        -      -        -           -              -             -
 CMS_SUS24014_cf_syst              lnN    -      1.17   -      -           -      -        -      -        -           -              -             -
