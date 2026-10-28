@@ -519,13 +519,13 @@
 #python MakeInput_public.py -e Run2 -i ANv7_NewBinning_PR192 --BDTver V3_Strict_15_Bin -o FixCR3H_PruneZG --PreFlag RunSyst --Syst --Decorr --JetDecorr --regions sr2 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_NewBinning_PR192_FixCR3H_PruneZG_Run2_sr2.log
 
 
-
+##### Archive : ANv8 (IIRC this is the base, MakeInput_public.py here is current MakeInput_ANv8.py) #####
 ## SR unblinding: Don't apply ConvSplit in SR1/SR2 so that we don't have to consider PruneZG in the first place @260608 --> This change was updated was PR194
-#python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --PreFlag RunSyst --CheckFiles
-#python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --PreFlag RunSyst --CheckFiles --CR
+python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --PreFlag RunSyst --CheckFiles
+python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --PreFlag RunSyst --CheckFiles --CR
 
-#python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --PreFlag RunSyst --Merge --Unblind 2>&1   | tee log/MakeInput_public_Merge_Data_SR_ANv7_ConvUpdate_PR192.log
-#python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --PreFlag RunSyst --Merge --CR 2>&1   | tee log/MakeInput_public_Merge_Data_CR_ANv7_ConvUpdate_PR192.log
+python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --PreFlag RunSyst --Merge --Unblind 2>&1   | tee log/MakeInput_public_Merge_Data_SR_ANv7_ConvUpdate_PR192.log
+python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --PreFlag RunSyst --Merge --CR 2>&1   | tee log/MakeInput_public_Merge_Data_CR_ANv7_ConvUpdate_PR192.log
 
 #python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --BDTver V3_Strict_15_Bin -s Add -x ANv7_ConvUpdate_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ConvUpdate_PR192.log
 #python MakeInput_public.py -i ANv7_ConvUpdate_PR192 --BDTver V3_Strict_15_Bin -s Add -x ANv7_ConvUpdate_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ConvUpdate_PR192.log
@@ -536,9 +536,10 @@
 
 ################ NOTE: At this point, -o is now a part of the MergedFiles path. Histogram-level changes, with using existing MergedFiles, should be tagged by -T.
 
+##### Archive : ANv8 (IIRC then here we removed DY10to50 in Conv) #####
 ## SR unblinding: Try removing DYJets10to50_MG at all @260612
-#python MakeInput_public.py -i ANv7_ConvUpdate_PR192 -o NoLowDYMG --PreFlag RunSyst --Merge --Conv --MC --Unblind 2>&1   | tee log/MakeInput_public_Merge_Conv_MC_SR_ANv7_ConvUpdate_PR192_NoLowDYMG.log
-#python MakeInput_public.py -i ANv7_ConvUpdate_PR192 -o NoLowDYMG --PreFlag RunSyst --Merge --Conv --MC --CR 2>&1   | tee log/MakeInput_public_Merge_Conv_MC_CR_ANv7_ConvUpdate_PR192_NoLowDYMG.log
+python MakeInput_public.py -i ANv7_ConvUpdate_PR192 -o NoLowDYMG --PreFlag RunSyst --Merge --Conv --MC --Unblind 2>&1   | tee log/MakeInput_public_Merge_Conv_MC_SR_ANv7_ConvUpdate_PR192_NoLowDYMG.log
+python MakeInput_public.py -i ANv7_ConvUpdate_PR192 -o NoLowDYMG --PreFlag RunSyst --Merge --Conv --MC --CR 2>&1   | tee log/MakeInput_public_Merge_Conv_MC_CR_ANv7_ConvUpdate_PR192_NoLowDYMG.log
 
 #python MakeInput_public.py -i ANv7_ConvUpdate_PR192 -o NoLowDYMG --BDTver V3_Strict_15_Bin -s Add -x ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ConvUpdate_PR192_NoLowDYMG.log
 #python MakeInput_public.py -i ANv7_ConvUpdate_PR192 -o NoLowDYMG --BDTver V3_Strict_15_Bin -s Add -x ANv7_ConvUpdate_PR192_HNL_ULIDv2_NoLowDYMG_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ConvUpdate_PR192_NoLowDYMG.log
@@ -667,10 +668,10 @@
 #python MakeInput_public.py -e Run2 -i ANv7_ConvUpdate_PR192 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin3478 --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ConvUpdate_PR192_NoLowDYMG_LowStatNeff5_MergeSR2Bin3478_Run2.log
 
 
-
+##### Archive : ANv8 (IIRC then we added extra fake systs for testing) #####
 ## CR3_InvBJet is the reason for the low p-value in SR3BDT MuMu (fakes are overestimated). Add LooseID syst @260721
-#python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG --PreFlag RunSyst --Merge --Fake --Unblind 2>&1   | tee log/MakeInput_public_Merge_Fake_MC_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
-#python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG --PreFlag RunSyst --Merge --Fake --CR 2>&1   | tee log/MakeInput_public_Merge_Fake_MC_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
+python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG --PreFlag RunSyst --Merge --Fake --Unblind 2>&1   | tee log/MakeInput_public_Merge_Fake_MC_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
+python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG --PreFlag RunSyst --Merge --Fake --CR 2>&1   | tee log/MakeInput_public_Merge_Fake_MC_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
 
 #python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin78 --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_LowStatNeff5_MergeSR2Bin78.log
 #python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin78 --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_LowStatNeff5_MergeSR2Bin78.log
@@ -679,9 +680,10 @@
 #python MakeInput_public.py -e Run2 -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin78 --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_Run2.log
 
 
-## LooseID syst + powheg WZ syst @260722
-#python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --Unblind 2>&1   | tee log/MakeInput_public_Merge_AltWZ_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
-#python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --CR 2>&1   | tee log/MakeInput_public_Merge_AltWZ_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
+##### Archive : ANv8 (IIRC then we also added powheg WZ) #####
+# LooseID syst + powheg WZ syst @260722
+python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --Unblind 2>&1   | tee log/MakeInput_public_Merge_AltWZ_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
+python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --CR 2>&1   | tee log/MakeInput_public_Merge_AltWZ_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
 
 #python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin78_AltWZ --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZ.log
 #python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin78_AltWZ --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZ.log
@@ -698,10 +700,10 @@
 #python MakeInput_public.py -e Run2 -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin78_AltWZNorm --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZNorm_Run2.log
 
 
-
-## Save intact wz powheg to check + don't apply LowStat to AltWZ @260807
-#python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --Unblind 2>&1   | tee log/MakeInput_public_Merge_AltWZ_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
-#python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --CR 2>&1   | tee log/MakeInput_public_Merge_AltWZ_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
+##### Archive : ANv8 (IIRC I changed the Merge structure to save powheg WZ in RunPrompt & MergeMC both) #####
+# Save intact wz powheg to check + don't apply LowStat to AltWZ @260807
+python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --Unblind 2>&1   | tee log/MakeInput_public_Merge_AltWZ_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
+python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --CR 2>&1   | tee log/MakeInput_public_Merge_AltWZ_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG.log
 
 #python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin78_SaveAltWZ --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_SaveAltWZ.log
 #python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T LowStatNeff5_MergeSR2Bin78_SaveAltWZ --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_SaveAltWZ.log
@@ -783,10 +785,10 @@
 ### Separated fake syst @260818
 #python MakeInput_public.py -i ANv7_SepFakeSyst_PR197 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --CheckFiles --Unblind
 #python MakeInput_public.py -i ANv7_SepFakeSyst_PR197 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --CheckFiles --CR
-
+#
 #python MakeInput_public.py -i ANv7_SepFakeSyst_PR197 -o NoLowDYMG --PreFlag RunSyst --Merge --Unblind 2>&1   | tee log/MakeInput_public_Merge_SR_ANv7_SepFakeSyst_PR197.log
 #python MakeInput_public.py -i ANv7_SepFakeSyst_PR197 -o NoLowDYMG --PreFlag RunSyst --Merge --CR 2>&1   | tee log/MakeInput_public_Merge_CR_ANv7_SepFakeSyst_PR197.log
-
+#
 #python MakeInput_public.py -i ANv7_SepFakeSyst_PR197 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --Unblind 2>&1   | tee log/MakeInput_public_Merge_AltWZ_SR_ANv7_SepFakeSyst_PR197_NoLowDYMG.log
 #python MakeInput_public.py -i ANv7_SepFakeSyst_PR197 -o NoLowDYMG -T AltWZ --PreFlag RunSyst --Merge --AltWZ --CR 2>&1   | tee log/MakeInput_public_Merge_AltWZ_CR_ANv7_SepFakeSyst_PR197_NoLowDYMG.log
 
@@ -807,14 +809,15 @@
 #python MakeInput_public.py -e Run2 -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T NewLowStatNeff5_MergeSR2Bin78_AltWZSym0 --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_Run2.log
 #python MakeInput_public.py -e Run2 -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T NewLowStatNeff5_MergeSR2Bin78_AltWZSym0 --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_Run2.log
 
-# symmetrization without inflation + altwz region decorrelation ##### Archive : ANv8 #####
+##### Archive : ANv8 #####
+# symmetrization without inflation + altwz region decorrelation
 python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr.log
 python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr.log
 
 python MakeInput_public.py -e Run2 -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_Run2.log
 python MakeInput_public.py -e Run2 -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_Run2.log
 
-# symmetrization without inflation + altwz region decorrelation <-- this is the new nominal at the unblinding stage. Run Ext @260916 ###### Archive : ANv8 #####
+# symmetrization without inflation + altwz region decorrelation <-- this is the new nominal at the unblinding stage. Run Ext @260916
 python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --Unblind --Ext 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_SR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_Ext.log
 python MakeInput_public.py -i ANv7_ExtraFakeSyst_PR195 -o NoLowDYMG -T NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr --BDTver V3_Strict_15_Bin --PreFlag RunSyst --Syst --Decorr --JetDecorr --CR --Ext 2>&1 | tee log/MakeInput_public_Syst_Decorr_JetDecorr_CR_ANv7_ExtraFakeSyst_PR195_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_Ext.log
 
