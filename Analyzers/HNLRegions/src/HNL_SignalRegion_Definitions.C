@@ -51,6 +51,10 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
     std::cout << "  weight_ll        = " << weight_ll << std::endl;
   }
   
+  if (param.syst_ == AnalyzerParameter::CFShiftUp)   param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_PSigma_HNL_HighPt_ULID";
+  if (param.syst_ == AnalyzerParameter::CFShiftDown) param.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_MSigma_HNL_HighPt_ULID";
+
+  
   //// Need to correct MET/Energy of electrons in the case of CF bkg estimate
   std::vector<Electron> electrons;
   if(RunCF) {
@@ -59,7 +63,11 @@ void HNL_RegionDefinitions::RunAllSignalRegions(HNL_LeptonCore::ChargeType qq,
       Electron this_electron = electronsInitial.at(i);
       double ElEnergyShift = 1;
 
-      if(int(i)==nElForRunCF) ElEnergyShift = GetShiftCFEl(this_electron, param.Electron_Tight_ID);
+      int shift_syst=0;
+      if (param.syst_ == AnalyzerParameter::CFShiftUp) shift_syst=1;
+      if (param.syst_ == AnalyzerParameter::CFShiftDown) shift_syst=-1;
+	    
+      if(int(i)==nElForRunCF) ElEnergyShift = GetShiftCFEl(this_electron, param.Electron_Tight_ID, shift_syst);
 
       this_electron.SetPtEtaPhiM( electronsInitial.at(i).Pt()*ElEnergyShift, electronsInitial.at(i).Eta(), electronsInitial.at(i).Phi(), electronsInitial.at(i).M() );
       electrons.push_back( this_electron);
@@ -545,8 +553,11 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       {1100, {1100}},
       {1200, {1200, 1300}},
       {1500, {1500, 1700}},
-      {2000, {2000, 2500, 3000}},
+      {2000, {2000, 2500, 3000,5000,7500, 10000,15000,20000,25000,30000,40000,50000,60000}},
     };
+
+    //// mass ref is for binning, list is all masses that use that binning
+    
     
     // Cache these once
     const bool isSR      = IsSR;
@@ -589,15 +600,21 @@ void   HNL_RegionDefinitions::RunMainRegionCode(bool IsSR,HNL_LeptonCore::Channe
       // We assume sample names contain exact tokens like "M500_private".
       bool inSignalRange = true;
       if (isSignal) {
-        inSignalRange = std::any_of(
-                  masses.begin(), masses.end(),
-                  [&](int m) {
-                    // Build exact token once; TString::Format to avoid temp std::string
-                    const TString token = TString::Format("M%d_private", m);
-                    return mcSampleName.Contains(token);
-                  }
-                  );
-        if (!inSignalRange) continue;
+	inSignalRange = std::any_of(
+				    masses.begin(), masses.end(),
+				    [&](int m) {
+				      // Build exact token once; TString::Format to avoid temp std::string
+				      const TString token = TString::Format("M%d_private", m);
+				      return mcSampleName.Contains(token);
+				    }
+				    );
+	//// since Weinberg has no mass in name add this line to run sample
+	if(mcSampleName.Contains("WeinbergOp")) {
+	  if(ref_mass==500)inSignalRange=true;
+	  else inSignalRange=false;
+	}
+      
+	if (!inSignalRange) continue;
       }
 
       

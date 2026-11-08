@@ -12,7 +12,7 @@ AnalyzerParameter HNL_LeptonCore::Setup_Param_HNL_ULIDv2(const TString& s_setup_
  
   param_default.k.Electron_ID_SF     = "passHNL_ULIDv2_"+GetYearString();
   param_default.k.Electron_CF  = "CFRate_InvPtEta3_PBSExtrap_Central_HNL_HighPt_ULID";
-  
+
   param_default.TriggerSelection = "Dilep";
   if(param_default.Channel.Contains("EE"))   param_default.k.Electron_Trigger_SF = "DiElIso_HNL_ULIDv2";
   if(param_default.Channel.Contains("MuMu")) param_default.k.Muon_Trigger_SF = "DiMuIso_HNL_ULIDv2";

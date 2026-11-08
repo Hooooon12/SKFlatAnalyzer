@@ -7,6 +7,19 @@ bool HNL_LeptonCore::PassGenMatchFilter(vector<Lepton *> leps, AnalyzerParameter
   /// If code does not use Run* to sepeate MC samples then function should return true  
   /// If user used Data driven method for Fake/CF then function returns for Fake/F bkf true for data and false for MC
   /// If user used Data driven method for Fake/CF then for Conv function requires at least one conv lepton is present
+
+  if(HasFlag("NoGenMatch")) return true;
+  
+  if(HasFlag("Fake_MC")){
+    if(!RunFake) return false;
+    if(IsData) return false;
+    int nFake=(0);
+    for(auto ilep: leps){
+      if( ilep->IsFake())     nFake++;
+    }
+    if(nFake> 0) return true;
+    return false;
+  }
   
   bool DEBUG = false;
   if(DEBUG) cout << "RunFake = " << RunFake << " RunCF = " << RunCF << " RunConv = " << RunConv << endl;

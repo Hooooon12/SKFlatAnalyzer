@@ -1,15 +1,15 @@
 # Make Datacards
 # Place this at CombineTool/CMSSW_10_2_13/src/<your working directory>
 # You need to place card_skeletons already
-# python MakeDataCard_ANv7.py --CR --Syst [--Decorr]; python MakeDataCard_ANv7.py --Combine CR --Syst [--Decorr] <-- add rateParam
-# python MakeDataCard_ANv7.py --Combine Era --Syst [--Decorr]
-# python MakeDataCard_ANv7.py --Syst [--Decorr]; python MakeDataCard_ANv7.py --Combine SR --Syst [--Decorr] <-- without rateParam ("sronly" setting)
+# python MakeDataCard_ANv9.py --CR --Syst [--Decorr]; python MakeDataCard_ANv9.py --Combine CR --Syst [--Decorr] <-- add rateParam
+# python MakeDataCard_ANv9.py --Combine Era --Syst [--Decorr]
+# python MakeDataCard_ANv9.py --Syst [--Decorr]; python MakeDataCard_ANv9.py --Combine SR --Syst [--Decorr] <-- without rateParam ("sronly" setting)
 
 # Run2Sum one-category Run2 workflow:
-# python MakeDataCard_ANv7.py ... --CR --Syst --Decorr --JetDecorr --Run2Sum
-# python MakeDataCard_ANv7.py ... --Combine CR --Syst --Decorr --JetDecorr --Run2Sum
+# python MakeDataCard_ANv9.py ... --CR --Syst --Decorr --JetDecorr --Run2Sum
+# python MakeDataCard_ANv9.py ... --Combine CR --Syst --Decorr --JetDecorr --Run2Sum
 # # Skip --Combine Era for Run2Sum
-# python MakeDataCard_ANv7.py ... --Combine Channel --CR --Syst --Decorr --JetDecorr --Run2Sum
+# python MakeDataCard_ANv9.py ... --Combine Channel --CR --Syst --Decorr --JetDecorr --Run2Sum
 
 import os, sys, argparse, re
 import subprocess as cmd
@@ -24,7 +24,7 @@ if HERE not in sys.path:
 from exceptions_auto import apply_auto_exceptions
 
 parser = argparse.ArgumentParser(description='script for creating or merging data cards.',formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-sk', dest='skels', default=["card_skeleton_ANv7.txt"], nargs='+', help='List of skeletons to use')
+parser.add_argument('-sk', dest='skels', default=["card_skeleton_ANv9.txt"], nargs='+', help='List of skeletons to use')
 parser.add_argument('-wp', dest='InputWPs', nargs='+', help='List of LimitInput working points')
 parser.add_argument('-e', dest='eras', default=["2016preVFP","2016postVFP","2017","2018"], choices=["2016preVFP","2016postVFP","2017","2018"], nargs='+')
 parser.add_argument('-c', dest='channels', default=["MuMu","EE","EMu"], choices=["MuMu","EE","EMu"], nargs='+') # store [] if nothing is fed
@@ -96,13 +96,9 @@ signals = args.signals
 SRpath = "/data9/Users/HNL_public/SUS-24-014/LimitInputs/"
 CRpath = SRpath
 
-#InputWPs = ["ANv6_FixSyst_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # fix missed trigger SF syst @251223 <-- ANv6 legacy
-#InputWPs = ["ANv6_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning"] # Test consistent binning (MuMu only, due to a bug) @260108
-#InputWPs = ["ANv7_SingularBinning_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_SingularBinning"] # Test consistent binning but fix the bug; pt-dependent Muon RECO SF @260110
-#InputWPs = ["ANv7_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst"] # pt-dependent Muon RECO SF @260110
 InputWPs = args.InputWPs
 
-RegionDecorr_list = ["CMS_SUS24014_fake_stat","CMS_SUS24014_fake_highpt","CMS_SUS24014_fake_syst","CMS_SUS24014_fake_m_stat","CMS_SUS24014_fake_m_highpt","CMS_SUS24014_fake_m_loose_id","CMS_SUS24014_fake_m_syst","CMS_SUS24014_fake_e_stat","CMS_SUS24014_fake_e_highpt","CMS_SUS24014_fake_e_loose_id","CMS_SUS24014_fake_e_syst","CMS_SUS24014_cf_stat","CMS_SUS24014_cf_syst"]
+RegionDecorr_list = ["CMS_SUS24014_fake_stat","CMS_SUS24014_fake_highpt","CMS_SUS24014_fake_syst","CMS_SUS24014_fake_m_stat","CMS_SUS24014_fake_m_highpt","CMS_SUS24014_fake_m_loose_id","CMS_SUS24014_fake_m_syst","CMS_SUS24014_fake_e_stat","CMS_SUS24014_fake_e_highpt","CMS_SUS24014_fake_e_loose_id","CMS_SUS24014_fake_e_syst","CMS_SUS24014_cf_stat","CMS_SUS24014_cf_syst","CMS_SUS24014_cf_shift"]
 
 ExtTag = '_Ext' if args.Ext else ''
 if args.CnC:
@@ -469,10 +465,9 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
         else:
           if "CMS_scale_j_" in line: continue
 
-        # Fake Loose ID syst
+        # Fake Loose ID syst: agreed not to apply
         if line.split()[0].endswith("loose_id"):
-          if PRver < 195: continue
-          if "AltWZonly" in args.outputTag: continue
+          continue
 
         # AltWZ generator systematic.
         #
@@ -481,8 +476,6 @@ def CardSetting(isCR, WP, skeleton, era, channel, mass, signal):
         # shape line. Otherwise text2workspace would request variation
         # histograms for a process that does not exist in this card.
         if line.split()[0].endswith("altwz"):
-          if "AltWZ" not in WP:
-            continue
         
           if process_rate_map["wz"] == "0":
             #print(
@@ -1025,15 +1018,16 @@ def ValidMassSignal(channel: str, mass: str, signal: str) -> bool:
         return True
 
 def mass_to_srs(mass_str):
-  if mass_str == "Weinberg":
-    return ["sr2", "sr3"] #NOTE 0.25 (sr1) vs 20 (others)
-  m = int(mass_str.strip("M"))
-  if m <= 100:
-    return ["sr3"]
-  elif m > 3000:
-    return ["sr2", "sr3"] #NOTE 0.0001 (sr1) vs 0.007 (sr2) for M30000 EE
-  else:
-    return ["sr1", "sr2", "sr3"]
+  #if mass_str == "Weinberg":
+  #  return ["sr2", "sr3"] #NOTE 0.25 (sr1) vs 20 (others)
+  #m = int(mass_str.strip("M"))
+  #if m <= 100:
+  #  return ["sr3"]
+  #elif m > 3000:
+  #  return ["sr2", "sr3"] #NOTE 0.0001 (sr1) vs 0.007 (sr2) for M30000 EE
+  #else:
+  #  return ["sr1", "sr2", "sr3"]
+  return ["sr1", "sr2", "sr3"] # ANv9 --> ARC comment: consider using all regions regardless of masses.
 
 def filter_crs(regions_cr_all, valid_srs):
 
@@ -1181,7 +1175,7 @@ else:
 for InputWP in InputWPs:
 
   for skel in args.skels:
-    SkelTag = skel.removesuffix('.txt').split('ANv7')[-1] #FIXME card_skeleton_ANv7_NoPUJetID_NoPNET.txt --> _NoPUJetID_NoPNET. AN version can be changed.
+    SkelTag = skel.removesuffix('.txt').split('ANv9')[-1] #FIXME card_skeleton_ANv9_NoPUJetID_NoPNET.txt --> _NoPUJetID_NoPNET. AN version can be changed.
     OutputWP = InputWP+OutputTag+SkelTag
 
     if not args.Combine:

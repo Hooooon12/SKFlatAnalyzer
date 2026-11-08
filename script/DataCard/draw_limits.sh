@@ -2,20 +2,16 @@
 
 ### 2D ###
 # 2D expected
-#root -l -q -b "DrawLimits_2D.C(\"massf\",300,0.1,false,\"\",\"/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/<YOUR_3CH_WP>/Run2Sum_3ch_HNL_syst_Asym_limit.txt\")"
+#root -l -q -b "DrawLimits_2D.C(\"ANv9_CF_HighPt_PR198_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr\",\"massf\",300,0.1,false)"
 # 2D observed
-#root -l -q -b "DrawLimits_2D.C(\"massf\",300,0.1,true,\"\",\"/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/<YOUR_3CH_WP>/Run2Sum_3ch_HNL_syst_Asym_limit.txt\")"
-# 2D 3ch vs envelope expected
-#root -l -q -b "DrawLimits_2D.C(\"3ch_vs_envelope\",300,0.1,false,\"\",\"/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/<YOUR_3CH_WP>/Run2Sum_3ch_HNL_syst_Asym_limit.txt\",\"/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/<YOUR_ENVELOPE_WP>\")"
-# 2D 3ch vs envelope observed
-#root -l -q -b "DrawLimits_2D.C(\"3ch_vs_envelope\",300,0.1,true,\"\",\"/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/<YOUR_3CH_WP>/Run2Sum_3ch_HNL_syst_Asym_limit.txt\",\"/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/<YOUR_ENVELOPE_WP>\")"
+#root -l -q -b "DrawLimits_2D.C(\"ANv9_CF_HighPt_PR198_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr\",\"massf\",300,0.1,true)"
 
 
-#for ch in MuMu EE EMu;
+for ch in MuMu EE EMu;
 #for ch in MuMu EE;
 #for ch in MuMu;
 #for ch in EE;
-#do
+do
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",true,true,0,false,false,false,true)"; # Ext, AddPub, mixing limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",true,true,0,false,false,true ,true)"; # Ext, AddPub, xsec limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2\",\"${ch}\",false,true,0,true,false,false,true)"; # AddPub, compare, mixing limit, logy
@@ -67,7 +63,10 @@
 
 # exp, internal comparison #
 #root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,true,\"\",false)"; # compare, mixing limit, logy
-#root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false,\"\",false)"; # compare, mixing limit, linear
+root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false,\"\",false)"; # compare, mixing limit, linear
+
+# obs, internal comparison #
+root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,true,true,false,false,\"\",true)"; # compare, mixing limit, linear
 
 # obs #
 #root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",true,true,0,false,false,false,true,\"\",true)"; # Ext, AddPub, mixing limit, logy
@@ -80,7 +79,7 @@
 #root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,false,0,false,false,false,true,\"\",true)"; # plain mixing limit, logy
 #root -l -q -b "DrawLimits.C(\"Run2Sum\",\"${ch}\",false,true,0,false,false,false,true,\"\",true)"; # AddPub, mixing limit, logy (when Ext is not produced yet)
 
-#done;
+done;
 
 #### Weinberg ####
 #WP="ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"

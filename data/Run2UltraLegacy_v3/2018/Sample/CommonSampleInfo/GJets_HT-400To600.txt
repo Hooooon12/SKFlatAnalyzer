@@ -1,0 +1,2 @@
+# alias PD xsec nmc sumsign sumw
+GJets_HT-400To600	GJets_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8	274.4	13627154	13627154.0	13627154.0 

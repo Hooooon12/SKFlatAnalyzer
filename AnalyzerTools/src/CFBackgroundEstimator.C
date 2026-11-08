@@ -26,7 +26,7 @@ void CFBackgroundEstimator::ReadHistograms(int loadFormat){
   if(loadFormat > 0) loadStandard=true;
   if(loadFormat > 1) loadSyst=true;
   if(loadFormat > 1) loadStudy=true;
-  
+
   if(loadStandard){
     string elline;
     ifstream in(datapath+"/histmap_Electron.txt");
@@ -384,6 +384,8 @@ double CFBackgroundEstimator::GetElectronCFRateFitted(TString ID, TString EtaBin
   double value_MainBin = (mapit->second)->GetBinContent(this_bin)*MC_Closure_Corr;
   double error_MainBin = (mapit->second)->GetBinError(this_bin);
 
+  ///// Aff 50% for pt > 250
+  if(pt>250) error_MainBin*=1.5;
   
   double IPt = (key.Contains("Inv")) ?   (1/pt) : pt;  
 

@@ -10,7 +10,7 @@ AnalyzerParameter HNL_LeptonCore::Setup_Param_Peking(const TString& s_setup_vers
   param_default.FakeMethod   = "MC";
   param_default.ConvMethod   = "MC";
   param_default.Muon_Tight_ID = "Peking";
-  param_default.Electron_Tight_ID = "Peking_"+GetYearString();
+  param_default.Electron_Tight_ID = "Peking";
 
   param_default.FakeRateMethod       = "Standard";
   param_default.FakeRateParam        = "PtCone";

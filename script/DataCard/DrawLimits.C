@@ -688,7 +688,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
   //TString WP_nom = "ANv7_NewBinning_PR191_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_NewBinning_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR188"; // set the nominal WP
   //TString WP_nom = "ANv7_ConvUpdate_PR192_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_PR194"; // set the nominal WP
-  TString WP_nom = "ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"; // set the nominal WP; This is the ANv8 limit setting.
+  //TString WP_nom = "ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"; // set the nominal WP; This is the ANv8 limit setting.
+  TString WP_nom = "ANv9_CF_HighPt_PR198_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"; // set the nominal WP; ANv9 setting
 
   PlotConfig plot_cfg = BuildPlotConfig(WP_nom, year, DrawExt, SepLimit, CompareLimits);
 
@@ -1025,6 +1026,19 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //                  plot_cfg.nominal.method_nom,
     //                  "Run2Sum") // if this is not specified, the comparison will follow the nominal year
     //);
+
+    // *** Compare ANv8 vs ANv9 (high-pt CF rate uncert, CF energy shift uncert, include all SRs regardless of masses)
+    plot_cfg.nominal.tag_nom = "_HNL_syst";
+    plot_cfg.study.subdir = "ANv8_vs_ANv9";
+    plot_cfg.study.entries.push_back(
+      ComparisonEntry("ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195",
+                      "_HNL_syst",
+                      "ANv8",
+                      kBlue,
+                      0.01,
+                      plot_cfg.nominal.method_nom,
+                      "Run2Sum") // if this is not specified, the comparison will follow the nominal year
+    );
 
 
   }
@@ -3172,7 +3186,8 @@ void DrawLimits(TString year="", TString channel="", bool DrawExt=false, bool Ad
     //if(Logy) dummy2->GetYaxis()->SetRangeUser(0.5, 3);
     //else dummy2->GetYaxis()->SetRangeUser(0.85, 2);
     //else dummy2->GetYaxis()->SetRangeUser(0.94, 1.06);
-    else dummy2->GetYaxis()->SetRangeUser(0.5, 1.5);
+    else dummy2->GetYaxis()->SetRangeUser(0.95, 1.05);
+    //else dummy2->GetYaxis()->SetRangeUser(0.5, 1.5);
     //else dummy2->GetYaxis()->SetRangeUser(0., 2.); // Only for ANv8 -- EE/MuMu, Observed, AddPub, compare, mixing limit, linear
     //dummy2->GetXaxis()->SetRangeUser(80., 500); // FIXME -- Low mass limit comparison only !!
     //dummy2->GetYaxis()->SetRangeUser(0.9, 1.1); // FIXME -- Low mass limit internal comparison only !!

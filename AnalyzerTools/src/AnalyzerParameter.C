@@ -593,8 +593,10 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::FRElectronAJDown)     return "FRAJElectronDown";
   else if(syst_==Syst::FRElectronLooseIDDJUp)     return "FRElectronIDUp";
   else if(syst_==Syst::FRElectronLooseIDDJDown)   return "FRElectronIDDown";
-  else if(syst_==Syst::FRPartonSFUp)   return "PSFUp"; 
-  else if(syst_==Syst::FRPartonSFDown) return "PSFDown";
+  else if(syst_==Syst::FRMuonPartonSFUp)   return "FRMuonPSFUp"; 
+  else if(syst_==Syst::FRMuonPartonSFDown) return "FRMuonPSFDown";
+  else if(syst_==Syst::FRElectronPartonSFUp)   return "FRElectronPSFUp";
+  else if(syst_==Syst::FRElectronPartonSFDown) return "FRElectronPSFDown";
   else if(syst_==Syst::FRMuonHighPtUp) return "FRMuonHighPtUp";
   else if(syst_==Syst::FRMuonHighPtDown) return "FRMuonHighPtDown";
   else if(syst_==Syst::FRElectronHighPtUp) return "FRElectronHighPtUp";
@@ -719,8 +721,11 @@ TString AnalyzerParameter::GetSystType(){
   else if(syst_==Syst::METUnclDown)  return "METUnclDown";
   else if(syst_==Syst::CFRateUp)    return "CFRateUp";
   else if(syst_==Syst::CFRateDown)   return "CFRateDown";
+  else if(syst_==Syst::CFShiftUp)    return "CFShiftUp";
+  else if(syst_==Syst::CFShiftDown)   return "CFShiftDown";
   else if(syst_==Syst::CFSFUp)    return "CFSFUp";
   else if(syst_==Syst::CFSFDown)   return "CFSFDown";
+  
   else if(syst_==Syst::FRMuonUp)   return "FRMuonUp";
   else if(syst_==Syst::FRMuonDown)   return "FRMuonDown";
   else if(syst_==Syst::FRMuonRateUp)   return "FRMuonRateUp";

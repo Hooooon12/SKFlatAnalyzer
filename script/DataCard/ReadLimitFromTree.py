@@ -27,8 +27,8 @@ years = ["Run2Sum"]
 #years = ["2016preVFP","2016postVFP"]
 #years = ["2017"]
 #years = ["2018"]
-channels = ["MuMu","EE","EMu"]
-#channels = ["3ch"]
+#channels = ["MuMu","EE","EMu"]
+channels = ["3ch"]
 #channels = ["MuMu","EE"]
 #channels = ["EE"]
 #channels = ["MuMu"]
@@ -135,7 +135,8 @@ IDs = [""] #["_ID"]
 #myWPs.extend(["ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZSym20_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"])
 #myWPs.extend(["ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZNormSym20_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"])
 #myWPs.extend(["ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_LowStatNeff5_MergeSR2Bin78_AltWZNormSym20_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"])
-myWPs = ["ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"]
+#myWPs = ["ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_AltWZonly_PR195"]
+myWPs = ["ANv9_CF_HighPt_PR198_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2Bin78_AltWZSym0_AltWZRegDecorr_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr"]
 
 #tags = ["_sronly_syst"]
 #tags = ["_sronly"]
@@ -151,9 +152,9 @@ myWPs = ["ANv7_ExtraFakeSyst_PR195_HNL_ULIDv2_NoLowDYMG_NewLowStatNeff5_MergeSR2
 #tags = ["_DYVBF_sronly_sr123_syst"]
 #tags = ["_syst","_sr1_syst_Combined","_sr2_syst_Combined","_sr3_syst_Combined"]
 #tags = ["_DY_syst","_VBF_syst","_SSWW_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined","_Weinberg_sr2_syst_Combined","_Weinberg_sr3_syst_Combined"]
-#tags = ["_HNL_syst","_Weinberg_syst"]
+tags = ["_HNL_syst","_Weinberg_syst"]
 #tags = ["_HNL_syst","_Weinberg_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined","_Weinberg_sr2_syst_Combined","_Weinberg_sr3_syst_Combined"]
-tags = ["_DY_syst","_VBF_syst","_DYVBF_syst","_SSWW_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined"]
+#tags = ["_DY_syst","_VBF_syst","_DYVBF_syst","_SSWW_syst","_HNL_sr1_syst_Combined","_HNL_sr2_syst_Combined","_HNL_sr3_syst_Combined"]
 
 BDTTag = '_BDT' if args.BDT else ''
 ExtTag = '_Ext' if args.Ext else ''

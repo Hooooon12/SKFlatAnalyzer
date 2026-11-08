@@ -572,7 +572,9 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
   if(RunCF){
     SystList = {
       AnalyzerParameter::CFRateUp,
-      AnalyzerParameter::CFRateDown
+      AnalyzerParameter::CFRateDown,
+      AnalyzerParameter::CFShiftUp,
+      AnalyzerParameter::CFShiftDown,
     };
   }
   
@@ -589,7 +591,8 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
       SystList.push_back(AnalyzerParameter::FRElectronLooseIDDJDown);
       SystList.push_back(AnalyzerParameter::FRElectronAJUp); //// Add
       SystList.push_back(AnalyzerParameter::FRElectronAJDown);
-      
+      SystList.push_back(AnalyzerParameter::FRElectronPartonSFUp);
+      SystList.push_back(AnalyzerParameter::FRElectronPartonSFDown); 
     }
     if(SystType!="EE" ){
       SystList.push_back(AnalyzerParameter::FRMuonHighPtUp);
@@ -602,7 +605,9 @@ vector<AnalyzerParameter::Syst> HNL_LeptonCore::GetSystList(TString SystType){
       SystList.push_back(AnalyzerParameter::FRMuonLooseIDDJDown);
       SystList.push_back(AnalyzerParameter::FRMuonAJUp); //// Add
       SystList.push_back(AnalyzerParameter::FRMuonAJDown);
-
+      SystList.push_back(AnalyzerParameter::FRMuonPartonSFUp);
+      SystList.push_back(AnalyzerParameter::FRMuonPartonSFDown);
+      
     }
   }
   else {

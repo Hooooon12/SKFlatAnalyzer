@@ -17,6 +17,8 @@
 #include "TH2D.h"
 #include <fstream>
 #include <iostream>
+#include <sstream>
+#include "TSystem.h"
 
 // Usage:
 // root -l 'DrawLimits_2D.C("massf")'
@@ -159,6 +161,35 @@ struct RFRow {
     double exp;
 };
 
+int CountNumericColumns(const TString &filename) {
+
+    std::ifstream infile(filename.Data());
+
+    if (!infile.is_open()) {
+        return 0;
+    }
+
+    std::string line;
+
+    while (std::getline(infile, line)) {
+
+        std::istringstream iss(line);
+        double value;
+        int nColumns = 0;
+
+        while (iss >> value) {
+            ++nColumns;
+        }
+
+        // Skip header or empty lines.
+        if (nColumns > 0) {
+            return nColumns;
+        }
+    }
+
+    return 0;
+}
+
 bool GetRFLimitExact(const std::vector<RFRow> &rows,
                      double targetMass,
                      double targetF,
@@ -258,7 +289,8 @@ double GetTernaryLimitNearest(const std::vector<TerRow> &rows,
 void DrawCombinedTernary(TString ternary_file,
                          double targetMass,
                          double targetU2,
-                         bool useObs) {
+                         bool useObs,
+                         const TString &outputDir) {
     std::ifstream infile(ternary_file);
     if (!infile.is_open()) {
         std::cout << "[Error] Cannot open " << ternary_file << std::endl;
@@ -345,8 +377,8 @@ void DrawCombinedTernary(TString ternary_file,
     lat.SetTextSize(0.035);
     lat.DrawLatex(0.15, 0.92, Form("Combined ternary, m_{N}=%.0f GeV, U^{2}=%.3g", targetMass, targetU2));
 
-    c->SaveAs(Form("CombinedTernary_m%.0f_U2%.3g_%s.pdf", targetMass, targetU2, useObs ? "obs" : "exp"));
-    c->SaveAs(Form("CombinedTernary_m%.0f_U2%.3g_%s.png", targetMass, targetU2, useObs ? "obs" : "exp"));
+    c->SaveAs(Form("%s/CombinedTernary_m%.0f_U2%.3g_%s.pdf", outputDir.Data(), targetMass, targetU2, useObs ? "obs" : "exp"));
+    c->SaveAs(Form("%s/CombinedTernary_m%.0f_U2%.3g_%s.png", outputDir.Data(), targetMass, targetU2, useObs ? "obs" : "exp"));
 }
 
 double GetRFLimitNearestMass(const std::vector<RFRow> &rows,
@@ -399,7 +431,8 @@ double GetRFLimitNearestMass(const std::vector<RFRow> &rows,
 void DrawEnvelopeTernary(const std::vector<RFRow> &rows,
                          double targetMass,
                          double targetU2,
-                         bool useObs) {
+                         bool useObs,
+                         const TString &outputDir) {
     double Lmumu = GetRFLimitNearestMass(rows, targetMass, 0.0, useObs);
     double Lee   = GetRFLimitNearestMass(rows, targetMass, 1.0, useObs);
     double Rhalf = GetRFLimitNearestMass(rows, targetMass, 0.5, useObs);
@@ -472,22 +505,23 @@ void DrawEnvelopeTernary(const std::vector<RFRow> &rows,
     gCont->SetLineWidth(3);
     gCont->Draw("same cont3");
 
-    DrawTernaryFrame_13882Style(true);		
+    DrawTernaryFrame_13882Style(true);
 
     TLatex lat;
     lat.SetNDC();
     lat.SetTextSize(0.035);
     lat.DrawLatex(0.15, 0.92, Form("Envelope ternary, m_{N}=%.0f GeV, U^{2}=%.3g", targetMass, targetU2));
 
-    c->SaveAs(Form("EnvelopeTernary_m%.0f_U2%.3g_%s.pdf", targetMass, targetU2, useObs ? "obs" : "exp"));
-    c->SaveAs(Form("EnvelopeTernary_m%.0f_U2%.3g_%s.png", targetMass, targetU2, useObs ? "obs" : "exp"));
+    c->SaveAs(Form("%s/EnvelopeTernary_m%.0f_U2%.3g_%s.pdf", outputDir.Data(), targetMass, targetU2, useObs ? "obs" : "exp"));
+    c->SaveAs(Form("%s/EnvelopeTernary_m%.0f_U2%.3g_%s.png", outputDir.Data(), targetMass, targetU2, useObs ? "obs" : "exp"));
 }
 
 void Draw3chVsEnvelope(const std::vector<RFRow> &combRows,
-                       TString mumu_file,
-                       TString ee_file,
-                       TString emu_file,
-                       bool useObs) {
+                        TString mumu_file,
+                        TString ee_file,
+                        TString emu_file,
+                        bool useObs,
+                        const TString &outputDir) {
 
     std::vector<RFRow> mumuRows = LoadRFFile(mumu_file, "MuMu envelope");
     std::vector<RFRow> eeRows   = LoadRFFile(ee_file,   "EE envelope");
@@ -666,19 +700,73 @@ void Draw3chVsEnvelope(const std::vector<RFRow> &combRows,
 
     leg->Draw();
 
-    c->SaveAs(Form("Limit_3ch_vs_envelope_%s.pdf", useObs ? "obs" : "exp"));
-    c->SaveAs(Form("Limit_3ch_vs_envelope_%s.png", useObs ? "obs" : "exp"));
+    c->SaveAs(Form("%s/Limit_3ch_vs_envelope_%s.pdf", outputDir.Data(), useObs ? "obs" : "exp"));
+    c->SaveAs(Form("%s/Limit_3ch_vs_envelope_%s.png", outputDir.Data(), useObs ? "obs" : "exp"));
 }
 
 void DrawLimits_2D(
+    TString WP,
     TString mode = "massf",
     double targetMass = 300.,
     double targetU2 = 0.1,
-    bool useObs = false,
-    TString ternary_file = "",
-    TString input_file = "",
-    TString envelope_dir = ""
+    bool useObs = false
 ) {
+
+    // ============================================================
+    // Input / output directory configuration
+    // ============================================================
+
+    if (WP == "") {
+        std::cout << "[Error] WP must be specified." << std::endl;
+        return;
+    }
+
+    const TString baseDir =
+        "/data9/Users/HNL_public/SUS-24-014/LimitExtraction";
+
+    const TString limitDir = baseDir + "/limits/" + WP;
+    const TString outputDir = baseDir + "/plots/" + WP;
+
+    // Main 3-channel mass-f scan.
+    const TString input_file =
+        limitDir + "/Run2Sum_3ch_HNL_syst_Asym_limit.txt";
+
+    // Dedicated mass-f scans for the single-channel envelope.
+    // These are NOT the ordinary 7-column single-channel files.
+    const TString mumu_scan_file =
+        limitDir + "/Run2Sum_MuMu_HNL_fscan_syst_Asym_limit.txt";
+
+    const TString ee_scan_file =
+        limitDir + "/Run2Sum_EE_HNL_fscan_syst_Asym_limit.txt";
+
+    const TString emu_scan_file =
+        limitDir + "/Run2Sum_EMu_HNL_fscan_syst_Asym_limit.txt";
+
+    // Full 3-flavor ternary scan.
+    // Proposed filename: requires an actual 10-column file.
+    const TString ternary_file =
+        limitDir + "/Run2Sum_3ch_HNL_ternary_limit.txt";
+
+    // Check input directory.
+    if (gSystem->AccessPathName(limitDir.Data())) {
+        std::cout << "[Error] Input directory not found: "
+                  << limitDir << std::endl;
+        return;
+    }
+
+    // Create output directory if necessary.
+    if (gSystem->AccessPathName(outputDir.Data())) {
+        if (gSystem->mkdir(outputDir.Data(), kTRUE) != 0) {
+            std::cout << "[Error] Cannot create output directory: "
+                      << outputDir << std::endl;
+            return;
+        }
+    }
+
+    std::cout << "[Info] WP        : " << WP << std::endl;
+    std::cout << "[Info] Input dir : " << limitDir << std::endl;
+    std::cout << "[Info] Output dir: " << outputDir << std::endl;
+
     // =========================================================================
     // 1. Style Configuration (CMS Publication Style)
     // =========================================================================
@@ -688,7 +776,9 @@ void DrawLimits_2D(
     gStyle->SetPalette(kBird);          // Color palette (kBird, kRainBow, kTemperatureMap, etc.)
     gStyle->SetNumberContours(255);     // Smooth color gradients
     gStyle->SetPadRightMargin(0.16);    // Make room for the Z-axis color bar
-    gStyle->SetPadLeftMargin(0.12);
+    //gStyle->SetPadLeftMargin(0.12);
+    double left_margin = 0.14;
+    gStyle->SetPadLeftMargin(left_margin);
     gStyle->SetPadBottomMargin(0.12);
     gStyle->SetTitleOffset(1.1, "X");
     gStyle->SetTitleOffset(1.2, "Y");
@@ -706,13 +796,6 @@ void DrawLimits_2D(
 
     // Open the text file (Format: Mass  f  Obs  Exp ...)
     // Make sure 'limit_results.txt' exists in the same directory
-		//TString input_file = "/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval/Run2_3ch_HNL_syst_Asym_limit.txt";
-    if (input_file == "") {
-        std::cout << "[Error] Please provide input_file, e.g. "
-                  << "\"/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/<YOUR_3CH_WP>/Run2Sum_3ch_HNL_syst_Asym_limit.txt\""
-                  << std::endl;
-        return;
-    }
     std::ifstream infile(input_file);
     if (!infile.is_open()) {
         std::cout << "[Error] " << input_file << " not found!" << std::endl;
@@ -731,7 +814,7 @@ void DrawLimits_2D(
     while (infile >> m >> f >> obs >> twosig_left >> onesig_left >> exp >> onesig_right >> twosig_right) {
         // We use 'exp' (Expected Limit) for the landscape. 
         // Set useObs if you want Observed Limit.
-				double zval = useObs ? obs : exp;
+        double zval = useObs ? obs : exp;
         g->SetPoint(point_idx, m, f, zval);
         rfRows.push_back({m, f, obs, exp});
         point_idx++;
@@ -746,49 +829,97 @@ void DrawLimits_2D(
 
     if (mode == "3ch_vs_envelope") {
     
-        //TString envelope_dir =
-        //    "/data9/Users/HNL_public/SUS-24-014/LimitExtraction/limits/ANv7_L2review_HNL_ULIDv2_V3_Strict_15_Bin_RunSyst_Decorr_JetDecorr_3ch_Preapproval_StudyEnvelope";
+        // The existing envelope comparison requires independent
+        // (mass, f) scans for EE, EMu, and MuMu.
+        if (CountNumericColumns(mumu_scan_file) != 8 ||
+            CountNumericColumns(ee_scan_file)   != 8 ||
+            CountNumericColumns(emu_scan_file)  != 8) {
     
-        //TString mumu_file = envelope_dir + "/Run2_MuMu_HNL_syst_Asym_limit.txt";
-        //TString ee_file   = envelope_dir + "/Run2_EE_HNL_syst_Asym_limit.txt";
-        //TString emu_file  = envelope_dir + "/Run2_EMu_HNL_syst_Asym_limit.txt";
-
-        if (envelope_dir == "") {
-            std::cout << "[Error] mode=3ch_vs_envelope requires envelope_dir." << std::endl;
+            std::cout
+                << "[Error] 3ch_vs_envelope requires three "
+                << "8-column single-channel mass-f scan files."
+                << std::endl;
+    
+            std::cout
+                << "[Error] Ordinary 7-column single-channel limits "
+                << "cannot be used directly."
+                << std::endl;
+    
+            std::cout << "Expected files:" << std::endl;
+            std::cout << "  " << mumu_scan_file << std::endl;
+            std::cout << "  " << ee_scan_file << std::endl;
+            std::cout << "  " << emu_scan_file << std::endl;
+    
             return;
         }
-
-        TString mumu_file = envelope_dir + "/Run2Sum_MuMu_HNL_syst_Asym_limit.txt";
-        TString ee_file   = envelope_dir + "/Run2Sum_EE_HNL_syst_Asym_limit.txt";
-        TString emu_file  = envelope_dir + "/Run2Sum_EMu_HNL_syst_Asym_limit.txt";
     
-        Draw3chVsEnvelope(rfRows, mumu_file, ee_file, emu_file, useObs);
+        Draw3chVsEnvelope(
+            rfRows,
+            mumu_scan_file,
+            ee_scan_file,
+            emu_scan_file,
+            useObs,
+            outputDir
+        );
+    
         return;
     }
-
+    
     if (mode == "envelope_ternary") {
-        DrawEnvelopeTernary(rfRows, targetMass, targetU2, useObs);
+    
+        DrawEnvelopeTernary(
+            rfRows,
+            targetMass,
+            targetU2,
+            useObs,
+            outputDir
+        );
+    
         return;
     }
     
     if (mode == "combined_ternary") {
-        if (ternary_file == "") {
-            std::cout << "[Error] combined_ternary mode requires ternary_file." << std::endl;
+    
+        if (CountNumericColumns(ternary_file) != 10) {
+    
+            std::cout
+                << "[Error] combined_ternary requires a "
+                << "10-column ternary scan file."
+                << std::endl;
+    
+            std::cout << "Expected file: "
+                      << ternary_file << std::endl;
+    
             return;
         }
-        DrawCombinedTernary(ternary_file, targetMass, targetU2, useObs);
+    
+        DrawCombinedTernary(
+            ternary_file,
+            targetMass,
+            targetU2,
+            useObs,
+            outputDir
+        );
+    
         return;
     }
 
     // =========================================================================
     // 3. Draw the Canvas
     // =========================================================================
-    TCanvas *c1 = new TCanvas("c1", "Lepton combined limits", 800, 700);
+    //TCanvas *c1 = new TCanvas("c1", "Lepton combined limits", 800, 700);
+    TCanvas *c1 = new TCanvas("c1", "Lepton combined limits", 950, 700);
     c1->SetTicks(1, 1); // Ticks on all sides
-		c1->SetLogx(); // log X-axis
+    c1->SetLogx(); // log X-axis
 
-    //g->SetMinimum(0.0005);
-		g->SetNpx(3000); // high resolution X-axis (so that color can be well split)
+    // Common Z-axis range for expected and observed limits
+    const double zMin = 1.e-4;
+    const double zMax = 2.0;
+    
+    g->SetMinimum(zMin);
+    g->SetMaximum(zMax);
+
+    g->SetNpx(3000); // high resolution X-axis (so that color can be well split)
     g->SetNpy(200);
 
     // Draw the 2D Color Map
@@ -805,23 +936,31 @@ void DrawLimits_2D(
     //hist->GetXaxis()->SetTitle("Heavy Neutrino Mass [GeV]");
     hist->GetXaxis()->SetTitle("m_{N} (GeV)");
     hist->GetXaxis()->SetTitleSize(0.045);
+    hist->GetXaxis()->SetLabelOffset(0.002);
     hist->GetXaxis()->SetLabelSize(0.04);
     //hist->GetXaxis()->SetRangeUser(50., 30000.);
     
     // Y-Axis (f)
     //hist->GetYaxis()->SetTitle("Electron Flavor Fraction f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})");
-    hist->GetYaxis()->SetTitle("f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})");
-    hist->GetYaxis()->SetTitleSize(0.045);
-    hist->GetYaxis()->SetLabelSize(0.04);
+    //hist->GetYaxis()->SetTitle("f_{e} = |V_{e}|^{2} / (|V_{e}|^{2} + |V_{#mu}|^{2})");
+    //hist->GetYaxis()->SetTitleSize(0.045);
+    //hist->GetYaxis()->SetLabelSize(0.04);
+
+    //hist->GetYaxis()->SetTitle("#scale[0.8]{#frac{|V_{e}|^{2}}{(|V_{e}|^{2} + |V_{#mu}|^{2})}}");
+    hist->GetYaxis()->SetTitle("#scale[1.3]{f_{e}} = #frac{|V_{eN}|^{2}}{|V_{eN}|^{2} + |V_{#muN}|^{2}}");
+    hist->GetYaxis()->SetTitleOffset(1.45);
+    hist->GetYaxis()->SetTitleSize(0.04);
+    hist->GetYaxis()->SetLabelSize(0.037);
     hist->GetYaxis()->SetRangeUser(0.0, 1.0); // Ensure Y-axis is 0 to 1
 
     // Z-Axis (Limit r)
-    hist->GetZaxis()->SetTitle("95% CL Upper Limit on r = |V_{e}|^{2} + |V_{#mu}|^{2}");
+    hist->GetZaxis()->SetTitle("95% CL Upper Limit on r_{tot} = |V_{eN}|^{2} + |V_{#muN}|^{2}");
+    hist->GetZaxis()->SetTitleOffset(1.2);
     hist->GetZaxis()->SetTitleSize(0.045);
-    hist->GetZaxis()->SetLabelSize(0.035);
+    hist->GetZaxis()->SetLabelOffset(0.002);
+    hist->GetZaxis()->SetLabelSize(0.037);
     // Log scale for Z is often useful if limits span orders of magnitude
     c1->SetLogz();
-		//hist->GetZaxis()->SetRangeUser(0.001, 2.);
 
     // Improve Z-axis label visibility in log scale
     //hist->GetZaxis()->SetMoreLogLabels(); // Show more intermediate labels
@@ -868,7 +1007,8 @@ void DrawLimits_2D(
     // CMS Label
     latex.SetTextFont(61); // Helvetica Bold
     latex.SetTextSize(0.05);
-    latex.DrawLatex(0.12, 0.91, "CMS");
+    //latex.DrawLatex(0.12, 0.91, "CMS");
+    latex.DrawLatex(left_margin, 0.91, "CMS");
     
     // Preliminary / Work in Progress
     latex.SetTextFont(52); // Helvetica Italic
@@ -882,20 +1022,29 @@ void DrawLimits_2D(
     latex.DrawLatex(0.84, 0.91, "137.6 fb^{-1} (13 TeV)");
 
     // TLegend(x1, y1, x2, y2) in NDC coordinates
-    TLegend *leg = new TLegend(0.15, 0.15, 0.45, 0.25);
+    //TLegend *leg = new TLegend(0.15, 0.15, 0.45, 0.25);
+    TLegend *leg = new TLegend(left_margin+0.02, 0.15, 0.34, 0.27);
     leg->SetBorderSize(0);      // Remove border
     leg->SetFillStyle(0);       // Transparent background
-    leg->SetTextSize(0.03);
+    //leg->SetTextSize(0.03);
+    leg->SetTextSize(0.032);
     leg->SetTextFont(42);
     
     // "l" option means it will draw a line using the object's line attributes
-    leg->AddEntry(g_cont1, "r = 1.0 (Theory Exclusion)", "l");
-    leg->AddEntry(g_cont2, "r = 0.1", "l");
-    leg->AddEntry(g_cont3, "r = 0.002", "l");
+    //leg->AddEntry(g_cont1, "r_{95} = 1.0", "l");
+    //leg->AddEntry(g_cont2, "r_{95} = 0.1", "l");
+    //leg->AddEntry(g_cont3, "r_{95} = 0.002", "l");
+    //const char* limitTag = useObs ? "obs" : "exp";
+    //leg->AddEntry(g_cont1, Form("#scale[1.1]{r_{tot,95}^{%s}} = 1.0", limitTag), "l");
+    //leg->AddEntry(g_cont2, Form("#scale[1.1]{r_{tot,95}^{%s}} = 0.1", limitTag), "l");
+    //leg->AddEntry(g_cont3, Form("#scale[1.1]{r_{tot,95}^{%s}} = 0.002", limitTag), "l");
+    leg->AddEntry(g_cont1, Form("%s Limit, #scale[1.1]{r_{tot,95}} = 1.0", useObs ? "Observed" : "Expected"), "l");
+    leg->AddEntry(g_cont2, Form("%s Limit, #scale[1.1]{r_{tot,95}} = 0.1", useObs ? "Observed" : "Expected"), "l");
+    leg->AddEntry(g_cont3, Form("%s Limit, #scale[1.1]{r_{tot,95}} = 0.002", useObs ? "Observed" : "Expected"), "l");
     
     leg->Draw();
 
     // Save
-    c1->SaveAs(Form("Limit_3ch_Mass_vs_f_%s.pdf", useObs ? "obs" : "exp"));
-    c1->SaveAs(Form("Limit_3ch_Mass_vs_f_%s.png", useObs ? "obs" : "exp"));
+    c1->SaveAs(Form("%s/Limit_3ch_Mass_vs_f_%s.pdf", outputDir.Data(), useObs ? "obs" : "exp"));
+    c1->SaveAs(Form("%s/Limit_3ch_Mass_vs_f_%s.png", outputDir.Data(), useObs ? "obs" : "exp"));
 }

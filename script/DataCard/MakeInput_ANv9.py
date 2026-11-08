@@ -516,6 +516,7 @@ SystList = [
             "PrefireUp","PrefireDown",
             "PUUp","PUDown",
             "CFRateUp","CFRateDown",
+            "CFShiftUp","CFShiftDown",
             #"FRUp","FRDown", # fake rate stat
             #"FRRateUp","FRRateDown", # fake rate syst
             #"FRHighPtUp","FRHighPtDown",
@@ -598,6 +599,7 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["PrefireUp"]           = "CMS_l1_prefiring_"+era+"Up"
   SystNameMap[era]["PUUp"]                = "CMS_pileup_13TeV"+"Up" # full correlation
   SystNameMap[era]["CFRateUp"]            = "CMS_SUS24014_cf_stat_"+era+"Up"
+  SystNameMap[era]["CFShiftUp"]           = "CMS_SUS24014_cf_shift_"+era+"Up"
   #SystNameMap[era]["FRUp"]                = "CMS_SUS24014_fake_stat_"+era+"Up"
   #SystNameMap[era]["FRRateUp"]            = "CMS_SUS24014_fake_syst_"+era+"Up"
   #SystNameMap[era]["FRHighPtUp"]          = "CMS_SUS24014_fake_highpt_"+era+"Up"
@@ -676,6 +678,7 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["PrefireDown"]           = "CMS_l1_prefiring_"+era+"Down"
   SystNameMap[era]["PUDown"]                = "CMS_pileup_13TeV"+"Down" # full correlation
   SystNameMap[era]["CFRateDown"]            = "CMS_SUS24014_cf_stat_"+era+"Down"
+  SystNameMap[era]["CFShiftDown"]           = "CMS_SUS24014_cf_shift_"+era+"Down"
   #SystNameMap[era]["FRDown"]                = "CMS_SUS24014_fake_stat_"+era+"Down"
   #SystNameMap[era]["FRRateDown"]            = "CMS_SUS24014_fake_syst_"+era+"Down"
   #SystNameMap[era]["FRHighPtDown"]          = "CMS_SUS24014_fake_highpt_"+era+"Down"
@@ -699,6 +702,7 @@ for era in ["2016","2016preVFP","2016postVFP","2017","2018"]:
   SystNameMap[era]["AltWZDown"]             = "CMS_SUS24014_altwz"+"Down"
   # SR-decorrelated sources -- Don't remove this, these base names used by output_syst_suffix() for --Decorr
   SystNameMap[era]["CFRate"]            = "CMS_SUS24014_cf_stat_"+era
+  SystNameMap[era]["CFShift"]           = "CMS_SUS24014_cf_shift_"+era
   #SystNameMap[era]["FR"]                = "CMS_SUS24014_fake_stat_"+era
   #SystNameMap[era]["FRRate"]            = "CMS_SUS24014_fake_syst_"+era
   #SystNameMap[era]["FRHighPt"]          = "CMS_SUS24014_fake_highpt_"+era
@@ -1878,7 +1882,7 @@ def should_make_syst_for_process(proc, this_syst, era):
   if this_syst.startswith("FR"):
     return proc == "fake"
   # Charge-flip systematics
-  if this_syst.startswith("CFRate"):
+  if this_syst.startswith("CF"):
     return proc == "cf"
   # Other systematics don't apply to fake and cf
   if proc in ["fake", "cf"]:
@@ -1906,10 +1910,12 @@ def output_syst_suffix(era, region, this_syst, proc):
     else:
       regionName_Decorr = '_sr3' # correlate zg_cr, zz_cr to SR3
     DecorrList = [
-      "CFRate", "FRMuon", "FRMuonRate", "FRMuonHighPt", "FRMuonID", "FRAJMuon", "FRMuonPSF",
+      "CFRate", "CFShift",
+      "FRMuon", "FRMuonRate", "FRMuonHighPt", "FRMuonID", "FRAJMuon", "FRMuonPSF",
       "FRElectron", "FRElectronRate", "FRElectronHighPt", "FRElectronID", "FRAJElectron", "FRElectronPSF",
     ] if not args.JetDecorr else [
-      "CFRate", "FRMuon", "FRMuonRate", "FRMuonHighPt", "FRMuonID", "FRAJMuon", "FRMuonPSF",
+      "CFRate", "CFShift",
+      "FRMuon", "FRMuonRate", "FRMuonHighPt", "FRMuonID", "FRAJMuon", "FRMuonPSF",
       "FRElectron", "FRElectronRate", "FRElectronHighPt", "FRElectronID", "FRAJElectron", "FRElectronPSF",
       "JetRes", "JetEn",
     ]

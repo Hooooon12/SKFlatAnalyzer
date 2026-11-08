@@ -13,13 +13,13 @@ njobs=600
 njobs_data=100
 nmax=350
 era_list=("2016postVFP" "2016preVFP" "2017" "2018")
-
+era_list=("2018")
 # Helper function to run SKFlat for a given era
 run_new_samples() {
     echo "Running new samples for analyzer: ${analyzer}"
     for era in "${era_list[@]}"; do
         echo "Launching jobs for era: ${era}"
-	SKFlat.py -a "${analyzer}" -i "ttZToLLNuNu" -n "${njobs}" --nmax "${nmax}" -e "${era}" --skim  "SkimTree_HNMultiLep"  &
+	SKFlat.py -a "${analyzer}" -l ${mcpath}/GJets.txt -n "${njobs}" --nmax "${nmax}" -e "${era}" --skim  "SkimTree_HNMultiLep"  &
 
     done
     wait  # Ensure all background jobs finish before the script exits

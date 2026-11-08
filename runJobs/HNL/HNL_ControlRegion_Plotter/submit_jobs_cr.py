@@ -231,7 +231,7 @@ RunData=True
 RunFake=True
 RunCF=True
 RunConv=True
-RunSignal=True
+RunSignal=False
 
 if args.RunPrompt:
     RunData=False

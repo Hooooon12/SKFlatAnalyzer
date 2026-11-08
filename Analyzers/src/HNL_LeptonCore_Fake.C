@@ -2,6 +2,8 @@
 
 double HNL_LeptonCore::GetPtPartonSF(Lepton  Lep, TString LooseID,AnalyzerParameter param){
 
+  if(HasFlag("Fake_MC")) return 1;
+  
   if(!LooseID.Contains("ULID")) return 1;
 
   /// Treat HNL_HighPt_ULID ... same as HNL_ULID
@@ -10,10 +12,9 @@ double HNL_LeptonCore::GetPtPartonSF(Lepton  Lep, TString LooseID,AnalyzerParame
   bool IsMuon=(Lep.LeptonFlavour() == Lepton::MUON);
 
   double SystFactor = 1;
-  if(param.syst_ == AnalyzerParameter::FRPartonSFUp) SystFactor = 1.1;
-  if(param.syst_ == AnalyzerParameter::FRPartonSFDown) SystFactor = 0.9;
-
-
+  if(param.syst_ == AnalyzerParameter::FRMuonPartonSFUp || param.syst_ == AnalyzerParameter::FRElectronPartonSFUp) SystFactor = 1.1;
+  if(param.syst_ == AnalyzerParameter::FRMuonPartonSFDown  || param.syst_ == AnalyzerParameter::FRElectronPartonSFDown) SystFactor = 0.9;
+  
   // If CheckProfile flag then new IDs are being ran so function would crash 
   // if (HasFlag("CheckProfile"))   return 1;
   // if (HasFlag("CheckProfileEE")) return 1;
